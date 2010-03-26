@@ -10,7 +10,6 @@
 #include "defs.h"
 #include "lista.h"
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -18,8 +17,15 @@
 
 #define FALSE 0
 #define TRUE 1
+
 #define ORLIB 0
 #define TAILLARD 1
+
+
+extern ParametrosATEAMS *pATEAMS;
+extern ParametrosAG *pAG;
+extern ParametrosBT *pBT;
+extern Dados *dados;
 
 
 void menuAteams()
@@ -300,7 +306,7 @@ void leArgumentos(int argc, char *argv[], FILE **dados, FILE **parametros, FILE 
 
 
 
-void lerArquivoDados (int tipoArquivo, FILE *f, Dados *dados)
+void lerArquivoDados (int tipoArquivo, FILE *f)
 {
   int i, j;
 
@@ -329,7 +335,7 @@ void lerArquivoDados (int tipoArquivo, FILE *f, Dados *dados)
   fclose (f);
 }
 
-void lerArquivoParametros (FILE *f, ParametrosATEAMS *pATEAMS, ParametrosAG *pAG, ParametrosBT *pBT)
+void lerArquivoParametros (FILE *f)
 {
   float porcentagemPop;
   float porcentagemLeituraATEAMS;
@@ -338,8 +344,8 @@ void lerArquivoParametros (FILE *f, ParametrosATEAMS *pATEAMS, ParametrosAG *pAG
   fscanf (f, "%d\n", &pATEAMS->iteracoesAteams);
   fscanf (f, "%d\n", &pATEAMS->politicaAceitacao);
   fscanf (f, "%d\n", &pATEAMS->politicaDestruicao);
-  //fscanf (f, "%d\n", &pATEAMS->tamanhoPopulacao);
-  fscanf (f, "%d\n", &pATEAMS->makespanBest);
+  fscanf (f, "%d\n", &pATEAMS->tamanhoPopulacao);
+  // fscanf (f, "%d\n", &pATEAMS->makespanBest);
 
   fscanf (f, "%d\n", &pAG->numeroIteracoes);
   fscanf (f, "%d\n", &pAG->politicaLeitura);
@@ -351,10 +357,10 @@ void lerArquivoParametros (FILE *f, ParametrosATEAMS *pATEAMS, ParametrosAG *pAG
 
   fscanf (f, "%d\n", &pBT->numeroIteracoes);
   fscanf (f, "%d\n", &pBT->politicaLeitura);
-  //		fscanf (f, "%d\n", &pBT->k);
+  // fscanf (f, "%d\n", &pBT->k);
 
   fclose (f);
-  /* tamanho da memória do algoritmo genético deve ser >= memória ATEAMS*/
+  /* tamanho da memoria do algoritmo genetico deve ser >= memoria ATEAMS*/
   pAG->tamanhoPopulacao = pATEAMS->tamanhoPopulacao * (1 + porcentagemPop);
   pAG->quantidadeLeituraMemoriaATEAMS = pATEAMS->tamanhoPopulacao * porcentagemLeituraATEAMS;
   pBT->k = pBT->numeroIteracoes/5;
@@ -364,10 +370,12 @@ int *lerArquivoBestMakespan (FILE *f, int tamanho)
 {
   int *best;
   int i;
+
   best = (int*) malloc (tamanho * sizeof(int));
 
   for (i = 0; i < tamanho; i++)
     fscanf (f, "%d\n", &best[i]);
+
   return best;
 }
 

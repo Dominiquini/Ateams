@@ -13,11 +13,11 @@
 
 typedef struct ParametrosATEAMS {
   int agenteUtilizado;
-  int tamanhoPopulacao; /* > 0*/
+  int tamanhoPopulacao;   /* > 0*/
   int iteracoesAteams;
   int politicaAceitacao;
   int politicaDestruicao;
-  int makespanBest; /* Melhor makespan conhecido */
+  int makespanBest;       /* Melhor makespan conhecido */
 
 } ParametrosATEAMS;
 
@@ -51,16 +51,16 @@ typedef struct ParametrosBT {
   int tamanhoListaTabu;
   TamanhoTabu tamanho;
   Makespan makespan;
-  int k; /* valor que irá determinar o tamanho da lista tabu de acordo como o número de iteracçoes */
+  int k;                /* valor que ira determinar o tamanho da lista tabu de acordo como o numero de iteracoes */
 } ParametrosBT;
 
 typedef struct Dados {
   char nome[100]; /* Nome do problema */
-  int instancia; /* Número da instancia */
-  int N;		/* Número de jobs */
-  int M;		/* Númereo de máquinas */
-  int **m_op;	/* sequencia de máquinas em cada job */
-  int **t_op;	/* tempo de execução das tarefas na máquina correspondente */
+  int instancia;  /* Numero da instancia */
+  int N;	  /* Numero de jobs */
+  int M;	  /* Numero de maquinas */
+  int **m_op;	  /* sequencia de maquinas em cada job */
+  int **t_op;	  /* tempo de execucao das tarefas na maquina correspondente */
 } Dados;
 
 
@@ -78,8 +78,9 @@ void setParametrosAG (ParametrosAG *p);
 void setParametrosBT (ParametrosBT *p);
 
 void lerArquivoConfiguracao (char arquivo[100], ParametrosATEAMS *pATEAMS);
-void lerArquivoDados (int tipoArquivo, FILE *fdados, Dados *dados);
-void lerArquivoParametros (FILE *f, ParametrosATEAMS *pATEAMS, ParametrosAG *pAG, ParametrosBT *pBT);
+
+void lerArquivoDados (int tipoArquivo, FILE *fdados);
+void lerArquivoParametros (FILE *f);
 
 void imprimeResultado (struct timeval tv1, struct timeval tv2, int s, int msize, no *lista, FILE *resultados, int makespanInicial);
 
