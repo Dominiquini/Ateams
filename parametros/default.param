@@ -1,0 +1,110 @@
+2
+100
+2
+1
+50
+1000
+1
+0.8
+1.0
+0.60
+0.01
+1
+100000
+1
+2
+
+
+
+		fscanf (f, "%d\n", &pATEAMS->agenteUtilizado);
+		fscanf (f, "%d\n", &pATEAMS->iteracoesAteams);
+		fscanf (f, "%d\n", &pATEAMS->politicaAceitacao);
+		fscanf (f, "%d\n", &pATEAMS->politicaDestruicao);
+		fscanf (f, "%d\n", &pATEAMS->tamanhoPopulacao);
+
+		fscanf (f, "%d\n", &pAG->numeroIteracoes);
+		fscanf (f, "%d\n", &pAG->politicaLeitura);
+		fscanf (f, "%f\n", &porcentagemLeituraATEAMS);
+		fscanf (f, "%f\n", &porcentagemPop);
+		fscanf (f, "%f\n", &pAG->probabilidadeCrossover);
+		fscanf (f, "%f\n", &pAG->probabilidadeMutacoes);
+		fscanf (f, "%d\n", &pAG->selecao);
+
+		fscanf (f, "%d\n", &pBT->numeroInteracoes);
+		fscanf (f, "%d\n", &pBT->politicaLeitura);
+		fscanf (f, "%d\n", &pBT->tamanhoListaTabu);sem
+
+otimo la04
+2
+100
+2
+3
+100
+2000
+1
+0.9
+0.8
+0.60
+0.01
+1
+2000
+1
+2
+
+
+
+		
+
+otimo pro la03
+2
+50
+1
+1
+100
+2000
+1
+0.9
+0.8
+0.60
+0.01
+1
+2000
+1
+2
+		
+		
+		
+		
+bom pro la40		
+1
+4000
+1
+1
+500
+400
+1
+3
+0.60000
+0.020000
+1
+300
+1
+15		
+
+
+bom pro la36
+1
+400
+1
+1
+100
+400
+1
+0.60
+0.8
+0.6
+0.01
+1
+5000
+1
+15
