@@ -94,6 +94,7 @@ int geraSolucaoAleatoria (int **solucao, Dados *dados) {
   superFree (3, esc, dados->M, dados->N);
   free (vet);
   free (maq);
+
   return mksp;
 }
 

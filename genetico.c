@@ -26,7 +26,7 @@
 */
 
 /*
- * Funções auxiliares: Apenas para desenvolvimento
+ * Funcoes auxiliares: Apenas para desenvolvimento
  */
 void imprimeSequenciaGenetico (int **seq, int linhas, int colunas) {
   int i, j;
@@ -116,7 +116,7 @@ void escreveGenetico (Dados *dados, ParametrosATEAMS *pATEAMS, int *msize, int *
   printf("%d.\n", vmkp[0].mkp);
 }
 
-/* Seleciona uma solucao da populacao do algoritmo genético.
+/* Seleciona uma solucao da populacao do algoritmo genetico.
  * Antes da primeira chamada de selecaoAG(), melhorSolucao deve ser setada com zero */
 #if 0
 no *selecaoAG (ParametrosAG *pAG, int ***pop, int *vetprob, int *melhorSolucao)

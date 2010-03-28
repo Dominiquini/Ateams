@@ -135,7 +135,8 @@ int main (int argc, char *argv[])
     pATEAMS->makespanBest = -1;
 
   /* Leitura dos arquivos de dados e de parametros */
-  int tipoArquivoDados = 0;                                   //Orlib
+  int tipoArquivoDados = 0;  //Orlib
+
   lerArquivoDados(tipoArquivoDados, fdados);
   lerArquivoParametros(fparametros);
 
@@ -165,7 +166,7 @@ int main (int argc, char *argv[])
   /* Executa o Ateams */
   printf("\n\nMakespan Inicial: %d\n", makespanInicial);
 
-  ateams (&tamanhoMemoriaATEAMS, &memoriaATEAMS, &memoriaAG);
+  ateams(&tamanhoMemoriaATEAMS, &memoriaATEAMS, &memoriaAG);
 
   /* Libera memoria */
   for(int i = 0; i < pAG->tamanhoPopulacao; i++)

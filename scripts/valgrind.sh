@@ -1,1 +1,1 @@
-valgrind --leak-check=yes ./ateams dados/la31.prb parametros/default.param resultados/resultados.default 0
+valgrind --leak-check=full ./ateams -i dados/la01.prb -p parametros/default.param -r resultados/la01.res
