@@ -219,6 +219,41 @@ int** binTOsymb(int** job, char** bin, int N, int M)
   return resp;
 }
 
+char** symbTObin(int** job, int** sym, int N, int M)
+{
+  char** resp = NULL, max = N*(N-1)/2, maq = -1;
+  int pos = -1, A = -1, jobA = 0, jobB = 1;
+
+  resp = (char**) malloc(sizeof(char*) * max);
+  for(int i = 0; i < max; i++)
+    resp[i] = (char*) malloc(sizeof(char) * M);
+
+  for(int i = 0; i < max; i++)
+    {
+      if(A != jobA)
+        {
+          pos = jobA;
+          A = jobA;
+        }
+
+      for(int j = 0; j < M; j++)
+        {
+          maq = job[pos][j];
+
+          if(find(jobA, sym[maq], N) < find(jobB, sym[maq], N))
+            resp[i][j] = '1';
+          else
+            resp[i][j] = '0';
+        }
+
+      if(++jobB == N)
+        {
+          jobA++;
+          jobB = jobA + 1;
+        }
+    }
+  return resp;
+}
 
 
 int** leseq(int N, int M, FILE *seq)

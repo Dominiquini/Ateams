@@ -13,6 +13,7 @@
 #include "lista.h"
 #include "io.h"
 #include "politicasMemoria.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -38,7 +39,7 @@ void imprimeSequenciaGenetico (int **seq, int linhas, int colunas) {
   }
 }
 /*
- * FIM das funções auxiliares: Apenas para desenvolvimento
+ * FIM das funcoes auxiliares: Apenas para desenvolvimento
  */
 
 void populaMemoriaAG (Dados *d, ParametrosATEAMS *pATEAMS, ParametrosAG *pAG, Mkp **vmkp, int ****memoriaAG)
@@ -112,7 +113,7 @@ void escreveGenetico (Dados *dados, ParametrosATEAMS *pATEAMS, int *msize, int *
       seqaux[i][j] = solucao[i][j];
   }
   politicaAceitacao (seqaux, vmkp[0].mkp, dados, pATEAMS, msize, vetprob, lista);
-  printf("Makespan AG: %d.\n", vmkp[0].mkp);
+  printf("%d.\n", vmkp[0].mkp);
 }
 
 /* Seleciona uma solucao da populacao do algoritmo genético.
@@ -366,12 +367,6 @@ void mutacao (Dados *d, int **filho, int *mksp)
   liberaMatriz (d->M, filho_m);
 }
 
-
-
-
-
-
-
 void genetico (ParametrosATEAMS *pATEAMS, ParametrosAG *pAG, Dados *dados, int *msize, no **principal, int *vetprob, int ****memoriaAG)
 {
   int i, j;
@@ -386,6 +381,7 @@ void genetico (ParametrosATEAMS *pATEAMS, ParametrosAG *pAG, Dados *dados, int *
   Mkp *vmkp;
   int **filho;
 
+  //  printf("Makespan AG: ");
 
   vetprobMutacoes = (int*) malloc (pAG->tamanhoPopulacao * sizeof(int));
   vetprobCrossover = (int*) malloc (pAG->tamanhoPopulacao * sizeof(int));

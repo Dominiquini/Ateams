@@ -18,7 +18,6 @@ typedef struct ParametrosATEAMS {
   int politicaAceitacao;
   int politicaDestruicao;
   int makespanBest;       /* Melhor makespan conhecido */
-
 } ParametrosATEAMS;
 
 typedef struct ParametrosAG {

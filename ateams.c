@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
-
+#include <time.h>
 
 #include "io.h"
 #include "memoria.h"
@@ -79,17 +79,17 @@ int main (int argc, char *argv[])
     {
       if ((fdados = fopen(argv[p], "r")) == NULL)
         {
-          printf("Arquivo \"%s\" nao encontrado.\n", argv[p]);
+          printf("\nArquivo \"%s\" nao encontrado.\n\n", argv[p]);
           exit(1);
         }
       else
         {
-          printf("Dados: '%s'\n", argv[p]);
+          printf("\nDados: '%s'\n", argv[p]);
         }
     }
   else
     {
-      printf("\n\nEscolha um arquivo de entrada: 'ateams -i arq.prb'.\n");
+      printf("\nEscolha um arquivo de entrada: 'ateams -i arq.prb'.\n\n");
       exit(1);
     }
 
@@ -97,7 +97,7 @@ int main (int argc, char *argv[])
     {
       if ((fparametros = fopen(argv[p], "r")) == NULL)
         {
-          printf("Arquivo \"%s\" nao encontrado.\n",argv[p]);
+          printf("Arquivo \"%s\" nao encontrado.\n\n",argv[p]);
           exit(1);
         }
       else
@@ -115,7 +115,7 @@ int main (int argc, char *argv[])
     {
       if ((fresultados = fopen(argv[p], "a")) == NULL)
         {
-          printf("Arquivo \"%s\" nao encontrado.\n",argv[p]);
+          printf("Arquivo \"%s\" nao encontrado.\n\n",argv[p]);
           exit(1);
         }
       else
@@ -129,10 +129,24 @@ int main (int argc, char *argv[])
       printf("Resultado: '%s'\n", RESULTADOS);
     }
 
+  if((p = locPar(argv, argc, "-b")) != -1)
+    pATEAMS->makespanBest = atoi(argv[p]);
+  else
+    pATEAMS->makespanBest = -1;
+
   /* Leitura dos arquivos de dados e de parametros */
   int tipoArquivoDados = 0;                                   //Orlib
-  lerArquivoDados (tipoArquivoDados, fdados);
-  lerArquivoParametros (fparametros);
+  lerArquivoDados(tipoArquivoDados, fdados);
+  lerArquivoParametros(fparametros);
+
+  fclose(fdados);
+  fclose(fparametros);
+
+  if((p = locPar(argv, argc, "-t")) != -1)
+    pATEAMS->iteracoesAteams = atoi(argv[p]);
+
+  if((p = locPar(argv, argc, "-a")) != -1)
+    pATEAMS->agenteUtilizado = atoi(argv[p]);
 
   /* Prepara para a execucao do Ateams */
   int tamanhoMemoriaATEAMS;
@@ -142,22 +156,26 @@ int main (int argc, char *argv[])
   int *vetprob;
   int makespanInicial;
 
-  inicializaMemoriaATEAMS (&tamanhoMemoriaATEAMS, &memoriaATEAMS);
-  populaMemoriaATEAMS (dados, pATEAMS, &tamanhoMemoriaATEAMS, &memoriaATEAMS);
+  inicializaMemoriaATEAMS(&tamanhoMemoriaATEAMS, &memoriaATEAMS);
+  populaMemoriaATEAMS(dados, pATEAMS, &tamanhoMemoriaATEAMS, &memoriaATEAMS);
   makespanInicial = memoriaATEAMS->makespan;
-  populaMemoriaAG (dados, pATEAMS, pAG, &vmkp, &memoriaAG);
+  populaMemoriaAG(dados, pATEAMS, pAG, &vmkp, &memoriaAG);
   vetprob = vetorProb(tamanhoMemoriaATEAMS);
 
   /* Executa o Ateams */
+  printf("\n\nMakespan Inicial: %d\n", makespanInicial);
+
   ateams (&tamanhoMemoriaATEAMS, &memoriaATEAMS, &memoriaAG);
 
   /* Libera memoria */
-  for (int i = 0; i < pAG->tamanhoPopulacao; i++) {
-    for (int j = 0; j < dados->M; j++) {
-      free (memoriaAG[i][j]);
+  for(int i = 0; i < pAG->tamanhoPopulacao; i++)
+    {
+      for(int j = 0; j < dados->M; j++)
+        {
+          free (memoriaAG[i][j]);
+        }
+      free (memoriaAG[i]);
     }
-    free (memoriaAG[i]);
-  }
   free (vmkp);
   free (memoriaAG);
 
@@ -171,20 +189,22 @@ int main (int argc, char *argv[])
   symbolic = aux->sequence;
   mksp = makespan(dados->m_op, dados->t_op, symbolic, dados->N, dados->M, &esc);
 
-  printf("%d\n", mksp);
+  printf("\n\nMakespan Final: %d\n\n", mksp);
 
-  if (mksp > 0)
-    liberaVetorDeMatrizes (dados->M, dados->N, esc);
+  if(mksp > 0)
+    liberaVetorDeMatrizes(dados->M, dados->N, esc);
 
-  gettimeofday(&tv2,NULL);
+  gettimeofday(&tv2, NULL);
   s = (((tv2.tv_sec*1000)+(tv2.tv_usec/1000)) - ((tv1.tv_sec*1000)+(tv1.tv_usec/1000)))/1000;
-  imprimeResultado (tv1, tv2, s, tamanhoMemoriaATEAMS, memoriaATEAMS, fresultados, makespanInicial);
+  imprimeResultado(tv1, tv2, s, tamanhoMemoriaATEAMS, memoriaATEAMS, fresultados, makespanInicial);
+
+  fclose(fresultados);
 
   /* TODO: agrupar todas as desalocacoes de memoria */
-  liberaLista (memoriaATEAMS, dados->M);
+  liberaLista(memoriaATEAMS, dados->M);
   liberaMatriz(dados->N, dados->m_op);
   liberaMatriz(dados->N, dados->t_op);
-  liberaVetorProb (vetprob);
+  liberaVetorProb(vetprob);
 
   free(pATEAMS);
   free(pBT);
@@ -194,89 +214,57 @@ int main (int argc, char *argv[])
   /* Verificacao final do uso da memoria dinamica */
   info = mallinfo();
   MemDinFinal = info.uordblks;
-  if (MemDinInicial!=MemDinFinal)
-    printf("\n\nMemoria dinamica nao foi totalmente liberada (%d, %d).\n\n", MemDinInicial, MemDinFinal);
+
+  if (MemDinInicial != MemDinFinal)
+    printf("\nMEMORIA DINAMICA NAO FOI TOTALMENTE LIBERADA (%d, %d).\n\n", MemDinInicial, MemDinFinal);
   else
-    printf("\n\nMEMORIA LIBERADA.\n\n");
+    printf("\nMEMORIA LIBERADA.\n\n");
 
   return 0;
 }
 
-void ateams (int *tamanhoMemoriaATEAMS, no **lista, int ****memoriaAG)
+void ateams(int *tamanhoMemoriaATEAMS, no **lista, int ****memoriaAG)
 {
-  int i;
   int agente;
   int *vetprob;
-  no *n1;//, *n2;
-  int maxSemMelhoria;
-  FILE *f = fopen ("lawrence.best", "r");
-  if (f == NULL) {
-    perror("resultados\\lawrence.best");
-    exit(1);
-  }
+  no *n;
 
-  int *bestMakespan = NULL;
+  vetprob = vetorProb(pATEAMS->tamanhoPopulacao);
 
-  if (pATEAMS->tamanhoPopulacao < 5) {
-    maxSemMelhoria = pATEAMS->tamanhoPopulacao;
-  }
-  else
-    maxSemMelhoria = 5;
+  srand(time(NULL));
+  printf("\n");
 
-  vetprob = vetorProb (pATEAMS->tamanhoPopulacao);
+  for(int i = 1; i <= pATEAMS->iteracoesAteams; i++)
+    {
+      printf("\nIteracoes Ateams: %d\n", i);
 
-  //genetico (pATEAMS, pAG, dados, tamanhoMemoriaATEAMS, lista, vetprob);
-  //tabu (pATEAMS, pBT, dados, tamanhoMemoriaATEAMS, vetprob, lista);
+      agente = 1 + (int)(100.0*rand()/(RAND_MAX+1.0));
+      agente = agente <= pATEAMS->agenteUtilizado ? 1 : 0;
 
-
-  bestMakespan = lerArquivoBestMakespan (f, 40);
-
-  pATEAMS->makespanBest = bestMakespan[dados->instancia - 1];
-  if (pATEAMS->agenteUtilizado == ATEAMS_ON)
-    for (i = 0; i < pATEAMS->iteracoesAteams; i++)
-      {
-        printf("Iteracoes Ateams: %d\n", i);
-        agente = rand () % 2;
-        switch (agente) {
+      switch(agente)
+        {
         case 0:
-          genetico (pATEAMS, pAG, dados, tamanhoMemoriaATEAMS, lista, vetprob, memoriaAG);
+          printf("Makespan AG: ");
+          genetico(pATEAMS, pAG, dados, tamanhoMemoriaATEAMS, lista, vetprob, memoriaAG);
           break;
         case 1:
-          tabu (pATEAMS, pBT, dados, tamanhoMemoriaATEAMS, lista, vetprob);
+          printf("Makespan BT: ");
+          tabu(pATEAMS, pBT, dados, tamanhoMemoriaATEAMS, lista, vetprob);
           break;
         default:
           break;
         }
-        n1 = retornaElemento(*lista, 1, *tamanhoMemoriaATEAMS);
-        //n2 = retornaElemento(*lista, maxSemMelhoria, *tamanhoMemoriaATEAMS);
-        //printf("makespan melhor memoria ATEAMS: %d %d\n", n1->makespan, bestMakespan[dados->instancia-1]);
-        if (n1->makespan == pATEAMS->makespanBest) {
-          printf("Populacao ATEAMS convergiu na %d iteracao.\n", 1+i);
+
+      n = retornaElemento(*lista, 1, *tamanhoMemoriaATEAMS);
+
+      if(n->makespan <= pATEAMS->makespanBest)
+        {
+          printf("\nPopulacao ATEAMS convergiu na %d iteracao.\n\n", i);
           break;
         }
-      }
-  else
-    for (i = 0; i < pATEAMS->iteracoesAteams; i++)
-      {
-        //printf("Iteracoes Ateams: %d\n", i);
-        switch (pATEAMS->agenteUtilizado) {
-        case 0:
-          genetico (pATEAMS, pAG, dados, tamanhoMemoriaATEAMS, lista, vetprob, memoriaAG);
-          break;
-        case 1:
-          tabu (pATEAMS, pBT, dados, tamanhoMemoriaATEAMS, lista, vetprob);
-          break;
-        default:
-          break;
-        }
-        /*n1 = retornaElemento(*lista, 1, *tamanhoMemoriaATEAMS);
-          n2 = retornaElemento(*lista, pATEAMS->tamanhoPopulacao, *tamanhoMemoriaATEAMS);
-          if (n1->makespan == n2->makespan) {
-          printf("Populacao ATEAMS convergiu na %d iteracao.\n", 1+i);
-          break;
-          }*/
-      }
-  fclose (f);
-  free (bestMakespan);
-  free (vetprob);
+    }
+
+  free(vetprob);
+
+  return;
 }

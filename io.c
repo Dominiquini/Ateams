@@ -332,7 +332,6 @@ void lerArquivoDados (int tipoArquivo, FILE *f)
     /* TODO: melhorar a mensagem.*/
     exit(1);
   }
-  fclose (f);
 }
 
 void lerArquivoParametros (FILE *f)
@@ -359,7 +358,6 @@ void lerArquivoParametros (FILE *f)
   fscanf (f, "%d\n", &pBT->politicaLeitura);
   // fscanf (f, "%d\n", &pBT->k);
 
-  fclose (f);
   /* tamanho da memoria do algoritmo genetico deve ser >= memoria ATEAMS*/
   pAG->tamanhoPopulacao = pATEAMS->tamanhoPopulacao * (1 + porcentagemPop);
   pAG->quantidadeLeituraMemoriaATEAMS = pATEAMS->tamanhoPopulacao * porcentagemLeituraATEAMS;
@@ -410,16 +408,16 @@ void escreveArquivoParametros (char nomeArquivo[100], ParametrosATEAMS *pATEAMS,
 void imprimeResultado (struct timeval tv1, struct timeval tv2, int s, int msize, no *lista, FILE *resultados, int makespanInicial)
 {
   no *aux;
+
   aux = retornaElemento(lista, 1, msize);
   fprintf(resultados,"%8d %8d %8d\n",makespanInicial, aux->makespan, s);
   /*fprintf (indiv,"%7d m %2d s %3d ms\n",min,s,ms); *//* tempo processamento */
-  fclose(resultados);
 }
 
 
 /*
- *      Funções que inicializam os parametros com valores padrão
- *  FIXME: obs.: note que por enquanto são valores aleatórios
+ *  Funcoes que inicializam os parametros com valores padrao
+ *  FIXME: obs.: note que por enquanto sao valores aleatorios
  */
 void setParametrosATEAMS (ParametrosATEAMS *p)
 {

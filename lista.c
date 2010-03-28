@@ -88,17 +88,20 @@ void removeListaInic (no **lista, int M, int *msize) {
   (*msize)--;
 }
 
-void insereLista (no **lista, no *noLista, int *msize) {
+void insereLista (no **lista, no *noLista, int *msize)
+{
   no *aux, *aux2;
 
   aux = *lista;
   aux2 = NULL;
 
-  while((aux!=NULL) && (aux->makespan < noLista->makespan)) {
-    aux2 = aux;
-    aux = aux->prox;
-  }
-  if (aux2 == NULL)
+  while((aux!=NULL) && (aux->makespan < noLista->makespan))
+    {
+      aux2 = aux;
+      aux = aux->prox;
+    }
+
+  if(aux2 == NULL)
     insereListaInic(lista, noLista, msize);
   else
     insereListaInic((no **)&(aux2->prox), noLista, msize);

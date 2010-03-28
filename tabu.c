@@ -47,13 +47,15 @@ void tabu (ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, Dados *dados, int *msiz
   int i,j;
   long ocio;
   int help = 0;
-  mknode **root;			/* Raiz lista de sequencias exploradas */
+  mknode **root;		/* Raiz lista de sequencias exploradas */
   int **seqaux;
   int eh_nova=0;
   int parada[] = {0, 0, 0};
-  int improved = 0;               /* memoria melhorou(1) ou nao (0) */
+  int improved = 0;             /* memoria melhorou(1) ou nao (0) */
   int ***esc;
   TamanhoTabu t;
+
+  //  printf("Makespan BT: ");
 
   pBT->tamanhoListaTabu = dados->N;
   globaltabu = leTabu (&fglobal, pBT, dados, msize, improved, vetprob, *lista);	/* busca valor de entrada -- Politica de Leitura */
@@ -156,8 +158,8 @@ void tabu (ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, Dados *dados, int *msiz
       else
         ocio++;
 
-      if (pATEAMS->makespanBest == flocal) {
-        printf("BT parada %d.\n", itcounter );
+      if (pATEAMS->makespanBest >= flocal) {
+        // printf("BT parada %d.\n", itcounter );
         break;
       }
 
@@ -409,7 +411,7 @@ void escreveTabu (int **seq, int makespan, int eh_nova, Dados *dados, Parametros
     *improved = 0;
   if (eh_nova) {
     politicaAceitacao (seq, makespan, dados, pATEAMS, msize, vetprob, lista);
-    printf("Makespan BT: %d.\n", makespan);
+    printf("%d.\n", makespan);
   }
   else {
     for (i = 0; i < dados->M; i++)

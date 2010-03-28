@@ -9,38 +9,38 @@
 #define LISTA_H_
 #include <stdio.h>
 
-typedef struct {
-	int **sequence; /* sequencia de solucoes */
-	int makespan;
-	int bt;   /*diz se a BT ja leu esta sequencia*/
-	void *prox;
+typedef struct no {
+  int **sequence;   /* sequencia de solucoes */
+  int makespan;
+  int bt;           /*diz se a BT ja leu esta sequencia*/
+  struct no *prox;
 } no;
 
-/* A struct Mkp determina o makespan do indivíduo e se já foi calculado */
+/* A struct Mkp determina o makespan do individuo e se ja foi calculado */
 typedef struct {
-	int mkp;
-	int ok;
+  int mkp;
+  int ok;
 } Mkp;
 
-typedef struct {   	/* tipo no para uma lista generica */
-	int **sequence;
-	void *next;
+typedef struct {        /* tipo no para uma lista generica */
+  int **sequence;
+  void *next;
 } node;
 
 typedef struct {	/* tipo no de makespan - separa seqs por valor de makespan */
-	int span;
-	void *list;
-	void *prox;
+  int span;
+  void *list;
+  void *prox;
 } mknode;
 
 typedef struct {	/* tipo auxiliar para geracao da nova populacao */
-	int valor;
-	int posicao;
+  int valor;
+  int posicao;
 } mkord;
 
 typedef struct {	/* tipo criado para dizer se o mkp de determinado individuo(mkp) ja foi calculado(ok) */
-	int mkp;
-	int ok;
+  int mkp;
+  int ok;
 } tipo_mkp;
 
 

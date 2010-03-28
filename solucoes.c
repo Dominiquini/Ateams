@@ -77,7 +77,7 @@ int geraSolucaoAleatoria (int **solucao, Dados *dados) {
   int ***esc;
 
   vet = (int *) malloc(dados->N * sizeof(int));
-  maq = (int *) malloc(dados->M * sizeof(int)); /* indica próxima operacao da máquina */
+  maq = (int *) malloc(dados->M * sizeof(int)); /* indica proxima operacao da maquina */
 
   for (i = 0; i < dados->M; i++)
     maq[i] = 0;
