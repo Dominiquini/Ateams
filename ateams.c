@@ -26,8 +26,7 @@
 #include "makespan.h"
 #include "politicasMemoria.h"
 
-#define PARAMETROS "./parametros/default.param"
-#define RESULTADOS "./resultados/out.res"
+#define PARAMETROS "parametros/default.param"
 
 /* Parametros e Dados */
 ParametrosATEAMS *pATEAMS;
@@ -97,7 +96,7 @@ int main (int argc, char *argv[])
     {
       if ((fparametros = fopen(argv[p], "r")) == NULL)
         {
-          printf("Arquivo \"%s\" nao encontrado.\n\n",argv[p]);
+          printf("Arquivo \"%s\" nao encontrado.\n\n", argv[p]);
           exit(1);
         }
       else
@@ -115,7 +114,7 @@ int main (int argc, char *argv[])
     {
       if ((fresultados = fopen(argv[p], "a")) == NULL)
         {
-          printf("Arquivo \"%s\" nao encontrado.\n\n",argv[p]);
+          printf("Arquivo \"%s\" nao encontrado.\n\n", argv[p]);
           exit(1);
         }
       else
@@ -125,8 +124,15 @@ int main (int argc, char *argv[])
     }
   else
     {
-      fresultados = fopen(RESULTADOS, "a");
-      printf("Resultado: '%s'\n", RESULTADOS);
+      p = locPar(argv, argc, "-i");
+
+      char resultado[32] = {"resultados/"};
+      strcat(resultado, strstr(argv[p], "dados/") + 6);
+      resultado[strlen(resultado) - 3] = '\0';
+      strcat(resultado, "res");
+
+      fresultados = fopen(resultado, "a");
+      printf("Resultado: '%s'\n", resultado);
     }
 
   if((p = locPar(argv, argc, "-b")) != -1)
@@ -260,7 +266,7 @@ void ateams(int *tamanhoMemoriaATEAMS, no **lista, int ****memoriaAG)
 
       if(n->makespan <= pATEAMS->makespanBest)
         {
-          printf("\nPopulacao ATEAMS convergiu na %d iteracao.\n\n", i);
+          printf("\n\nPopulacao ATEAMS convergiu na %d iteracao.\n", i);
           break;
         }
     }

@@ -21,7 +21,7 @@
 #include "utils.h"
 
 /* Inicializa parametros do AG usado
-   se a versão for paralelizada é necessario fazer isso localmente no AG
+   se a versao for paralelizada e necessario fazer isso localmente no AG
    por enquanto as variaves sao globais
 */
 
@@ -154,7 +154,7 @@ no *selecaoAG (ParametrosAG *pAG, int ***pop, int *vetprob, int *melhorSolucao)
 #endif
 
 
-/* Reinicializa a memória do AG com uma porcentagem da memória principal */
+/* Reinicializa a memoria do AG com uma porcentagem da memoria principal */
 void  leituraMemoriaATEAMS (Dados *dados, ParametrosATEAMS *pATEAMS, ParametrosAG *pAG, int msize, no *principal, int ****pop, Mkp *vmkp, int *vetprob)
 {
   int i, j, k, l = 1;
@@ -163,23 +163,23 @@ void  leituraMemoriaATEAMS (Dados *dados, ParametrosATEAMS *pATEAMS, ParametrosA
   //
   for (i = pAG->tamanhoPopulacao-1; i > pAG->tamanhoPopulacao-pAG->quantidadeLeituraMemoriaATEAMS; i--) {
     switch (pAG->politicaLeitura) {
-    case 1: /* escolhe a melhor solucao */
+    case 1: /* Escolhe a melhor solucao */
       aux = retornaElemento (principal, l, msize);
       l++;
       break;
-    case 2: /* escolhe a sequencias randomicamente[Probabilidade Uniforme] */
+    case 2: /* Escolhe a sequencias randomicamente[Probabilidade Uniforme] */
       j = (rand() % msize) + 1;
       aux = retornaElemento (principal, j, msize);
       break;
-    case 3: /* Lê np sequencias com Probabilidade Linear da melhor para a pior */
+    case 3: /* Le np sequencias com Probabilidade Linear da melhor para a pior */
       j = (1 + msize) - sequenciaProbLinear (msize, vetprob);
       aux = retornaElemento (principal, j, msize);
       break;
-    case 4: /* Lê np sequencias com Probabilidade Linear da pior para a melhor */
+    case 4: /* Le np sequencias com Probabilidade Linear da pior para a melhor */
       j = sequenciaProbLinear (msize, vetprob);
       aux = retornaElemento (principal, j, msize);
       break;
-    case 5: /* Lê np sequencias randomicamente[Probabilidade Uniforme] da pior para melhor */
+    case 5: /* Le np sequencias randomicamente[Probabilidade Uniforme] da pior para melhor */
       j = (rand() % msize) + 1;
       aux = retornaElemento (principal, msize-j, msize);
       break;
@@ -396,7 +396,7 @@ void genetico (ParametrosATEAMS *pATEAMS, ParametrosAG *pAG, Dados *dados, int *
     vmkp[i].mkp = 0;
     vmkp[i].ok = 0;
   }
-  vaux = (mkord *) malloc(pAG->tamanhoPopulacao * sizeof(mkord)); /* usado na ordenação da população */
+  vaux = (mkord *) malloc(pAG->tamanhoPopulacao * sizeof(mkord)); /* usado na ordenacao da populacao */
 
   leituraMemoriaATEAMS (dados, pATEAMS, pAG, *msize, *principal, memoriaAG, vmkp, vetprob);
   ordenaPopulacao (vaux, pAG->tamanhoPopulacao, vmkp, *memoriaAG, memoriaTmp);
@@ -406,7 +406,7 @@ void genetico (ParametrosATEAMS *pATEAMS, ParametrosAG *pAG, Dados *dados, int *
 
   int p = 0;
   do {
-    /* nova_população <- {}; */
+    /* nova_populacao <- {}; */
     vetProbAG (pAG->tamanhoPopulacao, pAG->probabilidadeMutacoes, vetprobMutacoes);
     vetProbAG (pAG->tamanhoPopulacao, pAG->probabilidadeCrossover, vetprobCrossover);
     for (i = 0; i < pAG->tamanhoPopulacao; i++) {//for (i = 0; i < pAG->tamanhoPopulacao; i++) {

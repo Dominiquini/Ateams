@@ -143,7 +143,7 @@ void tabu (ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, Dados *dados, int *msiz
       }
       else {
         starts = local;          /* max da iteracao anterior = novo start */
-        if (flocal <= fglobal) {/* atualiza max global */ /*Adicionado "=" para modificar sequencia sempre que possivel*/
+        if (flocal <= fglobal) { /* atualiza max global */ /*Adicionado "=" para modificar sequencia sempre que possivel*/
           globaltabu = local;
           fglobal = flocal;
           fiter = itcounter;
@@ -158,7 +158,7 @@ void tabu (ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, Dados *dados, int *msiz
       else
         ocio++;
 
-      if (pATEAMS->makespanBest >= flocal) {
+      if (pATEAMS->makespanBest >= flocal && flocal != 0) {
         // printf("BT parada %d.\n", itcounter );
         break;
       }
