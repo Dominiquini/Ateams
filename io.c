@@ -341,6 +341,7 @@ void lerArquivoParametros (FILE *f)
 
   fscanf (f, "%d\n", &pATEAMS->agenteUtilizado);
   fscanf (f, "%d\n", &pATEAMS->iteracoesAteams);
+  fscanf (f, "%d\n", &pATEAMS->maxTempo);
   fscanf (f, "%d\n", &pATEAMS->politicaAceitacao);
   fscanf (f, "%d\n", &pATEAMS->politicaDestruicao);
   fscanf (f, "%d\n", &pATEAMS->tamanhoPopulacao);

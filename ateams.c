@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
+#include <limits.h>
 #include <time.h>
 
 #include "io.h"
@@ -155,6 +156,11 @@ int main (int argc, char *argv[])
   if((p = locPar(argv, argc, "-a")) != -1)
     pATEAMS->agenteUtilizado = atoi(argv[p]);
 
+  if((p = locPar(argv, argc, "-s")) != -1)
+    pATEAMS->maxTempo = atoi(argv[p]);
+
+  pATEAMS->maxTempo = pATEAMS->maxTempo <= 0 ? INT_MAX : pATEAMS->maxTempo;
+
   /* Prepara para a execucao do Ateams */
   int tamanhoMemoriaATEAMS;
   no *memoriaATEAMS;
@@ -241,7 +247,12 @@ void ateams(int *tamanhoMemoriaATEAMS, no **lista, int ****memoriaAG)
   srand(time(NULL));
   printf("\n");
 
-  for(int i = 1; i <= pATEAMS->iteracoesAteams; i++)
+  struct timeval time1, time2;
+  gettimeofday(&time1, NULL);
+
+  int tempo = 0;
+
+  for(int i = 1; i <= pATEAMS->iteracoesAteams && tempo < pATEAMS->maxTempo; i++)
     {
       printf("\nIteracoes Ateams: %d\n", i);
 
@@ -269,6 +280,9 @@ void ateams(int *tamanhoMemoriaATEAMS, no **lista, int ****memoriaAG)
           printf("\n\nPopulacao ATEAMS convergiu na %d iteracao.\n", i);
           break;
         }
+
+      gettimeofday(&time2, NULL);
+      tempo = time2.tv_sec - time1.tv_sec;
     }
 
   free(vetprob);

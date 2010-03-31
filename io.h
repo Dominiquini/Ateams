@@ -15,6 +15,7 @@ typedef struct ParametrosATEAMS {
   int agenteUtilizado;
   int tamanhoPopulacao;   /* > 0*/
   int iteracoesAteams;
+  int maxTempo;
   int politicaAceitacao;
   int politicaDestruicao;
   int makespanBest;       /* Melhor makespan conhecido */
