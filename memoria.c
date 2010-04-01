@@ -9,6 +9,16 @@
 #include "memoria.h"
 
 
+void copiaMatriz (int linhas, int colunas, int **A, int **B)
+{
+  int i, j;
+
+  for (i = 0; i < linhas; i++) {
+    for (j = 0; j < colunas; j++) {
+      B[i][j] = A[i][j];
+    }
+  }
+}
 
 int **alocaMatriz (int linhas, int colunas)
 {
@@ -33,10 +43,10 @@ void liberaMatriz (int linhas, int **M)
     free (M);
 }
 
-void liberaVetorDeMatrizes (int a, int b, int ***vetor) {
+void liberaVetorDeMatrizes (int linhas, int colunas, int ***vetor) {
   int i, j;
-  for (i = 0; i < a; i++) {
-    for (j = 0; j < b; j++) {
+  for (i = 0; i < linhas; i++) {
+    for (j = 0; j < colunas; j++) {
       if (vetor[i][j])
         free(vetor[i][j]);
     }

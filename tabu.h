@@ -10,7 +10,6 @@
 #include "lista.h"
 
 
-
 void tabu (ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, Dados *dados, int *msize, no **lista, int *vetprob);
 
 #endif /* TABU_H_ */

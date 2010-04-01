@@ -69,7 +69,6 @@ void populaMemoriaATEAMS (Dados *dados, ParametrosATEAMS *pATEAMS, int *tamanhoM
 }
 
 
-
 int geraSolucaoAleatoria (int **solucao, Dados *dados) {
   int i,j, k;
   int mksp;

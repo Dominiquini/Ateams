@@ -18,7 +18,6 @@
 #include <stdio.h>
 #include <fcntl.h>
 
-#include "utils.h"
 
 /* Inicializa parametros do AG usado
    se a versao for paralelizada e necessario fazer isso localmente no AG

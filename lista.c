@@ -165,6 +165,7 @@ mknode *newmknode (int mkspan)
   mknew->span = mkspan;
   mknew->list = NULL;
   mknew->prox = NULL;
+
   return mknew;
 }
 
@@ -210,11 +211,11 @@ mknode *seekspan (int mkspan, mknode **root)
 
 
 /* seekseq()
- * Função:	Verifica se a solução "elemento" está na memoria.
+ * Funcao:	Verifica se a solucao "elemento" esta na memoria.
  * Entrada:	int **elemento matriz com uma solucao;
- *                      node **lista memoria de soluções.
+ *              node **lista memoria de solucoes.
  * Saida:	1 se verdade;
- *                      0 se falso.
+ *              0 se falso.
  * */
 int seekseq (int **elemento, node *lista, int N, int M)
 {
@@ -239,12 +240,12 @@ int seekseq (int **elemento, node *lista, int N, int M)
 }
 
 /* Search()
- * Função:    Verifica se o "elemento" está na lista de soluções percorridas.
- * Entrada: int **elemento matriz com uma solução;
- *                      mknode **root lista de soluções exploradas;
- *                      int N: numero de tarefas;
- *                      int mkspan: makespan da solução "elemento".
- * Saída:	Se o elemento estiver na lista devolve 1, caso contrário 0.
+ * Funcao:    Verifica se o "elemento" esta na lista de solucoes percorridas.
+ * Entrada:   int **elemento matriz com uma solucao;
+ *            mknode **root lista de solusoes exploradas;
+ *            int N: numero de tarefas;
+ *            int mkspan: makespan da solucao "elemento".
+ * Saida:     Se o elemento estiver na lista devolve 1, caso contrario 0.
  *
  * */
 int Search(int **elemento, mknode **root, int N, int M, int mkspan)
