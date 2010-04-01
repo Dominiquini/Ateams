@@ -136,28 +136,35 @@ int main (int argc, char *argv[])
       printf("Resultado: '%s'\n", resultado);
     }
 
-  if((p = locPar(argv, argc, "-b")) != -1)
-    pATEAMS->makespanBest = atoi(argv[p]);
-  else
-    pATEAMS->makespanBest = -1;
-
   /* Leitura dos arquivos de dados e de parametros */
   int tipoArquivoDados = 0;  //Orlib
 
   lerArquivoDados(tipoArquivoDados, fdados);
   lerArquivoParametros(fparametros);
 
+
   fclose(fdados);
   fclose(fparametros);
 
-  if((p = locPar(argv, argc, "-t")) != -1)
+
+  if((p = locPar(argv, argc, "--agUtilizado")) != -1)
+    pATEAMS->agenteUtilizado = atof(argv[p]);
+
+  if((p = locPar(argv, argc, "--makespanBest")) != -1)
+    pATEAMS->makespanBest = atoi(argv[p]);
+
+  if((p = locPar(argv, argc, "--iterAteams")) != -1)
     pATEAMS->iteracoesAteams = atoi(argv[p]);
 
-  if((p = locPar(argv, argc, "-a")) != -1)
-    pATEAMS->agenteUtilizado = atoi(argv[p]);
-
-  if((p = locPar(argv, argc, "-s")) != -1)
+  if((p = locPar(argv, argc, "--MaxTempo")) != -1)
     pATEAMS->maxTempo = atoi(argv[p]);
+
+  if((p = locPar(argv, argc, "--iterAG")) != -1)
+    pAG->numeroIteracoes = atoi(argv[p]);
+
+  if((p = locPar(argv, argc, "--iterBT")) != -1)
+    pBT->numeroIteracoes = atoi(argv[p]);
+
 
   pATEAMS->maxTempo = pATEAMS->maxTempo <= 0 ? INT_MAX : pATEAMS->maxTempo;
 
@@ -251,6 +258,8 @@ void ateams(int *tamanhoMemoriaATEAMS, no **lista, int ****memoriaAG)
   gettimeofday(&time1, NULL);
 
   int tempo = 0;
+
+  pATEAMS->agenteUtilizado = pATEAMS->agenteUtilizado * 100;
 
   for(int i = 1; i <= pATEAMS->iteracoesAteams && tempo < pATEAMS->maxTempo; i++)
     {
