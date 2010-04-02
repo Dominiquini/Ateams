@@ -12,7 +12,6 @@
 #include "defs.h"
 #include "lista.h"
 #include "io.h"
-#include "politicasMemoria.h"
 
 #include <stdlib.h>
 #include <stdio.h>

@@ -14,6 +14,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <limits.h>
+#include <signal.h>
 #include <time.h>
 
 #include "io.h"
@@ -21,13 +22,14 @@
 #include "defs.h"
 #include "lista.h"
 #include "solucoes.h"
-#include "politicasMemoria.h"
 #include "tabu.h"
 #include "genetico.h"
 #include "makespan.h"
-#include "politicasMemoria.h"
 
 #define PARAMETROS "parametros/default.param"
+
+/* Indica ao programa para parar a execucao */
+int PARAR = 0;
 
 /* Parametros e Dados */
 ParametrosATEAMS *pATEAMS;
@@ -38,21 +40,17 @@ Dados *dados;
 /* Ateams */
 void ateams (int *tamanhoMemoriaATEAMS, no **lista, int ****memoriaAG);
 
-
-/* Retorna a posicao em que o parametro esta em argv, ou -1 se não existir */
-int locPar(char **in, int num, char *key)
+void Interrompe(int signum)
 {
-  for(int i = 0; i < num; i++)
-    {
-      if(!strcmp(in[i], key))
-        return i+1;
-    }
-  return -1;
+  PARAR = 1;
 }
 
 int main (int argc, char *argv[])
 {
-  /* Declaracoes de inicio para verificacao do uso da memoria dinamica. */
+  /* Interrompe o programa ao se pessionar 'Ctrl-c' */
+  signal(SIGINT, Interrompe);
+
+  /* Verificacao do uso da memoria dinamica. */
   struct mallinfo info;
   int MemDinInicial, MemDinFinal;
   info = mallinfo();
@@ -75,7 +73,7 @@ int main (int argc, char *argv[])
 
   int p = -1;
 
-  if((p = locPar(argv, argc, "-i")) != -1)
+  if((p = locComPar(argv, argc, "-i")) != -1)
     {
       if ((fdados = fopen(argv[p], "r")) == NULL)
         {
@@ -93,7 +91,7 @@ int main (int argc, char *argv[])
       exit(1);
     }
 
-  if((p = locPar(argv, argc, "-p")) != -1)
+  if((p = locComPar(argv, argc, "-p")) != -1)
     {
       if ((fparametros = fopen(argv[p], "r")) == NULL)
         {
@@ -111,7 +109,7 @@ int main (int argc, char *argv[])
       printf("Parametros: '%s'\n", PARAMETROS);
     }
 
-  if((p = locPar(argv, argc, "-r")) != -1)
+  if((p = locComPar(argv, argc, "-r")) != -1)
     {
       if ((fresultados = fopen(argv[p], "a")) == NULL)
         {
@@ -125,7 +123,7 @@ int main (int argc, char *argv[])
     }
   else
     {
-      p = locPar(argv, argc, "-i");
+      p = locComPar(argv, argc, "-i");
 
       char resultado[32] = {"resultados/"};
       strcat(resultado, strstr(argv[p], "dados/") + 6);
@@ -147,23 +145,7 @@ int main (int argc, char *argv[])
   fclose(fparametros);
 
 
-  if((p = locPar(argv, argc, "--agUtilizado")) != -1)
-    pATEAMS->agenteUtilizado = atof(argv[p]);
-
-  if((p = locPar(argv, argc, "--makespanBest")) != -1)
-    pATEAMS->makespanBest = atoi(argv[p]);
-
-  if((p = locPar(argv, argc, "--iterAteams")) != -1)
-    pATEAMS->iteracoesAteams = atoi(argv[p]);
-
-  if((p = locPar(argv, argc, "--MaxTempo")) != -1)
-    pATEAMS->maxTempo = atoi(argv[p]);
-
-  if((p = locPar(argv, argc, "--iterAG")) != -1)
-    pAG->numeroIteracoes = atoi(argv[p]);
-
-  if((p = locPar(argv, argc, "--iterBT")) != -1)
-    pBT->numeroIteracoes = atoi(argv[p]);
+  lerArgumentos(argv, argc);
 
 
   pATEAMS->maxTempo = pATEAMS->maxTempo <= 0 ? INT_MAX : pATEAMS->maxTempo;
@@ -289,6 +271,9 @@ void ateams(int *tamanhoMemoriaATEAMS, no **lista, int ****memoriaAG)
           printf("\n\nPopulacao ATEAMS convergiu na %d iteracao.\n", i);
           break;
         }
+
+      if(PARAR == 1)
+        break;
 
       gettimeofday(&time2, NULL);
       tempo = time2.tv_sec - time1.tv_sec;

@@ -28,6 +28,17 @@ extern ParametrosBT *pBT;
 extern Dados *dados;
 
 
+/* Retorna a posicao em que o parametro esta em argv, ou -1 se não existir */
+int locComPar(char **in, int num, char *key)
+{
+  for(int i = 0; i < num; i++)
+    {
+      if(!strcmp(in[i], key))
+        return i+1;
+    }
+  return -1;
+}
+
 
 char* locPosPar(char *in, int num, char *key)
 {
@@ -148,6 +159,58 @@ void lerArquivoParametros (FILE *f)
   pBT->k = pBT->numeroIteracoes/5;
 
   free(parametros);
+}
+
+void lerArgumentos(char **argv, int argc)
+{
+  int p = -1;
+
+  if((p = locComPar(argv, argc, "--agUtilizado")) != -1)
+    pATEAMS->agenteUtilizado = atof(argv[p]);
+
+  if((p = locComPar(argv, argc, "--iterAteams")) != -1)
+    pATEAMS->iteracoesAteams = atoi(argv[p]);
+
+  if((p = locComPar(argv, argc, "--MaxTempo")) != -1)
+    pATEAMS->maxTempo = atoi(argv[p]);
+
+  if((p = locComPar(argv, argc, "--polAceitacao")) != -1)
+    pATEAMS->politicaAceitacao = atoi(argv[p]);
+
+  if((p = locComPar(argv, argc, "--polDestruicao")) != -1)
+    pATEAMS->politicaDestruicao = atoi(argv[p]);
+
+  if((p = locComPar(argv, argc, "--tamPopulacao")) != -1)
+    pATEAMS->tamanhoPopulacao = atoi(argv[p]);
+
+  if((p = locComPar(argv, argc, "--makespanBest")) != -1)
+    pATEAMS->makespanBest = atoi(argv[p]);
+
+
+  if((p = locComPar(argv, argc, "--iterAG")) != -1)
+    pAG->numeroIteracoes = atoi(argv[p]);
+
+  if((p = locComPar(argv, argc, "--polLeituraAG")) != -1)
+    pAG->politicaLeitura = atoi(argv[p]);
+
+  if((p = locComPar(argv, argc, "--probCrossover")) != -1)
+    pAG->probabilidadeCrossover = atof(argv[p]);
+
+  if((p = locComPar(argv, argc, "--probMutacao")) != -1)
+    pAG->probabilidadeMutacoes = atof(argv[p]);
+
+  if((p = locComPar(argv, argc, "--Selecao")) != -1)
+    pAG->selecao = atoi(argv[p]);
+
+
+  if((p = locComPar(argv, argc, "--iterBT")) != -1)
+    pBT->numeroIteracoes = atoi(argv[p]);
+
+  if((p = locComPar(argv, argc, "--polLeituraBT")) != -1)
+    pBT->politicaLeitura = atoi(argv[p]);
+
+  if((p = locComPar(argv, argc, "--tamListaBT")) != -1)
+    pBT->tamanhoListaTabu = atoi(argv[p]);
 }
 
 void imprimeResultado (struct timeval tv1, struct timeval tv2, int s, int msize, no *lista, FILE *resultados, int makespanInicial)

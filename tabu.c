@@ -11,7 +11,6 @@
 #include "memoria.h"
 #include "makespan.h"
 #include "solucoes.h"
-#include "politicasMemoria.h"
 #include <stdlib.h>
 #include <stdio.h>
 

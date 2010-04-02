@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -g -std=c99
-SOURCES = ateams.c io.c genetico.c tabu.c makespan.c lista.c memoria.c politicasMemoria.c solucoes.c
+SOURCES = ateams.c io.c genetico.c tabu.c makespan.c lista.c memoria.c solucoes.c
 OBJECTS = $(SOURCES:.c=.o)
 EXEC = ateams
 
@@ -14,3 +14,6 @@ run:	$(EXEC)
 
 clean:
 	rm -rf $(OBJECTS) $(EXEC)
+
+purge:	clean
+	rm -rf resultados/*.res

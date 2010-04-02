@@ -63,9 +63,12 @@ typedef struct Dados {
   int **t_op;	  /* tempo de execucao das tarefas na maquina correspondente */
 } Dados;
 
+int locComPar(char **in, int num, char *key);
 
 void lerArquivoDados (int tipoArquivo, FILE *fdados);
 void lerArquivoParametros (FILE *f);
+
+void lerArgumentos(char **argv, int argc);
 
 void imprimeResultado (struct timeval tv1, struct timeval tv2, int s, int msize, no *lista, FILE *resultados, int makespanInicial);
 
