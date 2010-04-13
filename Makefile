@@ -4,9 +4,9 @@ SOURCES = ateams.c io.c genetico.c tabu.c makespan.c lista.c memoria.c solucoes.
 OBJECTS = $(SOURCES:.c=.o)
 EXEC = ateams
 
-all: $(SOURCES) $(EXEC)
+all:	$(SOURCES) $(EXEC)
 
-$(EXEC): $(OBJECTS)
+$(EXEC):$(OBJECTS)
 	$(CC) $(CFLAGS)   $(LDFLAGS) $^ -o $@
 
 run:	$(EXEC)
