@@ -1,0 +1,24 @@
+## '-1' para algum atributo indica omissao e sera usado o valor padrao
+
+#ATEAMS
+[agUtilizado] = 0.5     // -> 1 = BT; -> 0 = AG; -> 0.5 = ALEATORIO
+[iterAteams] = 100      // Numero de iteracoes do Ateams
+[MaxTempo] = -1         // Tempo maximo de execucao
+[polAceitacao] = 2      // Politica de aceitacao
+[polDestruicao] = 1     // Politica de destruicao
+[tamPopulacao] = 50     // Tamanho da populacao
+[makespanBest] = -1     // Melhor makespan conhecido
+
+#AG
+[iterAG] = 1000         // Iteracoes do AG
+[polLeituraAG] = 1      // Politica de leitura do AG
+[%Leitura] = 0.8        // Corresponde ao tamanho da populacao no AG
+[%Populacao] = 1.0      // Corresponde a quantidade de leituras no AG
+[probCrossover] = 0.8   // Probabilidade de crossover
+[probMutacao] = 0.08    // Probabilidade de mutacao
+[Selecao] = 1           // Politica de selecao
+
+#BT
+[iterBT] = 1000         // Iteracoes do BT
+[polLeituraBT] = 2      // Politica de leitura do BT
+[tamListaBT] = 2        // Tamanho de lista do BT

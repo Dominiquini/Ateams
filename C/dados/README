@@ -1,0 +1,22 @@
+This directory contains a set of test problems.  
+
+la01-la40 are from "Resource constrained project scheduling: an experimental
+investigation of heuristic scheduling techniques" by S. Lawrence.  
+
+mt06, mt10, and mt20 are from "Industrial Scheduling" edited by Muth and
+Thompson.  
+
+car1-car8 are from "Ordonnancements a contraintes disjonctives" by
+J. Carlier. 
+
+orb1-orb10 were generated in Bonn in 1986.
+
+Each problem conists of a line of description, a line containing the number
+of jobs and the number of machines, and then one line for each job, listing
+the machine number and processing time for each step of the job.  The
+machines are numbered starting with 0.
+
+The file VALUES contains the value of the optimal solution for the problems
+that we have solved, and our best lower and upper bounds for those which we
+haven't solved.
+

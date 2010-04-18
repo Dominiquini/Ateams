@@ -1,0 +1,81 @@
+Upper and Lower Bounds for the Test Problems
+
+NAME
+
+abz5        1234 (Opt)
+abz6         943 (Opt)
+abz7        (654, 668)
+abz8        (635, 687)
+abz9        (656, 707)
+
+car1        7038 (Opt)
+car2        7166 (Opt)
+car3        7312 (Opt)
+car4        8003 (Opt)
+car5        7702 (Opt)
+car6        8313 (Opt)
+car7        6558 (Opt)
+car8        8264 (Opt)
+
+la01          666 (Opt)
+la02     655 (Opt)
+la03     597 (Opt)
+la04          590 (Opt)
+la05         593 (Opt)
+
+la06     926 (Opt)
+la07         890 (Opt)
+la08     863 (Opt)
+la09     951 (Opt)
+la10     958 (Opt)
+
+la11         1222 (Opt)
+la12        1039 (Opt)
+la13        1150 (Opt)
+la14        1292 (Opt)
+la15        1207 (Opt)
+
+la16         945 (Opt)
+la17         784 (Opt)
+la18         848 (Opt)
+la19         842 (Opt)
+la20         902 (Opt)
+
+la21        (1040, 1053)
+la22         927 (Opt)
+la23        1032 (Opt)
+la24         935 (Opt)
+la25         977 (Opt)
+
+la26        1218 (Opt)
+la27          (1235, 1269)
+la28          1216 (Opt)
+la29        (1120, 1195)
+la30        1355 (Opt)
+
+la31        1784 (Opt)
+la32        1850 (Opt)
+la33        1719 (Opt)
+la34        1721 (Opt)
+la35        1888 (Opt)
+
+la36        1268 (Opt)        
+la37        1397 (Opt)
+la38        (1184, 1217)
+la39        1233 (Opt)
+la40        1222 (Opt)
+
+mt06          55 (Opt)
+mt10         930 (Opt)
+mt20        1165 (Opt)
+
+orb1        1059 (Opt)
+orb2         888 (Opt)
+orb3        1005 (Opt)
+orb4        1005 (Opt)
+orb5         887 (Opt)
+orb6        1010 (Opt)
+orb7         397 (Opt)
+orb8         899 (Opt)
+orb9         934 (Opt)
+orb10         944 (Opt)
