@@ -221,8 +221,8 @@ int** binTOsymb(int** job, char** bin, int N, int M)
 
 char** symbTObin(int** job, int** sym, int N, int M)
 {
-  char** resp = NULL, max = N*(N-1)/2, maq = -1;
-  int pos = -1, A = -1, jobA = 0, jobB = 1;
+  char** resp = NULL, max = N*(N-1)/2;
+  int pos = -1, A = -1, jobA = 0, jobB = 1, maq = -1;
 
   resp = (char**) malloc(sizeof(char*) * max);
   for(int i = 0; i < max; i++)
