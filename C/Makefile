@@ -7,7 +7,7 @@ EXEC = ateams
 all:	$(SOURCES) $(EXEC)
 
 $(EXEC):$(OBJECTS)
-	$(CC) $(CFLAGS)   $(LDFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@
 
 run:	$(EXEC)
 	./$^ -i dados/la01.prb

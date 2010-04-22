@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include <sys/timeb.h>
-
 #include "JobShop.h"
 
 using namespace std;
@@ -44,7 +41,7 @@ JobShop::JobShop()
 	for (int i = 0; i < njob; i++)
 		aux_vet[i] = i;
 	for (int i = 0; i < nmaq; i++) {
-		aux_vet = mixvet(aux_vet, njob);
+		random_shuffle(&aux_vet[0], &aux_vet[njob]);
 		for (int j = 0; j < njob; j++) {
 			esc[maq[aux_vet[j]][i]][aux_maq[maq[aux_vet[j]][i]]] = aux_vet[j];
 			aux_maq[maq[aux_vet[j]][i]] += 1;
@@ -290,40 +287,8 @@ void desalocaMatriz(int dim, void *MMM, int a, int b)
 	return;
 }
 
-// Troca aleatoriamente dois valores de um vetor
-int *mixvet (int *vet, int tamanho) {
-  int i;
-  int aux;
-  int *vaux;
-  int c1, c2;
-  int change;
-  struct timeb rd;
-
-  vaux = vet;
-  ftime(&rd);
-  aux = rd.millitm;
-
-  for (i = 0; i < aux ; i++) {
-    c1 = rand() % tamanho;
-    do {
-      c2 = rand() % tamanho;
-    } while (c2 == c1);
-    change = vaux[c1];
-    vaux[c1] = vaux[c2];
-    vaux[c2] = change;
-  }
-  return (vaux);
-}
-
 // comparator function:
 bool fncomp(Problema *prob1, Problema *prob2)
 {
 	return prob1->makespan < prob2->makespan;
-}
-
-// random generator function:
-ptrdiff_t myrandom (ptrdiff_t i)
-{
-	srand(unsigned(time(NULL)));
-	return rand() % i;
 }

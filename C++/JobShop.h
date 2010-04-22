@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <sys/timeb.h>
+
 #include "Problema.h"
 
 using namespace std;
@@ -26,10 +29,6 @@ int findOrdem(int M, int maq, int* job);
 void* alocaMatriz(int, int, int, int);
 
 void desalocaMatriz(int, void*, int, int);
-
-int *mixvet (int *vet, int tamanho);
-
-ptrdiff_t myrandom (ptrdiff_t i);
 
 bool fncomp(Problema*, Problema*);
 
