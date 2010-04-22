@@ -2,4 +2,7 @@ syntax: glob
 
 *.res
 ateams
+Ateams
 *.o
+C/Debug
+C++/Debug

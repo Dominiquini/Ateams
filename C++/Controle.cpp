@@ -11,7 +11,19 @@ int main()
 
   Problema::leProblema(fopen("./dados/la01.prb", "r"));
 
-  Problema* prob = new JobShop();
+  while(sol.size() <= 100)
+  {
+	  Problema* prob = new JobShop();
+	  if(prob->makespan != -1)
+		  sol.insert(prob);
+	  else
+		  delete prob;
+  }
+
+  set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+
+  for(iter = sol.begin(); iter != sol.end(); iter++)
+	  cout << (*iter)->makespan << endl;
 
   return 0;
 }

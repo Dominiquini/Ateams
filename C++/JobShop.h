@@ -10,7 +10,6 @@ class JobShop : public Problema
 public:
 
   JobShop();
-  JobShop(int makespan);
   JobShop(int **prob);
   JobShop(JobShop &prob);
   JobShop(JobShop &prob, int maq, int pos1, int pos2);

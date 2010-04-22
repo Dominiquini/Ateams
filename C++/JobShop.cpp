@@ -33,22 +33,6 @@ void Problema::leProblema(FILE *file)
 
 JobShop::JobShop()
 {
-	esc = (int**)alocaMatriz(2, nmaq, njob, 0);
-
-	for(int i = 0; i < nmaq; i++)
-		for(int j = 0; j < njob; j++)
-			esc[i][j] = j;
-
-	ptrdiff_t (*p_myrandom)(ptrdiff_t) = myrandom;
-	for(int i = 0; i < nmaq; i++)
-		random_shuffle(&esc[i][0], &esc[i][njob], p_myrandom);
-
-	escalon = NULL;
-	makespan = calcMakespan();
-}
-
-JobShop::JobShop(int makespan)
-{
 	int *aux_vet, *aux_maq;
 
 	esc = (int**)alocaMatriz(2, nmaq, njob, 0);
