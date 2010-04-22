@@ -10,6 +10,7 @@ class JobShop : public Problema
 public:
 
   JobShop();
+  JobShop(int makespan);
   JobShop(int **prob);
   JobShop(JobShop &prob);
   JobShop(JobShop &prob, int maq, int pos1, int pos2);
@@ -20,13 +21,17 @@ public:
   void imprimir();
 };
 
+
+int findOrdem(int M, int maq, int* job);
+
 void* alocaMatriz(int, int, int, int);
 
 void desalocaMatriz(int, void*, int, int);
 
-int findOrdem(int M, int maq, int* job);
+int *mixvet (int *vet, int tamanho);
 
 ptrdiff_t myrandom (ptrdiff_t i);
+
 bool fncomp(Problema*, Problema*);
 
 #endif
