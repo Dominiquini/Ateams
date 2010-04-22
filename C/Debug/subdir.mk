@@ -3,16 +3,6 @@
 ################################################################################
 
 # Add inputs and outputs from these tool invocations to the build variables 
-O_SRCS += \
-../ateams.o \
-../genetico.o \
-../io.o \
-../lista.o \
-../makespan.o \
-../memoria.o \
-../solucoes.o \
-../tabu.o 
-
 C_SRCS += \
 ../ateams.c \
 ../genetico.c \

@@ -4,18 +4,22 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 O_SRCS += \
+../Ateams.o \
 ../Controle.o \
 ../JobShop.o 
 
 CPP_SRCS += \
+../Ateams.cpp \
 ../Controle.cpp \
 ../JobShop.cpp 
 
 OBJS += \
+./Ateams.o \
 ./Controle.o \
 ./JobShop.o 
 
 CPP_DEPS += \
+./Ateams.d \
 ./Controle.d \
 ./JobShop.d 
 

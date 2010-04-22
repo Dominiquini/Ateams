@@ -1,29 +1,36 @@
-#include "JobShop.h"
+#include "Controle.h"
 
 using namespace std;
 
-int main()
+Controle::Controle(int maxPop, char* problema)
 {
-  srand(unsigned(time(NULL)));
+	tamPop = maxPop;
+	Problema::leProblema(fopen(problema, "r"));
+}
 
-  bool(*fn_pt)(Problema*, Problema*) = fncomp;
-  set<Problema*, bool(*)(Problema*, Problema*)> sol(fn_pt);
+Problema* Controle::start()
+{
+	set<Problema*, bool(*)(Problema*, Problema*)>* sol = geraPop();
 
-  Problema::leProblema(fopen("./dados/la01.prb", "r"));
+	return *(sol->begin());
+}
 
-  while(sol.size() <= 100)
-  {
-	  Problema* prob = new JobShop();
-	  if(prob->makespan != -1)
-		  sol.insert(prob);
-	  else
-		  delete prob;
-  }
+set<Problema*, bool(*)(Problema*, Problema*)>* Controle::geraPop()
+{
+	srand(unsigned(time(NULL)));
 
-  set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	bool(*fn_pt)(Problema*, Problema*) = fncomp;
+	set<Problema*, bool(*)(Problema*, Problema*)>* sol;
 
-  for(iter = sol.begin(); iter != sol.end(); iter++)
-	  cout << (*iter)->makespan << endl;
+	sol = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
 
-  return 0;
+	while(sol->size() <= tamPop)
+	{
+		Problema* prob = new JobShop();
+		if(prob->makespan != -1)
+			sol->insert(prob);
+		else
+			delete prob;
+	}
+	return sol;
 }

@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -g
-SOURCES = Controle.cpp JobShop.cpp 
+SOURCES = Ateams.cpp Controle.cpp JobShop.cpp 
 OBJECTS = $(SOURCES:.cpp=.o)
 EXEC = Ateams
 
