@@ -40,8 +40,9 @@ JobShop::JobShop()
 
   ptrdiff_t (*p_myrandom)(ptrdiff_t) = myrandom;
   for(int i = 0; i < nmaq; i++)
-    random_shuffle(&esc[i][0], &esc[i][njob]+1, p_myrandom);
+    random_shuffle(&esc[i][0], &esc[i][njob], p_myrandom);
 
+  escalon = NULL;
   makespan = calcMakespan();
 }
 
@@ -62,7 +63,11 @@ JobShop::JobShop(JobShop &prob, int maq, int pos1, int pos2)
 
 JobShop::~JobShop()
 {
+	if(esc != NULL)
+		desalocaMatriz(2, esc, nmaq, 0);
 
+	if(escalon != NULL)
+		desalocaMatriz(3, escalon, nmaq, njob);
 }
 
 
@@ -153,7 +158,7 @@ int JobShop::calcMakespan()
       desalocaMatriz(2, tmp, njob, 0);
       desalocaMatriz(1, pos, 0, 0);
 
-      return 0;
+      return -1;
     }
 }
 
