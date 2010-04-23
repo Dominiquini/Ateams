@@ -12,13 +12,15 @@ class JobShop : public Problema
 {
 public:
 
-  JobShop();
-  JobShop(int **prob);
-  JobShop(JobShop &prob);
-  JobShop(JobShop &prob, int maq, int pos1, int pos2);
+	JobShop();
+	JobShop(int **prob);
+	JobShop(Problema &prob);
+	JobShop(Problema &prob, int maq, int pos1, int pos2);
 
-  int calcMakespan();
-  void imprimir();
+	int calcMakespan();
+	void imprimir();
+
+	multiset<Problema*, bool(*)(Problema*, Problema*)>* buscaLocal();
 };
 
 

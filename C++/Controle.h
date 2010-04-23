@@ -1,4 +1,5 @@
 #include "JobShop.h"
+#include "Tabu.h"
 
 using namespace std;
 
@@ -8,10 +9,12 @@ using namespace std;
 class Controle
 {
 public:
-	int tamPop;
+	Tabu* algTabu;
+
+	int tamPop, numAteams;
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* pop;
 
-	Controle(int maxPop, char* problema);
+	Controle(int maxPop, int iter, Tabu* classTabu);
 
 	~Controle();
 

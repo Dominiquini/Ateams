@@ -6,22 +6,26 @@
 O_SRCS += \
 ../Ateams.o \
 ../Controle.o \
-../JobShop.o 
+../JobShop.o \
+../Tabu.o 
 
 CPP_SRCS += \
 ../Ateams.cpp \
 ../Controle.cpp \
-../JobShop.cpp 
+../JobShop.cpp \
+../Tabu.cpp 
 
 OBJS += \
 ./Ateams.o \
 ./Controle.o \
-./JobShop.o 
+./JobShop.o \
+./Tabu.o 
 
 CPP_DEPS += \
 ./Ateams.d \
 ./Controle.d \
-./JobShop.d 
+./JobShop.d \
+./Tabu.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

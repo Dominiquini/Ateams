@@ -68,6 +68,8 @@ JobShop::JobShop() : Problema::Problema()
 	}
 	escalon = NULL;
 	makespan = calcMakespan();
+
+	movTabu.maq = -1;
 }
 
 JobShop::JobShop(int **prob) : Problema::Problema()
@@ -80,9 +82,11 @@ JobShop::JobShop(int **prob) : Problema::Problema()
 
 	escalon = NULL;
 	makespan = calcMakespan();
+
+	movTabu.maq = -1;
 }
 
-JobShop::JobShop(JobShop &prob) : Problema::Problema()
+JobShop::JobShop(Problema &prob) : Problema::Problema()
 {
 	esc = (int**)alocaMatriz(2, nmaq, njob, 0);
 	for(int i = 0; i < nmaq; i++)
@@ -99,9 +103,11 @@ JobShop::JobShop(JobShop &prob) : Problema::Problema()
 				for(int k = 0; k < 3; k++)
 					escalon[i][j][k] = prob.escalon[i][j][k];
 	}
+
+	movTabu.maq = -1;
 }
 
-JobShop::JobShop(JobShop &prob, int maq, int pos1, int pos2) : Problema::Problema()
+JobShop::JobShop(Problema &prob, int maq, int pos1, int pos2) : Problema::Problema()
 {
 	esc = (int**)alocaMatriz(2, nmaq, njob, 0);
 	for(int i = 0; i < nmaq; i++)
@@ -114,6 +120,10 @@ JobShop::JobShop(JobShop &prob, int maq, int pos1, int pos2) : Problema::Problem
 
 	escalon = NULL;
 	makespan = calcMakespan();
+
+	movTabu.maq = maq;
+	movTabu.A = pos1;
+	movTabu.B = pos2;
 }
 
 /*
@@ -232,29 +242,33 @@ void JobShop::imprimir()
 	return;
 }
 
-/* Auxiliares */
-
-void imprimir(int N, int M, int ***esc)
+multiset<Problema*, bool(*)(Problema*, Problema*)>* JobShop::buscaLocal()
 {
-	printf("\n");
+	multiset<Problema*, bool(*)(Problema*, Problema*)>* local;
+	bool(*fn_pt)(Problema*, Problema*) = fncomp;
+	local = new multiset<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
 
-	for(int i = 0; i < M; i++)
+	Problema *job = NULL;
+	for(int i = 0; i < nmaq; i++)
 	{
-		printf("maq %d: ", i+1);
-		for(int j = 0; j < N; j++)
+		for(int j = 0; j < njob; j++)
 		{
-			int k = esc[i][j][2] - esc[i][j][1];
-			int spc = j == 0 ? esc[i][j][1] : esc[i][j][1] - esc[i][j-1][2];
-			while(spc--)
-				printf(" ");
-
-			while(k--)
-				printf("%d", esc[i][j][0]+1);
+			for(int k = j+1; k < njob; k++)
+			{
+				job = new JobShop(*this, i, j, k);
+				if(job->makespan != -1)
+					local->insert(job);
+				else
+					delete job;
+			}
 		}
-		printf("\n");
 	}
-	return;
+
+	return local;
 }
+
+
+/* Auxiliares */
 
 int findOrdem(int M, int maq, int* job)
 {
@@ -265,7 +279,7 @@ int findOrdem(int M, int maq, int* job)
 }
 
 void* alocaMatriz(int dim, int a, int b, int c)
-		{
+						{
 	if(dim == 1)
 	{
 		int *M = (int*)malloc(a * sizeof(int));
@@ -294,7 +308,7 @@ void* alocaMatriz(int dim, int a, int b, int c)
 	}
 	else
 		return NULL;
-		}
+						}
 
 void desalocaMatriz(int dim, void *MMM, int a, int b)
 {
