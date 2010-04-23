@@ -32,20 +32,12 @@ public:
   int makespan;
   int ***escalon;
 
-  Problema() {numInst++;}
+  Problema();
 
-  ~Problema() {numInst--;}
+  ~Problema();
 
   virtual int calcMakespan() = 0;
   virtual void imprimir() = 0;
-
-  // static set<Problema*, bool(*fn_pt)(Problema*, Problema*)> geraSolucao(int **maq, int **time);
-  // static int escolheSolucao(set<Problema*, bool(*fn_pt)(Problema*, Problema*)> pop);
-
-  // virtual int calcMakespan() = 0;
-  // virtual set<Problema*, bool(*fn_pt)(Problema*, Problema*)> buscaLocal() = 0;
-  // virtual Problema crossOver(Problema prob) = 0;
-  // virtual Problema mutacao() = 0;
 };
 
 #endif

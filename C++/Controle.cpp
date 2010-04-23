@@ -6,31 +6,43 @@ Controle::Controle(int maxPop, char* problema)
 {
 	tamPop = maxPop;
 	Problema::leProblema(fopen(problema, "r"));
+
+	srand(unsigned(time(NULL)));
+
+	bool(*fn_pt)(Problema*, Problema*) = fncomp;
+	pop = new multiset<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
+}
+
+Controle::~Controle()
+{
+	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+
+	for(iter = pop->begin(); iter != pop->end(); iter++)
+		delete *iter;
+
+	pop->clear();
+	delete pop;
 }
 
 Problema* Controle::start()
 {
-	set<Problema*, bool(*)(Problema*, Problema*)>* sol = geraPop();
+	geraPop();
 
-	return *(sol->begin());
+	return *(pop->begin());
 }
 
-set<Problema*, bool(*)(Problema*, Problema*)>* Controle::geraPop()
+void Controle::geraPop()
 {
 	srand(unsigned(time(NULL)));
 
-	bool(*fn_pt)(Problema*, Problema*) = fncomp;
-	set<Problema*, bool(*)(Problema*, Problema*)>* sol;
-
-	sol = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
-
-	while(sol->size() <= tamPop)
+	Problema* prob = NULL;
+	while(pop->size() <= tamPop)
 	{
-		Problema* prob = new JobShop();
+		prob = new JobShop();
+
 		if(prob->makespan != -1)
-			sol->insert(prob);
+			pop->insert(prob);
 		else
 			delete prob;
 	}
-	return sol;
 }

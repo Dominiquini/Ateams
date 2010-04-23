@@ -9,6 +9,24 @@ char Problema::name[128];
 int **Problema::maq = NULL, **Problema::time = NULL;
 int Problema::njob = 0, Problema::nmaq = 0;
 
+
+Problema::Problema()
+{
+	numInst++;
+}
+
+Problema::~Problema()
+{
+	numInst--;
+
+	if(esc != NULL)
+		desalocaMatriz(2, esc, nmaq, 0);
+
+	if(escalon != NULL)
+		desalocaMatriz(3, escalon, nmaq, njob);
+}
+
+
 void Problema::leProblema(FILE *file)
 {
 	if(!fgets (name, 128, file))
@@ -28,9 +46,10 @@ void Problema::leProblema(FILE *file)
 
 /* Metodos */
 
-JobShop::JobShop()
+JobShop::JobShop() : Problema::Problema()
 {
 	int *aux_vet, *aux_maq;
+	ptrdiff_t (*p_myrandom)(ptrdiff_t) = myrandom;
 
 	esc = (int**)alocaMatriz(2, nmaq, njob, 0);
 	aux_vet = (int*)alocaMatriz(1, njob, 0, 0);
@@ -41,7 +60,7 @@ JobShop::JobShop()
 	for (int i = 0; i < njob; i++)
 		aux_vet[i] = i;
 	for (int i = 0; i < nmaq; i++) {
-		random_shuffle(&aux_vet[0], &aux_vet[njob]);
+		random_shuffle(&aux_vet[0], &aux_vet[njob], p_myrandom);
 		for (int j = 0; j < njob; j++) {
 			esc[maq[aux_vet[j]][i]][aux_maq[maq[aux_vet[j]][i]]] = aux_vet[j];
 			aux_maq[maq[aux_vet[j]][i]] += 1;
@@ -51,30 +70,51 @@ JobShop::JobShop()
 	makespan = calcMakespan();
 }
 
-JobShop::JobShop(int **prob)
+JobShop::JobShop(int **prob) : Problema::Problema()
 {
+	esc = (int**)alocaMatriz(2, nmaq, njob, 0);
 
+	for(int i = 0; i < nmaq; i++)
+		for(int j = 0; j < njob; j++)
+			esc[i][j] = prob[i][j];
+
+	escalon = NULL;
+	makespan = calcMakespan();
 }
 
-JobShop::JobShop(JobShop &prob)
+JobShop::JobShop(JobShop &prob) : Problema::Problema()
 {
+	esc = (int**)alocaMatriz(2, nmaq, njob, 0);
+	for(int i = 0; i < nmaq; i++)
+		for(int j = 0; j < njob; j++)
+			esc[i][j] = prob.esc[i][j];
 
+	makespan = prob.makespan;
+
+	if(prob.escalon != NULL)
+	{
+		escalon = (int***)alocaMatriz(3, nmaq, njob, 3);
+		for(int i = 0; i < nmaq; i++)
+			for(int j = 0; j < njob; j++)
+				for(int k = 0; k < 3; k++)
+					escalon[i][j][k] = prob.escalon[i][j][k];
+	}
 }
 
-JobShop::JobShop(JobShop &prob, int maq, int pos1, int pos2)
+JobShop::JobShop(JobShop &prob, int maq, int pos1, int pos2) : Problema::Problema()
 {
+	esc = (int**)alocaMatriz(2, nmaq, njob, 0);
+	for(int i = 0; i < nmaq; i++)
+		for(int j = 0; j < njob; j++)
+			esc[i][j] = prob.esc[i][j];
 
+	int aux = esc[maq][pos1];
+	esc[maq][pos1] = esc[maq][pos2];
+	esc[maq][pos2] = aux;
+
+	escalon = NULL;
+	makespan = calcMakespan();
 }
-
-JobShop::~JobShop()
-{
-	if(esc != NULL)
-		desalocaMatriz(2, esc, nmaq, 0);
-
-	if(escalon != NULL)
-		desalocaMatriz(3, escalon, nmaq, njob);
-}
-
 
 /*
  * Devolve o makespan  e o escalonamento quando a solucao for factivel,
@@ -291,4 +331,10 @@ void desalocaMatriz(int dim, void *MMM, int a, int b)
 bool fncomp(Problema *prob1, Problema *prob2)
 {
 	return prob1->makespan < prob2->makespan;
+}
+
+// random generator function:
+ptrdiff_t myrandom (ptrdiff_t i)
+{
+	return rand() % i;
 }

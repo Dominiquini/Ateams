@@ -9,12 +9,15 @@ class Controle
 {
 public:
 	int tamPop;
+	multiset<Problema*, bool(*)(Problema*, Problema*)>* pop;
 
 	Controle(int maxPop, char* problema);
 
+	~Controle();
+
 	Problema* start();
 
-	set<Problema*, bool(*)(Problema*, Problema*)>* geraPop();
+	void geraPop();
 };
 
 #endif

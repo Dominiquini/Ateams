@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <sys/timeb.h>
+#include <time.h>
 
 #include "Problema.h"
 
@@ -17,8 +17,6 @@ public:
   JobShop(JobShop &prob);
   JobShop(JobShop &prob, int maq, int pos1, int pos2);
 
-  ~JobShop();
-
   int calcMakespan();
   void imprimir();
 };
@@ -31,5 +29,7 @@ void* alocaMatriz(int, int, int, int);
 void desalocaMatriz(int, void*, int, int);
 
 bool fncomp(Problema*, Problema*);
+
+ptrdiff_t myrandom (ptrdiff_t i);
 
 #endif
