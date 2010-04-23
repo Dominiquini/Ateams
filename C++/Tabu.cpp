@@ -8,6 +8,7 @@ Tabu::Tabu(int iter, int lista)
 	tamListaTabu = lista;
 }
 
+/* Executa uma busca por soluções a partir de 'init' por 'iterTabu' vezes */
 Problema* Tabu::start(Problema* init)
 {
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* local;
@@ -41,6 +42,21 @@ Problema* Tabu::start(Problema* init)
 
 				break;
 			}
+			// Eh tabu...
+			else
+			{
+				// Satisfaz a funcao de aspiracao
+				if((*iter)->makespan < maxGlobal->makespan)
+				{
+					delete maxLocal;
+					maxLocal = new JobShop(**iter);
+
+					delete maxGlobal;
+					maxGlobal = new JobShop(*maxLocal);
+
+					break;
+				}
+			}
 		}
 
 		for(iter = local->begin(); iter != local->end(); iter++)
@@ -53,7 +69,7 @@ Problema* Tabu::start(Problema* init)
 	return maxGlobal;
 }
 
-
+/* Verdadeiro se solucao avaliada for Tabu */
 bool isTabu(list<mov> *listaTabu, mov m)
 {
 	list<mov>::iterator iter;

@@ -12,14 +12,15 @@ class JobShop : public Problema
 {
 public:
 
-	JobShop();
-	JobShop(int **prob);
-	JobShop(Problema &prob);
-	JobShop(Problema &prob, int maq, int pos1, int pos2);
+	JobShop();												// Nova solucao aleatoria
+	JobShop(int **prob);									// Copia de prob
+	JobShop(Problema &prob);								// Copia de prob
+	JobShop(Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
-	int calcMakespan();
-	void imprimir();
+	int calcMakespan();	// Calcula o makespan
+	void imprimir();	// Imprime o escaloonamento atual
 
+	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual */
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* buscaLocal();
 };
 

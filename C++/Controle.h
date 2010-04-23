@@ -9,17 +9,19 @@ using namespace std;
 class Controle
 {
 public:
-	Tabu* algTabu;
+	Tabu* algTabu;			// Algoritmo de BuscaTabu executado
 
-	int tamPop, numAteams;
-	multiset<Problema*, bool(*)(Problema*, Problema*)>* pop;
+	int tamPop, numAteams;	// Tamanho da populacao e numero de iteracoes do Ateams
+	multiset<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
 
 	Controle(int maxPop, int iter, Tabu* classTabu);
 
 	~Controle();
 
+	/* Comeca a execucao do Ateams utilizando os algoritmos disponiveis */
 	Problema* start();
 
+	/* Gera uma populacao inicial aleatoria com 'tamPop' elementos */
 	void geraPop();
 };
 

@@ -27,28 +27,29 @@ bool fncomp(Problema*, Problema*);
 class Problema
 {
 public:
-	static int numInst;
+	static int numInst;				// Quantidade de instancias criadas
 
-	static char name[128];
-	static int **maq, **time;
-	static int njob, nmaq;
+	static char name[128];			// Nome do problema
+	static int **maq, **time;		// Matriz de maquinas e de tempos
+	static int njob, nmaq;			// QUantidade de jobs e de maquinas
 
-	static void leProblema(FILE*);
+	static void leProblema(FILE*);	// Le arquivo de dados de entrada
 
 
-	mov movTabu;
+	mov movTabu;	// Movimento tabu que gerou a solucao. movTabu.maq = -1 se por outro meio
 
-	int **esc;
-	int makespan;
-	int ***escalon;
+	int **esc;		// Solucao
+	int makespan;	// Makespan da solucao
+	int ***escalon;	// Escalonamento nas maquinas
 
-	Problema();
+	Problema();		// numInst++
 
-	~Problema();
+	~Problema();	// numInst--
 
-	virtual int calcMakespan() = 0;
-	virtual void imprimir() = 0;
+	virtual int calcMakespan() = 0;	// Calcula o makespan
+	virtual void imprimir() = 0;	// Imprime o escalonamento
 
+	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual */
 	virtual multiset<Problema*, bool(*)(Problema*, Problema*)>* buscaLocal() = 0;
 };
 
