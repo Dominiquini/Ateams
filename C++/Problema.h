@@ -15,14 +15,44 @@ using namespace std;
 #define _PROBLEMA_
 
 
+typedef struct ParametrosATEAMS {
+  float agenteUtilizado;
+  int tamanhoPopulacao;   /* > 0*/
+  int iteracoesAteams;
+  int maxTempo;
+  int politicaAceitacao;
+  int politicaDestruicao;
+  int makespanBest;       /* Melhor makespan conhecido */
+} ParametrosATEAMS;
+
+typedef struct ParametrosAG {
+  int selecao;
+  int quantidadeLeituraMemoriaATEAMS;
+  int tamanhoPopulacao;
+  int numeroIteracoes;
+  int politicaLeitura;
+  float probabilidadeCrossover;
+  float probabilidadeMutacoes;
+} ParametrosAG;
+
+typedef struct ParametrosBT {
+  int politicaLeitura;
+  int numeroIteracoes;
+  int tamanhoListaTabu;
+  int k;                /* valor que ira determinar o tamanho da lista tabu de acordo como o numero de iteracoes */
+} ParametrosBT;
+
+
 typedef struct movTabu
 {
 	int maq, A, B;
 } mov;
 
+
 class Problema;
 
 bool fncomp(Problema*, Problema*);
+
 
 class Problema
 {
@@ -33,7 +63,12 @@ public:
 	static int **maq, **time;		// Matriz de maquinas e de tempos
 	static int njob, nmaq;			// QUantidade de jobs e de maquinas
 
+	static ParametrosATEAMS *pATEAMS;
+	static ParametrosAG *pAG;
+	static ParametrosBT *pBT;
+
 	static void leProblema(FILE*);	// Le arquivo de dados de entrada
+	static void leParametros(FILE*);// Le arquivo de parametros de entrada
 
 
 	mov movTabu;	// Movimento tabu que gerou a solucao. movTabu.maq = -1 se por outro meio

@@ -2,10 +2,10 @@
 
 using namespace std;
 
-Tabu::Tabu(int iter, int lista)
+Tabu::Tabu(ParametrosBT* pBT)
 {
-	iterTabu = iter;
-	tamListaTabu = lista;
+	iterTabu = pBT->numeroIteracoes;
+	tamListaTabu = pBT->tamanhoListaTabu;
 }
 
 /* Executa uma busca por soluções a partir de 'init' por 'iterTabu' vezes */

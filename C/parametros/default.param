@@ -19,6 +19,6 @@
 [Selecao] = 1           // Politica de selecao
 
 #BT
-[iterBT] = 1000         // Iteracoes do BT
+[iterBT] = 100          // Iteracoes do BT
 [polLeituraBT] = 2      // Politica de leitura do BT
 [tamListaBT] = 2        // Tamanho de lista do BT

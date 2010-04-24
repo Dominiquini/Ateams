@@ -2,10 +2,12 @@
 
 using namespace std;
 
-Controle::Controle(int maxPop, int iter, Tabu* classTabu)
+extern int PARAR;
+
+Controle::Controle(ParametrosATEAMS* pATEAMS, Tabu* classTabu)
 {
-	tamPop = maxPop;
-	numAteams = iter;
+	tamPop = pATEAMS->tamanhoPopulacao;
+	numAteams = pATEAMS->iteracoesAteams;
 
 	srand(unsigned(time(NULL)));
 
@@ -36,6 +38,9 @@ Problema* Controle::start()
 	{
 		cout << "BT : " << i << " : " << (*pop->begin())->makespan << endl;
 		pop->insert(algTabu->start(*iter));
+
+		if(PARAR == 1)
+			break;
 	}
 
 	return *(pop->begin());

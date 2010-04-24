@@ -14,7 +14,7 @@ public:
 	int tamPop, numAteams;	// Tamanho da populacao e numero de iteracoes do Ateams
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
 
-	Controle(int maxPop, int iter, Tabu* classTabu);
+	Controle(ParametrosATEAMS* pATEAMS, Tabu* classTabu);
 
 	~Controle();
 

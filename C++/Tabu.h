@@ -11,7 +11,7 @@ public:
 
 	int iterTabu, tamListaTabu;
 
-	Tabu(int iter, int lista);
+	Tabu(ParametrosBT*);
 
 	Problema* start(Problema*);
 };

@@ -24,6 +24,9 @@ public:
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* buscaLocal();
 };
 
+float locNumberPar(char *in, int num, char *key);
+
+char* locPosPar(char *in, int num, char *key);
 
 int findOrdem(int M, int maq, int* job);
 

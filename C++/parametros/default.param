@@ -2,11 +2,11 @@
 
 #ATEAMS
 [agUtilizado] = 0.5     // -> 1 = BT; -> 0 = AG; -> 0.5 = ALEATORIO
-[iterAteams] = 100      // Numero de iteracoes do Ateams
+[iterAteams] = 50       // Numero de iteracoes do Ateams
 [MaxTempo] = -1         // Tempo maximo de execucao
 [polAceitacao] = 2      // Politica de aceitacao
 [polDestruicao] = 1     // Politica de destruicao
-[tamPopulacao] = 50     // Tamanho da populacao
+[tamPopulacao] = 250    // Tamanho da populacao
 [makespanBest] = -1     // Melhor makespan conhecido
 
 #AG
@@ -19,6 +19,6 @@
 [Selecao] = 1           // Politica de selecao
 
 #BT
-[iterBT] = 1000         // Iteracoes do BT
+[iterBT] = 250          // Iteracoes do BT
 [polLeituraBT] = 2      // Politica de leitura do BT
-[tamListaBT] = 2        // Tamanho de lista do BT
+[tamListaBT] = 25       // Tamanho de lista do BT
