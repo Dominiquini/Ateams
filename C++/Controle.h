@@ -1,4 +1,6 @@
-#include "JobShop.h"
+#include <sys/time.h>
+
+#include "Problema.h"
 #include "Tabu.h"
 
 using namespace std;
@@ -11,7 +13,7 @@ class Controle
 public:
 	Tabu* algTabu;			// Algoritmo de BuscaTabu executado
 
-	int tamPop, numAteams;	// Tamanho da populacao e numero de iteracoes do Ateams
+	int tamPop, numAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
 
 	Controle(ParametrosATEAMS* pATEAMS, Tabu* classTabu);

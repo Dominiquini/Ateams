@@ -13,11 +13,15 @@ public:
 
 	Tabu(ParametrosBT*);
 
-	Problema* start(Problema*);
+	Problema* start(multiset<Problema*, bool(*)(Problema*, Problema*)>* sol);
+
+	Problema* exec(Problema*);
 };
 
 bool isTabu(list<mov> *listaTabu, mov m);
 
 bool mvcomp(mov, mov);
+
+Problema* selectRouletteWheel(multiset<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal);
 
 #endif

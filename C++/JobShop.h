@@ -22,6 +22,8 @@ public:
 
 	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual */
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* buscaLocal();
+
+	double getFitness();
 };
 
 float locNumberPar(char *in, int num, char *key);

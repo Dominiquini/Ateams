@@ -7,13 +7,11 @@ using namespace std;
 /* Static Members */
 
 int Problema::numInst = 0;
+double Problema::totalMakespan = 0;
 char Problema::name[128];
 int **Problema::maq = NULL, **Problema::time = NULL;
 int Problema::njob = 0, Problema::nmaq = 0;
 
-ParametrosATEAMS *Problema::pATEAMS;
-ParametrosAG *Problema::pAG;
-ParametrosBT *Problema::pBT;
 
 Problema::Problema()
 {
@@ -29,6 +27,26 @@ Problema::~Problema()
 
 	if(escalon != NULL)
 		desalocaMatriz(3, escalon, nmaq, njob);
+}
+
+Problema* Problema::alloc()
+{
+	return new JobShop();
+}
+
+Problema* Problema::alloc(int** prob)
+{
+	return new JobShop(prob);
+}
+
+Problema* Problema::alloc(Problema& prob)
+{
+	return new JobShop(prob);
+}
+
+Problema* Problema::alloc(Problema& prob, int maq, int pos1, int pos2)
+{
+	return new JobShop(prob, maq, pos1, pos2);
 }
 
 
@@ -48,77 +66,86 @@ void Problema::leProblema(FILE *f)
 	}
 }
 
-void Problema::leParametros(FILE *f)
+void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, ParametrosAG *pAG)
 {
-  char *parametros = (char*)malloc(4097 * sizeof(char));
-  size_t size = fread(parametros, sizeof(char), 4096, f);
-  float par = -1;
+	char *parametros = (char*)malloc(4097 * sizeof(char));
+	size_t size = fread(parametros, sizeof(char), 4096, f);
+	float par = -1;
 
-  float porcentagemPop;
-  float porcentagemLeituraATEAMS;
+	float porcentagemPop;
+	float porcentagemLeituraATEAMS;
 
-  par = locNumberPar(parametros, size, (char*)"[agUtilizado]");
-  Problema::pATEAMS->agenteUtilizado = par != -1 ? par : 0.5;
+	par = locNumberPar(parametros, size, (char*)"[agUtilizado]");
+	pATEAMS->agenteUtilizado = par != -1 ? par : 0.5;
 
-  par = locNumberPar(parametros, size, (char*)"[iterAteams]");
-  Problema::pATEAMS->iteracoesAteams = par != -1 ? (int)par : 100;
+	par = locNumberPar(parametros, size, (char*)"[iterAteams]");
+	pATEAMS->iteracoesAteams = par != -1 ? (int)par : 100;
 
-  par = locNumberPar(parametros, size, (char*)"[MaxTempo]");
-  Problema::pATEAMS->maxTempo = par;
+	par = locNumberPar(parametros, size, (char*)"[MaxTempo]");
+	pATEAMS->maxTempo = par;
 
-  par = locNumberPar(parametros, size, (char*)"[polAceitacao]");
-  Problema::pATEAMS->politicaAceitacao = par != -1 ? (int)par : 2;
+	par = locNumberPar(parametros, size, (char*)"[polAceitacao]");
+	pATEAMS->politicaAceitacao = par != -1 ? (int)par : 2;
 
-  par = locNumberPar(parametros, size, (char*)"[polDestruicao]");
-  Problema::pATEAMS->politicaDestruicao = par != -1 ? (int)par : 1;
+	par = locNumberPar(parametros, size, (char*)"[polDestruicao]");
+	pATEAMS->politicaDestruicao = par != -1 ? (int)par : 1;
 
-  par = locNumberPar(parametros, size, (char*)"[tamPopulacao]");
-  Problema::pATEAMS->tamanhoPopulacao = par != -1 ? (int)par : 50;
+	par = locNumberPar(parametros, size, (char*)"[tamPopulacao]");
+	pATEAMS->tamanhoPopulacao = par != -1 ? (int)par : 50;
 
-  par = locNumberPar(parametros, size, (char*)"[makespanBest]");
-  Problema::pATEAMS->makespanBest = par;
-
-
-  par = locNumberPar(parametros, size, (char*)"[iterAG]");
-  Problema::pAG->numeroIteracoes = par != -1 ? (int)par : 1000;
-
-  par = locNumberPar(parametros, size, (char*)"[polLeituraAG]");
-  Problema::pAG->politicaLeitura = par != -1 ? (int)par : 1;
-
-  par = locNumberPar(parametros, size, (char*)"[%Leitura]");
-  porcentagemPop = par != -1 ? par : 0.8;
-
-  par = locNumberPar(parametros, size, (char*)"[%Populacao]");
-  porcentagemLeituraATEAMS = par != -1 ? par : 1.0;
-
-  par = locNumberPar(parametros, size, (char*)"[probCrossover]");
-  Problema::pAG->probabilidadeCrossover = par != -1 ? par : 0.6;
-
-  par = locNumberPar(parametros, size, (char*)"[probMutacao]");
-  Problema::pAG->probabilidadeMutacoes = par != -1 ? par : 0.02;
-
-  par = locNumberPar(parametros, size, (char*)"[Selecao]");
-  Problema::pAG->selecao = par != -1 ? (int)par : 1;
+	par = locNumberPar(parametros, size, (char*)"[makespanBest]");
+	pATEAMS->makespanBest = par;
 
 
-  par = locNumberPar(parametros, size, (char*)"[iterBT]");
-  Problema::pBT->numeroIteracoes = par != -1 ? (int)par : 1000;
+	par = locNumberPar(parametros, size, (char*)"[iterAG]");
+	pAG->numeroIteracoes = par != -1 ? (int)par : 1000;
 
-  par = locNumberPar(parametros, size, (char*)"[polLeituraBT]");
-  Problema::pBT->politicaLeitura = par != -1 ? (int)par : 1;
+	par = locNumberPar(parametros, size, (char*)"[polLeituraAG]");
+	pAG->politicaLeitura = par != -1 ? (int)par : 1;
 
-  par = locNumberPar(parametros, size, (char*)"[tamListaBT]");
-  Problema::pBT->tamanhoListaTabu = par != -1 ? (int)par : 2;
+	par = locNumberPar(parametros, size, (char*)"[%Leitura]");
+	porcentagemPop = par != -1 ? par : 0.8;
+
+	par = locNumberPar(parametros, size, (char*)"[%Populacao]");
+	porcentagemLeituraATEAMS = par != -1 ? par : 1.0;
+
+	par = locNumberPar(parametros, size, (char*)"[probCrossover]");
+	pAG->probabilidadeCrossover = par != -1 ? par : 0.6;
+
+	par = locNumberPar(parametros, size, (char*)"[probMutacao]");
+	pAG->probabilidadeMutacoes = par != -1 ? par : 0.02;
+
+	par = locNumberPar(parametros, size, (char*)"[Selecao]");
+	pAG->selecao = par != -1 ? (int)par : 1;
 
 
-  Problema::pAG->tamanhoPopulacao = Problema::pATEAMS->tamanhoPopulacao * (1 + porcentagemPop);
+	par = locNumberPar(parametros, size, (char*)"[iterBT]");
+	pBT->numeroIteracoes = par != -1 ? (int)par : 1000;
 
-  Problema::pAG->quantidadeLeituraMemoriaATEAMS = Problema::pATEAMS->tamanhoPopulacao * porcentagemLeituraATEAMS;
+	par = locNumberPar(parametros, size, (char*)"[polLeituraBT]");
+	pBT->politicaLeitura = par != -1 ? (int)par : 1;
 
-  Problema::pBT->k = Problema::pBT->numeroIteracoes/5;
+	par = locNumberPar(parametros, size, (char*)"[tamListaBT]");
+	pBT->tamanhoListaTabu = par != -1 ? (int)par : 2;
 
-  free(parametros);
+
+	pAG->tamanhoPopulacao = pATEAMS->tamanhoPopulacao * (1 + porcentagemPop);
+
+	pAG->quantidadeLeituraMemoriaATEAMS = pATEAMS->tamanhoPopulacao * porcentagemLeituraATEAMS;
+
+	pBT->k = pBT->numeroIteracoes/5;
+
+	free(parametros);
 }
+
+bool Problema::movTabuCMP(mov& t1, mov& t2)
+{
+	if(t1.maq == t2.maq && (t1.A == t2.A || t1.A == t2.B) && (t1.B == t2.B || t1.B == t2.A))
+		return true;
+	else
+		return false;
+}
+
 
 /* Metodos */
 
@@ -179,8 +206,7 @@ JobShop::JobShop(Problema &prob) : Problema::Problema()
 				for(int k = 0; k < 3; k++)
 					escalon[i][j][k] = prob.escalon[i][j][k];
 	}
-
-	movTabu.maq = -1;
+	movTabu = prob.movTabu;
 }
 
 JobShop::JobShop(Problema &prob, int maq, int pos1, int pos2) : Problema::Problema()
@@ -343,29 +369,34 @@ multiset<Problema*, bool(*)(Problema*, Problema*)>* JobShop::buscaLocal()
 	return local;
 }
 
+double JobShop::getFitness()
+{
+	return (double)1000/makespan;
+}
+
 
 /* Auxiliares */
 
 float locNumberPar(char *in, int num, char *key)
 {
-  char *str = locPosPar(in, num, key);
-  float ret = -1;
+	char *str = locPosPar(in, num, key);
+	float ret = -1;
 
-  if(str != NULL)
-    sscanf(str, "%f", &ret);
+	if(str != NULL)
+		sscanf(str, "%f", &ret);
 
-  return ret;
+	return ret;
 }
 
 char* locPosPar(char *in, int num, char *key)
-{
-  char *str = strstr(in, key);
+		{
+	char *str = strstr(in, key);
 
-  if(str != NULL)
-    return strstr(str, "=") + 1;
-  else
-    return NULL;
-}
+	if(str != NULL)
+		return strstr(str, "=") + 1;
+	else
+		return NULL;
+		}
 
 int findOrdem(int M, int maq, int* job)
 {
@@ -376,7 +407,7 @@ int findOrdem(int M, int maq, int* job)
 }
 
 void* alocaMatriz(int dim, int a, int b, int c)
-						{
+								{
 	if(dim == 1)
 	{
 		int *M = (int*)malloc(a * sizeof(int));
@@ -405,7 +436,7 @@ void* alocaMatriz(int dim, int a, int b, int c)
 	}
 	else
 		return NULL;
-						}
+								}
 
 void desalocaMatriz(int dim, void *MMM, int a, int b)
 {

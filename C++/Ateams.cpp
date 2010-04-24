@@ -1,12 +1,6 @@
-#include <signal.h>
-#include <limits.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/time.h>
-
 #include "Problema.h"
 #include "Controle.h"
+#include "Ateams.h"
 
 using namespace std;
 
@@ -31,63 +25,63 @@ int locComPar(char **in, int num, char *key)
 }
 
 /* Le argumentos adicionais passados por linha de comando */
-void lerArgumentos(char **argv, int argc)
+void lerArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, ParametrosAG *pAG)
 {
 	int p = -1;
 
 	if((p = locComPar(argv, argc, (char*)"--agUtilizado")) != -1)
-		Problema::pATEAMS->agenteUtilizado = atof(argv[p]);
+		pATEAMS->agenteUtilizado = atof(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--iterAteams")) != -1)
-		Problema::pATEAMS->iteracoesAteams = atoi(argv[p]);
+		pATEAMS->iteracoesAteams = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--MaxTempo")) != -1)
-		Problema::pATEAMS->maxTempo = atoi(argv[p]);
+		pATEAMS->maxTempo = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--polAceitacao")) != -1)
-		Problema::pATEAMS->politicaAceitacao = atoi(argv[p]);
+		pATEAMS->politicaAceitacao = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--polDestruicao")) != -1)
-		Problema::pATEAMS->politicaDestruicao = atoi(argv[p]);
+		pATEAMS->politicaDestruicao = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--tamPopulacao")) != -1)
-		Problema::pATEAMS->tamanhoPopulacao = atoi(argv[p]);
+		pATEAMS->tamanhoPopulacao = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--makespanBest")) != -1)
-		Problema::pATEAMS->makespanBest = atoi(argv[p]);
+		pATEAMS->makespanBest = atoi(argv[p]);
 
 
 	if((p = locComPar(argv, argc, (char*)"--iterAG")) != -1)
-		Problema::pAG->numeroIteracoes = atoi(argv[p]);
+		pAG->numeroIteracoes = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--polLeituraAG")) != -1)
-		Problema::pAG->politicaLeitura = atoi(argv[p]);
+		pAG->politicaLeitura = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--probCrossover")) != -1)
-		Problema::pAG->probabilidadeCrossover = atof(argv[p]);
+		pAG->probabilidadeCrossover = atof(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--probMutacao")) != -1)
-		Problema::pAG->probabilidadeMutacoes = atof(argv[p]);
+		pAG->probabilidadeMutacoes = atof(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--Selecao")) != -1)
-		Problema::pAG->selecao = atoi(argv[p]);
+		pAG->selecao = atoi(argv[p]);
 
 
 	if((p = locComPar(argv, argc, (char*)"--iterBT")) != -1)
-		Problema::pBT->numeroIteracoes = atoi(argv[p]);
+		pBT->numeroIteracoes = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--polLeituraBT")) != -1)
-		Problema::pBT->politicaLeitura = atoi(argv[p]);
+		pBT->politicaLeitura = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--tamListaBT")) != -1)
-		Problema::pBT->tamanhoListaTabu = atoi(argv[p]);
+		pBT->tamanhoListaTabu = atoi(argv[p]);
 }
 
 void imprimeResultado (struct timeval tv1, struct timeval tv2, FILE *resultados, int bestMakespan)
 {
 	int s = (((tv2.tv_sec*1000)+(tv2.tv_usec/1000)) - ((tv1.tv_sec*1000)+(tv1.tv_usec/1000)))/1000;
 
-	fprintf(resultados, "%8d %8d\n", bestMakespan, s);
+	fprintf(resultados, "%d %8d\n", bestMakespan, s);
 }
 
 
@@ -97,16 +91,20 @@ int main(int argc, char *argv[])
 	signal(SIGINT, Interrompe);
 
 	struct timeval tv1, tv2;
-	gettimeofday(&tv2, NULL);
+	gettimeofday(&tv1, NULL);
 
 	/* Leitura dos parametros passados por linha de comando */
 	FILE *fdados;
 	FILE *fparametros;
 	FILE *fresultados;
 
-	Problema::pATEAMS = (ParametrosATEAMS*)malloc(sizeof(ParametrosATEAMS));
-	Problema::pBT = (ParametrosBT*)malloc(sizeof(ParametrosBT));
-	Problema::pAG = (ParametrosAG*)malloc(sizeof(ParametrosAG));
+	ParametrosATEAMS *pATEAMS;
+	ParametrosAG *pAG;
+	ParametrosBT *pBT;
+
+	pATEAMS = (ParametrosATEAMS*)malloc(sizeof(ParametrosATEAMS));
+	pBT = (ParametrosBT*)malloc(sizeof(ParametrosBT));
+	pAG = (ParametrosAG*)malloc(sizeof(ParametrosAG));
 
 	int p = -1;
 
@@ -172,16 +170,16 @@ int main(int argc, char *argv[])
 	}
 
 	Problema::leProblema(fdados);
-	Problema::leParametros(fparametros);
+	Problema::leParametros(fparametros, pATEAMS, pBT, pAG);
 
 	fclose(fdados);
 	fclose(fparametros);
 
-	lerArgumentos(argv, argc);
+	lerArgumentos(argv, argc, pATEAMS, pBT, pAG);
 
 	cout << endl;
 
-	Controle* ctr = new Controle(Problema::pATEAMS, new Tabu(Problema::pBT));
+	Controle* ctr = new Controle(pATEAMS, new Tabu(pBT));
 	Problema* best = ctr->start();
 	cout << endl << "Melhor Solução: " << best->makespan << endl << endl;
 

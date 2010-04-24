@@ -9,39 +9,12 @@
 #include <list>
 #include <set>
 
+#include "Ateams.h"
+
 using namespace std;
 
 #ifndef _PROBLEMA_
 #define _PROBLEMA_
-
-
-typedef struct ParametrosATEAMS {
-  float agenteUtilizado;
-  int tamanhoPopulacao;   /* > 0*/
-  int iteracoesAteams;
-  int maxTempo;
-  int politicaAceitacao;
-  int politicaDestruicao;
-  int makespanBest;       /* Melhor makespan conhecido */
-} ParametrosATEAMS;
-
-typedef struct ParametrosAG {
-  int selecao;
-  int quantidadeLeituraMemoriaATEAMS;
-  int tamanhoPopulacao;
-  int numeroIteracoes;
-  int politicaLeitura;
-  float probabilidadeCrossover;
-  float probabilidadeMutacoes;
-} ParametrosAG;
-
-typedef struct ParametrosBT {
-  int politicaLeitura;
-  int numeroIteracoes;
-  int tamanhoListaTabu;
-  int k;                /* valor que ira determinar o tamanho da lista tabu de acordo como o numero de iteracoes */
-} ParametrosBT;
-
 
 typedef struct movTabu
 {
@@ -58,18 +31,24 @@ class Problema
 {
 public:
 	static int numInst;				// Quantidade de instancias criadas
+	static double totalMakespan;	// Soma do inverso do makespan de todos os individuos na populacao
 
 	static char name[128];			// Nome do problema
 	static int **maq, **time;		// Matriz de maquinas e de tempos
 	static int njob, nmaq;			// QUantidade de jobs e de maquinas
 
-	static ParametrosATEAMS *pATEAMS;
-	static ParametrosAG *pAG;
-	static ParametrosBT *pBT;
+	// Le arquivo de dados de entrada
+	static void leProblema(FILE*);
 
-	static void leProblema(FILE*);	// Le arquivo de dados de entrada
-	static void leParametros(FILE*);// Le arquivo de parametros de entrada
+	// Le arquivo de parametros de entrada
+	static void leParametros(FILE*, ParametrosATEAMS*, ParametrosBT*, ParametrosAG*);
 
+	static Problema* alloc();												// Nova solucao aleatoria
+	static Problema* alloc(int **prob);										// Copia de prob
+	static Problema* alloc(Problema &prob);									// Copia de prob
+	static Problema* alloc(Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
+
+	static bool movTabuCMP(mov& t1, mov& t2);
 
 	mov movTabu;	// Movimento tabu que gerou a solucao. movTabu.maq = -1 se por outro meio
 
@@ -86,6 +65,8 @@ public:
 
 	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual */
 	virtual multiset<Problema*, bool(*)(Problema*, Problema*)>* buscaLocal() = 0;
+
+	virtual double getFitness() = 0;
 };
 
 #endif

@@ -8,15 +8,22 @@ Tabu::Tabu(ParametrosBT* pBT)
 	tamListaTabu = pBT->tamanhoListaTabu;
 }
 
+/* Executa uma Busca Tabu na população com o devido criterio de selecao */
+Problema* Tabu::start(multiset<Problema*, bool(*)(Problema*, Problema*)>* sol)
+{
+	Problema *select = selectRouletteWheel(sol, Problema::totalMakespan);
+	return exec(select);
+}
+
 /* Executa uma busca por soluções a partir de 'init' por 'iterTabu' vezes */
-Problema* Tabu::start(Problema* init)
+Problema* Tabu::exec(Problema* init)
 {
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* local;
 	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
 
 	list<mov> *listaTabu = new list<mov>;
 
-	Problema *maxGlobal = new JobShop(*init), *maxLocal = new JobShop(*init);
+	Problema *maxGlobal = Problema::alloc(*init), *maxLocal = Problema::alloc(*init);
 
 	// Loop principal
 	for(int i = 0; i < iterTabu; i++)
@@ -30,11 +37,11 @@ Problema* Tabu::start(Problema* init)
 			if(!isTabu(listaTabu, (*iter)->movTabu))
 			{
 				delete maxLocal;
-				maxLocal = new JobShop(**iter);
+				maxLocal = Problema::alloc(**iter);
 				if((*iter)->makespan < maxGlobal->makespan)
 				{
 					delete maxGlobal;
-					maxGlobal = new JobShop(*maxLocal);
+					maxGlobal = Problema::alloc(*maxLocal);
 				}
 				listaTabu->push_front((*iter)->movTabu);
 				if((int)listaTabu->size() > tamListaTabu)
@@ -49,10 +56,10 @@ Problema* Tabu::start(Problema* init)
 				if((*iter)->makespan < maxGlobal->makespan)
 				{
 					delete maxLocal;
-					maxLocal = new JobShop(**iter);
+					maxLocal = Problema::alloc(**iter);
 
 					delete maxGlobal;
-					maxGlobal = new JobShop(*maxLocal);
+					maxGlobal = Problema::alloc(*maxLocal);
 
 					break;
 				}
@@ -75,8 +82,28 @@ bool isTabu(list<mov> *listaTabu, mov m)
 	list<mov>::iterator iter;
 
 	for(iter = listaTabu->begin(); iter != listaTabu->end(); iter++)
-		if(iter->maq == m.maq && (iter->A == m.A || iter->A == m.B) && (iter->B == m.B || iter->B == m.A))
+		if(Problema::movTabuCMP(*iter, m))
 			return true;
 
 	return false;
+}
+
+Problema* selectRouletteWheel(multiset<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal)
+{
+	// Armazena o fitness total da população
+	int sum = fitTotal;
+	// Um número entre zero e "sum" é sorteado
+	srand(unsigned(time(NULL)));
+	int randWheel = rand() % (sum + 1);
+
+	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	for(iter = pop->begin(); iter != pop->end(); iter++)
+	{
+		sum -= (*iter)->getFitness();
+		if(sum <= randWheel)
+		{
+			return *iter;
+		}
+	}
+	return *(pop->begin());
 }
