@@ -59,6 +59,8 @@ Problema* Controle::start()
 {
 	geraPop();
 
+	cout << "CTR : 0 : " << (*pop->begin())->makespan << endl << flush;
+
 	struct timeval time1, time2;
 	gettimeofday(&time1, NULL);
 
@@ -82,8 +84,7 @@ Problema* Controle::start()
 			delete *iter;
 		}
 
-		cout.precision(10);
-		cout << "BT : " << i << " : " << (*pop->begin())->makespan << endl << flush;
+		cout << "BT : " << i+1 << " : " << (*pop->begin())->makespan << endl << flush;
 
 		if(PARAR == 1)
 			break;

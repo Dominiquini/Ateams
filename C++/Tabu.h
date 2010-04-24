@@ -9,7 +9,7 @@ class Tabu
 {
 public:
 
-	int iterTabu, tamListaTabu;
+	int iterTabu, tamListaTabu, tentSemMelhora;
 
 	Tabu(ParametrosBT*);
 

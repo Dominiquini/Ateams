@@ -31,10 +31,9 @@ typedef struct ParametrosAG {
 } ParametrosAG;
 
 typedef struct ParametrosBT {
-  int politicaLeitura;
+  int tentativasSemMelhora;
   int numeroIteracoes;
   int tamanhoListaTabu;
-  int k;                /* valor que ira determinar o tamanho da lista tabu de acordo como o numero de iteracoes */
 } ParametrosBT;
 
 #endif

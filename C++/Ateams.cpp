@@ -70,8 +70,8 @@ void lerArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, ParametrosB
 	if((p = locComPar(argv, argc, (char*)"--iterBT")) != -1)
 		pBT->numeroIteracoes = atoi(argv[p]);
 
-	if((p = locComPar(argv, argc, (char*)"--polLeituraBT")) != -1)
-		pBT->politicaLeitura = atoi(argv[p]);
+	if((p = locComPar(argv, argc, (char*)"--tentSemMelhora")) != -1)
+		pBT->tentativasSemMelhora = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--tamListaBT")) != -1)
 		pBT->tamanhoListaTabu = atoi(argv[p]);

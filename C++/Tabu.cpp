@@ -7,6 +7,7 @@ Tabu::Tabu(ParametrosBT* pBT)
 {
 	iterTabu = pBT->numeroIteracoes;
 	tamListaTabu = pBT->tamanhoListaTabu;
+	tentSemMelhora = pBT->tentativasSemMelhora;
 }
 
 /* Executa uma Busca Tabu na população com o devido criterio de selecao */
@@ -27,7 +28,7 @@ Problema* Tabu::exec(Problema* init)
 	Problema *maxGlobal = Problema::alloc(*init), *maxLocal = Problema::alloc(*init);
 
 	// Loop principal
-	for(int i = 0; i < iterTabu; i++)
+	for(int i = 0, j = 0; i < iterTabu && j < tentSemMelhora; i++, j++)
 	{
 		local = maxLocal->buscaLocal();
 
@@ -41,6 +42,7 @@ Problema* Tabu::exec(Problema* init)
 				maxLocal = Problema::alloc(**iter);
 				if((*iter)->makespan < maxGlobal->makespan)
 				{
+					j = 0;
 					delete maxGlobal;
 					maxGlobal = Problema::alloc(*maxLocal);
 				}

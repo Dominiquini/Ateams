@@ -122,8 +122,8 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[iterBT]");
 	pBT->numeroIteracoes = par != -1 ? (int)par : 1000;
 
-	par = locNumberPar(parametros, size, (char*)"[polLeituraBT]");
-	pBT->politicaLeitura = par != -1 ? (int)par : 1;
+	par = locNumberPar(parametros, size, (char*)"[tentSemMelhora]");
+	pBT->tentativasSemMelhora = par != -1 ? (int)par : 1;
 
 	par = locNumberPar(parametros, size, (char*)"[tamListaBT]");
 	pBT->tamanhoListaTabu = par != -1 ? (int)par : 2;
@@ -132,8 +132,6 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	pAG->tamanhoPopulacao = pATEAMS->tamanhoPopulacao * (1 + porcentagemPop);
 
 	pAG->quantidadeLeituraMemoriaATEAMS = pATEAMS->tamanhoPopulacao * porcentagemLeituraATEAMS;
-
-	pBT->k = pBT->numeroIteracoes/5;
 
 	free(parametros);
 }
