@@ -11,14 +11,14 @@ Tabu::Tabu(ParametrosBT* pBT)
 }
 
 /* Executa uma Busca Tabu na população com o devido criterio de selecao */
-multiset<Problema*, bool(*)(Problema*, Problema*)>* Tabu::start(multiset<Problema*, bool(*)(Problema*, Problema*)>* sol)
+vector<Problema*>* Tabu::start(multiset<Problema*, bool(*)(Problema*, Problema*)>* sol)
 {
 	Problema *select = Controle::selectRouletteWheel(sol, Problema::totalMakespan);
 	return exec(select);
 }
 
 /* Executa uma busca por soluções a partir de 'init' por 'iterTabu' vezes */
-multiset<Problema*, bool(*)(Problema*, Problema*)>* Tabu::exec(Problema* init)
+vector<Problema*>* Tabu::exec(Problema* init)
 {
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* local;
 	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
@@ -38,19 +38,19 @@ multiset<Problema*, bool(*)(Problema*, Problema*)>* Tabu::exec(Problema* init)
 			// Se nao for tabu...
 			if(!isTabu(listaTabu, (*iter)->movTabu))
 			{
+				if((*iter)->makespan < maxLocal->makespan)
+					j = 0;
+
 				delete maxLocal;
 				maxLocal = Problema::alloc(**iter);
 				if((*iter)->makespan < maxGlobal->makespan)
 				{
-					j = 0;
 					delete maxGlobal;
 					maxGlobal = Problema::alloc(*maxLocal);
 				}
 				listaTabu->push_front((*iter)->movTabu);
 				if((int)listaTabu->size() > tamListaTabu)
 					listaTabu->pop_back();
-
-				break;
 			}
 			// Eh tabu...
 			else
@@ -58,13 +58,13 @@ multiset<Problema*, bool(*)(Problema*, Problema*)>* Tabu::exec(Problema* init)
 				// Satisfaz a funcao de aspiracao
 				if((*iter)->makespan < maxGlobal->makespan)
 				{
+					j = 0;
+
 					delete maxLocal;
 					maxLocal = Problema::alloc(**iter);
 
 					delete maxGlobal;
 					maxGlobal = Problema::alloc(*maxLocal);
-
-					break;
 				}
 			}
 		}
@@ -77,11 +77,7 @@ multiset<Problema*, bool(*)(Problema*, Problema*)>* Tabu::exec(Problema* init)
 	delete listaTabu;
 	delete maxLocal;
 
-	bool(*fn_pt)(Problema*, Problema*) = fncomp;
-	multiset<Problema*, bool(*)(Problema*, Problema*)>* max = new multiset<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
-	max->insert(maxGlobal);
-
-	return max;
+	return new vector<Problema*>(1, maxGlobal);
 }
 
 /* Verdadeiro se solucao avaliada for Tabu */

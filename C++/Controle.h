@@ -26,7 +26,7 @@ public:
 	Problema* start();
 
 	/* Seleciona um dos algoritmos implementados para executar */
-	multiset<Problema*, bool(*)(Problema*, Problema*)>* exec();
+	vector<Problema*>* exec();
 
 	/* Gera uma populacao inicial aleatoria com 'tamPop' elementos */
 	void geraPop();

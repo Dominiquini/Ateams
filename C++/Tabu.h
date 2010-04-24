@@ -13,9 +13,9 @@ public:
 
 	Tabu(ParametrosBT*);
 
-	multiset<Problema*, bool(*)(Problema*, Problema*)>* start(multiset<Problema*, bool(*)(Problema*, Problema*)>* sol);
+	vector<Problema*>* start(multiset<Problema*, bool(*)(Problema*, Problema*)>* sol);
 
-	multiset<Problema*, bool(*)(Problema*, Problema*)>* exec(Problema*);
+	vector<Problema*>* exec(Problema*);
 };
 
 bool isTabu(list<mov> *listaTabu, mov m);

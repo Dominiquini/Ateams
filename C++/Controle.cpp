@@ -66,23 +66,24 @@ Problema* Controle::start()
 
 	int tempo = 0;
 
-	multiset<Problema*, bool(*)(Problema*, Problema*)>* prob;
-	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter1, iter2;
+	vector<Problema*>* prob;
+	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
 	for(int i = 0; i < numAteams && tempo < maxTempo; i++)
 	{
 		prob = exec();
-		for(iter1 = prob->begin(); iter1 != prob->end(); iter1++)
+		for(int j = 0; j < (int)prob->size(); j++)
 		{
-			pop->insert(*iter1);
-			Problema::totalMakespan += (*iter1)->getFitness();
+			pop->insert(prob->at(j));
+			Problema::totalMakespan += prob->at(j)->getFitness();
 
-			iter2 = pop->end();
-			iter2--;
+			iter = pop->end();
+			iter--;
 
-			Problema::totalMakespan -= (*iter2)->getFitness();
-			pop->erase(iter2);
-			delete *iter2;
+			Problema::totalMakespan -= (*iter)->getFitness();
+			pop->erase(iter);
+			delete *iter;
 		}
+		prob->clear();
 		delete prob;
 
 		cout << "BT : " << i+1 << " : " << (*pop->begin())->makespan << endl << flush;
@@ -96,7 +97,7 @@ Problema* Controle::start()
 	return *(pop->begin());
 }
 
-multiset<Problema*, bool(*)(Problema*, Problema*)>* Controle::exec()
+vector<Problema*>* Controle::exec()
 {
 	return algTabu->start(pop);
 }
