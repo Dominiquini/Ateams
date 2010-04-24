@@ -177,6 +177,8 @@ int main(int argc, char *argv[])
 
 	lerArgumentos(argv, argc, pATEAMS, pBT, pAG);
 
+	pATEAMS->maxTempo = pATEAMS->maxTempo <= 0 ? INT_MAX : pATEAMS->maxTempo;
+
 	cout << endl;
 
 	Controle* ctr = new Controle(pATEAMS, new Tabu(pBT));

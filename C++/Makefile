@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -g
+CFLAGS = -O3
 SOURCES = Ateams.cpp Controle.cpp JobShop.cpp Tabu.cpp 
 OBJECTS = $(SOURCES:.cpp=.o)
 EXEC = Ateams

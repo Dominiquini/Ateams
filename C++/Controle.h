@@ -11,6 +11,8 @@ using namespace std;
 class Controle
 {
 public:
+	static Problema* selectRouletteWheel(multiset<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal);
+
 	Tabu* algTabu;			// Algoritmo de BuscaTabu executado
 
 	int tamPop, numAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao

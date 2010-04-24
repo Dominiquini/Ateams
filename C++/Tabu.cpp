@@ -1,3 +1,4 @@
+#include "Controle.h"
 #include "Tabu.h"
 
 using namespace std;
@@ -11,7 +12,7 @@ Tabu::Tabu(ParametrosBT* pBT)
 /* Executa uma Busca Tabu na população com o devido criterio de selecao */
 Problema* Tabu::start(multiset<Problema*, bool(*)(Problema*, Problema*)>* sol)
 {
-	Problema *select = selectRouletteWheel(sol, Problema::totalMakespan);
+	Problema *select = Controle::selectRouletteWheel(sol, Problema::totalMakespan);
 	return exec(select);
 }
 
@@ -86,24 +87,4 @@ bool isTabu(list<mov> *listaTabu, mov m)
 			return true;
 
 	return false;
-}
-
-Problema* selectRouletteWheel(multiset<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal)
-{
-	// Armazena o fitness total da população
-	int sum = fitTotal;
-	// Um número entre zero e "sum" é sorteado
-	srand(unsigned(time(NULL)));
-	int randWheel = rand() % (sum + 1);
-
-	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
-	for(iter = pop->begin(); iter != pop->end(); iter++)
-	{
-		sum -= (*iter)->getFitness();
-		if(sum <= randWheel)
-		{
-			return *iter;
-		}
-	}
-	return *(pop->begin());
 }
