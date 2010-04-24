@@ -25,6 +25,9 @@ public:
 	/* Comeca a execucao do Ateams utilizando os algoritmos disponiveis */
 	Problema* start();
 
+	/* Seleciona um dos algoritmos implementados para executar */
+	multiset<Problema*, bool(*)(Problema*, Problema*)>* exec();
+
 	/* Gera uma populacao inicial aleatoria com 'tamPop' elementos */
 	void geraPop();
 };

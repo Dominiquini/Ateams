@@ -11,14 +11,14 @@ Tabu::Tabu(ParametrosBT* pBT)
 }
 
 /* Executa uma Busca Tabu na população com o devido criterio de selecao */
-Problema* Tabu::start(multiset<Problema*, bool(*)(Problema*, Problema*)>* sol)
+multiset<Problema*, bool(*)(Problema*, Problema*)>* Tabu::start(multiset<Problema*, bool(*)(Problema*, Problema*)>* sol)
 {
 	Problema *select = Controle::selectRouletteWheel(sol, Problema::totalMakespan);
 	return exec(select);
 }
 
 /* Executa uma busca por soluções a partir de 'init' por 'iterTabu' vezes */
-Problema* Tabu::exec(Problema* init)
+multiset<Problema*, bool(*)(Problema*, Problema*)>* Tabu::exec(Problema* init)
 {
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* local;
 	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
@@ -76,7 +76,12 @@ Problema* Tabu::exec(Problema* init)
 	}
 	delete listaTabu;
 	delete maxLocal;
-	return maxGlobal;
+
+	bool(*fn_pt)(Problema*, Problema*) = fncomp;
+	multiset<Problema*, bool(*)(Problema*, Problema*)>* max = new multiset<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
+	max->insert(maxGlobal);
+
+	return max;
 }
 
 /* Verdadeiro se solucao avaliada for Tabu */
