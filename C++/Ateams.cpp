@@ -29,20 +29,11 @@ void lerArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, ParametrosB
 {
 	int p = -1;
 
-	if((p = locComPar(argv, argc, (char*)"--agUtilizado")) != -1)
-		pATEAMS->agenteUtilizado = atof(argv[p]);
-
 	if((p = locComPar(argv, argc, (char*)"--iterAteams")) != -1)
 		pATEAMS->iteracoesAteams = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--MaxTempo")) != -1)
 		pATEAMS->maxTempo = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--polAceitacao")) != -1)
-		pATEAMS->politicaAceitacao = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--polDestruicao")) != -1)
-		pATEAMS->politicaDestruicao = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--tamPopulacao")) != -1)
 		pATEAMS->tamanhoPopulacao = atoi(argv[p]);

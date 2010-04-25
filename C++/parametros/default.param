@@ -1,11 +1,8 @@
 ## '-1' para algum atributo indica omissao e sera usado o valor padrao
 
 #ATEAMS
-[agUtilizado] = 0.5     // -> 1 = BT; -> 0 = AG; -> 0.5 = ALEATORIO
 [iterAteams] = 50       // Numero de iteracoes do Ateams
 [MaxTempo] = -1         // Tempo maximo de execucao
-[polAceitacao] = 2      // Politica de aceitacao
-[polDestruicao] = 1     // Politica de destruicao
 [tamPopulacao] = 250    // Tamanho da populacao
 [makespanBest] = -1     // Melhor makespan conhecido
 

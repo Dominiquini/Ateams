@@ -7,34 +7,12 @@ using namespace std;
 
 extern int PARAR;
 
-Problema* Controle::selectRouletteWheel(multiset<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal)
-{
-	// Armazena o fitness total da população
-	int sum = fitTotal;
-	// Um número entre zero e "sum" é sorteado
-	srand(unsigned(time(NULL)));
-	int randWheel = rand() % (sum + 1);
-
-	if(rand()%101 <  10)
-		sum /= 2;
-
-	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
-	for(iter = pop->begin(); iter != pop->end(); iter++)
-	{
-		sum -= (*iter)->getFitness();
-		if(sum <= randWheel)
-		{
-			return *iter;
-		}
-	}
-	return *(pop->begin());
-}
-
 Controle::Controle(ParametrosATEAMS* pATEAMS, Tabu* classTabu)
 {
 	tamPop = pATEAMS->tamanhoPopulacao;
 	numAteams = pATEAMS->iteracoesAteams;
 	maxTempo = pATEAMS->maxTempo;
+	makespanBest = pATEAMS->makespanBest;
 
 	srand(unsigned(time(NULL)));
 
@@ -88,6 +66,12 @@ Problema* Controle::start()
 
 		cout << "BT : " << i+1 << " : " << (*pop->begin())->makespan << endl << flush;
 
+		if((*pop->begin())->makespan <= makespanBest)
+		{
+			cout << "Populacao ATEAMS Convergiu na " << i+1 << " iteracao" << endl;
+			break;
+		}
+
 		if(PARAR == 1)
 			break;
 
@@ -119,4 +103,27 @@ void Controle::geraPop()
 		else
 			delete prob;
 	}
+}
+
+Problema* Controle::selectRouletteWheel(multiset<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal)
+{
+	// Armazena o fitness total da população
+	int sum = fitTotal;
+	// Um número entre zero e "sum" é sorteado
+	srand(unsigned(time(NULL)));
+	int randWheel = rand() % (sum + 1);
+
+	if(rand()%101 <  25)
+		sum = 0;
+
+	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	for(iter = pop->begin(); iter != pop->end(); iter++)
+	{
+		sum -= (*iter)->getFitness();
+		if(sum <= randWheel)
+		{
+			return *iter;
+		}
+	}
+	return *(pop->begin());
 }

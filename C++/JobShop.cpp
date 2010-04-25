@@ -75,20 +75,11 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	float porcentagemPop;
 	float porcentagemLeituraATEAMS;
 
-	par = locNumberPar(parametros, size, (char*)"[agUtilizado]");
-	pATEAMS->agenteUtilizado = par != -1 ? par : 0.5;
-
 	par = locNumberPar(parametros, size, (char*)"[iterAteams]");
 	pATEAMS->iteracoesAteams = par != -1 ? (int)par : 100;
 
 	par = locNumberPar(parametros, size, (char*)"[MaxTempo]");
 	pATEAMS->maxTempo = par;
-
-	par = locNumberPar(parametros, size, (char*)"[polAceitacao]");
-	pATEAMS->politicaAceitacao = par != -1 ? (int)par : 2;
-
-	par = locNumberPar(parametros, size, (char*)"[polDestruicao]");
-	pATEAMS->politicaDestruicao = par != -1 ? (int)par : 1;
 
 	par = locNumberPar(parametros, size, (char*)"[tamPopulacao]");
 	pATEAMS->tamanhoPopulacao = par != -1 ? (int)par : 50;

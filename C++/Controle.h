@@ -15,6 +15,7 @@ public:
 
 	Tabu* algTabu;			// Algoritmo de BuscaTabu executado
 
+	int makespanBest;					// Melhor makespan conhecido
 	int tamPop, numAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
 

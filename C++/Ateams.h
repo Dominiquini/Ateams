@@ -11,12 +11,9 @@ using namespace std;
 #define _ATEAMS_
 
 typedef struct ParametrosATEAMS {
-  float agenteUtilizado;
-  int tamanhoPopulacao;   /* > 0*/
+  int tamanhoPopulacao;
   int iteracoesAteams;
   int maxTempo;
-  int politicaAceitacao;
-  int politicaDestruicao;
   int makespanBest;       /* Melhor makespan conhecido */
 } ParametrosATEAMS;
 
