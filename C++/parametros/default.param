@@ -15,8 +15,7 @@
 [probMutacao] = 0.08    // Probabilidade de mutacao
 
 #BT
-[probBT] = 100		// Probabilidade de se executar BT em cada iteraÃ§Ã£o do ATEAMS
+[probBT] = 100		// Probabilidade de se executar BT em cada iteração do ATEAMS
 [iterBT] = 500          // Iteracoes do BT
 [tentSemMelhora] = 50   // Politica de leitura do BT
-[tamListaBT] = 25       // Tamanho de lista do BT 
-
+[tamListaBT] = 25       // Tamanho de lista do BT
