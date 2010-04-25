@@ -7,7 +7,7 @@ using namespace std;
 
 extern int PARAR;
 
-Controle::Controle(ParametrosATEAMS* pATEAMS, Tabu* classTabu)
+Controle::Controle(ParametrosATEAMS* pATEAMS)
 {
 	tamPop = pATEAMS->tamanhoPopulacao;
 	numAteams = pATEAMS->iteracoesAteams;
@@ -19,7 +19,7 @@ Controle::Controle(ParametrosATEAMS* pATEAMS, Tabu* classTabu)
 	bool(*fn_pt)(Problema*, Problema*) = fncomp;
 	pop = new multiset<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
 
-	algTabu = classTabu;
+	algs = new vector<Heuristica*>;
 }
 
 Controle::~Controle()
@@ -31,6 +31,14 @@ Controle::~Controle()
 
 	pop->clear();
 	delete pop;
+
+	algs->clear();
+	delete algs;
+}
+
+void Controle::addHeuristic(Heuristica* alg)
+{
+	algs->push_back(alg);
 }
 
 Problema* Controle::start()
@@ -64,11 +72,11 @@ Problema* Controle::start()
 		prob->clear();
 		delete prob;
 
-		cout << "BT : " << i+1 << " : " << (*pop->begin())->makespan << endl << flush;
+		cout << atual << " : " << i+1 << " : " << (*pop->begin())->makespan << endl << flush;
 
 		if((*pop->begin())->makespan <= makespanBest)
 		{
-			cout << "Populacao ATEAMS Convergiu na " << i+1 << " iteracao" << endl;
+			cout << endl << "Populacao ATEAMS Convergiu na " << i+1 << " iteracao" << endl;
 			break;
 		}
 
@@ -83,7 +91,9 @@ Problema* Controle::start()
 
 vector<Problema*>* Controle::exec()
 {
-	return algTabu->start(pop);
+	Heuristica* alg = selectRouletteWheel(algs, Heuristica::numHeuristic);
+	atual = alg->name;
+	return alg->start(pop);
 }
 
 void Controle::geraPop()
@@ -127,3 +137,24 @@ Problema* Controle::selectRouletteWheel(multiset<Problema*, bool(*)(Problema*, P
 	}
 	return *(pop->begin());
 }
+
+Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, int probTotal)
+{
+	// Armazena o fitness total da população
+	int sum = probTotal;
+	// Um número entre zero e "sum" é sorteado
+	srand(unsigned(time(NULL)));
+	int randWheel = rand() % (sum + 1);
+
+	for(int i = 0; i < (int)heuristc->size(); i++)
+	{
+		sum -= heuristc->at(i)->prob;
+		if(sum <= randWheel)
+		{
+			return heuristc->at(i);
+		}
+	}
+	return heuristc->at(0);
+}
+
+int Heuristica::numHeuristic = 0;

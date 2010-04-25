@@ -55,6 +55,9 @@ void lerArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, ParametrosB
 		pAG->probabilidadeMutacoes = atof(argv[p]);
 
 
+	if((p = locComPar(argv, argc, (char*)"--probBT")) != -1)
+		pBT->probBT = atoi(argv[p]);
+
 	if((p = locComPar(argv, argc, (char*)"--iterBT")) != -1)
 		pBT->numeroIteracoes = atoi(argv[p]);
 
@@ -69,7 +72,7 @@ void imprimeResultado (struct timeval tv1, struct timeval tv2, FILE *resultados,
 {
 	int s = (((tv2.tv_sec*1000)+(tv2.tv_usec/1000)) - ((tv1.tv_sec*1000)+(tv1.tv_usec/1000)))/1000;
 
-	fprintf(resultados, "%d %8d\n", bestMakespan, s);
+	fprintf(resultados, "%d\t%d\n", bestMakespan, s);
 }
 
 
@@ -169,7 +172,8 @@ int main(int argc, char *argv[])
 
 	cout << endl;
 
-	Controle* ctr = new Controle(pATEAMS, new Tabu(pBT));
+	Controle* ctr = new Controle(pATEAMS);
+	ctr->addHeuristic(new Tabu(pBT));
 	Problema* best = ctr->start();
 	cout << endl << "Melhor Solução: " << best->makespan << endl << endl;
 

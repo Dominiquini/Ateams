@@ -11,25 +11,26 @@ using namespace std;
 #define _ATEAMS_
 
 typedef struct ParametrosATEAMS {
-  int tamanhoPopulacao;
-  int iteracoesAteams;
-  int maxTempo;
-  int makespanBest;       /* Melhor makespan conhecido */
+	int tamanhoPopulacao;
+	int iteracoesAteams;
+	int maxTempo;
+	int makespanBest;       /* Melhor makespan conhecido */
 } ParametrosATEAMS;
 
 typedef struct ParametrosAG {
-  int quantidadeLeituraMemoriaATEAMS;
-  int tamanhoPopulacao;
-  int numeroIteracoes;
-  int politicaLeitura;
-  float probabilidadeCrossover;
-  float probabilidadeMutacoes;
+	int quantidadeLeituraMemoriaATEAMS;
+	int tamanhoPopulacao;
+	int numeroIteracoes;
+	int politicaLeitura;
+	float probabilidadeCrossover;
+	float probabilidadeMutacoes;
 } ParametrosAG;
 
 typedef struct ParametrosBT {
-  int tentativasSemMelhora;
-  int numeroIteracoes;
-  int tamanhoListaTabu;
+	int probBT;
+	int tentativasSemMelhora;
+	int numeroIteracoes;
+	int tamanhoListaTabu;
 } ParametrosBT;
 
 #endif

@@ -19,6 +19,7 @@ using namespace std;
 typedef struct movTabu
 {
 	int maq, A, B;
+	bool job;
 } mov;
 
 

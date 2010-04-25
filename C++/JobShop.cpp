@@ -1,5 +1,3 @@
-#include <string.h>
-
 #include "JobShop.h"
 
 using namespace std;
@@ -107,6 +105,9 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	pAG->probabilidadeMutacoes = par != -1 ? par : 0.02;
 
 
+	par = locNumberPar(parametros, size, (char*)"[probBT]");
+	pBT->probBT = par != -1 ? par : (int)50;
+
 	par = locNumberPar(parametros, size, (char*)"[iterBT]");
 	pBT->numeroIteracoes = par != -1 ? (int)par : 1000;
 
@@ -158,6 +159,7 @@ JobShop::JobShop() : Problema::Problema()
 	escalon = NULL;
 	makespan = calcMakespan();
 
+	movTabu.job = false;
 	movTabu.maq = -1;
 }
 
@@ -172,6 +174,7 @@ JobShop::JobShop(int **prob) : Problema::Problema()
 	escalon = NULL;
 	makespan = calcMakespan();
 
+	movTabu.job = false;
 	movTabu.maq = -1;
 }
 
@@ -212,6 +215,7 @@ JobShop::JobShop(Problema &prob, int maq, int pos1, int pos2) : Problema::Proble
 	movTabu.maq = maq;
 	movTabu.A = pos1;
 	movTabu.B = pos2;
+	movTabu.job = true;
 }
 
 /*
