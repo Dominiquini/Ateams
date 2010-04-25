@@ -13,7 +13,6 @@
 [%Populacao] = 1.0      // Corresponde a quantidade de leituras no AG
 [probCrossover] = 0.8   // Probabilidade de crossover
 [probMutacao] = 0.08    // Probabilidade de mutacao
-[Selecao] = 1           // Politica de selecao
 
 #BT
 [iterBT] = 500          // Iteracoes do BT

@@ -18,7 +18,6 @@ typedef struct ParametrosATEAMS {
 } ParametrosATEAMS;
 
 typedef struct ParametrosAG {
-  int selecao;
   int quantidadeLeituraMemoriaATEAMS;
   int tamanhoPopulacao;
   int numeroIteracoes;

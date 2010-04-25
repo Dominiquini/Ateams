@@ -51,6 +51,8 @@ vector<Problema*>* Tabu::exec(Problema* init)
 				listaTabu->push_front((*iter)->movTabu);
 				if((int)listaTabu->size() > tamListaTabu)
 					listaTabu->pop_back();
+
+				break;
 			}
 			// Eh tabu...
 			else
@@ -65,6 +67,8 @@ vector<Problema*>* Tabu::exec(Problema* init)
 
 					delete maxGlobal;
 					maxGlobal = Problema::alloc(*maxLocal);
+
+					break;
 				}
 			}
 		}

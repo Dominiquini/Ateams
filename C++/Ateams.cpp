@@ -54,9 +54,6 @@ void lerArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, ParametrosB
 	if((p = locComPar(argv, argc, (char*)"--probMutacao")) != -1)
 		pAG->probabilidadeMutacoes = atof(argv[p]);
 
-	if((p = locComPar(argv, argc, (char*)"--Selecao")) != -1)
-		pAG->selecao = atoi(argv[p]);
-
 
 	if((p = locComPar(argv, argc, (char*)"--iterBT")) != -1)
 		pBT->numeroIteracoes = atoi(argv[p]);

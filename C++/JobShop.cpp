@@ -106,9 +106,6 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[probMutacao]");
 	pAG->probabilidadeMutacoes = par != -1 ? par : 0.02;
 
-	par = locNumberPar(parametros, size, (char*)"[Selecao]");
-	pAG->selecao = par != -1 ? (int)par : 1;
-
 
 	par = locNumberPar(parametros, size, (char*)"[iterBT]");
 	pBT->numeroIteracoes = par != -1 ? (int)par : 1000;
