@@ -52,12 +52,17 @@ void Problema::leProblema(FILE *f)
 {
 	if(!fgets (name, 128, f))
 		exit(1);
+
 	if(!fscanf (f, "%d %d", &njob, &nmaq))
 		exit(1);
+
 	maq = (int**)alocaMatriz(2, njob, nmaq, 0);
 	time = (int**)alocaMatriz(2, njob, nmaq, 0);
-	for (int i = 0; i < njob; i++) {
-		for (int j = 0; j < nmaq; j++) {
+
+	for (int i = 0; i < njob; i++)
+	{
+		for (int j = 0; j < nmaq; j++)
+		{
 			if (!fscanf (f, "%d %d", &maq[i][j], &time[i][j]))
 				exit(1);
 		}
@@ -147,15 +152,20 @@ JobShop::JobShop() : Problema::Problema()
 
 	for (int i = 0; i < nmaq; i++)
 		aux_maq[i] = 0;
+
 	for (int i = 0; i < njob; i++)
 		aux_vet[i] = i;
-	for (int i = 0; i < nmaq; i++) {
+
+	for (int i = 0; i < nmaq; i++)
+	{
 		random_shuffle(&aux_vet[0], &aux_vet[njob], p_myrandom);
-		for (int j = 0; j < njob; j++) {
+		for (int j = 0; j < njob; j++)
+		{
 			esc[maq[aux_vet[j]][i]][aux_maq[maq[aux_vet[j]][i]]] = aux_vet[j];
 			aux_maq[maq[aux_vet[j]][i]] += 1;
 		}
 	}
+
 	escalon = NULL;
 	makespan = calcMakespan();
 
@@ -218,10 +228,7 @@ JobShop::JobShop(Problema &prob, int maq, int pos1, int pos2) : Problema::Proble
 	movTabu.job = true;
 }
 
-/*
- * Devolve o makespan  e o escalonamento quando a solucao for factivel,
- * ou -1 quando for invalido.
- */
+/* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 int JobShop::calcMakespan()
 {
 	int ***aux_esc, **tmp, *pos, i, j, k, max, cont;

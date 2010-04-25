@@ -182,7 +182,10 @@ int main(int argc, char *argv[])
 	fclose(fresultados);
 
 	delete ctr;
-	cout << Problema::numInst << " : " << ctr->pop->size() << endl << endl;
+	cout << "Memoria Alocada: " << Problema::numInst << endl << endl;
+
+	desalocaMatriz(2, Problema::maq, Problema::njob, 0);
+	desalocaMatriz(2, Problema::time, Problema::njob, 0);
 
 	return 0;
 }

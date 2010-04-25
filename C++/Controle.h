@@ -11,10 +11,11 @@ using namespace std;
 class Controle
 {
 public:
+	/* Seleciona um individuo da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
 	static Problema* selectRouletteWheel(multiset<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal);
 	static Heuristica* selectRouletteWheel(vector<Heuristica*>* heuristc, int probTotal);
 
-	vector<Heuristica*>* algs;			// Algoritmo de BuscaTabu executado
+	vector<Heuristica*>* algs;			// Algoritmos disponiveis
 
 	string atual;
 	int makespanBest;					// Melhor makespan conhecido

@@ -11,7 +11,7 @@ Tabu::Tabu(ParametrosBT* pBT)
 	tamListaTabu = pBT->tamanhoListaTabu;
 	tentSemMelhora = pBT->tentativasSemMelhora;
 
-	Heuristica::numHeuristic++;
+	Heuristica::numHeuristic += prob;
 }
 
 /* Executa uma Busca Tabu na população com o devido criterio de selecao */
@@ -85,6 +85,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 
 		for(iter = local->begin(); iter != local->end(); iter++)
 			delete *iter;
+
 		local->clear();
 		delete local;
 	}
@@ -94,7 +95,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 	return new vector<Problema*>(1, maxGlobal);
 }
 
-/* Verdadeiro se solucao avaliada for Tabu */
+/* Verdadeiro se movimento avaliado for Tabu */
 bool isTabu(list<mov> *listaTabu, mov m)
 {
 	list<mov>::iterator iter;
