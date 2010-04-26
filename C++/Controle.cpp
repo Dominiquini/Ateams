@@ -109,14 +109,19 @@ void Controle::geraPop()
 	srand(unsigned(time(NULL)));
 
 	Problema* prob = NULL;
+	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
 	while((int)pop->size() <= tamPop)
 	{
 		prob = Problema::alloc();
 
 		if(prob->makespan != -1)
 		{
-			pop->insert(prob);
-			Problema::totalMakespan += prob->getFitness();
+			ret = pop->insert(prob);
+			if(ret.second == true)
+				Problema::totalMakespan += prob->getFitness();
+			else
+
+				delete prob;
 		}
 		else
 			delete prob;
