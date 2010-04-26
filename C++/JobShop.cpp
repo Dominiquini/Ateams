@@ -350,7 +350,7 @@ multiset<Problema*, bool(*)(Problema*, Problema*)>* JobShop::buscaLocal()
 	Problema *job = NULL;
 	for(int i = 0; i < nmaq; i++)
 	{
-		for(int j = 0; j < njob; j++)
+		for(int j = 0; j < njob-1; j++)
 		{
 			for(int k = j+1; k < njob; k++)
 			{
