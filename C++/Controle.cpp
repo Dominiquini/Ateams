@@ -17,14 +17,14 @@ Controle::Controle(ParametrosATEAMS* pATEAMS)
 	srand(unsigned(time(NULL)));
 
 	bool(*fn_pt)(Problema*, Problema*) = fncomp;
-	pop = new multiset<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
+	pop = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
 
 	algs = new vector<Heuristica*>;
 }
 
 Controle::~Controle()
 {
-	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
 
 	for(iter = pop->begin(); iter != pop->end(); iter++)
 		delete *iter;
@@ -53,21 +53,29 @@ Problema* Controle::start()
 	int tempo = 0;
 
 	vector<Problema*>* prob;
-	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
 	for(int i = 0; i < numAteams && tempo < maxTempo; i++)
 	{
 		prob = exec();
 		for(int j = 0; j < (int)prob->size(); j++)
 		{
-			pop->insert(prob->at(j));
-			Problema::totalMakespan += prob->at(j)->getFitness();
+			ret = pop->insert(prob->at(j));
+			if(ret.second == true)
+			{
+				Problema::totalMakespan += prob->at(j)->getFitness();
 
-			iter = pop->end();
-			iter--;
+				iter = pop->end();
+				iter--;
 
-			Problema::totalMakespan -= (*iter)->getFitness();
-			pop->erase(iter);
-			delete *iter;
+				Problema::totalMakespan -= (*iter)->getFitness();
+				pop->erase(iter);
+				delete *iter;
+			}
+			else
+			{
+				delete prob->at(j);
+			}
 		}
 		prob->clear();
 		delete prob;
@@ -115,18 +123,24 @@ void Controle::geraPop()
 	}
 }
 
-Problema* Controle::selectRouletteWheel(multiset<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal)
+Problema* Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal, int pol)
 {
+	if(pol == 0)
+		return *(pop->begin());
+
 	// Armazena o fitness total da população
 	int sum = fitTotal;
 	// Um número entre zero e "sum" é sorteado
 	srand(unsigned(time(NULL)));
 	int randWheel = rand() % (sum + 1);
 
-	if(rand()%101 <  25)
-		sum = 0;
+	if(pol < 0)
+		sum /= -pol;
+	else
+		if(rand()%101 <= pol)
+			sum /= pol;
 
-	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
 	for(iter = pop->begin(); iter != pop->end(); iter++)
 	{
 		sum -= (*iter)->getFitness();

@@ -12,7 +12,7 @@ class Controle
 {
 public:
 	/* Seleciona um individuo da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
-	static Problema* selectRouletteWheel(multiset<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal);
+	static Problema* selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal, int pol);
 	static Heuristica* selectRouletteWheel(vector<Heuristica*>* heuristc, int probTotal);
 
 	vector<Heuristica*>* algs;			// Algoritmos disponiveis
@@ -20,7 +20,7 @@ public:
 	string atual;
 	int makespanBest;					// Melhor makespan conhecido
 	int tamPop, numAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao
-	multiset<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
+	set<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
 
 	Controle(ParametrosATEAMS* pATEAMS);
 

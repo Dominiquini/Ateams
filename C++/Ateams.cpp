@@ -58,6 +58,9 @@ void lerArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, ParametrosB
 	if((p = locComPar(argv, argc, (char*)"--probBT")) != -1)
 		pBT->probBT = atoi(argv[p]);
 
+	if((p = locComPar(argv, argc, (char*)"--polEscolha")) != -1)
+		pBT->polEscolha = atoi(argv[p]);
+
 	if((p = locComPar(argv, argc, (char*)"--iterBT")) != -1)
 		pBT->numeroIteracoes = atoi(argv[p]);
 

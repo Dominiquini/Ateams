@@ -113,6 +113,9 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[probBT]");
 	pBT->probBT = par != -1 ? par : (int)50;
 
+	par = locNumberPar(parametros, size, (char*)"[polEscolha]");
+	pBT->polEscolha = par != -1 ? par : (int)15;
+
 	par = locNumberPar(parametros, size, (char*)"[iterBT]");
 	pBT->numeroIteracoes = par != -1 ? (int)par : 1000;
 
@@ -469,7 +472,16 @@ void desalocaMatriz(int dim, void *MMM, int a, int b)
 // comparator function:
 bool fncomp(Problema *prob1, Problema *prob2)
 {
-	return prob1->makespan < prob2->makespan;
+	if(prob1->makespan == prob2->makespan)
+	{
+		for(int i = 0; i < Problema::nmaq; i++)
+			for(int j = 0; j < Problema::njob; j++)
+				if(prob1->esc[i][j] != prob2->esc[i][j])
+					return prob1->esc[i][j] < prob2->esc[i][j];
+		return false;
+	}
+	else
+		return prob1->makespan < prob2->makespan;
 }
 
 // random generator function:

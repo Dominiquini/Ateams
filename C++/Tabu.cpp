@@ -7,6 +7,7 @@ Tabu::Tabu(ParametrosBT* pBT)
 {
 	name = "BT";
 	prob = pBT->probBT;
+	polEscolha = pBT->polEscolha;
 	iterTabu = pBT->numeroIteracoes;
 	tamListaTabu = pBT->tamanhoListaTabu;
 	tentSemMelhora = pBT->tentativasSemMelhora;
@@ -15,13 +16,13 @@ Tabu::Tabu(ParametrosBT* pBT)
 }
 
 /* Executa uma Busca Tabu na população com o devido criterio de selecao */
-vector<Problema*>* Tabu::start(multiset<Problema*, bool(*)(Problema*, Problema*)>* sol)
+vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol)
 {
 	Problema *select = NULL;
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	for(int i = 0; i < (int)sol->size()/10 && (select == NULL || select->movTabu.job == true); i++)
-		select = Controle::selectRouletteWheel(sol, Problema::totalMakespan);
+		select = Controle::selectRouletteWheel(sol, Problema::totalMakespan, polEscolha);
 	select->movTabu.job = true;
 
 	return exec(select);

@@ -14,7 +14,7 @@ public:
 
 	Tabu(ParametrosBT*);
 
-	vector<Problema*>* start(multiset<Problema*, bool(*)(Problema*, Problema*)>* sol);
+	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol);
 
 	vector<Problema*>* exec(Problema*);
 };

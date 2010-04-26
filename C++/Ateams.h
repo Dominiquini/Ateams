@@ -28,6 +28,7 @@ typedef struct ParametrosAG {
 
 typedef struct ParametrosBT {
 	int probBT;
+	int polEscolha;
 	int tentativasSemMelhora;
 	int numeroIteracoes;
 	int tamanhoListaTabu;
