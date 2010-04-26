@@ -141,6 +141,16 @@ bool Problema::movTabuCMP(mov& t1, mov& t2)
 		return false;
 }
 
+double Problema::sumFitness(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n)
+{
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	double sum = 0, i = 0;
+
+	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
+		sum += (*iter)->getFitness();
+
+	return sum;
+}
 
 /* Metodos */
 

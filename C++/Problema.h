@@ -50,6 +50,7 @@ public:
 	static Problema* alloc(Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
 	static bool movTabuCMP(mov& t1, mov& t2);
+	static double sumFitness(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
 
 	mov movTabu;	// Movimento tabu que gerou a solucao. movTabu.maq = -1 se por outro meio
 

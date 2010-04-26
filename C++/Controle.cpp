@@ -123,22 +123,13 @@ void Controle::geraPop()
 	}
 }
 
-Problema* Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal, int pol)
+Problema* Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal)
 {
-	if(pol == 0)
-		return *(pop->begin());
-
 	// Armazena o fitness total da população
 	int sum = fitTotal;
 	// Um número entre zero e "sum" é sorteado
 	srand(unsigned(time(NULL)));
 	int randWheel = rand() % (sum + 1);
-
-	if(pol < 0)
-		sum /= -pol;
-	else
-		if(rand()%101 <= pol)
-			sum /= pol;
 
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
 	for(iter = pop->begin(); iter != pop->end(); iter++)

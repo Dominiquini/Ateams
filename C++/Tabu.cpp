@@ -18,11 +18,12 @@ Tabu::Tabu(ParametrosBT* pBT)
 /* Executa uma Busca Tabu na população com o devido criterio de selecao */
 vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol)
 {
+	double visao = polEscolha == -1 ? Problema::totalMakespan : Problema::sumFitness(sol, polEscolha);
 	Problema *select = NULL;
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	for(int i = 0; i < (int)sol->size()/10 && (select == NULL || select->movTabu.job == true); i++)
-		select = Controle::selectRouletteWheel(sol, Problema::totalMakespan, polEscolha);
+		select = Controle::selectRouletteWheel(sol, visao);
 	select->movTabu.job = true;
 
 	return exec(select);
