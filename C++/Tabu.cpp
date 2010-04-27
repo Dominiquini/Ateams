@@ -15,7 +15,7 @@ Tabu::Tabu(ParametrosBT* pBT)
 	Heuristica::numHeuristic += prob;
 }
 
-/* Executa uma Busca Tabu na população com o devido criterio de selecao */
+/* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
 vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol)
 {
 	// Escolhe alguem dentre os 'pollEscolha' primeiras solucoes
@@ -33,7 +33,7 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	return exec(select);
 }
 
-/* Executa uma busca por soluções a partir de 'init' por 'iterTabu' vezes */
+/* Executa uma busca por solucoes a partir de 'init' por 'iterTabu' vezes */
 vector<Problema*>* Tabu::exec(Problema* init)
 {
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* local;

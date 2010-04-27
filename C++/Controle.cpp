@@ -110,7 +110,7 @@ void Controle::geraPop()
 
 	Problema* prob = NULL;
 	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
-	while((int)pop->size() <= tamPop)
+	while((int)pop->size() < tamPop)
 	{
 		prob = Problema::alloc();
 
@@ -120,7 +120,6 @@ void Controle::geraPop()
 			if(ret.second == true)
 				Problema::totalMakespan += prob->getFitness();
 			else
-
 				delete prob;
 		}
 		else
@@ -130,9 +129,9 @@ void Controle::geraPop()
 
 Problema* Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal)
 {
-	// Armazena o fitness total da população
+	// Armazena o fitness total da populacao
 	int sum = fitTotal;
-	// Um número entre zero e "sum" é sorteado
+	// Um numero entre zero e "sum" e sorteado
 	srand(unsigned(time(NULL)));
 	int randWheel = rand() % (sum + 1);
 
@@ -150,9 +149,9 @@ Problema* Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Proble
 
 Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, int probTotal)
 {
-	// Armazena o fitness total da população
+	// Armazena o fitness total da populacao
 	int sum = probTotal;
-	// Um número entre zero e "sum" é sorteado
+	// Um numero entre zero e "sum" e sorteado
 	srand(unsigned(time(NULL)));
 	int randWheel = rand() % (sum + 1);
 
