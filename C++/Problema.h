@@ -23,6 +23,10 @@ bool fncomp(Problema*, Problema*);
 
 class Problema
 {
+protected:
+	resp sol;		// Makespan e escalonamentos que definem a solucao
+	mov movTabu;	// Movimento tabu que gerou a solucao. movTabu.maq = -1 se por outro meio
+
 public:
 	static int numInst;				// Quantidade de instancias criadas
 	static double totalMakespan;	// Soma do inverso do makespan de todos os individuos na populacao
@@ -59,8 +63,9 @@ public:
 	virtual double getFitness() = 0;
 	virtual int getMakespan() = 0;
 
-	resp sol;		// Makespan e escalonamentos que definem a solucaoS
-	mov movTabu;	// Movimento tabu que gerou a solucao. movTabu.maq = -1 se por outro meio
+	friend class JobShop;
+	friend class Tabu;
+	friend bool fncomp(Problema*, Problema*);
 };
 
 #endif

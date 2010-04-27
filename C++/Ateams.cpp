@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 
 	Problema::leArgumentos(argv, argc, pATEAMS, pBT, pAG);
 
-	pATEAMS->maxTempo = pATEAMS->maxTempo <= 0 ? INT_MAX : pATEAMS->maxTempo;
+//	pATEAMS->maxTempo = pATEAMS->maxTempo <= 0 ? INT_MAX : pATEAMS->maxTempo;
 
 	cout << endl;
 

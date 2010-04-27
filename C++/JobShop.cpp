@@ -79,8 +79,8 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[iterAteams]");
 	pATEAMS->iteracoesAteams = par != -1 ? (int)par : 50;
 
-	par = locNumberPar(parametros, size, (char*)"[MaxTempoAteams]");
-	pATEAMS->maxTempo = par;
+	par = locNumberPar(parametros, size, (char*)"[maxTempoAteams]");
+	pATEAMS->maxTempo = par != -1 ? (int)par : INT_MAX;
 
 	par = locNumberPar(parametros, size, (char*)"[tamPopulacaoAteams]");
 	pATEAMS->tamanhoPopulacao = par != -1 ? (int)par : 500;
@@ -118,7 +118,7 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, Pa
 	if((p = locComPar(argv, argc, (char*)"--iterAteams")) != -1)
 		pATEAMS->iteracoesAteams = atoi(argv[p]);
 
-	if((p = locComPar(argv, argc, (char*)"--MaxTempoAteams")) != -1)
+	if((p = locComPar(argv, argc, (char*)"--maxTempoAteams")) != -1)
 		pATEAMS->maxTempo = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--tamPopulacaoAteams")) != -1)
@@ -184,7 +184,6 @@ double Problema::sumFitness(set<Problema*, bool(*)(Problema*, Problema*)> *pop, 
 JobShop::JobShop() : Problema::Problema()
 {
 	int *aux_vet, *aux_maq;
-	ptrdiff_t (*p_myrandom)(ptrdiff_t) = myrandom;
 
 	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 0);
 	aux_vet = (int*)alocaMatriz(1, njob, 0, 0);
@@ -198,7 +197,7 @@ JobShop::JobShop() : Problema::Problema()
 
 	for (int i = 0; i < nmaq; i++)
 	{
-		random_shuffle(&aux_vet[0], &aux_vet[njob], p_myrandom);
+		random_shuffle(&aux_vet[0], &aux_vet[njob]);
 		for (int j = 0; j < njob; j++)
 		{
 			sol.esc[maq[aux_vet[j]][i]][aux_maq[maq[aux_vet[j]][i]]] = aux_vet[j];
@@ -535,10 +534,4 @@ bool fncomp(Problema *prob1, Problema *prob2)
 	}
 	else
 		return prob1->sol.makespan < prob2->sol.makespan;
-}
-
-// random generator function:
-ptrdiff_t myrandom (ptrdiff_t i)
-{
-	return rand() % i;
 }

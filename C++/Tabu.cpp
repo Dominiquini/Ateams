@@ -21,15 +21,15 @@ Tabu::Tabu(ParametrosBT* pBT)
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
 vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol)
 {
-        if(polEscolha == 0)
-                return exec(*sol->begin());
+	if(polEscolha == 0)
+		return exec(*sol->begin());
 
 	// Escolhe alguem dentre os 'pollEscolha' primeiras solucoes
 	double visao = polEscolha == -1 ? Problema::totalMakespan : Problema::sumFitness(sol, polEscolha);
 	Problema *select = NULL;
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
-	for(int i = 0; (polEscolha != -1 && i < polEscolha) && (select == NULL || select->movTabu.job == true); i++)
+	while(select == NULL || select->movTabu.job == true)
 	{
 		select = Controle::selectRouletteWheel(sol, visao);
 		visao = Problema::totalMakespan;

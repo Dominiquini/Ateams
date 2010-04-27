@@ -43,8 +43,4 @@ void* alocaMatriz(int, int, int, int);
 
 void desalocaMatriz(int, void*, int, int);
 
-bool fncomp(Problema*, Problema*);
-
-ptrdiff_t myrandom (ptrdiff_t i);
-
 #endif

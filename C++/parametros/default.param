@@ -2,7 +2,7 @@
 
 #ATEAMS
 [iterAteams] = 50          // Numero de iteracoes do Ateams
-[MaxTempoAteams] = -1      // Tempo maximo de execucao
+[maxTempoAteams] = -1      // Tempo maximo de execucao
 [tamPopulacaoAteams] = 500 // Tamanho da populacao
 [makespanBest] = -1        // Melhor makespan conhecido
 
