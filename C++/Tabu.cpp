@@ -63,12 +63,12 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			// Se nao for tabu...
 			if(!isTabu(listaTabu, (*iter)->movTabu))
 			{
-				if((*iter)->makespan < maxLocal->makespan)
+				if((*iter)->getMakespan() < maxLocal->getMakespan())
 					j = 0;
 
 				delete maxLocal;
 				maxLocal = Problema::alloc(**iter);
-				if((*iter)->makespan < maxGlobal->makespan)
+				if((*iter)->getMakespan() < maxGlobal->getMakespan())
 				{
 					delete maxGlobal;
 					maxGlobal = Problema::alloc(*maxLocal);
@@ -83,7 +83,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			else
 			{
 				// Satisfaz a funcao de aspiracao
-				if((*iter)->makespan < ((funcAsp*maxGlobal->makespan) + ((1-funcAsp)*maxLocal->makespan)))
+				if((*iter)->getMakespan() < ((funcAsp*maxGlobal->getMakespan()) + ((1-funcAsp)*maxLocal->getMakespan())))
 				{
 					j = 0;
 

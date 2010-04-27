@@ -45,7 +45,7 @@ Problema* Controle::start()
 {
 	geraPop();
 
-	cout << "CTR : 0 : " << (*pop->begin())->makespan << endl << flush;
+	cout << "CTR : 0 : " << (*pop->begin())->getMakespan() << endl << flush;
 
 	struct timeval time1, time2;
 	gettimeofday(&time1, NULL);
@@ -80,9 +80,9 @@ Problema* Controle::start()
 		prob->clear();
 		delete prob;
 
-		cout << atual << " : " << i+1 << " : " << (*pop->begin())->makespan << endl << flush;
+		cout << atual << " : " << i+1 << " : " << (*pop->begin())->getMakespan() << endl << flush;
 
-		if((*pop->begin())->makespan <= makespanBest)
+		if((*pop->begin())->getMakespan() <= makespanBest)
 		{
 			cout << endl << "Populacao ATEAMS Convergiu na " << i+1 << " iteracao" << endl;
 			break;
@@ -114,7 +114,7 @@ void Controle::geraPop()
 	{
 		prob = Problema::alloc();
 
-		if(prob->makespan != -1)
+		if(prob->getMakespan() != -1)
 		{
 			ret = pop->insert(prob);
 			if(ret.second == true)

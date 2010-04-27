@@ -6,13 +6,6 @@
 [tamPopulacaoAteams] = 500 // Tamanho da populacao
 [makespanBest] = -1        // Melhor makespan conhecido
 
-#AG
-[iterAG] = 1000         // Iteracoes do AG
-[polLeituraAG] = 1      // Politica de leitura do AG
-[%Leitura] = 0.8        // Corresponde ao tamanho da populacao no AG
-[%Populacao] = 1.0      // Corresponde a quantidade de leituras no AG
-[probCrossover] = 0.8   // Probabilidade de crossover
-[probMutacao] = 0.08    // Probabilidade de mutacao
 
 #BT
 [probBT] = 100		// Probabilidade de se executar BT em cada iteração do ATEAMS

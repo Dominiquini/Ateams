@@ -113,17 +113,18 @@ int main(int argc, char *argv[])
 	Controle* ctr = new Controle(pATEAMS);
 	ctr->addHeuristic(new Tabu(pBT));
 	Problema* best = ctr->start();
-	cout << endl << "Melhor Solução: " << best->makespan << endl << endl;
+	cout << endl << "Melhor Solução: " << best->getMakespan() << endl << endl;
 
 	gettimeofday(&tv2, NULL);
-	Problema::imprimeResultado(tv1, tv2, fresultados, best->makespan);
+	Problema::imprimeResultado(tv1, tv2, fresultados, best->getMakespan());
 	fclose(fresultados);
 
+//	cout << endl << endl << "Escalonamento: " << endl << endl;
+//	best->imprimir();
 	delete ctr;
 	cout << "Memória Alocada: " << Problema::numInst << endl << endl;
 
-	desalocaMatriz(2, Problema::maq, Problema::njob, 0);
-	desalocaMatriz(2, Problema::time, Problema::njob, 0);
+	Problema::desalocaMemoria();
 
 	return 0;
 }

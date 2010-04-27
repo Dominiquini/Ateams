@@ -6,9 +6,10 @@ using namespace std;
 
 int Problema::numInst = 0;
 double Problema::totalMakespan = 0;
-char Problema::name[128];
-int **Problema::maq = NULL, **Problema::time = NULL;
-int Problema::njob = 0, Problema::nmaq = 0;
+
+char JobShop::name[128];
+int **JobShop::maq = NULL, **JobShop::time = NULL;
+int JobShop::njob = 0, JobShop::nmaq = 0;
 
 
 Problema::Problema()
@@ -20,11 +21,11 @@ Problema::~Problema()
 {
 	numInst--;
 
-	if(esc != NULL)
-		desalocaMatriz(2, esc, nmaq, 0);
+	if(sol.esc != NULL)
+		desalocaMatriz(2, sol.esc, JobShop::nmaq, 0);
 
-	if(escalon != NULL)
-		desalocaMatriz(3, escalon, nmaq, njob);
+	if(sol.escalon != NULL)
+		desalocaMatriz(3, sol.escalon, JobShop::nmaq, JobShop::njob);
 }
 
 Problema* Problema::alloc()
@@ -50,20 +51,20 @@ Problema* Problema::alloc(Problema& prob, int maq, int pos1, int pos2)
 
 void Problema::leProblema(FILE *f)
 {
-	if(!fgets (name, 128, f))
+	if(!fgets (JobShop::name, 128, f))
 		exit(1);
 
-	if(!fscanf (f, "%d %d", &njob, &nmaq))
+	if(!fscanf (f, "%d %d", &JobShop::njob, &JobShop::nmaq))
 		exit(1);
 
-	maq = (int**)alocaMatriz(2, njob, nmaq, 0);
-	time = (int**)alocaMatriz(2, njob, nmaq, 0);
+	JobShop::maq = (int**)alocaMatriz(2, JobShop::njob, JobShop::nmaq, 0);
+	JobShop::time = (int**)alocaMatriz(2, JobShop::njob, JobShop::nmaq, 0);
 
-	for (int i = 0; i < njob; i++)
+	for (int i = 0; i < JobShop::njob; i++)
 	{
-		for (int j = 0; j < nmaq; j++)
+		for (int j = 0; j < JobShop::nmaq; j++)
 		{
-			if (!fscanf (f, "%d %d", &maq[i][j], &time[i][j]))
+			if (!fscanf (f, "%d %d", &JobShop::maq[i][j], &JobShop::time[i][j]))
 				exit(1);
 		}
 	}
@@ -74,9 +75,6 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	char *parametros = (char*)malloc(4097 * sizeof(char));
 	size_t size = fread(parametros, sizeof(char), 4096, f);
 	float par = -1;
-
-	float porcentagemPop;
-	float porcentagemLeituraATEAMS;
 
 	par = locNumberPar(parametros, size, (char*)"[iterAteams]");
 	pATEAMS->iteracoesAteams = par != -1 ? (int)par : 100;
@@ -89,25 +87,6 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 
 	par = locNumberPar(parametros, size, (char*)"[makespanBest]");
 	pATEAMS->makespanBest = par;
-
-
-	par = locNumberPar(parametros, size, (char*)"[iterAG]");
-	pAG->numeroIteracoes = par != -1 ? (int)par : 1000;
-
-	par = locNumberPar(parametros, size, (char*)"[polLeituraAG]");
-	pAG->politicaLeitura = par != -1 ? (int)par : 1;
-
-	par = locNumberPar(parametros, size, (char*)"[%Leitura]");
-	porcentagemPop = par != -1 ? par : 0.8;
-
-	par = locNumberPar(parametros, size, (char*)"[%Populacao]");
-	porcentagemLeituraATEAMS = par != -1 ? par : 1.0;
-
-	par = locNumberPar(parametros, size, (char*)"[probCrossover]");
-	pAG->probabilidadeCrossover = par != -1 ? par : 0.6;
-
-	par = locNumberPar(parametros, size, (char*)"[probMutacao]");
-	pAG->probabilidadeMutacoes = par != -1 ? par : 0.02;
 
 
 	par = locNumberPar(parametros, size, (char*)"[probBT]");
@@ -128,11 +107,6 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[tamListaBT]");
 	pBT->tamanhoListaTabu = par != -1 ? (int)par : 2;
 
-
-	pAG->tamanhoPopulacao = pATEAMS->tamanhoPopulacao * (1 + porcentagemPop);
-
-	pAG->quantidadeLeituraMemoriaATEAMS = pATEAMS->tamanhoPopulacao * porcentagemLeituraATEAMS;
-
 	free(parametros);
 }
 
@@ -152,19 +126,6 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, Pa
 
 	if((p = locComPar(argv, argc, (char*)"--makespanBest")) != -1)
 		pATEAMS->makespanBest = atoi(argv[p]);
-
-
-	if((p = locComPar(argv, argc, (char*)"--iterAG")) != -1)
-		pAG->numeroIteracoes = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--polLeituraAG")) != -1)
-		pAG->politicaLeitura = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--probCrossover")) != -1)
-		pAG->probabilidadeCrossover = atof(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--probMutacao")) != -1)
-		pAG->probabilidadeMutacoes = atof(argv[p]);
 
 
 	if((p = locComPar(argv, argc, (char*)"--probBT")) != -1)
@@ -193,6 +154,12 @@ void Problema::imprimeResultado (struct timeval tv1, struct timeval tv2, FILE *r
 	fprintf(resultados, "%d\t%d\n", bestMakespan, s);
 }
 
+void Problema::desalocaMemoria()
+{
+	desalocaMatriz(2, JobShop::maq, JobShop::njob, 0);
+	desalocaMatriz(2, JobShop::time, JobShop::njob, 0);
+}
+
 bool Problema::movTabuCMP(mov& t1, mov& t2)
 {
 	if(t1.maq == t2.maq && (t1.A == t2.A || t1.A == t2.B) && (t1.B == t2.B || t1.B == t2.A))
@@ -219,7 +186,7 @@ JobShop::JobShop() : Problema::Problema()
 	int *aux_vet, *aux_maq;
 	ptrdiff_t (*p_myrandom)(ptrdiff_t) = myrandom;
 
-	esc = (int**)alocaMatriz(2, nmaq, njob, 0);
+	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 0);
 	aux_vet = (int*)alocaMatriz(1, njob, 0, 0);
 	aux_maq = (int*)alocaMatriz(1, nmaq, 0, 0); /* indica proxima operacao da maquina */
 
@@ -234,13 +201,13 @@ JobShop::JobShop() : Problema::Problema()
 		random_shuffle(&aux_vet[0], &aux_vet[njob], p_myrandom);
 		for (int j = 0; j < njob; j++)
 		{
-			esc[maq[aux_vet[j]][i]][aux_maq[maq[aux_vet[j]][i]]] = aux_vet[j];
+			sol.esc[maq[aux_vet[j]][i]][aux_maq[maq[aux_vet[j]][i]]] = aux_vet[j];
 			aux_maq[maq[aux_vet[j]][i]] += 1;
 		}
 	}
 
-	escalon = NULL;
-	makespan = calcMakespan();
+	sol.escalon = NULL;
+	sol.makespan = calcMakespan();
 
 	movTabu.job = false;
 	movTabu.maq = -1;
@@ -248,14 +215,14 @@ JobShop::JobShop() : Problema::Problema()
 
 JobShop::JobShop(int **prob) : Problema::Problema()
 {
-	esc = (int**)alocaMatriz(2, nmaq, njob, 0);
+	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 0);
 
 	for(int i = 0; i < nmaq; i++)
 		for(int j = 0; j < njob; j++)
-			esc[i][j] = prob[i][j];
+			sol.esc[i][j] = prob[i][j];
 
-	escalon = NULL;
-	makespan = calcMakespan();
+	sol.escalon = NULL;
+	sol.makespan = calcMakespan();
 
 	movTabu.job = false;
 	movTabu.maq = -1;
@@ -263,37 +230,37 @@ JobShop::JobShop(int **prob) : Problema::Problema()
 
 JobShop::JobShop(Problema &prob) : Problema::Problema()
 {
-	esc = (int**)alocaMatriz(2, nmaq, njob, 0);
+	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 0);
 	for(int i = 0; i < nmaq; i++)
 		for(int j = 0; j < njob; j++)
-			esc[i][j] = prob.esc[i][j];
+			sol.esc[i][j] = prob.sol.esc[i][j];
 
-	makespan = prob.makespan;
+	sol.makespan = prob.sol.makespan;
 
-	if(prob.escalon != NULL)
+	if(prob.sol.escalon != NULL)
 	{
-		escalon = (int***)alocaMatriz(3, nmaq, njob, 3);
+		sol.escalon = (int***)alocaMatriz(3, nmaq, njob, 3);
 		for(int i = 0; i < nmaq; i++)
 			for(int j = 0; j < njob; j++)
 				for(int k = 0; k < 3; k++)
-					escalon[i][j][k] = prob.escalon[i][j][k];
+					sol.escalon[i][j][k] = prob.sol.escalon[i][j][k];
 	}
 	movTabu = prob.movTabu;
 }
 
 JobShop::JobShop(Problema &prob, int maq, int pos1, int pos2) : Problema::Problema()
 {
-	esc = (int**)alocaMatriz(2, nmaq, njob, 0);
+	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 0);
 	for(int i = 0; i < nmaq; i++)
 		for(int j = 0; j < njob; j++)
-			esc[i][j] = prob.esc[i][j];
+			sol.esc[i][j] = prob.sol.esc[i][j];
 
-	int aux = esc[maq][pos1];
-	esc[maq][pos1] = esc[maq][pos2];
-	esc[maq][pos2] = aux;
+	int aux = sol.esc[maq][pos1];
+	sol.esc[maq][pos1] = sol.esc[maq][pos2];
+	sol.esc[maq][pos2] = aux;
 
-	escalon = NULL;
-	makespan = calcMakespan();
+	sol.escalon = NULL;
+	sol.makespan = calcMakespan();
 
 	movTabu.maq = maq;
 	movTabu.A = pos1;
@@ -329,7 +296,7 @@ int JobShop::calcMakespan()
 	{
 		if(pos[i] != -1)
 		{
-			ajob = esc[i][pos[i]];
+			ajob = sol.esc[i][pos[i]];
 			apos = findOrdem(nmaq, i, maq[ajob]);
 			ainic = tmp[ajob][apos];
 		}
@@ -372,7 +339,7 @@ int JobShop::calcMakespan()
 			if(tmp[i][nmaq] > sum_time)
 				sum_time = tmp[i][nmaq];
 		}
-		escalon = aux_esc;
+		sol.escalon = aux_esc;
 
 		desalocaMatriz(2, tmp, njob, 0);
 		desalocaMatriz(1, pos, 0, 0);
@@ -391,7 +358,7 @@ int JobShop::calcMakespan()
 
 void JobShop::imprimir()
 {
-	if(escalon == NULL)
+	if(sol.escalon == NULL)
 		calcMakespan();
 
 	printf("\n");
@@ -401,13 +368,13 @@ void JobShop::imprimir()
 		printf("maq %d: ", i+1);
 		for(int j = 0; j < njob; j++)
 		{
-			int k = escalon[i][j][2] - escalon[i][j][1];
-			int spc = j == 0 ? escalon[i][j][1] : escalon[i][j][1] - escalon[i][j-1][2];
+			int k = sol.escalon[i][j][2] - sol.escalon[i][j][1];
+			int spc = j == 0 ? sol.escalon[i][j][1] : sol.escalon[i][j][1] - sol.escalon[i][j-1][2];
 			while(spc--)
 				printf(" ");
 
 			while(k--)
-				printf("%d", escalon[i][j][0]+1);
+				printf("%d", sol.escalon[i][j][0]+1);
 		}
 		printf("\n");
 	}
@@ -428,7 +395,7 @@ multiset<Problema*, bool(*)(Problema*, Problema*)>* JobShop::buscaLocal()
 			for(int k = j+1; k < njob; k++)
 			{
 				job = new JobShop(*this, i, j, k);
-				if(job->makespan != -1)
+				if(job->sol.makespan != -1)
 					local->insert(job);
 				else
 					delete job;
@@ -441,7 +408,12 @@ multiset<Problema*, bool(*)(Problema*, Problema*)>* JobShop::buscaLocal()
 
 double JobShop::getFitness()
 {
-	return (double)1000/makespan;
+	return (double)1000/sol.makespan;
+}
+
+int JobShop::getMakespan()
+{
+	return sol.makespan;
 }
 
 
@@ -553,16 +525,16 @@ void desalocaMatriz(int dim, void *MMM, int a, int b)
 // comparator function:
 bool fncomp(Problema *prob1, Problema *prob2)
 {
-	if(prob1->makespan == prob2->makespan)
+	if(prob1->sol.makespan == prob2->sol.makespan)
 	{
-		for(int i = 0; i < Problema::nmaq; i++)
-			for(int j = 0; j < Problema::njob; j++)
-				if(prob1->esc[i][j] != prob2->esc[i][j])
-					return prob1->esc[i][j] < prob2->esc[i][j];
+		for(int i = 0; i < JobShop::nmaq; i++)
+			for(int j = 0; j < JobShop::njob; j++)
+				if(prob1->sol.esc[i][j] != prob2->sol.esc[i][j])
+					return prob1->sol.esc[i][j] < prob2->sol.esc[i][j];
 		return false;
 	}
 	else
-		return prob1->makespan < prob2->makespan;
+		return prob1->sol.makespan < prob2->sol.makespan;
 }
 
 // random generator function:

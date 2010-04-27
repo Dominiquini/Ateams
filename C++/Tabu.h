@@ -1,4 +1,4 @@
-#include "JobShop.h"
+#include "Problema.h"
 #include "Heuristica.h"
 
 using namespace std;
@@ -16,6 +16,8 @@ public:
 	Tabu(ParametrosBT*);
 
 	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol);
+
+private:
 
 	vector<Problema*>* exec(Problema*);
 };

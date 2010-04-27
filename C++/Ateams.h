@@ -10,6 +10,19 @@ using namespace std;
 #ifndef _ATEAMS_
 #define _ATEAMS_
 
+typedef struct soluction
+{
+	int makespan;	// Makespan da solucao
+	int **esc;		// Solucao
+	int ***escalon;	// Escalonamento nas maquinas
+} resp;
+
+typedef struct movTabu
+{
+	int maq, A, B;
+	bool job;
+} mov;
+
 typedef struct ParametrosATEAMS {
 	int tamanhoPopulacao;
 	int iteracoesAteams;
@@ -18,12 +31,7 @@ typedef struct ParametrosATEAMS {
 } ParametrosATEAMS;
 
 typedef struct ParametrosAG {
-	int quantidadeLeituraMemoriaATEAMS;
-	int tamanhoPopulacao;
-	int numeroIteracoes;
-	int politicaLeitura;
-	float probabilidadeCrossover;
-	float probabilidadeMutacoes;
+	// TODO
 } ParametrosAG;
 
 typedef struct ParametrosBT {

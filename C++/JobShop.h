@@ -12,6 +12,9 @@ using namespace std;
 class JobShop : public Problema
 {
 public:
+	static char name[128];			// Nome do problema
+	static int **maq, **time;		// Matriz de maquinas e de tempos
+	static int njob, nmaq;			// Quantidade de jobs e de maquinas
 
 	JobShop();												// Nova solucao aleatoria
 	JobShop(int **prob);									// Copia de prob
@@ -25,6 +28,7 @@ public:
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* buscaLocal();
 
 	double getFitness();
+	int getMakespan();
 };
 
 int locComPar(char **in, int num, char *key);

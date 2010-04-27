@@ -16,13 +16,6 @@ using namespace std;
 #ifndef _PROBLEMA_
 #define _PROBLEMA_
 
-typedef struct movTabu
-{
-	int maq, A, B;
-	bool job;
-} mov;
-
-
 class Problema;
 
 bool fncomp(Problema*, Problema*);
@@ -34,10 +27,6 @@ public:
 	static int numInst;				// Quantidade de instancias criadas
 	static double totalMakespan;	// Soma do inverso do makespan de todos os individuos na populacao
 
-	static char name[128];			// Nome do problema
-	static int **maq, **time;		// Matriz de maquinas e de tempos
-	static int njob, nmaq;			// QUantidade de jobs e de maquinas
-
 	// Le arquivo de dados de entrada
 	static void leProblema(FILE*);
 
@@ -47,6 +36,8 @@ public:
 
 	static void imprimeResultado (struct timeval, struct timeval, FILE*, int);
 
+	static void desalocaMemoria();
+
 	static Problema* alloc();												// Nova solucao aleatoria
 	static Problema* alloc(int **prob);										// Copia de prob
 	static Problema* alloc(Problema &prob);									// Copia de prob
@@ -54,12 +45,6 @@ public:
 
 	static bool movTabuCMP(mov& t1, mov& t2);
 	static double sumFitness(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
-
-	mov movTabu;	// Movimento tabu que gerou a solucao. movTabu.maq = -1 se por outro meio
-
-	int **esc;		// Solucao
-	int makespan;	// Makespan da solucao
-	int ***escalon;	// Escalonamento nas maquinas
 
 	Problema();		// numInst++
 
@@ -72,6 +57,10 @@ public:
 	virtual multiset<Problema*, bool(*)(Problema*, Problema*)>* buscaLocal() = 0;
 
 	virtual double getFitness() = 0;
+	virtual int getMakespan() = 0;
+
+	resp sol;		// Makespan e escalonamentos que definem a solucaoS
+	mov movTabu;	// Movimento tabu que gerou a solucao. movTabu.maq = -1 se por outro meio
 };
 
 #endif
