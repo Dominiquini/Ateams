@@ -11,6 +11,7 @@ class Tabu : public Heuristica
 public:
 
 	int iterTabu, tamListaTabu, tentSemMelhora;
+	float funcAsp;
 
 	Tabu(ParametrosBT*);
 

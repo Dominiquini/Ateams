@@ -7,6 +7,7 @@ for((j = $4; j <= $5; j+=$6));
 do
     for((i = 0; i < $2; i++));
     do
+        echo "$exec -i dados/la$1.prb $3 $j $7 $8 $9 -r resultados/$3_$j.res"
         $exec -i dados/la$1.prb $3 $j $7 $8 $9 -r resultados/$3_$j.res
     done
 done

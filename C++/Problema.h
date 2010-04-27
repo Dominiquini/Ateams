@@ -43,6 +43,9 @@ public:
 
 	// Le arquivo de parametros de entrada
 	static void leParametros(FILE*, ParametrosATEAMS*, ParametrosBT*, ParametrosAG*);
+	static void leArgumentos(char**, int, ParametrosATEAMS*, ParametrosBT*, ParametrosAG*);
+
+	static void imprimeResultado (struct timeval, struct timeval, FILE*, int);
 
 	static Problema* alloc();												// Nova solucao aleatoria
 	static Problema* alloc(int **prob);										// Copia de prob

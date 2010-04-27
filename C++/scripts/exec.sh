@@ -9,8 +9,10 @@ do
     do
         if [ $i -le 9 ];
         then
+            echo "$exec -i dados/la0$i.prb $4 $5 $6 $7 $8 $9"
             $exec -i dados/la0$i.prb $4 $5 $6 $7 $8 $9
         else
+            echo "$exec -i dados/la$i.prb $4 $5 $6 $7 $8 $9"
             $exec -i dados/la$i.prb $4 $5 $6 $7 $8 $9
         fi
     done

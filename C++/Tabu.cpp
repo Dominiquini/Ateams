@@ -3,10 +3,13 @@
 
 using namespace std;
 
+extern int PARAR;
+
 Tabu::Tabu(ParametrosBT* pBT)
 {
 	name = "BT";
 	prob = pBT->probBT;
+	funcAsp = pBT->funcAsp;
 	polEscolha = pBT->polEscolha;
 	iterTabu = pBT->numeroIteracoes;
 	tamListaTabu = pBT->tamanhoListaTabu;
@@ -18,6 +21,9 @@ Tabu::Tabu(ParametrosBT* pBT)
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
 vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol)
 {
+        if(polEscolha == 0)
+                return exec(*sol->begin());
+
 	// Escolhe alguem dentre os 'pollEscolha' primeiras solucoes
 	double visao = polEscolha == -1 ? Problema::totalMakespan : Problema::sumFitness(sol, polEscolha);
 	Problema *select = NULL;
@@ -46,6 +52,9 @@ vector<Problema*>* Tabu::exec(Problema* init)
 	// Loop principal
 	for(int i = 0, j = 0; i < iterTabu && j < tentSemMelhora; i++, j++)
 	{
+		if(PARAR == 1)
+			break;
+
 		local = maxLocal->buscaLocal();
 
 		// Pega a primeira solucao nao tabu
@@ -74,7 +83,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			else
 			{
 				// Satisfaz a funcao de aspiracao
-				if((*iter)->makespan < maxGlobal->makespan)
+				if((*iter)->makespan < ((funcAsp*maxGlobal->makespan) + ((1-funcAsp)*maxLocal->makespan)))
 				{
 					j = 0;
 

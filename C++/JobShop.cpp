@@ -81,10 +81,10 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[iterAteams]");
 	pATEAMS->iteracoesAteams = par != -1 ? (int)par : 100;
 
-	par = locNumberPar(parametros, size, (char*)"[MaxTempo]");
+	par = locNumberPar(parametros, size, (char*)"[MaxTempoAteams]");
 	pATEAMS->maxTempo = par;
 
-	par = locNumberPar(parametros, size, (char*)"[tamPopulacao]");
+	par = locNumberPar(parametros, size, (char*)"[tamPopulacaoAteams]");
 	pATEAMS->tamanhoPopulacao = par != -1 ? (int)par : 50;
 
 	par = locNumberPar(parametros, size, (char*)"[makespanBest]");
@@ -113,13 +113,16 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[probBT]");
 	pBT->probBT = par != -1 ? par : (int)50;
 
-	par = locNumberPar(parametros, size, (char*)"[polEscolha]");
+	par = locNumberPar(parametros, size, (char*)"[polEscolhaBT]");
 	pBT->polEscolha = par != -1 ? par : (int)15;
+
+	par = locNumberPar(parametros, size, (char*)"[funcAspiracaoBT]");
+	pBT->funcAsp = par != -1 ? par : 1;
 
 	par = locNumberPar(parametros, size, (char*)"[iterBT]");
 	pBT->numeroIteracoes = par != -1 ? (int)par : 1000;
 
-	par = locNumberPar(parametros, size, (char*)"[tentSemMelhora]");
+	par = locNumberPar(parametros, size, (char*)"[tentSemMelhoraBT]");
 	pBT->tentativasSemMelhora = par != -1 ? (int)par : 1;
 
 	par = locNumberPar(parametros, size, (char*)"[tamListaBT]");
@@ -131,6 +134,63 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	pAG->quantidadeLeituraMemoriaATEAMS = pATEAMS->tamanhoPopulacao * porcentagemLeituraATEAMS;
 
 	free(parametros);
+}
+
+/* Le argumentos adicionais passados por linha de comando */
+void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, ParametrosAG *pAG)
+{
+	int p = -1;
+
+	if((p = locComPar(argv, argc, (char*)"--iterAteams")) != -1)
+		pATEAMS->iteracoesAteams = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--MaxTempoAteams")) != -1)
+		pATEAMS->maxTempo = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--tamPopulacaoAteams")) != -1)
+		pATEAMS->tamanhoPopulacao = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--makespanBest")) != -1)
+		pATEAMS->makespanBest = atoi(argv[p]);
+
+
+	if((p = locComPar(argv, argc, (char*)"--iterAG")) != -1)
+		pAG->numeroIteracoes = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--polLeituraAG")) != -1)
+		pAG->politicaLeitura = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--probCrossover")) != -1)
+		pAG->probabilidadeCrossover = atof(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--probMutacao")) != -1)
+		pAG->probabilidadeMutacoes = atof(argv[p]);
+
+
+	if((p = locComPar(argv, argc, (char*)"--probBT")) != -1)
+		pBT->probBT = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--polEscolhaBT")) != -1)
+		pBT->polEscolha = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--funcAspiracaoBT")) != -1)
+		pBT->funcAsp = atof(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--iterBT")) != -1)
+		pBT->numeroIteracoes = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--tentSemMelhoraBT")) != -1)
+		pBT->tentativasSemMelhora = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--tamListaBT")) != -1)
+		pBT->tamanhoListaTabu = atoi(argv[p]);
+}
+
+void Problema::imprimeResultado (struct timeval tv1, struct timeval tv2, FILE *resultados, int bestMakespan)
+{
+	int s = (((tv2.tv_sec*1000)+(tv2.tv_usec/1000)) - ((tv1.tv_sec*1000)+(tv1.tv_usec/1000)))/1000;
+
+	fprintf(resultados, "%d\t%d\n", bestMakespan, s);
 }
 
 bool Problema::movTabuCMP(mov& t1, mov& t2)
@@ -387,6 +447,17 @@ double JobShop::getFitness()
 
 /* Auxiliares */
 
+/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
+int locComPar(char **in, int num, char *key)
+{
+	for(int i = 0; i < num; i++)
+	{
+		if(!strcmp(in[i], key))
+			return i+1;
+	}
+	return -1;
+}
+
 float locNumberPar(char *in, int num, char *key)
 {
 	char *str = locPosPar(in, num, key);
@@ -399,14 +470,14 @@ float locNumberPar(char *in, int num, char *key)
 }
 
 char* locPosPar(char *in, int num, char *key)
-		{
+{
 	char *str = strstr(in, key);
 
 	if(str != NULL)
 		return strstr(str, "=") + 1;
 	else
 		return NULL;
-		}
+}
 
 int findOrdem(int M, int maq, int* job)
 {
@@ -417,7 +488,7 @@ int findOrdem(int M, int maq, int* job)
 }
 
 void* alocaMatriz(int dim, int a, int b, int c)
-								{
+										{
 	if(dim == 1)
 	{
 		int *M = (int*)malloc(a * sizeof(int));
@@ -446,7 +517,7 @@ void* alocaMatriz(int dim, int a, int b, int c)
 	}
 	else
 		return NULL;
-								}
+										}
 
 void desalocaMatriz(int dim, void *MMM, int a, int b)
 {

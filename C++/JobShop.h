@@ -27,6 +27,8 @@ public:
 	double getFitness();
 };
 
+int locComPar(char **in, int num, char *key);
+
 float locNumberPar(char *in, int num, char *key);
 
 char* locPosPar(char *in, int num, char *key);

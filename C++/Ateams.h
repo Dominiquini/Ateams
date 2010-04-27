@@ -27,6 +27,7 @@ typedef struct ParametrosAG {
 } ParametrosAG;
 
 typedef struct ParametrosBT {
+	float funcAsp;
 	int probBT;
 	int polEscolha;
 	int tentativasSemMelhora;

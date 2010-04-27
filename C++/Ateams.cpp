@@ -13,71 +13,6 @@ void Interrompe(int signum)
 	PARAR = 1;
 }
 
-/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
-int locComPar(char **in, int num, char *key)
-{
-	for(int i = 0; i < num; i++)
-	{
-		if(!strcmp(in[i], key))
-			return i+1;
-	}
-	return -1;
-}
-
-/* Le argumentos adicionais passados por linha de comando */
-void lerArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, ParametrosAG *pAG)
-{
-	int p = -1;
-
-	if((p = locComPar(argv, argc, (char*)"--iterAteams")) != -1)
-		pATEAMS->iteracoesAteams = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--MaxTempo")) != -1)
-		pATEAMS->maxTempo = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--tamPopulacao")) != -1)
-		pATEAMS->tamanhoPopulacao = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--makespanBest")) != -1)
-		pATEAMS->makespanBest = atoi(argv[p]);
-
-
-	if((p = locComPar(argv, argc, (char*)"--iterAG")) != -1)
-		pAG->numeroIteracoes = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--polLeituraAG")) != -1)
-		pAG->politicaLeitura = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--probCrossover")) != -1)
-		pAG->probabilidadeCrossover = atof(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--probMutacao")) != -1)
-		pAG->probabilidadeMutacoes = atof(argv[p]);
-
-
-	if((p = locComPar(argv, argc, (char*)"--probBT")) != -1)
-		pBT->probBT = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--polEscolha")) != -1)
-		pBT->polEscolha = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--iterBT")) != -1)
-		pBT->numeroIteracoes = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--tentSemMelhora")) != -1)
-		pBT->tentativasSemMelhora = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--tamListaBT")) != -1)
-		pBT->tamanhoListaTabu = atoi(argv[p]);
-}
-
-void imprimeResultado (struct timeval tv1, struct timeval tv2, FILE *resultados, int bestMakespan)
-{
-	int s = (((tv2.tv_sec*1000)+(tv2.tv_usec/1000)) - ((tv1.tv_sec*1000)+(tv1.tv_usec/1000)))/1000;
-
-	fprintf(resultados, "%d\t%d\n", bestMakespan, s);
-}
-
 
 int main(int argc, char *argv[])
 {
@@ -169,7 +104,7 @@ int main(int argc, char *argv[])
 	fclose(fdados);
 	fclose(fparametros);
 
-	lerArgumentos(argv, argc, pATEAMS, pBT, pAG);
+	Problema::leArgumentos(argv, argc, pATEAMS, pBT, pAG);
 
 	pATEAMS->maxTempo = pATEAMS->maxTempo <= 0 ? INT_MAX : pATEAMS->maxTempo;
 
@@ -181,11 +116,11 @@ int main(int argc, char *argv[])
 	cout << endl << "Melhor Solução: " << best->makespan << endl << endl;
 
 	gettimeofday(&tv2, NULL);
-	imprimeResultado(tv1, tv2, fresultados, best->makespan);
+	Problema::imprimeResultado(tv1, tv2, fresultados, best->makespan);
 	fclose(fresultados);
 
 	delete ctr;
-	cout << "Memoria Alocada: " << Problema::numInst << endl << endl;
+	cout << "Memória Alocada: " << Problema::numInst << endl << endl;
 
 	desalocaMatriz(2, Problema::maq, Problema::njob, 0);
 	desalocaMatriz(2, Problema::time, Problema::njob, 0);
