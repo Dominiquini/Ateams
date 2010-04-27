@@ -77,13 +77,13 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	float par = -1;
 
 	par = locNumberPar(parametros, size, (char*)"[iterAteams]");
-	pATEAMS->iteracoesAteams = par != -1 ? (int)par : 100;
+	pATEAMS->iteracoesAteams = par != -1 ? (int)par : 50;
 
 	par = locNumberPar(parametros, size, (char*)"[MaxTempoAteams]");
 	pATEAMS->maxTempo = par;
 
 	par = locNumberPar(parametros, size, (char*)"[tamPopulacaoAteams]");
-	pATEAMS->tamanhoPopulacao = par != -1 ? (int)par : 50;
+	pATEAMS->tamanhoPopulacao = par != -1 ? (int)par : 500;
 
 	par = locNumberPar(parametros, size, (char*)"[makespanBest]");
 	pATEAMS->makespanBest = par;
@@ -93,19 +93,19 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	pBT->probBT = par != -1 ? par : (int)50;
 
 	par = locNumberPar(parametros, size, (char*)"[polEscolhaBT]");
-	pBT->polEscolha = par != -1 ? par : (int)15;
+	pBT->polEscolha = par;
 
 	par = locNumberPar(parametros, size, (char*)"[funcAspiracaoBT]");
 	pBT->funcAsp = par != -1 ? par : 1;
 
 	par = locNumberPar(parametros, size, (char*)"[iterBT]");
-	pBT->numeroIteracoes = par != -1 ? (int)par : 1000;
+	pBT->numeroIteracoes = par != -1 ? (int)par : 500;
 
 	par = locNumberPar(parametros, size, (char*)"[tentSemMelhoraBT]");
-	pBT->tentativasSemMelhora = par != -1 ? (int)par : 1;
+	pBT->tentativasSemMelhora = par != -1 ? (int)par : 50;
 
 	par = locNumberPar(parametros, size, (char*)"[tamListaBT]");
-	pBT->tamanhoListaTabu = par != -1 ? (int)par : 2;
+	pBT->tamanhoListaTabu = par != -1 ? (int)par : 25;
 
 	free(parametros);
 }
