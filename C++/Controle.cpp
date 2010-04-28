@@ -7,6 +7,21 @@ using namespace std;
 
 extern int PARAR;
 
+Controle::Controle()
+{
+	tamPop = 500;
+	numAteams = 50;
+	maxTempo = INT_MAX;
+	makespanBest = -1;
+
+	srand(unsigned(time(NULL)));
+
+	bool(*fn_pt)(Problema*, Problema*) = fncomp;
+	pop = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
+
+	algs = new vector<Heuristica*>;
+}
+
 Controle::Controle(ParametrosATEAMS* pATEAMS)
 {
 	tamPop = pATEAMS->tamanhoPopulacao;

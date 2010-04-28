@@ -429,7 +429,7 @@ multiset<Problema*, bool(*)(Problema*, Problema*)>* JobShop::buscaLocal()
 
 double JobShop::getFitness()
 {
-	return (double)1000/sol.makespan;
+	return (double)INT_MAX/sol.makespan;
 }
 
 int JobShop::getMakespan()

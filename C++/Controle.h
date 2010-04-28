@@ -22,6 +22,7 @@ public:
 	int tamPop, numAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao
 	set<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
 
+	Controle();
 	Controle(ParametrosATEAMS* pATEAMS);
 
 	~Controle();
