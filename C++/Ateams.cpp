@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 //	cout << endl << endl << "Escalonamento: " << endl << endl;
 //	best->imprimir();
 	delete ctr;
-	cout << "Memória Alocada: " << Problema::numInst << endl << endl;
+	cout << endl << "Memória Alocada: " << Problema::numInst << endl << endl;
 
 	Problema::desalocaMemoria();
 

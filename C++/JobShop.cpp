@@ -205,8 +205,13 @@ JobShop::JobShop() : Problema::Problema()
 		}
 	}
 
-	sol.escalon = NULL;
 	sol.makespan = calcMakespan();
+
+	if(sol.makespan != -1 && ESCALONAMENTO == false)
+	{
+		desalocaMatriz(3, sol.escalon, nmaq, njob);
+		sol.escalon = NULL;
+	}
 
 	movTabu.job = false;
 	movTabu.maq = -1;
@@ -223,6 +228,12 @@ JobShop::JobShop(int **prob) : Problema::Problema()
 	sol.escalon = NULL;
 	sol.makespan = calcMakespan();
 
+	if(sol.makespan != -1 && ESCALONAMENTO == false)
+	{
+		desalocaMatriz(3, sol.escalon, nmaq, njob);
+		sol.escalon = NULL;
+	}
+
 	movTabu.job = false;
 	movTabu.maq = -1;
 }
@@ -236,7 +247,7 @@ JobShop::JobShop(Problema &prob) : Problema::Problema()
 
 	sol.makespan = prob.sol.makespan;
 
-	if(prob.sol.escalon != NULL)
+	if(prob.sol.escalon != NULL && ESCALONAMENTO == true)
 	{
 		sol.escalon = (int***)alocaMatriz(3, nmaq, njob, 3);
 		for(int i = 0; i < nmaq; i++)
@@ -244,6 +255,11 @@ JobShop::JobShop(Problema &prob) : Problema::Problema()
 				for(int k = 0; k < 3; k++)
 					sol.escalon[i][j][k] = prob.sol.escalon[i][j][k];
 	}
+	else
+	{
+		sol.escalon = NULL;
+	}
+
 	movTabu = prob.movTabu;
 }
 
@@ -260,6 +276,12 @@ JobShop::JobShop(Problema &prob, int maq, int pos1, int pos2) : Problema::Proble
 
 	sol.escalon = NULL;
 	sol.makespan = calcMakespan();
+
+	if(sol.makespan != -1 && ESCALONAMENTO == false)
+	{
+		desalocaMatriz(3, sol.escalon, nmaq, njob);
+		sol.escalon = NULL;
+	}
 
 	movTabu.maq = maq;
 	movTabu.A = pos1;
@@ -357,7 +379,7 @@ int JobShop::calcMakespan()
 
 void JobShop::imprimir()
 {
-	if(sol.escalon == NULL)
+	if(sol.escalon == NULL || ESCALONAMENTO == false)
 		calcMakespan();
 
 	printf("\n");

@@ -13,6 +13,7 @@ public:
 	int iterTabu, tamListaTabu, tentSemMelhora;
 	float funcAsp;
 
+	Tabu();
 	Tabu(ParametrosBT*);
 
 	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol);

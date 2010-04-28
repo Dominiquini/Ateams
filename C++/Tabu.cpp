@@ -5,6 +5,19 @@ using namespace std;
 
 extern int PARAR;
 
+Tabu::Tabu()
+{
+	name = "BT";
+	prob = 50;
+	funcAsp = 1;
+	polEscolha = -1;
+	iterTabu = 500;
+	tamListaTabu = 25;
+	tentSemMelhora = 50;
+
+	Heuristica::numHeuristic += prob;
+}
+
 Tabu::Tabu(ParametrosBT* pBT)
 {
 	name = "BT";

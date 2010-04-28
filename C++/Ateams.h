@@ -7,6 +7,8 @@
 
 using namespace std;
 
+#define ESCALONAMENTO false
+
 #ifndef _ATEAMS_
 #define _ATEAMS_
 
