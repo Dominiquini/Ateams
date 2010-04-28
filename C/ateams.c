@@ -202,7 +202,6 @@ int main (int argc, char *argv[])
 
   fclose(fresultados);
 
-  /* TODO: agrupar todas as desalocacoes de memoria */
   liberaLista(memoriaATEAMS, dados->M);
   liberaMatriz(dados->N, dados->m_op);
   liberaMatriz(dados->N, dados->t_op);

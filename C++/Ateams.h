@@ -17,7 +17,7 @@ typedef struct soluction
 	int makespan;	// Makespan da solucao
 	int **esc;		// Solucao
 	int ***escalon;	// Escalonamento nas maquinas
-} resp;
+} soluction;
 
 typedef struct movTabu
 {

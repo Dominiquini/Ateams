@@ -24,7 +24,7 @@ bool fncomp(Problema*, Problema*);
 class Problema
 {
 protected:
-	resp sol;		// Makespan e escalonamentos que definem a solucao
+	soluction sol;	// Makespan e escalonamentos que definem a solucao
 	mov movTabu;	// Movimento tabu que gerou a solucao. movTabu.maq = -1 se por outro meio
 
 public:
