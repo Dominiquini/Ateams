@@ -95,9 +95,6 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[polEscolhaBT]");
 	pBT->polEscolha = par;
 
-	par = locNumberPar(parametros, size, (char*)"[funcAspiracaoBT]");
-	pBT->funcAsp = par != -1 ? par : 1;
-
 	par = locNumberPar(parametros, size, (char*)"[iterBT]");
 	pBT->numeroIteracoes = par != -1 ? (int)par : 500;
 
@@ -106,6 +103,28 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 
 	par = locNumberPar(parametros, size, (char*)"[tamListaBT]");
 	pBT->tamanhoListaTabu = par != -1 ? (int)par : 25;
+
+	par = locNumberPar(parametros, size, (char*)"[funcAspiracaoBT]");
+	pBT->funcAsp = par != -1 ? par : (float)1;
+
+
+	par = locNumberPar(parametros, size, (char*)"[probAG]");
+	pAG->probAG = par != -1 ? par : (int)50;
+
+	par = locNumberPar(parametros, size, (char*)"[polEscolhaAG]");
+	pAG->polEscolha = par;
+
+	par = locNumberPar(parametros, size, (char*)"[iterAG]");
+	pAG->numeroIteracoes = par != -1 ? par : (int)100;
+
+	par = locNumberPar(parametros, size, (char*)"[tamPopAG]");
+	pAG->tamanhoPopulacao = par != -1 ? par : (int)250;
+
+	par = locNumberPar(parametros, size, (char*)"[probCrossOverAG]");
+	pAG->probCrossOver = par != -1 ? par : (float)0.8;
+
+	par = locNumberPar(parametros, size, (char*)"[probMutacaoAG]");
+	pAG->probMutacao = par != -1 ? par : (float)0.1;
 
 	free(parametros);
 }
@@ -145,6 +164,25 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, Pa
 
 	if((p = locComPar(argv, argc, (char*)"--tamListaBT")) != -1)
 		pBT->tamanhoListaTabu = atoi(argv[p]);
+
+
+	if((p = locComPar(argv, argc, (char*)"--probAG")) != -1)
+		pAG->probAG = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--polEscolhaAG")) != -1)
+		pAG->polEscolha = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--iterAG")) != -1)
+		pAG->numeroIteracoes = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--tamPopAG")) != -1)
+		pAG->tamanhoPopulacao = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--probCrossOverAG")) != -1)
+		pAG->probCrossOver = atof(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--probMutacaoAG")) != -1)
+		pAG->probMutacao = atof(argv[p]);
 }
 
 void Problema::imprimeResultado (struct timeval tv1, struct timeval tv2, FILE *resultados, int bestMakespan)
@@ -187,7 +225,7 @@ JobShop::JobShop() : Problema::Problema()
 
 	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 0);
 	aux_vet = (int*)alocaMatriz(1, njob, 0, 0);
-	aux_maq = (int*)alocaMatriz(1, nmaq, 0, 0); /* indica proxima operacao da maquina */
+	aux_maq = (int*)alocaMatriz(1, nmaq, 0, 0); 	// Indica proxima operacao da maquina
 
 	for (int i = 0; i < nmaq; i++)
 		aux_maq[i] = 0;

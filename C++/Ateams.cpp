@@ -2,6 +2,9 @@
 #include "Controle.h"
 #include "Ateams.h"
 
+#include "Tabu.h"
+#include "Genetico.h"
+
 using namespace std;
 
 #define PARAMETROS "parametros/default.param"

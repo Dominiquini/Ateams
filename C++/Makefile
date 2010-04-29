@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -O3
-SOURCES = Ateams.cpp Controle.cpp JobShop.cpp Tabu.cpp 
+SOURCES = Ateams.cpp Controle.cpp JobShop.cpp Tabu.cpp Genetico.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 EXEC = Ateams
 

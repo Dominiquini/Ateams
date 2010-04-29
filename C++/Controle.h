@@ -1,7 +1,7 @@
 #include <sys/time.h>
 
 #include "Problema.h"
-#include "Tabu.h"
+#include "Heuristica.h"
 
 using namespace std;
 

@@ -33,16 +33,21 @@ typedef struct ParametrosATEAMS {
 } ParametrosATEAMS;
 
 typedef struct ParametrosAG {
-	// TODO
+	int probAG;
+	int polEscolha;
+	int numeroIteracoes;
+	int tamanhoPopulacao;
+	float probCrossOver;
+	float probMutacao;
 } ParametrosAG;
 
 typedef struct ParametrosBT {
-	float funcAsp;
 	int probBT;
 	int polEscolha;
 	int tentativasSemMelhora;
 	int numeroIteracoes;
 	int tamanhoListaTabu;
+	float funcAsp;
 } ParametrosBT;
 
 #endif
