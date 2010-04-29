@@ -40,15 +40,16 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 		return exec(*select);
 
 	// Escolhe alguem dentre os 'pollEscolha' primeiras solucoes
-	double visao = polEscolha == -1 ? Problema::totalMakespan : Problema::sumFitness(sol, polEscolha);
+	double visao = polEscolha < 0 ? Problema::totalMakespan : Problema::sumFitness(sol, polEscolha);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	select = Controle::selectRouletteWheel(sol, visao);
-	while((*select)->movTabu.job == true)
-		if(select != sol->begin())
-			select--;
-		else
-			break;
+	if(polEscolha == -1)
+		while((*select)->movTabu.job == true)
+			if(select != sol->begin())
+				select--;
+			else
+				break;
 
 	(*select)->movTabu.job = true;
 
