@@ -423,7 +423,6 @@ multiset<Problema*, bool(*)(Problema*, Problema*)>* JobShop::buscaLocal()
 			}
 		}
 	}
-
 	return local;
 }
 

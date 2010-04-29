@@ -142,7 +142,7 @@ void Controle::geraPop()
 	}
 }
 
-Problema* Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal)
+set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal)
 {
 	// Armazena o fitness total da populacao
 	int sum = fitTotal;
@@ -156,10 +156,10 @@ Problema* Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Proble
 		sum -= (*iter)->getFitness();
 		if(sum <= randWheel)
 		{
-			return *iter;
+			return iter;
 		}
 	}
-	return *(pop->begin());
+	return (pop->begin());
 }
 
 Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, int probTotal)

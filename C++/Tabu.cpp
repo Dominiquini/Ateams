@@ -34,22 +34,25 @@ Tabu::Tabu(ParametrosBT* pBT)
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
 vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol)
 {
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator select = sol->begin();
+
 	if(polEscolha == 0)
-		return exec(*sol->begin());
+		return exec(*select);
 
 	// Escolhe alguem dentre os 'pollEscolha' primeiras solucoes
 	double visao = polEscolha == -1 ? Problema::totalMakespan : Problema::sumFitness(sol, polEscolha);
-	Problema *select = NULL;
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
-	while(select == NULL || select->movTabu.job == true)
-	{
-		select = Controle::selectRouletteWheel(sol, visao);
-		visao = Problema::totalMakespan;
-	}
-	select->movTabu.job = true;
+	select = Controle::selectRouletteWheel(sol, visao);
+	while((*select)->movTabu.job == true)
+		if(select != sol->begin())
+			select--;
+		else
+			break;
 
-	return exec(select);
+	(*select)->movTabu.job = true;
+
+	return exec(*select);
 }
 
 /* Executa uma busca por solucoes a partir de 'init' por 'iterTabu' vezes */
@@ -58,8 +61,10 @@ vector<Problema*>* Tabu::exec(Problema* init)
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* local;
 	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
 
+	// Lista Tabu de movimentos repetidos
 	list<mov> *listaTabu = new list<mov>;
 
+	// Maximos globais e locais na execucao da Busca Tabu
 	Problema *maxGlobal = Problema::alloc(*init), *maxLocal = Problema::alloc(*init);
 
 	// Loop principal
@@ -68,6 +73,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 		if(PARAR == 1)
 			break;
 
+		// Pega uma lista de todos os "vizinhos" de maxLocal
 		local = maxLocal->buscaLocal();
 
 		// Pega a primeira solucao nao tabu
