@@ -113,6 +113,7 @@ int main(int argc, char *argv[])
 
 	Controle* ctr = new Controle(pATEAMS);
 	ctr->addHeuristic(new Tabu(pBT));
+	ctr->addHeuristic(new Genetico(pAG));
 	Problema* best = ctr->start();
 	cout << endl << "Melhor Solução: " << best->getMakespan() << endl << endl;
 

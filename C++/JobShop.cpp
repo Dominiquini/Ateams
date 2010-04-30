@@ -120,6 +120,10 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[tamPopAG]");
 	pAG->tamanhoPopulacao = par != -1 ? par : (int)250;
 
+	par = locNumberPar(parametros, size, (char*)"[tamParticaoAG]");
+	pAG->tamanhoPopulacao = par;
+
+
 	par = locNumberPar(parametros, size, (char*)"[probCrossOverAG]");
 	pAG->probCrossOver = par != -1 ? par : (float)0.8;
 
@@ -178,6 +182,9 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, Pa
 	if((p = locComPar(argv, argc, (char*)"--tamPopAG")) != -1)
 		pAG->tamanhoPopulacao = atoi(argv[p]);
 
+	if((p = locComPar(argv, argc, (char*)"--tamParticaoAG")) != -1)
+		pAG->tamanhoPopulacao = atoi(argv[p]);
+
 	if((p = locComPar(argv, argc, (char*)"--probCrossOverAG")) != -1)
 		pAG->probCrossOver = atof(argv[p]);
 
@@ -198,7 +205,7 @@ void Problema::desalocaMemoria()
 	desalocaMatriz(2, JobShop::time, JobShop::njob, 0);
 }
 
-bool Problema::movTabuCMP(mov& t1, mov& t2)
+bool Problema::movTabuCMP(tTabu& t1, tTabu& t2)
 {
 	if(t1.maq == t2.maq && (t1.A == t2.A || t1.A == t2.B) && (t1.B == t2.B || t1.B == t2.A))
 		return true;
@@ -460,11 +467,12 @@ multiset<Problema*, bool(*)(Problema*, Problema*)>* JobShop::buscaLocal()
 	return local;
 }
 
-pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai)
+pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamParticao)
 {
 	int **f1 = (int**)alocaMatriz(2, nmaq, njob, 0), **f2 = (int**)alocaMatriz(2, nmaq, njob, 0);
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
-	int particao = (JobShop::njob)/2, inicioPart = 0;
+	int particao = tamParticao == -1 ? (JobShop::njob)/2 : tamParticao;
+	int inicioPart = 0;
 
 	for(int i = 0; i < nmaq; i++)
 	{

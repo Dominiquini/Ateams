@@ -10,7 +10,7 @@ class Genetico : public Heuristica
 {
 public:
 
-	int iterGenetico, tamPopGenetico, probCrossOver, probMutacao;
+	int iterGenetico, tamPopGenetico, probCrossOver, probMutacao, tamParticionamento;
 
 	Genetico();
 	Genetico(ParametrosAG*);

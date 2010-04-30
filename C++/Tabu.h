@@ -23,8 +23,8 @@ private:
 	vector<Problema*>* exec(Problema*);
 };
 
-bool isTabu(list<mov> *listaTabu, mov m);
+bool isTabu(list<tTabu> *listaTabu, tTabu m);
 
-bool mvcomp(mov, mov);
+bool mvcomp(Tabu, Tabu);
 
 #endif

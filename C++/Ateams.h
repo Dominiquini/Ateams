@@ -23,7 +23,7 @@ typedef struct movTabu
 {
 	int maq, A, B;
 	bool job;
-} mov;
+} tTabu;
 
 typedef struct ParametrosATEAMS {
 	int tamanhoPopulacao;
@@ -37,6 +37,7 @@ typedef struct ParametrosAG {
 	int polEscolha;
 	int numeroIteracoes;
 	int tamanhoPopulacao;
+	int tamanhoParticionamento;
 	float probCrossOver;
 	float probMutacao;
 } ParametrosAG;

@@ -13,7 +13,7 @@ class Controle
 public:
 	/* Seleciona um individuo da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
 	static set<Problema*, bool(*)(Problema*, Problema*)>::iterator selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal);
-	static Heuristica* selectRouletteWheel(vector<Heuristica*>* heuristc, int probTotal);
+	static Heuristica* selectRouletteWheel(vector<Heuristica*>* heuristc, int probTotal, int randomic);
 
 	vector<Heuristica*>* algs;			// Algoritmos disponiveis
 
@@ -33,7 +33,7 @@ public:
 	Problema* start();
 
 	/* Seleciona um dos algoritmos implementados para executar */
-	vector<Problema*>* exec();
+	vector<Problema*>* exec(int randWheel);
 
 	/* Gera uma populacao inicial aleatoria com 'tamPop' elementos */
 	void geraPop();

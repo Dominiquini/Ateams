@@ -58,6 +58,8 @@ void Controle::addHeuristic(Heuristica* alg)
 
 Problema* Controle::start()
 {
+	srand(unsigned(time(NULL)));
+
 	geraPop();
 
 	cout << "CTR : 0 : " << (*pop->begin())->getMakespan() << endl << flush;
@@ -72,7 +74,7 @@ Problema* Controle::start()
 	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
 	for(int i = 0; i < numAteams && tempo < maxTempo; i++)
 	{
-		prob = exec();
+		prob = exec(rand());
 		for(int j = 0; j < (int)prob->size(); j++)
 		{
 			ret = pop->insert(prob->at(j));
@@ -112,9 +114,9 @@ Problema* Controle::start()
 	return *(pop->begin());
 }
 
-vector<Problema*>* Controle::exec()
+vector<Problema*>* Controle::exec(int randomic)
 {
-	Heuristica* alg = selectRouletteWheel(algs, Heuristica::numHeuristic);
+	Heuristica* alg = selectRouletteWheel(algs, Heuristica::numHeuristic, randomic);
 	atual = alg->name;
 	return alg->start(pop);
 }
@@ -162,13 +164,12 @@ set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRoulette
 	return (pop->begin());
 }
 
-Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, int probTotal)
+Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, int probTotal, int randWheel)
 {
 	// Armazena o fitness total da populacao
 	int sum = probTotal;
 	// Um numero entre zero e "sum" e sorteado
-	srand(unsigned(time(NULL)));
-	int randWheel = rand() % (sum + 1);
+	randWheel = randWheel % (sum + 1);
 
 	for(int i = 0; i < (int)heuristc->size(); i++)
 	{

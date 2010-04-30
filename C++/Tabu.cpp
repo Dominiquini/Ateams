@@ -7,7 +7,7 @@ extern int PARAR;
 
 Tabu::Tabu()
 {
-	name = "BT";
+	name = "DEFAULT_BT";
 	prob = 50;
 	funcAsp = 1;
 	polEscolha = -1;
@@ -63,7 +63,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
 
 	// Lista Tabu de movimentos repetidos
-	list<mov> *listaTabu = new list<mov>;
+	list<tTabu> *listaTabu = new list<tTabu>;
 
 	// Maximos globais e locais na execucao da Busca Tabu
 	Problema *maxGlobal = Problema::alloc(*init), *maxLocal = Problema::alloc(*init);
@@ -131,9 +131,9 @@ vector<Problema*>* Tabu::exec(Problema* init)
 }
 
 /* Verdadeiro se movimento avaliado for Tabu */
-bool isTabu(list<mov> *listaTabu, mov m)
+bool isTabu(list<tTabu> *listaTabu, tTabu m)
 {
-	list<mov>::iterator iter;
+	list<tTabu>::iterator iter;
 
 	for(iter = listaTabu->begin(); iter != listaTabu->end(); iter++)
 		if(Problema::movTabuCMP(*iter, m))

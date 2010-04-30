@@ -25,7 +25,7 @@ class Problema
 {
 protected:
 	soluction sol;	// Makespan e escalonamentos que definem a solucao
-	mov movTabu;	// Movimento tabu que gerou a solucao. movTabu.maq = -1 se por outro meio
+	tTabu movTabu;	// Movimento tabu que gerou a solucao. movTabu.maq = -1 se por outro meio
 
 public:
 	static int numInst;				// Quantidade de instancias criadas
@@ -47,7 +47,7 @@ public:
 	static Problema* alloc(Problema &prob);									// Copia de prob
 	static Problema* alloc(Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
-	static bool movTabuCMP(mov& t1, mov& t2);
+	static bool movTabuCMP(tTabu& t1, tTabu& t2);
 	static double sumFitness(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
 
 	Problema();		// numInst++
@@ -59,7 +59,7 @@ public:
 
 	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual */
 	virtual multiset<Problema*, bool(*)(Problema*, Problema*)>* buscaLocal() = 0;
-	virtual pair<Problema*, Problema*>* crossOver(Problema*) = 0;
+	virtual pair<Problema*, Problema*>* crossOver(Problema*, int) = 0;
 	virtual Problema* mutacao() = 0;
 
 	virtual double getFitness() = 0;

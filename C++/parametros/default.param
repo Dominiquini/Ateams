@@ -20,5 +20,6 @@
 [polEscolhaAG] = -1	// Política de escolha
 [iterAG] = 100		// Iterações do AG
 [tamPopAG] = 250	// Tamanho da população intermediária do AG
+[tamParticaoAG] = -1	// Tamanho de uma divisão durante o Crossover
 [probCrossOverAG] = 0.8	// Probabilidade de cruzamento
 [probMutacaoAG] = 0.1	// Probabilidade de haver mutação

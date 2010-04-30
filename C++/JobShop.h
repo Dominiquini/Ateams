@@ -24,14 +24,20 @@ public:
 	int calcMakespan();	// Calcula o makespan
 	void imprimir();	// Imprime o escaloonamento atual
 
-	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual */
+	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* buscaLocal();
-	pair<Problema*, Problema*>* crossOver(Problema*);
+
+	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
+	pair<Problema*, Problema*>* crossOver(Problema*, int);
+
+	/* Provoca uma mutacao na solucao atual. Retorna um novo individuo */
 	Problema* mutacao();
 
-	int** getEscalonameto();
 	double getFitness();
 	int getMakespan();
+
+private:
+	int** getEscalonameto();
 };
 
 void swap_vect(int* p1, int* p2, int* f, int pos, int tam);
