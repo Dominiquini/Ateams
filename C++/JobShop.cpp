@@ -473,10 +473,22 @@ pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai)
 		swap_vect(this->sol.esc[i], pai->sol.esc[i], f1[i], inicioPart, particao);
 		swap_vect(pai->sol.esc[i], this->sol.esc[i], f2[i], inicioPart, particao);
 	}
+
 	filhos->first = new JobShop(f1);
 	filhos->second = new JobShop(f2);
 
 	return filhos;
+}
+
+Problema* JobShop::mutacao()
+{
+	int maq = rand() % nmaq;
+	int pos1 = rand() % njob, pos2 = rand() % njob;
+
+	Problema* mutante = new JobShop(*this, maq, pos1, pos2);
+	mutante->movTabu.job = false;
+
+	return mutante;
 }
 
 double JobShop::getFitness()
@@ -489,6 +501,15 @@ int JobShop::getMakespan()
 	return sol.makespan;
 }
 
+int** JobShop::getEscalonameto()
+{
+	int** copy = (int**)alocaMatriz(2, nmaq, njob, 0);
+	for(int i = 0; i < nmaq; i++)
+		for(int j = 0; j < njob; j++)
+			copy[i][j] = this->sol.esc[i][j];
+
+	return copy;
+}
 
 /* Auxiliares */
 

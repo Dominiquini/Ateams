@@ -27,7 +27,9 @@ public:
 	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual */
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* buscaLocal();
 	pair<Problema*, Problema*>* crossOver(Problema*);
+	Problema* mutacao();
 
+	int** getEscalonameto();
 	double getFitness();
 	int getMakespan();
 };
