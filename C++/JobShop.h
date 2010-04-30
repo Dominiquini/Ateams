@@ -26,10 +26,13 @@ public:
 
 	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual */
 	multiset<Problema*, bool(*)(Problema*, Problema*)>* buscaLocal();
+	pair<Problema*, Problema*>* crossOver(Problema*);
 
 	double getFitness();
 	int getMakespan();
 };
+
+void swap_vect(int* p1, int* p2, int* f, int pos, int tam);
 
 int locComPar(char **in, int num, char *key);
 

@@ -257,11 +257,7 @@ JobShop::JobShop() : Problema::Problema()
 
 JobShop::JobShop(int **prob) : Problema::Problema()
 {
-	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 0);
-
-	for(int i = 0; i < nmaq; i++)
-		for(int j = 0; j < njob; j++)
-			sol.esc[i][j] = prob[i][j];
+	sol.esc = prob;
 
 	sol.escalon = NULL;
 	sol.makespan = calcMakespan();
@@ -464,6 +460,25 @@ multiset<Problema*, bool(*)(Problema*, Problema*)>* JobShop::buscaLocal()
 	return local;
 }
 
+pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai)
+{
+	int **f1 = (int**)alocaMatriz(2, nmaq, njob, 0), **f2 = (int**)alocaMatriz(2, nmaq, njob, 0);
+	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
+	int particao = (JobShop::njob)/2, inicioPart = 0;
+
+	for(int i = 0; i < nmaq; i++)
+	{
+		inicioPart = (rand()+i) % (njob-particao+1);
+
+		swap_vect(this->sol.esc[i], pai->sol.esc[i], f1[i], inicioPart, particao);
+		swap_vect(pai->sol.esc[i], this->sol.esc[i], f2[i], inicioPart, particao);
+	}
+	filhos->first = new JobShop(f1);
+	filhos->second = new JobShop(f2);
+
+	return filhos;
+}
+
 double JobShop::getFitness()
 {
 	return (double)INT_MAX/sol.makespan;
@@ -476,6 +491,23 @@ int JobShop::getMakespan()
 
 
 /* Auxiliares */
+
+void swap_vect(int* p1, int* p2, int* f, int pos, int tam)
+{
+	for(int i = pos; i < pos+tam; i++)
+		f[i] = p1[i];
+
+	for(int i = 0, j = 0; i < JobShop::njob && j < JobShop::njob; i++)
+	{
+		if(j == pos)
+			j = pos+tam;
+
+		if(find(&p1[pos], &p1[pos+tam], p2[i]) == &p1[pos+tam])
+			f[j++] = p2[i];
+	}
+
+	return;
+}
 
 /* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
 int locComPar(char **in, int num, char *key)

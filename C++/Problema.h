@@ -59,6 +59,7 @@ public:
 
 	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual */
 	virtual multiset<Problema*, bool(*)(Problema*, Problema*)>* buscaLocal() = 0;
+	virtual pair<Problema*, Problema*>* crossOver(Problema*) = 0;
 
 	virtual double getFitness() = 0;
 	virtual int getMakespan() = 0;
