@@ -539,6 +539,17 @@ void JobShop::mutacao()
 	int aux = sol.esc[maq][pos1];
 	sol.esc[maq][pos1] = sol.esc[maq][pos2];
 	sol.esc[maq][pos2] = aux;
+
+	sol.makespan = calcMakespan();
+
+	if(sol.makespan != -1 && ESCALONAMENTO == false)
+	{
+		desalocaMatriz(3, sol.escalon, nmaq, njob);
+		sol.escalon = NULL;
+	}
+
+	exec.tabu = false;
+	exec.genetico = false;
 }
 
 double JobShop::getFitness()

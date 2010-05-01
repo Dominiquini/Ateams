@@ -36,13 +36,30 @@ Genetico::Genetico(ParametrosAG* pAG)
 vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
 {
 	vector<Problema*>* popAG = new vector<Problema*>();
-
-	int i = 0;
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
-	for(iter = sol->begin(), i = 0; iter != sol->end() && i < tamPopGenetico; iter++, i++)
+	int i = 0;
+
+	if(polEscolha == 0)
 	{
-		(*iter)->exec.genetico = true;
-		popAG->push_back(Problema::alloc(**iter));
+		for(iter = sol->begin(), i = 0; iter != sol->end() && i < tamPopGenetico; iter++, i++)
+		{
+			(*iter)->exec.genetico = true;
+			popAG->push_back(Problema::alloc(**iter));
+		}
+	}
+	else
+	{
+		int visao = polEscolha < 0 ? Problema::totalMakespan : polEscolha;
+		for(i = 1; i < tamPopGenetico; i++)
+		{
+			iter = Controle::selectRouletteWheel(sol, visao, rand());
+
+			(*iter)->exec.genetico = true;
+			popAG->push_back(Problema::alloc(**iter));
+		}
+		popAG->push_back(*sol->begin());
+
+		sort(popAG->begin(), popAG->end(), fncomp2);
 	}
 
 	srand(unsigned(randomic));
@@ -62,7 +79,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	vector<Problema*>::iterator iter2;
 
 	int numCrossOver = tamPopGenetico * probCrossOver;
-	int sum;
+	int sumP;
 
 	/* Iteracao principal do AG */
 	for(int i = 0; i < iterGenetico; i++)
@@ -74,18 +91,18 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		bestLocal = Problema::alloc(*pop->front());
 
 		/* Escolhe os casais de 'pop' que se cruzarao */
-		sum = Problema::sumFitness(pop, pop->size());
+		sumP = Problema::sumFitness(pop, pop->size());
 
 		temp = new pair<Problema*, Problema*>();
 		temp->first = bestLocal;					// Garante a inclusao da melhor solucao atual
-		temp->second = Controle::selectRouletteWheel(pop, sum, rand());
+		temp->second = Controle::selectRouletteWheel(pop, sumP, rand());
 
 		pais->push_back(temp);
 		for(int j = 1; j < numCrossOver; j++)
 		{
 			temp = new pair<Problema*, Problema*>();
-			temp->first = Controle::selectRouletteWheel(pop, sum, rand());
-			temp->second = Controle::selectRouletteWheel(pop, sum, rand());
+			temp->first = Controle::selectRouletteWheel(pop, sumP, rand());
+			temp->second = Controle::selectRouletteWheel(pop, sumP, rand());
 
 			pais->push_back(temp);
 		}
