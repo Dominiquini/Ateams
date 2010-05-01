@@ -10,7 +10,8 @@ class Genetico : public Heuristica
 {
 public:
 
-	int iterGenetico, tamPopGenetico, probCrossOver, probMutacao, tamParticionamento;
+	int iterGenetico, tamPopGenetico, tamParticionamento;
+	float probCrossOver, probMutacao;
 
 	Genetico();
 	Genetico(ParametrosAG*);
@@ -19,7 +20,7 @@ public:
 
 private:
 
-	vector<Problema*>* exec(Problema*);
+	vector<Problema*>* exec(vector<Problema*>* pop);
 };
 
 #endif

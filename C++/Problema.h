@@ -18,7 +18,8 @@ using namespace std;
 
 class Problema;
 
-bool fncomp(Problema*, Problema*);
+bool fncomp1(Problema*, Problema*);
+bool fncomp2(Problema*, Problema*);
 
 class Problema
 {
@@ -48,13 +49,14 @@ public:
 	static tTabu* newTabu(int maq, int p1, int p2);
 	static bool movTabuCMP(tTabu& t1, tTabu& t2);
 	static double sumFitness(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
+	static double sumFitness(vector<Problema*> *pop, int n);
 
 	Problema();		// numInst++
 
 	~Problema();	// numInst--
 
-	virtual int calcMakespan() = 0;	// Calcula o makespan
-	virtual void imprimir() = 0;	// Imprime o escalonamento
+	virtual int calcMakespan() = 0;			// Calcula o makespan
+	virtual void imprimir(bool esc) = 0;	// Imprime o escalonamento
 
 	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual */
 	virtual vector<pair<Problema*, tTabu*>* >* buscaLocal() = 0;
@@ -67,7 +69,8 @@ public:
 	executado exec;
 
 	friend class JobShop;
-	friend bool fncomp(Problema*, Problema*);
+	friend bool fncomp1(Problema*, Problema*);
+	friend bool fncomp2(Problema*, Problema*);
 	friend bool vtcomp(pair<Problema*, tTabu*>*, pair<Problema*, tTabu*>*);
 };
 

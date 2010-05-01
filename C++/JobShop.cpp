@@ -121,7 +121,7 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	pAG->tamanhoPopulacao = par != -1 ? par : (int)250;
 
 	par = locNumberPar(parametros, size, (char*)"[tamParticaoAG]");
-	pAG->tamanhoPopulacao = par;
+	pAG->tamanhoParticionamento = par;
 
 
 	par = locNumberPar(parametros, size, (char*)"[probCrossOverAG]");
@@ -183,7 +183,7 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, Pa
 		pAG->tamanhoPopulacao = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--tamParticaoAG")) != -1)
-		pAG->tamanhoPopulacao = atoi(argv[p]);
+		pAG->tamanhoParticionamento = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--probCrossOverAG")) != -1)
 		pAG->probCrossOver = atof(argv[p]);
@@ -227,6 +227,17 @@ bool Problema::movTabuCMP(tTabu& t1, tTabu& t2)
 double Problema::sumFitness(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n)
 {
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	double sum = 0, i = 0;
+
+	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
+		sum += (*iter)->getFitness();
+
+	return sum;
+}
+
+double Problema::sumFitness(vector<Problema*> *pop, int n)
+{
+	vector<Problema*>::iterator iter;
 	double sum = 0, i = 0;
 
 	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
@@ -427,27 +438,41 @@ int JobShop::calcMakespan()
 	}
 }
 
-void JobShop::imprimir()
+void JobShop::imprimir(bool esc)
 {
-	if(sol.escalon == NULL || ESCALONAMENTO == false)
-		calcMakespan();
-
-	printf("\n");
-
-	for(int i = 0; i < nmaq; i++)
+	if(esc == true)
 	{
-		printf("maq %d: ", i+1);
-		for(int j = 0; j < njob; j++)
-		{
-			int k = sol.escalon[i][j][2] - sol.escalon[i][j][1];
-			int spc = j == 0 ? sol.escalon[i][j][1] : sol.escalon[i][j][1] - sol.escalon[i][j-1][2];
-			while(spc--)
-				printf(" ");
+		if(sol.escalon == NULL || ESCALONAMENTO == false)
+			calcMakespan();
 
-			while(k--)
-				printf("%d", sol.escalon[i][j][0]+1);
-		}
 		printf("\n");
+
+		for(int i = 0; i < nmaq; i++)
+		{
+			printf("maq %d: ", i+1);
+			for(int j = 0; j < njob; j++)
+			{
+				int k = sol.escalon[i][j][2] - sol.escalon[i][j][1];
+				int spc = j == 0 ? sol.escalon[i][j][1] : sol.escalon[i][j][1] - sol.escalon[i][j-1][2];
+				while(spc--)
+					printf(" ");
+
+				while(k--)
+					printf("%d", sol.escalon[i][j][0]+1);
+			}
+			printf("\n");
+		}
+	}
+	else
+	{
+		for(int i = 0; i < nmaq; i++)
+		{
+			for(int j = 0; j < njob; j++)
+			{
+				printf("%.2d ", sol.esc[i][j]);
+			}
+			printf("\n");
+		}
 	}
 	return;
 }
@@ -577,14 +602,14 @@ float locNumberPar(char *in, int num, char *key)
 }
 
 char* locPosPar(char *in, int num, char *key)
-{
+		{
 	char *str = strstr(in, key);
 
 	if(str != NULL)
 		return strstr(str, "=") + 1;
 	else
 		return NULL;
-}
+		}
 
 int findOrdem(int M, int maq, int* job)
 {
@@ -595,7 +620,7 @@ int findOrdem(int M, int maq, int* job)
 }
 
 void* alocaMatriz(int dim, int a, int b, int c)
-										{
+												{
 	if(dim == 1)
 	{
 		int *M = (int*)malloc(a * sizeof(int));
@@ -624,7 +649,7 @@ void* alocaMatriz(int dim, int a, int b, int c)
 	}
 	else
 		return NULL;
-										}
+												}
 
 void desalocaMatriz(int dim, void *MMM, int a, int b)
 {
@@ -658,7 +683,7 @@ void desalocaMatriz(int dim, void *MMM, int a, int b)
 }
 
 // comparator function:
-bool fncomp(Problema *prob1, Problema *prob2)
+bool fncomp1(Problema *prob1, Problema *prob2)
 {
 	if(prob1->sol.makespan == prob2->sol.makespan)
 	{
@@ -672,7 +697,13 @@ bool fncomp(Problema *prob1, Problema *prob2)
 		return prob1->sol.makespan < prob2->sol.makespan;
 }
 
+// comparator function:
+bool fncomp2(Problema *prob1, Problema *prob2)
+{
+	return prob1->sol.makespan < prob2->sol.makespan;
+}
+
 bool vtcomp(pair<Problema*, tTabu*>* p1, pair<Problema*, tTabu*>* p2)
 {
-	return fncomp(p1->first, p2->first);
+	return fncomp1(p1->first, p2->first);
 }

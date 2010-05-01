@@ -118,16 +118,17 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			}
 		}
 
+		/* Libera espaco da buscaLocal() */
 		for(iter = local->begin(); iter != local->end(); iter++)
 		{
 			delete (*iter)->first;
 			free((*iter)->second);
 			delete *iter;
 		}
-
 		local->clear();
 		delete local;
 	}
+
 	delete listaTabu;
 	delete maxLocal;
 

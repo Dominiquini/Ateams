@@ -21,8 +21,8 @@ public:
 	JobShop(Problema &prob);								// Copia de prob
 	JobShop(Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
-	int calcMakespan();	// Calcula o makespan
-	void imprimir();	// Imprime o escaloonamento atual
+	int calcMakespan();			// Calcula o makespan
+	void imprimir(bool esc);	// Imprime o escaloonamento atual
 
 	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
 	vector<pair<Problema*, tTabu*>* >* buscaLocal();

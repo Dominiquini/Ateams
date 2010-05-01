@@ -16,7 +16,7 @@ Controle::Controle()
 
 	srand(unsigned(time(NULL)));
 
-	bool(*fn_pt)(Problema*, Problema*) = fncomp;
+	bool(*fn_pt)(Problema*, Problema*) = fncomp1;
 	pop = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
 
 	algs = new vector<Heuristica*>;
@@ -31,7 +31,7 @@ Controle::Controle(ParametrosATEAMS* pATEAMS)
 
 	srand(unsigned(time(NULL)));
 
-	bool(*fn_pt)(Problema*, Problema*) = fncomp;
+	bool(*fn_pt)(Problema*, Problema*) = fncomp1;
 	pop = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
 
 	algs = new vector<Heuristica*>;
@@ -91,7 +91,15 @@ Problema* Controle::start()
 			}
 			else
 			{
-				delete prob->at(j);
+/*				cout << "\nIGUAL: " << j << endl << endl;
+				cout << "MAKESPAN1: " << prob->at(j)->getMakespan() << endl;
+				prob->at(j)->imprimir(false);
+				cout << endl;
+				cout << "MAKESPAN2: " << (*ret.first)->getMakespan() << endl;
+				(*ret.first)->imprimir(false);
+				cout << endl << endl;
+
+*/				delete prob->at(j);
 			}
 		}
 		prob->clear();
@@ -161,6 +169,25 @@ set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRoulette
 		}
 	}
 	return (pop->begin());
+}
+
+Problema* Controle::selectRouletteWheel(vector<Problema*>* pop, int fitTotal, int randWheel)
+{
+	// Armazena o fitness total da populacao
+	int sum = fitTotal;
+	// Um numero entre zero e "sum" e sorteado
+	randWheel = randWheel % (sum + 1);
+
+	vector<Problema*>::iterator iter;
+	for(iter = pop->begin(); iter != pop->end(); iter++)
+	{
+		sum -= (*iter)->getFitness();
+		if(sum <= randWheel)
+		{
+			return *iter;
+		}
+	}
+	return (*pop->begin());
 }
 
 Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, int probTotal, int randWheel)
