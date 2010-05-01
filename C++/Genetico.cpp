@@ -94,18 +94,10 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		for(iter1 = pais->begin(); iter1 != pais->end(); iter1++)
 		{
 			temp = (*iter1)->first->crossOver((*iter1)->second, tamParticionamento);
-/*
-			cout << "\n\nPai1: " << (*iter1)->first->getMakespan() << endl;
-			(*iter1)->first->imprimir(false);
-			cout << "\n\nPai2: " << (*iter1)->second->getMakespan() << endl;
-			(*iter1)->second->imprimir(false);
 
-			cout << "\n\nFil1: " << temp->first->getMakespan() << endl;
-			temp->first->imprimir(false);
-			cout << "\n\nFil2: " << temp->second->getMakespan() << endl;
-			temp->second->imprimir(false);
-*/
 			filhos->push_back(temp);
+
+			delete *iter1;
 		}
 
 		/* Remove populacao dos pais */
@@ -119,6 +111,8 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		{
 			aux_pop->push_back((*iter1)->first);
 			aux_pop->push_back((*iter1)->second);
+
+			delete *iter1;
 		}
 
 		pais->clear();
@@ -128,15 +122,22 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		sort(aux_pop->begin(), aux_pop->end(), fncomp2);
 
 		/* Selecao dos melhores */
-		iter2 = aux_pop->begin();
-		for(int j = 0; iter2 != aux_pop->end(); iter2++, j++)
-			if(j < tamPopGenetico && (*iter2)->getMakespan() != -1)
+		for(iter2 = aux_pop->begin(); iter2 != aux_pop->end(); iter2++)
+		{
+			if(rand()%101 < 100*probMutacao)
+				(*iter2)->mutacao();
+
+			if((*iter2)->getMakespan() != -1 && (int)pop->size() < tamPopGenetico)
 				pop->push_back(*iter2);
 			else
 				delete *iter2;
+		}
 
 		aux_pop->clear();
 	}
+	delete pais;
+	delete filhos;
+	delete aux_pop;
 
 	return pop;
 }

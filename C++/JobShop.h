@@ -30,8 +30,8 @@ public:
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
 	pair<Problema*, Problema*>* crossOver(Problema*, int);
 
-	/* Provoca uma mutacao na solucao atual. Retorna um novo individuo */
-	Problema* mutacao();
+	/* Provoca uma mutacao na solucao atual */
+	void mutacao();
 
 	double getFitness();
 	int getMakespan();

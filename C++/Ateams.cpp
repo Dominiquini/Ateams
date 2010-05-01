@@ -114,17 +114,21 @@ int main(int argc, char *argv[])
 	Controle* ctr = new Controle(pATEAMS);
 	ctr->addHeuristic(new Tabu(pBT));
 	ctr->addHeuristic(new Genetico(pAG));
+
 	Problema* best = ctr->start();
-	cout << endl << "Melhor Solução: " << best->getMakespan() << endl << endl;
+
+	cout << endl << endl << "Melhor Solução: " << best->getMakespan() << endl << endl;
 
 	gettimeofday(&tv2, NULL);
 	Problema::imprimeResultado(tv1, tv2, fresultados, best->getMakespan());
 	fclose(fresultados);
 
-//	cout << endl << endl << "Escalonamento: " << endl << endl;
-//	best->imprimir();
+	cout << endl << "Escalonamento: " << endl << endl;
+	best->imprimir(false);
+
 	delete ctr;
-	cout << endl << "Memória Alocada: " << Problema::numInst << endl << endl;
+
+	cout << endl << endl << "Memória Alocada: " << Problema::numInst << endl << endl;
 
 	Problema::desalocaMemoria();
 

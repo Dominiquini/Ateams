@@ -57,8 +57,8 @@ void Problema::leProblema(FILE *f)
 	if(!fscanf (f, "%d %d", &JobShop::njob, &JobShop::nmaq))
 		exit(1);
 
-	JobShop::maq = (int**)alocaMatriz(2, JobShop::njob, JobShop::nmaq, 0);
-	JobShop::time = (int**)alocaMatriz(2, JobShop::njob, JobShop::nmaq, 0);
+	JobShop::maq = (int**)alocaMatriz(2, JobShop::njob, JobShop::nmaq, 1);
+	JobShop::time = (int**)alocaMatriz(2, JobShop::njob, JobShop::nmaq, 1);
 
 	for (int i = 0; i < JobShop::njob; i++)
 	{
@@ -252,9 +252,9 @@ JobShop::JobShop() : Problema::Problema()
 {
 	int *aux_vet, *aux_maq;
 
-	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 0);
-	aux_vet = (int*)alocaMatriz(1, njob, 0, 0);
-	aux_maq = (int*)alocaMatriz(1, nmaq, 0, 0); 	// Indica proxima operacao da maquina
+	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 1);
+	aux_vet = (int*)alocaMatriz(1, njob, 1, 1);
+	aux_maq = (int*)alocaMatriz(1, nmaq, 1, 1); 	// Indica proxima operacao da maquina
 
 	for (int i = 0; i < nmaq; i++)
 		aux_maq[i] = 0;
@@ -303,7 +303,7 @@ JobShop::JobShop(int **prob) : Problema::Problema()
 
 JobShop::JobShop(Problema &prob) : Problema::Problema()
 {
-	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 0);
+	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 1);
 	for(int i = 0; i < nmaq; i++)
 		for(int j = 0; j < njob; j++)
 			sol.esc[i][j] = prob.sol.esc[i][j];
@@ -328,7 +328,7 @@ JobShop::JobShop(Problema &prob) : Problema::Problema()
 
 JobShop::JobShop(Problema &prob, int maq, int pos1, int pos2) : Problema::Problema()
 {
-	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 0);
+	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 1);
 	for(int i = 0; i < nmaq; i++)
 		for(int j = 0; j < njob; j++)
 			sol.esc[i][j] = prob.sol.esc[i][j];
@@ -356,8 +356,8 @@ int JobShop::calcMakespan()
 	int ***aux_esc, **tmp, *pos, i, j, k, max, cont;
 	int ajob, apos, ainic, afim, sum_time;
 
-	pos = (int*)alocaMatriz(1, nmaq, 0, 0);
-	tmp = (int**)alocaMatriz(2, njob, nmaq+1, 0);
+	pos = (int*)alocaMatriz(1, nmaq, 1, 1);
+	tmp = (int**)alocaMatriz(2, njob, nmaq+1, 1);
 	aux_esc = (int***)alocaMatriz(3, nmaq, njob, 3);
 
 	for (i = 0; i < njob; i++)
@@ -511,7 +511,7 @@ vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
 
 pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamParticao)
 {
-	int **f1 = (int**)alocaMatriz(2, nmaq, njob, 0), **f2 = (int**)alocaMatriz(2, nmaq, njob, 0);
+	int **f1 = (int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (int**)alocaMatriz(2, nmaq, njob, 1);
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
 	int particao = tamParticao == -1 ? (JobShop::njob)/2 : tamParticao;
 	int inicioPart = 0, fimPart = 0;
@@ -531,14 +531,14 @@ pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamParticao)
 	return filhos;
 }
 
-Problema* JobShop::mutacao()
+void JobShop::mutacao()
 {
 	int maq = rand() % nmaq;
 	int pos1 = rand() % njob, pos2 = rand() % njob;
 
-	Problema* mutante = new JobShop(*this, maq, pos1, pos2);
-
-	return mutante;
+	int aux = sol.esc[maq][pos1];
+	sol.esc[maq][pos1] = sol.esc[maq][pos2];
+	sol.esc[maq][pos2] = aux;
 }
 
 double JobShop::getFitness()
@@ -553,7 +553,7 @@ int JobShop::getMakespan()
 
 int** JobShop::getEscalonameto()
 {
-	int** copy = (int**)alocaMatriz(2, nmaq, njob, 0);
+	int** copy = (int**)alocaMatriz(2, nmaq, njob, 1);
 	for(int i = 0; i < nmaq; i++)
 		for(int j = 0; j < njob; j++)
 			copy[i][j] = this->sol.esc[i][j];
@@ -621,7 +621,7 @@ int findOrdem(int M, int maq, int* job)
 }
 
 void* alocaMatriz(int dim, int a, int b, int c)
-												{
+{
 	if(dim == 1)
 	{
 		int *M = (int*)malloc(a * sizeof(int));
@@ -650,7 +650,7 @@ void* alocaMatriz(int dim, int a, int b, int c)
 	}
 	else
 		return NULL;
-												}
+}
 
 void desalocaMatriz(int dim, void *MMM, int a, int b)
 {
