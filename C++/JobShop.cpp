@@ -205,6 +205,17 @@ void Problema::desalocaMemoria()
 	desalocaMatriz(2, JobShop::time, JobShop::njob, 0);
 }
 
+tTabu* Problema::newTabu(int maq, int p1, int p2)
+{
+	tTabu *tabu = (tTabu*)malloc(sizeof(tTabu));
+
+	tabu->maq = maq;
+	tabu->A = p1;
+	tabu->B = p2;
+
+	return tabu;
+}
+
 bool Problema::movTabuCMP(tTabu& t1, tTabu& t2)
 {
 	if(t1.maq == t2.maq && (t1.A == t2.A || t1.A == t2.B) && (t1.B == t2.B || t1.B == t2.A))
@@ -258,8 +269,8 @@ JobShop::JobShop() : Problema::Problema()
 		sol.escalon = NULL;
 	}
 
-	movTabu.job = false;
-	movTabu.maq = -1;
+	exec.tabu = false;
+	exec.genetico = false;
 }
 
 JobShop::JobShop(int **prob) : Problema::Problema()
@@ -275,8 +286,8 @@ JobShop::JobShop(int **prob) : Problema::Problema()
 		sol.escalon = NULL;
 	}
 
-	movTabu.job = false;
-	movTabu.maq = -1;
+	exec.tabu = false;
+	exec.genetico = false;
 }
 
 JobShop::JobShop(Problema &prob) : Problema::Problema()
@@ -301,7 +312,7 @@ JobShop::JobShop(Problema &prob) : Problema::Problema()
 		sol.escalon = NULL;
 	}
 
-	movTabu = prob.movTabu;
+	exec = prob.exec;
 }
 
 JobShop::JobShop(Problema &prob, int maq, int pos1, int pos2) : Problema::Problema()
@@ -324,10 +335,8 @@ JobShop::JobShop(Problema &prob, int maq, int pos1, int pos2) : Problema::Proble
 		sol.escalon = NULL;
 	}
 
-	movTabu.maq = maq;
-	movTabu.A = pos1;
-	movTabu.B = pos2;
-	movTabu.job = true;
+	exec.tabu = false;
+	exec.genetico = false;
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
@@ -443,27 +452,35 @@ void JobShop::imprimir()
 	return;
 }
 
-multiset<Problema*, bool(*)(Problema*, Problema*)>* JobShop::buscaLocal()
+vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
 {
-	multiset<Problema*, bool(*)(Problema*, Problema*)>* local;
-	bool(*fn_pt)(Problema*, Problema*) = fncomp;
-	local = new multiset<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
+	pair<Problema*, tTabu*>* temp;
+	vector<pair<Problema*, tTabu*>* >* local;
+	local = new vector<pair<Problema*, tTabu*>* >();
 
 	Problema *job = NULL;
-	for(int i = 0; i < nmaq; i++)
+	for(int maq = 0; maq < nmaq; maq++)
 	{
-		for(int j = 0; j < njob-1; j++)
+		for(int p1 = 0; p1 < njob-1; p1++)
 		{
-			for(int k = j+1; k < njob; k++)
+			for(int p2 = p1+1; p2 < njob; p2++)
 			{
-				job = new JobShop(*this, i, j, k);
+				job = new JobShop(*this, maq, p1, p2);
 				if(job->sol.makespan != -1)
-					local->insert(job);
+				{
+					temp = new pair<Problema*, tTabu*>();
+					temp->first = job;
+					temp->second = Problema::newTabu(maq, p1, p2);
+
+					local->push_back(temp);
+				}
 				else
 					delete job;
 			}
 		}
 	}
+	sort(local->begin(), local->end(), vtcomp);
+
 	return local;
 }
 
@@ -494,7 +511,6 @@ Problema* JobShop::mutacao()
 	int pos1 = rand() % njob, pos2 = rand() % njob;
 
 	Problema* mutante = new JobShop(*this, maq, pos1, pos2);
-	mutante->movTabu.job = false;
 
 	return mutante;
 }
@@ -654,4 +670,9 @@ bool fncomp(Problema *prob1, Problema *prob2)
 	}
 	else
 		return prob1->sol.makespan < prob2->sol.makespan;
+}
+
+bool vtcomp(pair<Problema*, tTabu*>* p1, pair<Problema*, tTabu*>* p2)
+{
+	return fncomp(p1->first, p2->first);
 }

@@ -12,7 +12,7 @@ public:
 	int prob, polEscolha;
 	string name;
 
-	virtual vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol) = 0;
+	virtual vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic) = 0;
 };
 
 #endif

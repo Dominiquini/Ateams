@@ -33,7 +33,7 @@ Genetico::Genetico(ParametrosAG* pAG)
 	Heuristica::numHeuristic += prob;
 }
 
-vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol)
+vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
 {
 	return new vector<Problema*>(1, new JobShop(**sol->begin()));
 }

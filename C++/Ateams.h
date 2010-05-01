@@ -19,10 +19,15 @@ typedef struct soluction
 	int ***escalon;	// Escalonamento nas maquinas
 } soluction;
 
+typedef struct executado
+{
+	bool tabu;
+	bool genetico;
+} executado;
+
 typedef struct movTabu
 {
 	int maq, A, B;
-	bool job;
 } tTabu;
 
 typedef struct ParametrosATEAMS {

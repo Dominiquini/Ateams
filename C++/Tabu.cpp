@@ -32,7 +32,7 @@ Tabu::Tabu(ParametrosBT* pBT)
 }
 
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
-vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol)
+vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
 {
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator select = sol->begin();
 
@@ -43,15 +43,15 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	double visao = polEscolha < 0 ? Problema::totalMakespan : Problema::sumFitness(sol, polEscolha);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
-	select = Controle::selectRouletteWheel(sol, visao);
+	select = Controle::selectRouletteWheel(sol, visao, randomic);
 	if(polEscolha == -1)
-		while((*select)->movTabu.job == true)
+		while((*select)->exec.tabu == true)
 			if(select != sol->begin())
 				select--;
 			else
 				break;
 
-	(*select)->movTabu.job = true;
+	(*select)->exec.tabu = true;
 
 	return exec(*select);
 }
@@ -59,8 +59,8 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 /* Executa uma busca por solucoes a partir de 'init' por 'iterTabu' vezes */
 vector<Problema*>* Tabu::exec(Problema* init)
 {
-	multiset<Problema*, bool(*)(Problema*, Problema*)>* local;
-	multiset<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	vector<pair<Problema*, tTabu*>* >* local;
+	vector<pair<Problema*, tTabu*>* >::iterator iter;
 
 	// Lista Tabu de movimentos repetidos
 	list<tTabu> *listaTabu = new list<tTabu>;
@@ -81,19 +81,19 @@ vector<Problema*>* Tabu::exec(Problema* init)
 		for(iter = local->begin(); iter != local->end(); iter++)
 		{
 			// Se nao for tabu...
-			if(!isTabu(listaTabu, (*iter)->movTabu))
+			if(!isTabu(listaTabu, *(*iter)->second))
 			{
-				if((*iter)->getMakespan() < maxLocal->getMakespan())
+				if((*iter)->first->getMakespan() < maxLocal->getMakespan())
 					j = 0;
 
 				delete maxLocal;
-				maxLocal = Problema::alloc(**iter);
-				if((*iter)->getMakespan() < maxGlobal->getMakespan())
+				maxLocal = Problema::alloc(*(*iter)->first);
+				if((*iter)->first->getMakespan() < maxGlobal->getMakespan())
 				{
 					delete maxGlobal;
 					maxGlobal = Problema::alloc(*maxLocal);
 				}
-				listaTabu->push_front((*iter)->movTabu);
+				listaTabu->push_front(*(*iter)->second);
 				if((int)listaTabu->size() > tamListaTabu)
 					listaTabu->pop_back();
 
@@ -103,12 +103,12 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			else
 			{
 				// Satisfaz a funcao de aspiracao
-				if((*iter)->getMakespan() < ((funcAsp*maxGlobal->getMakespan()) + ((1-funcAsp)*maxLocal->getMakespan())))
+				if((*iter)->first->getMakespan() < ((funcAsp*maxGlobal->getMakespan()) + ((1-funcAsp)*maxLocal->getMakespan())))
 				{
 					j = 0;
 
 					delete maxLocal;
-					maxLocal = Problema::alloc(**iter);
+					maxLocal = Problema::alloc(*(*iter)->first);
 
 					delete maxGlobal;
 					maxGlobal = Problema::alloc(*maxLocal);
@@ -119,13 +119,19 @@ vector<Problema*>* Tabu::exec(Problema* init)
 		}
 
 		for(iter = local->begin(); iter != local->end(); iter++)
+		{
+			delete (*iter)->first;
+			free((*iter)->second);
 			delete *iter;
+		}
 
 		local->clear();
 		delete local;
 	}
 	delete listaTabu;
 	delete maxLocal;
+
+	maxGlobal->exec.tabu = true;
 
 	return new vector<Problema*>(1, maxGlobal);
 }

@@ -15,7 +15,7 @@ public:
 	Genetico();
 	Genetico(ParametrosAG*);
 
-	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol);
+	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic);
 
 private:
 

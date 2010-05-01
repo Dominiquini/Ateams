@@ -118,7 +118,7 @@ vector<Problema*>* Controle::exec(int randomic)
 {
 	Heuristica* alg = selectRouletteWheel(algs, Heuristica::numHeuristic, randomic);
 	atual = alg->name;
-	return alg->start(pop);
+	return alg->start(pop, randomic);
 }
 
 void Controle::geraPop()
@@ -144,13 +144,12 @@ void Controle::geraPop()
 	}
 }
 
-set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal)
+set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal, int randWheel)
 {
 	// Armazena o fitness total da populacao
 	int sum = fitTotal;
 	// Um numero entre zero e "sum" e sorteado
-	srand(unsigned(time(NULL)));
-	int randWheel = rand() % (sum + 1);
+	randWheel = randWheel % (sum + 1);
 
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
 	for(iter = pop->begin(); iter != pop->end(); iter++)

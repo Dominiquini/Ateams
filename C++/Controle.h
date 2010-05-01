@@ -12,8 +12,8 @@ class Controle
 {
 public:
 	/* Seleciona um individuo da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
-	static set<Problema*, bool(*)(Problema*, Problema*)>::iterator selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal);
-	static Heuristica* selectRouletteWheel(vector<Heuristica*>* heuristc, int probTotal, int randomic);
+	static set<Problema*, bool(*)(Problema*, Problema*)>::iterator selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal, int randWheel);
+	static Heuristica* selectRouletteWheel(vector<Heuristica*>* heuristc, int probTotal, int randWheel);
 
 	vector<Heuristica*>* algs;			// Algoritmos disponiveis
 

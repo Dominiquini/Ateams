@@ -25,7 +25,7 @@ public:
 	void imprimir();	// Imprime o escaloonamento atual
 
 	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
-	multiset<Problema*, bool(*)(Problema*, Problema*)>* buscaLocal();
+	vector<pair<Problema*, tTabu*>* >* buscaLocal();
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
 	pair<Problema*, Problema*>* crossOver(Problema*, int);
@@ -53,5 +53,7 @@ int findOrdem(int M, int maq, int* job);
 void* alocaMatriz(int, int, int, int);
 
 void desalocaMatriz(int, void*, int, int);
+
+bool vtcomp(pair<Problema*, tTabu*>*, pair<Problema*, tTabu*>*);
 
 #endif
