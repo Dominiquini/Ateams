@@ -504,7 +504,7 @@ vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
 			}
 		}
 	}
-	sort(local->begin(), local->end(), vtcomp);
+	sort(local->begin(), local->end(), ptcomp);
 
 	return local;
 }
@@ -514,14 +514,15 @@ pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamParticao)
 	int **f1 = (int**)alocaMatriz(2, nmaq, njob, 0), **f2 = (int**)alocaMatriz(2, nmaq, njob, 0);
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
 	int particao = tamParticao == -1 ? (JobShop::njob)/2 : tamParticao;
-	int inicioPart = 0;
+	int inicioPart = 0, fimPart = 0;
 
 	for(int i = 0; i < nmaq; i++)
 	{
-		inicioPart = (rand()+i) % (njob-particao+1);
+		inicioPart = rand() % njob;
+		fimPart = inicioPart+particao <= njob ? inicioPart+particao : njob;
 
-		swap_vect(this->sol.esc[i], pai->sol.esc[i], f1[i], inicioPart, particao);
-		swap_vect(pai->sol.esc[i], this->sol.esc[i], f2[i], inicioPart, particao);
+		swap_vect(this->sol.esc[i], pai->sol.esc[i], f1[i], inicioPart, fimPart-inicioPart);
+		swap_vect(pai->sol.esc[i], this->sol.esc[i], f2[i], inicioPart, fimPart-inicioPart);
 	}
 
 	filhos->first = new JobShop(f1);
@@ -703,7 +704,12 @@ bool fncomp2(Problema *prob1, Problema *prob2)
 	return prob1->sol.makespan < prob2->sol.makespan;
 }
 
-bool vtcomp(pair<Problema*, tTabu*>* p1, pair<Problema*, tTabu*>* p2)
+bool ptcomp(pair<Problema*, tTabu*>* p1, pair<Problema*, tTabu*>* p2)
 {
-	return fncomp1(p1->first, p2->first);
+	return (p1->first->getMakespan()) < p2->first->getMakespan();
+}
+
+bool ppcomp(pair<Problema*, Problema*>* p1, pair<Problema*, Problema*>* p2)
+{
+	return (p1->first->getMakespan() + p1->second->getMakespan()) < (p2->first->getMakespan() + p2->second->getMakespan());
 }

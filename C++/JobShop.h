@@ -54,6 +54,8 @@ void* alocaMatriz(int, int, int, int);
 
 void desalocaMatriz(int, void*, int, int);
 
-bool vtcomp(pair<Problema*, tTabu*>*, pair<Problema*, tTabu*>*);
+bool ptcomp(pair<Problema*, tTabu*>*, pair<Problema*, tTabu*>*);
+
+bool ppcomp(pair<Problema*, Problema*>* p1, pair<Problema*, Problema*>* p2);
 
 #endif

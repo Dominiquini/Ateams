@@ -91,15 +91,7 @@ Problema* Controle::start()
 			}
 			else
 			{
-/*				cout << "\nIGUAL: " << j << endl << endl;
-				cout << "MAKESPAN1: " << prob->at(j)->getMakespan() << endl;
-				prob->at(j)->imprimir(false);
-				cout << endl;
-				cout << "MAKESPAN2: " << (*ret.first)->getMakespan() << endl;
-				(*ret.first)->imprimir(false);
-				cout << endl << endl;
-
-*/				delete prob->at(j);
+				delete prob->at(j);
 			}
 		}
 		prob->clear();
