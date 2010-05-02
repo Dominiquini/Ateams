@@ -153,13 +153,14 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		/* Selecao dos melhores */
 		for(iter2 = aux_pop->begin(); iter2 != aux_pop->end(); iter2++)
 		{
+			/* Introduz uma mutacao com chance 'probMutacao' */
 			if(rand() < RAND_MAX*probMutacao)
 				(*iter2)->mutacao();
 
 			if((*iter2)->getMakespan() != -1 && (int)pop->size() < tamPopGenetico)
-				pop->push_back(*iter2);
+				pop->push_back(*iter2);		// Colocado no conjunto de boas solucoes
 			else
-				bad_pop->push_back(*iter2);
+				bad_pop->push_back(*iter2);	// Armazenado para possivel reaproveitamento
 		}
 
 		aux_pop->clear();
