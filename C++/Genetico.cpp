@@ -106,11 +106,15 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		{
 			temp = new pair<Problema*, Problema*>();
 
-			temp->first = Controle::selectRouletteWheel(pop, sumP, rand());
-			if(rand() < RAND_MAX/2)
-				temp->second = Controle::selectRouletteWheel(pop, sumP, rand());
+			if(rand() < RAND_MAX*probMutacao)
+				temp->first = Controle::selectRouletteWheel(bad_pop, sumB, rand());
 			else
+				temp->first = Controle::selectRouletteWheel(pop, sumP, rand());
+
+			if(rand() < RAND_MAX*probMutacao)
 				temp->second = Controle::selectRouletteWheel(bad_pop, sumB, rand());
+			else
+				temp->second = Controle::selectRouletteWheel(pop, sumP, rand());
 
 			pais->push_back(temp);
 		}
