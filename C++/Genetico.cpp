@@ -3,17 +3,17 @@
 
 using namespace std;
 
-extern int PARAR;
+extern bool PARAR;
 
 Genetico::Genetico()
 {
 	name = "DEFAULT_AG";
-	prob = 50;
+	prob = 40;
 	polEscolha = -1;
-	iterGenetico = 100;
+	iterGenetico = 250;
 	tamPopGenetico = 250;
 	probCrossOver = 0.8;
-	probMutacao = 0.1;
+	probMutacao = 0.02;
 	tamParticionamento = -1;
 
 	Heuristica::numHeuristic += prob;

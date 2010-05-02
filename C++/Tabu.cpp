@@ -3,12 +3,12 @@
 
 using namespace std;
 
-extern int PARAR;
+extern bool PARAR;
 
 Tabu::Tabu()
 {
 	name = "DEFAULT_BT";
-	prob = 50;
+	prob = 60;
 	funcAsp = 1;
 	polEscolha = -1;
 	iterTabu = 500;

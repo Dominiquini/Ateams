@@ -9,11 +9,11 @@ using namespace std;
 
 #define PARAMETROS "parametros/default.param"
 
-int PARAR = 0;
+bool PARAR = false;
 
 void Interrompe(int signum)
 {
-	PARAR = 1;
+	PARAR = true;
 }
 
 

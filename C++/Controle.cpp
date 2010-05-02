@@ -5,7 +5,7 @@
 
 using namespace std;
 
-extern int PARAR;
+extern bool PARAR;
 
 Controle::Controle()
 {
@@ -103,10 +103,7 @@ Problema* Controle::start()
 		cout << atual << " : " << i+1 << " : " << (*pop->begin())->getMakespan() << endl << flush;
 
 		if((*pop->begin())->getMakespan() <= makespanBest)
-		{
-			cout << endl << "Populacao ATEAMS Convergiu na " << i+1 << " iteracao" << endl;
 			break;
-		}
 
 		if(PARAR == 1)
 			break;
