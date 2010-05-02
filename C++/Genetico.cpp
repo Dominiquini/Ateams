@@ -57,7 +57,7 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 			(*iter)->exec.genetico = true;
 			popAG->push_back(Problema::alloc(**iter));
 		}
-		popAG->push_back(*sol->begin());
+		popAG->push_back(Problema::alloc(**sol->begin()));
 
 		sort(popAG->begin(), popAG->end(), fncomp2);
 	}
