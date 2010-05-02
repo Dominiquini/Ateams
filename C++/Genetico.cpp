@@ -130,7 +130,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 			delete *iter2;
 		pop->clear();
 
-		/* Adiciona a populacao dos filhos */
+		/* Adiciona a populacao dos filhos, garantindo a presenca da melhor solucao */
 		aux_pop->push_back(bestLocal);
 		for(iter1 = filhos->begin(); iter1 != filhos->end(); iter1++)
 		{
@@ -149,7 +149,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		/* Selecao dos melhores */
 		for(iter2 = aux_pop->begin(); iter2 != aux_pop->end(); iter2++)
 		{
-			if(rand()%101 < 100*probMutacao)
+			if(rand() < RAND_MAX*probMutacao)
 				(*iter2)->mutacao();
 
 			if((*iter2)->getMakespan() != -1 && (int)pop->size() < tamPopGenetico)

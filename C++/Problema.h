@@ -43,7 +43,7 @@ public:
 	static void desalocaMemoria();
 
 	static Problema* alloc();												// Nova solucao aleatoria
-	static Problema* alloc(int **prob);										// Copia de prob
+	static Problema* alloc(short int **prob);										// Copia de prob
 	static Problema* alloc(Problema &prob);									// Copia de prob
 	static Problema* alloc(Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 

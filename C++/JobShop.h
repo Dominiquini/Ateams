@@ -13,11 +13,11 @@ class JobShop : public Problema
 {
 public:
 	static char name[128];			// Nome do problema
-	static int **maq, **time;		// Matriz de maquinas e de tempos
+	static short int **maq, **time;	// Matriz de maquinas e de tempos
 	static int njob, nmaq;			// Quantidade de jobs e de maquinas
 
 	JobShop();												// Nova solucao aleatoria
-	JobShop(int **prob);									// Copia de prob
+	JobShop(short int **prob);								// Copia de prob
 	JobShop(Problema &prob);								// Copia de prob
 	JobShop(Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
@@ -40,7 +40,7 @@ private:
 	int** getEscalonameto();
 };
 
-void swap_vect(int* p1, int* p2, int* f, int pos, int tam);
+void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
 
 int locComPar(char **in, int num, char *key);
 
@@ -48,7 +48,7 @@ float locNumberPar(char *in, int num, char *key);
 
 char* locPosPar(char *in, int num, char *key);
 
-int findOrdem(int M, int maq, int* job);
+int findOrdem(int M, int maq, short int* job);
 
 void* alocaMatriz(int, int, int, int);
 

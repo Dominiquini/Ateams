@@ -14,9 +14,9 @@ using namespace std;
 
 typedef struct soluction
 {
-	int makespan;	// Makespan da solucao
-	int **esc;		// Solucao
-	int ***escalon;	// Escalonamento nas maquinas
+	int makespan;					// Makespan da solucao
+	short int **esc;		// Solucao
+	short int ***escalon;	// Escalonamento nas maquinas
 } soluction;
 
 typedef struct executado
@@ -27,7 +27,7 @@ typedef struct executado
 
 typedef struct movTabu
 {
-	int maq, A, B;
+	short int maq, A, B;
 } tTabu;
 
 typedef struct ParametrosATEAMS {

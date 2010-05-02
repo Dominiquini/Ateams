@@ -9,7 +9,7 @@ int Problema::numInst = 0;
 double Problema::totalMakespan = 0;
 
 char JobShop::name[128];
-int **JobShop::maq = NULL, **JobShop::time = NULL;
+short int **JobShop::maq = NULL, **JobShop::time = NULL;
 int JobShop::njob = 0, JobShop::nmaq = 0;
 
 
@@ -34,7 +34,7 @@ Problema* Problema::alloc()
 	return new JobShop();
 }
 
-Problema* Problema::alloc(int** prob)
+Problema* Problema::alloc(short int** prob)
 {
 	return new JobShop(prob);
 }
@@ -58,14 +58,14 @@ void Problema::leProblema(FILE *f)
 	if(!fscanf (f, "%d %d", &JobShop::njob, &JobShop::nmaq))
 		exit(1);
 
-	JobShop::maq = (int**)alocaMatriz(2, JobShop::njob, JobShop::nmaq, 1);
-	JobShop::time = (int**)alocaMatriz(2, JobShop::njob, JobShop::nmaq, 1);
+	JobShop::maq = (short int**)alocaMatriz(2, JobShop::njob, JobShop::nmaq, 1);
+	JobShop::time = (short int**)alocaMatriz(2, JobShop::njob, JobShop::nmaq, 1);
 
 	for (int i = 0; i < JobShop::njob; i++)
 	{
 		for (int j = 0; j < JobShop::nmaq; j++)
 		{
-			if (!fscanf (f, "%d %d", &JobShop::maq[i][j], &JobShop::time[i][j]))
+			if (!fscanf (f, "%hd %hd", &JobShop::maq[i][j], &JobShop::time[i][j]))
 				exit(1);
 		}
 	}
@@ -251,11 +251,11 @@ double Problema::sumFitness(vector<Problema*> *pop, int n)
 
 JobShop::JobShop() : Problema::Problema()
 {
-	int *aux_vet, *aux_maq;
+	short int *aux_vet, *aux_maq;
 
-	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 1);
-	aux_vet = (int*)alocaMatriz(1, njob, 1, 1);
-	aux_maq = (int*)alocaMatriz(1, nmaq, 1, 1); 	// Indica proxima operacao da maquina
+	sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
+	aux_vet = (short int*)alocaMatriz(1, njob, 1, 1);
+	aux_maq = (short int*)alocaMatriz(1, nmaq, 1, 1); 	// Indica proxima operacao da maquina
 
 	for (int i = 0; i < nmaq; i++)
 		aux_maq[i] = 0;
@@ -285,7 +285,7 @@ JobShop::JobShop() : Problema::Problema()
 	exec.genetico = false;
 }
 
-JobShop::JobShop(int **prob) : Problema::Problema()
+JobShop::JobShop(short int **prob) : Problema::Problema()
 {
 	sol.esc = prob;
 
@@ -304,7 +304,7 @@ JobShop::JobShop(int **prob) : Problema::Problema()
 
 JobShop::JobShop(Problema &prob) : Problema::Problema()
 {
-	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 1);
+	sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	for(int i = 0; i < nmaq; i++)
 		for(int j = 0; j < njob; j++)
 			sol.esc[i][j] = prob.sol.esc[i][j];
@@ -313,7 +313,7 @@ JobShop::JobShop(Problema &prob) : Problema::Problema()
 
 	if(prob.sol.escalon != NULL && ESCALONAMENTO == true)
 	{
-		sol.escalon = (int***)alocaMatriz(3, nmaq, njob, 3);
+		sol.escalon = (short int***)alocaMatriz(3, nmaq, njob, 3);
 		for(int i = 0; i < nmaq; i++)
 			for(int j = 0; j < njob; j++)
 				for(int k = 0; k < 3; k++)
@@ -329,7 +329,7 @@ JobShop::JobShop(Problema &prob) : Problema::Problema()
 
 JobShop::JobShop(Problema &prob, int maq, int pos1, int pos2) : Problema::Problema()
 {
-	sol.esc = (int**)alocaMatriz(2, nmaq, njob, 1);
+	sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	for(int i = 0; i < nmaq; i++)
 		for(int j = 0; j < njob; j++)
 			sol.esc[i][j] = prob.sol.esc[i][j];
@@ -354,12 +354,13 @@ JobShop::JobShop(Problema &prob, int maq, int pos1, int pos2) : Problema::Proble
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 int JobShop::calcMakespan()
 {
-	int ***aux_esc, **tmp, *pos, i, j, k, max, cont;
+	int i, j, k, max, cont;
+	short int ***aux_esc, **tmp, *pos;
 	int ajob, apos, ainic, afim, sum_time;
 
-	pos = (int*)alocaMatriz(1, nmaq, 1, 1);
-	tmp = (int**)alocaMatriz(2, njob, nmaq+1, 1);
-	aux_esc = (int***)alocaMatriz(3, nmaq, njob, 3);
+	pos = (short int*)alocaMatriz(1, nmaq, 1, 1);
+	tmp = (short int**)alocaMatriz(2, njob, nmaq+1, 1);
+	aux_esc = (short int***)alocaMatriz(3, nmaq, njob, 3);
 
 	for (i = 0; i < njob; i++)
 		for(j = 0; j <= nmaq; j++)
@@ -512,7 +513,7 @@ vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
 
 pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamParticao)
 {
-	int **f1 = (int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (int**)alocaMatriz(2, nmaq, njob, 1);
+	short int **f1 = (short int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
 	int particao = tamParticao == -1 ? (JobShop::njob)/2 : tamParticao;
 	int inicioPart = 0, fimPart = 0;
@@ -578,7 +579,7 @@ int** JobShop::getEscalonameto()
 
 /* Auxiliares */
 
-void swap_vect(int* p1, int* p2, int* f, int pos, int tam)
+void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam)
 {
 	for(int i = pos; i < pos+tam; i++)
 		f[i] = p1[i];
@@ -627,7 +628,7 @@ char* locPosPar(char *in, int num, char *key)
 		return NULL;
 		}
 
-int findOrdem(int M, int maq, int* job)
+int findOrdem(int M, int maq, short int* job)
 {
 	for(int i = 0; i < M; i++)
 		if(job[i] == maq)
@@ -639,26 +640,26 @@ void* alocaMatriz(int dim, int a, int b, int c)
 {
 	if(dim == 1)
 	{
-		int *M = (int*)malloc(a * sizeof(int));
+		short int *M = (short int*)malloc(a * sizeof(short int));
 
 		return (void*)M;
 	}
 	else if(dim == 2)
 	{
-		int **M = (int**)malloc(a * sizeof (int*));
+		short int **M = (short int**)malloc(a * sizeof (short int*));
 		for (int i = 0; i < a; i++)
-			M[i] = (int*)malloc(b * sizeof (int));
+			M[i] = (short int*)malloc(b * sizeof (short int));
 
 		return (void*)M;
 	}
 	else if(dim == 3)
 	{
-		int ***M = (int***)malloc(a * sizeof (int**));
+		short int ***M = (short int***)malloc(a * sizeof (short int**));
 		for (int i = 0; i < a; i++)
 		{
-			M[i] = (int**)malloc(b * sizeof(int*));
+			M[i] = (short int**)malloc(b * sizeof(short int*));
 			for(int j = 0; j < b; j++)
-				M[i][j] = (int*)malloc(c * sizeof (int));
+				M[i][j] = (short int*)malloc(c * sizeof (short int));
 		}
 
 		return (void*)M;
@@ -671,13 +672,13 @@ void desalocaMatriz(int dim, void *MMM, int a, int b)
 {
 	if(dim == 1)
 	{
-		int *M = (int*)MMM;
+		short int *M = (short int*)MMM;
 
 		free(M);
 	}
 	else if(dim == 2)
 	{
-		int **M = (int**)MMM;
+		short int **M = (short int**)MMM;
 
 		for(int i = 0; i < a; i++)
 			free(M[i]);
@@ -685,7 +686,7 @@ void desalocaMatriz(int dim, void *MMM, int a, int b)
 	}
 	else if(dim == 3)
 	{
-		int ***M = (int***)MMM;
+		short int ***M = (short int***)MMM;
 
 		for(int i = 0; i < a; i++)
 		{
