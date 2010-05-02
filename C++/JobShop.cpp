@@ -4,6 +4,7 @@ using namespace std;
 
 /* Static Members */
 
+int Problema::best = 0;
 int Problema::numInst = 0;
 double Problema::totalMakespan = 0;
 
@@ -554,7 +555,10 @@ void JobShop::mutacao()
 
 double JobShop::getFitness()
 {
-	return (double)INT_MAX/sol.makespan;
+	if(sol.makespan != -1)
+		return (double)INT_MAX/sol.makespan;
+	else
+		return (double)INT_MAX/Problema::best;
 }
 
 int JobShop::getMakespan()

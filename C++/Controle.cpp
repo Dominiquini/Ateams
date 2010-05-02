@@ -61,6 +61,7 @@ Problema* Controle::start()
 	srand(unsigned(time(NULL)));
 
 	geraPop();
+	Problema::best = (*pop->begin())->getMakespan();
 
 	cout << "CTR : 0 : " << (*pop->begin())->getMakespan() << endl << flush;
 

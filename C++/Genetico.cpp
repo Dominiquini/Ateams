@@ -71,6 +71,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	Problema* bestLocal;
 	pair<Problema*, Problema*>* temp;
 	vector<Problema*>* aux_pop = new vector<Problema*>();
+	vector<Problema*>* bad_pop = new vector<Problema*>();
 	vector<pair<Problema*, Problema*>* > *pais, *filhos;
 	pais = new vector<pair<Problema*, Problema*>* >();
 	filhos = new vector<pair<Problema*, Problema*>* >();
@@ -79,7 +80,9 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	vector<Problema*>::iterator iter2;
 
 	int numCrossOver = tamPopGenetico * probCrossOver;
-	int sumP;
+	int sumP, sumB;
+
+	bad_pop->push_back(Problema::alloc(*pop->front()));
 
 	/* Iteracao principal do AG */
 	for(int i = 0; i < iterGenetico; i++)
@@ -92,6 +95,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 		/* Escolhe os casais de 'pop' que se cruzarao */
 		sumP = Problema::sumFitness(pop, pop->size());
+		sumB = Problema::sumFitness(bad_pop, bad_pop->size());
 
 		temp = new pair<Problema*, Problema*>();
 		temp->first = bestLocal;					// Garante a inclusao da melhor solucao atual
@@ -101,8 +105,12 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		for(int j = 1; j < numCrossOver; j++)
 		{
 			temp = new pair<Problema*, Problema*>();
+
 			temp->first = Controle::selectRouletteWheel(pop, sumP, rand());
-			temp->second = Controle::selectRouletteWheel(pop, sumP, rand());
+			if(rand() < RAND_MAX/2)
+				temp->second = Controle::selectRouletteWheel(pop, sumP, rand());
+			else
+				temp->second = Controle::selectRouletteWheel(bad_pop, sumB, rand());
 
 			pais->push_back(temp);
 		}
@@ -147,14 +155,20 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 			if((*iter2)->getMakespan() != -1 && (int)pop->size() < tamPopGenetico)
 				pop->push_back(*iter2);
 			else
-				delete *iter2;
+				bad_pop->push_back(*iter2);
 		}
 
 		aux_pop->clear();
 	}
+	/* Remove populacao dos pais */
+	for(iter2 = bad_pop->begin(); iter2 != bad_pop->end(); iter2++)
+		delete *iter2;
+	bad_pop->clear();
+
 	delete pais;
 	delete filhos;
 	delete aux_pop;
+	delete bad_pop;
 
 	return pop;
 }
