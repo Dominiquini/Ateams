@@ -112,12 +112,13 @@ int main(int argc, char *argv[])
 	cout << endl;
 
 	Controle* ctr = new Controle(pATEAMS);
-//	ctr->addHeuristic(new Tabu(pBT));
+	ctr->addHeuristic(new Tabu(pBT));
 	ctr->addHeuristic(new Genetico(pAG));
 
 	Problema* best = ctr->start();
 
-	cout << endl << endl << "Melhor Solução: " << best->getMakespan() << endl << endl;
+	cout << endl << endl << "Pior Solução: " << Problema::best << endl << endl;
+	cout << endl << "Melhor Solução: " << best->getMakespan() << endl << endl;
 
 	gettimeofday(&tv2, NULL);
 	Problema::imprimeResultado(tv1, tv2, fresultados, best->getMakespan());

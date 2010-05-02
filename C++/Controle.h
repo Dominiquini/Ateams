@@ -40,4 +40,6 @@ public:
 	void geraPop();
 };
 
+bool cmpAlg(Heuristica *h1, Heuristica *h2);
+
 #endif

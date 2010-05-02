@@ -54,6 +54,8 @@ Controle::~Controle()
 void Controle::addHeuristic(Heuristica* alg)
 {
 	algs->push_back(alg);
+
+	sort(algs->begin(), algs->end(), cmpAlg);
 }
 
 Problema* Controle::start()
@@ -61,7 +63,7 @@ Problema* Controle::start()
 	srand(unsigned(time(NULL)));
 
 	geraPop();
-	Problema::best = (*pop->begin())->getMakespan();
+	Problema::best = (*pop->rbegin())->getMakespan();
 
 	cout << "CTR : 0 : " << (*pop->begin())->getMakespan() << endl << flush;
 
@@ -199,6 +201,11 @@ Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, int pro
 		}
 	}
 	return heuristc->at(0);
+}
+
+bool cmpAlg(Heuristica *h1, Heuristica *h2)
+{
+	return h1->prob < h2->prob;
 }
 
 int Heuristica::numHeuristic = 0;
