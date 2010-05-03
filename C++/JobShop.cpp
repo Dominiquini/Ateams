@@ -542,6 +542,12 @@ void JobShop::mutacao()
 	sol.esc[maq][pos1] = sol.esc[maq][pos2];
 	sol.esc[maq][pos2] = aux;
 
+	if(sol.makespan != -1 && ESCALONAMENTO == true)
+	{
+		desalocaMatriz(3, sol.escalon, nmaq, njob);
+		sol.escalon = NULL;
+	}
+
 	sol.makespan = calcMakespan();
 
 	if(sol.makespan != -1 && ESCALONAMENTO == false)
