@@ -538,7 +538,7 @@ void JobShop::mutacao()
 	int maq = rand() % nmaq;
 	int pos1 = rand() % njob, pos2 = rand() % njob;
 
-	int aux = sol.esc[maq][pos1];
+	short int aux = sol.esc[maq][pos1];
 	sol.esc[maq][pos1] = sol.esc[maq][pos2];
 	sol.esc[maq][pos2] = aux;
 
