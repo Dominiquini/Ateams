@@ -138,7 +138,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 }
 
 /* Verdadeiro se movimento avaliado for Tabu */
-bool isTabu(list<tTabu> *listaTabu, tTabu m)
+inline bool isTabu(list<tTabu> *listaTabu, tTabu m)
 {
 	list<tTabu>::iterator iter;
 

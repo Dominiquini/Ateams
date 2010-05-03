@@ -200,7 +200,7 @@ Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, int pro
 	return heuristc->at(0);
 }
 
-bool cmpAlg(Heuristica *h1, Heuristica *h2)
+inline bool cmpAlg(Heuristica *h1, Heuristica *h2)
 {
 	return h1->prob < h2->prob;
 }

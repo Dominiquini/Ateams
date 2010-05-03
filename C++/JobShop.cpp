@@ -352,9 +352,9 @@ JobShop::JobShop(Problema &prob, int maq, int pos1, int pos2) : Problema::Proble
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
-int JobShop::calcMakespan()
+inline int JobShop::calcMakespan()
 {
-	int i, j, k, max, cont;
+	register int max, cont = 0;
 	short int ***aux_esc, **tmp, *pos;
 	int ajob, apos, ainic, afim, sum_time;
 
@@ -362,20 +362,20 @@ int JobShop::calcMakespan()
 	tmp = (short int**)alocaMatriz(2, njob, nmaq+1, 1);
 	aux_esc = (short int***)alocaMatriz(3, nmaq, njob, 3);
 
-	for (i = 0; i < njob; i++)
-		for(j = 0; j <= nmaq; j++)
+	for (register int i = 0; i < njob; i++)
+		for(register int j = 0; j <= nmaq; j++)
 			tmp[i][j] = j == 0 ? 0 : -1;
 
-	for (i = 0; i < nmaq; i++)
-		for(j = 0; j < njob; j++)
+	for (register int i = 0; i < nmaq; i++)
+		for(register int j = 0; j < njob; j++)
 			aux_esc[i][j][0] = -1;
 
-	for(i = 0; i < nmaq; i++)
+	for(register int i = 0; i < nmaq; i++)
 		pos[i] = 0;
 
-	cont = i = j = k = 0;
 	max = nmaq * njob;
 
+	register int i = 0, k = 0;
 	while((cont < max) && k <= njob)
 	{
 		if(pos[i] != -1)
@@ -440,7 +440,7 @@ int JobShop::calcMakespan()
 	}
 }
 
-void JobShop::imprimir(bool esc)
+inline void JobShop::imprimir(bool esc)
 {
 	if(esc == true)
 	{
@@ -479,18 +479,18 @@ void JobShop::imprimir(bool esc)
 	return;
 }
 
-vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
+inline vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
 {
 	pair<Problema*, tTabu*>* temp;
 	vector<pair<Problema*, tTabu*>* >* local;
 	local = new vector<pair<Problema*, tTabu*>* >();
 
 	Problema *job = NULL;
-	for(int maq = 0; maq < nmaq; maq++)
+	for(register int maq = 0; maq < nmaq; maq++)
 	{
-		for(int p1 = 0; p1 < njob-1; p1++)
+		for(register int p1 = 0; p1 < njob-1; p1++)
 		{
-			for(int p2 = p1+1; p2 < njob; p2++)
+			for(register int p2 = p1+1; p2 < njob; p2++)
 			{
 				job = new JobShop(*this, maq, p1, p2);
 				if(job->sol.makespan != -1)
@@ -511,14 +511,14 @@ vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
 	return local;
 }
 
-pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamParticao)
+inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamParticao)
 {
 	short int **f1 = (short int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
 	int particao = tamParticao == -1 ? (JobShop::njob)/2 : tamParticao;
 	int inicioPart = 0, fimPart = 0;
 
-	for(int i = 0; i < nmaq; i++)
+	for(register int i = 0; i < nmaq; i++)
 	{
 		inicioPart = rand() % njob;
 		fimPart = inicioPart+particao <= njob ? inicioPart+particao : njob;
@@ -533,7 +533,7 @@ pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamParticao)
 	return filhos;
 }
 
-void JobShop::mutacao()
+inline void JobShop::mutacao()
 {
 	int maq = rand() % nmaq;
 	int pos1 = rand() % njob, pos2 = rand() % njob;
@@ -560,7 +560,7 @@ void JobShop::mutacao()
 	exec.genetico = false;
 }
 
-double JobShop::getFitness()
+inline double JobShop::getFitness()
 {
 	if(sol.makespan != -1)
 		return (double)INT_MAX/sol.makespan;
@@ -568,12 +568,12 @@ double JobShop::getFitness()
 		return (double)INT_MAX/Problema::best;
 }
 
-int JobShop::getMakespan()
+inline int JobShop::getMakespan()
 {
 	return sol.makespan;
 }
 
-int** JobShop::getEscalonameto()
+inline int** JobShop::getEscalonameto()
 {
 	int** copy = (int**)alocaMatriz(2, nmaq, njob, 1);
 	for(int i = 0; i < nmaq; i++)
@@ -585,12 +585,12 @@ int** JobShop::getEscalonameto()
 
 /* Auxiliares */
 
-void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam)
+inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam)
 {
 	for(int i = pos; i < pos+tam; i++)
 		f[i] = p1[i];
 
-	for(int i = 0, j = 0; i < JobShop::njob && j < JobShop::njob; i++)
+	for(register int i = 0, j = 0; i < JobShop::njob && j < JobShop::njob; i++)
 	{
 		if(j == pos)
 			j = pos+tam;
@@ -625,14 +625,14 @@ float locNumberPar(char *in, int num, char *key)
 }
 
 char* locPosPar(char *in, int num, char *key)
-		{
+{
 	char *str = strstr(in, key);
 
 	if(str != NULL)
 		return strstr(str, "=") + 1;
 	else
 		return NULL;
-		}
+}
 
 int findOrdem(int M, int maq, short int* job)
 {
@@ -642,7 +642,7 @@ int findOrdem(int M, int maq, short int* job)
 	return -1;
 }
 
-void* alocaMatriz(int dim, int a, int b, int c)
+inline void* alocaMatriz(int dim, int a, int b, int c)
 {
 	if(dim == 1)
 	{
@@ -674,7 +674,7 @@ void* alocaMatriz(int dim, int a, int b, int c)
 		return NULL;
 }
 
-void desalocaMatriz(int dim, void *MMM, int a, int b)
+inline void desalocaMatriz(int dim, void *MMM, int a, int b)
 {
 	if(dim == 1)
 	{
@@ -726,17 +726,17 @@ bool fncomp2(Problema *prob1, Problema *prob2)
 	return prob1->sol.makespan < prob2->sol.makespan;
 }
 
-bool ptcomp(pair<Problema*, tTabu*>* p1, pair<Problema*, tTabu*>* p2)
+inline bool ptcomp(pair<Problema*, tTabu*>* p1, pair<Problema*, tTabu*>* p2)
 {
 	return (p1->first->getMakespan()) < p2->first->getMakespan();
 }
 
-bool ppcomp(pair<Problema*, Problema*>* p1, pair<Problema*, Problema*>* p2)
+inline bool ppcomp(pair<Problema*, Problema*>* p1, pair<Problema*, Problema*>* p2)
 {
 	return (p1->first->getMakespan() + p1->second->getMakespan()) < (p2->first->getMakespan() + p2->second->getMakespan());
 }
 
-bool isequal(Problema* p1, Problema* p2)
+inline bool isequal(Problema* p1, Problema* p2)
 {
 	if(p1->sol.makespan == p2->sol.makespan)
 	{

@@ -10,7 +10,7 @@ $(EXEC):$(OBJECTS)
 	$(CC) $(CFLAGS) $^ -o $@
 
 run:	$(EXEC)
-	./$^ -i ./dados/la01.prb
+	./$^
 
 clean:
 	rm -rf $(OBJECTS) $(EXEC)
