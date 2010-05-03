@@ -729,3 +729,17 @@ bool ppcomp(pair<Problema*, Problema*>* p1, pair<Problema*, Problema*>* p2)
 {
 	return (p1->first->getMakespan() + p1->second->getMakespan()) < (p2->first->getMakespan() + p2->second->getMakespan());
 }
+
+bool isequal(Problema* p1, Problema* p2)
+{
+	if(p1->sol.makespan == p2->sol.makespan)
+	{
+		for(int i = 0; i < JobShop::nmaq; i++)
+			for(int j = 0; j < JobShop::njob; j++)
+				if(p1->sol.esc[i][j] != p2->sol.esc[i][j])
+					return false;
+		return true;
+	}
+	else
+		return false;
+}

@@ -58,4 +58,6 @@ bool ptcomp(pair<Problema*, tTabu*>*, pair<Problema*, tTabu*>*);
 
 bool ppcomp(pair<Problema*, Problema*>* p1, pair<Problema*, Problema*>* p2);
 
+bool isequal(Problema*, Problema*);
+
 #endif

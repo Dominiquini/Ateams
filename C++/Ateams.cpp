@@ -7,6 +7,7 @@
 
 using namespace std;
 
+#define DADOS "dados/la01.prb"
 #define PARAMETROS "parametros/default.param"
 
 bool PARAR = false;
@@ -38,6 +39,7 @@ int main(int argc, char *argv[])
 	pBT = (ParametrosBT*)malloc(sizeof(ParametrosBT));
 	pAG = (ParametrosAG*)malloc(sizeof(ParametrosAG));
 
+	char dados[32];
 	int p = -1;
 
 	if((p = locComPar(argv, argc, (char*)"-i")) != -1)
@@ -50,12 +52,14 @@ int main(int argc, char *argv[])
 		else
 		{
 			printf("\nDados: '%s'\n", argv[p]);
+			strcpy(dados, argv[p]);
 		}
 	}
 	else
 	{
-		printf("\nEscolha um arquivo de entrada: 'ateams -i arq.prb'.\n\n");
-		exit(1);
+		fdados = fopen(DADOS, "r");
+		printf("\nDados: '%s'\n", DADOS);
+		strcpy(dados, DADOS);
 	}
 
 	if((p = locComPar(argv, argc, (char*)"-p")) != -1)
@@ -90,10 +94,8 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		p = locComPar(argv, argc, (char*)"-i");
-
 		char resultado[32] = {"resultados/"};
-		strcat(resultado, strstr(argv[p], "dados/") + 6);
+		strcat(resultado, strstr(dados, "dados/") + 6);
 		resultado[strlen(resultado) - 3] = '\0';
 		strcat(resultado, "res");
 
