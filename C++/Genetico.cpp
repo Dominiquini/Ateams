@@ -68,7 +68,6 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 
 vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 {
-	Problema* bestLocal;
 	pair<Problema*, Problema*>* temp;
 	vector<Problema*>* aux_pop = new vector<Problema*>();
 	vector<Problema*>* bad_pop = new vector<Problema*>();
@@ -90,31 +89,32 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		if(PARAR == 1)
 			break;
 
-		/* Salva a melhor solucao atual */
-		bestLocal = Problema::alloc(*pop->front());
-
 		/* Escolhe os casais de 'pop' que se cruzarao */
 		sumP = Problema::sumFitness(pop, pop->size());
 		sumB = Problema::sumFitness(bad_pop, bad_pop->size());
 
-		temp = new pair<Problema*, Problema*>();
-		temp->first = bestLocal;					// Garante a inclusao da melhor solucao atual
-		temp->second = Controle::selectRouletteWheel(pop, sumP, rand());
-
-		pais->push_back(temp);
-		for(int j = 1; j < numCrossOver; j++)
+		for(int j = 0; j < numCrossOver; j++)
 		{
 			temp = new pair<Problema*, Problema*>();
 
-			if(rand() < RAND_MAX*probMutacao)
-				temp->first = Controle::selectRouletteWheel(bad_pop, sumB, rand());
-			else
-				temp->first = Controle::selectRouletteWheel(pop, sumP, rand());
-
-			if(rand() < RAND_MAX*probMutacao)
-				temp->second = Controle::selectRouletteWheel(bad_pop, sumB, rand());
-			else
+			/* Garante a inclusao da melhor solucao atual */
+			if(j == 0)
+			{
+				temp->first = pop->front();
 				temp->second = Controle::selectRouletteWheel(pop, sumP, rand());
+			}
+			else
+			{
+				if(rand() < RAND_MAX*probMutacao)
+					temp->first = Controle::selectRouletteWheel(bad_pop, sumB, rand());
+				else
+					temp->first = Controle::selectRouletteWheel(pop, sumP, rand());
+
+				if(rand() < RAND_MAX*probMutacao)
+					temp->second = Controle::selectRouletteWheel(bad_pop, sumB, rand());
+				else
+					temp->second = Controle::selectRouletteWheel(pop, sumP, rand());
+			}
 
 			pais->push_back(temp);
 		}
@@ -131,11 +131,13 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 		/* Remove populacao dos pais */
 		for(iter2 = pop->begin(); iter2 != pop->end(); iter2++)
-			delete *iter2;
+			if((int)aux_pop->size() < tamPopGenetico - numCrossOver)
+				aux_pop->push_back(*iter2);
+			else
+				delete *iter2;
 		pop->clear();
 
-		/* Adiciona a populacao dos filhos, garantindo a presenca da melhor solucao */
-		aux_pop->push_back(bestLocal);
+		/* Adiciona a populacao dos filhos */
 		for(iter1 = filhos->begin(); iter1 != filhos->end(); iter1++)
 		{
 			aux_pop->push_back((*iter1)->first);

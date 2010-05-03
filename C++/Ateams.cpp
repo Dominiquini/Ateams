@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
 	cout << endl;
 
 	Controle* ctr = new Controle(pATEAMS);
-	ctr->addHeuristic(new Tabu(pBT));
+//	ctr->addHeuristic(new Tabu(pBT));
 	ctr->addHeuristic(new Genetico(pAG));
 
 	Problema* best = ctr->start();
