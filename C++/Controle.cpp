@@ -182,7 +182,7 @@ set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRoulette
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
 	for(iter = pop->begin(); iter != pop->end(); iter++)
 	{
-		sum -= (*iter)->getFitness();
+		sum -= (int)(*iter)->getFitness();
 		if(sum <= randWheel)
 		{
 			return iter;
@@ -201,7 +201,7 @@ Problema* Controle::selectRouletteWheel(vector<Problema*>* pop, int fitTotal, in
 	vector<Problema*>::iterator iter;
 	for(iter = pop->begin(); iter != pop->end(); iter++)
 	{
-		sum -= (*iter)->getFitness();
+		sum -= (int)(*iter)->getFitness();
 		if(sum <= randWheel)
 		{
 			return *iter;

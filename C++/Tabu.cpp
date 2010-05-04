@@ -43,7 +43,7 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	double visao = polEscolha < 0 ? Problema::totalMakespan : Problema::sumFitness(sol, polEscolha);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
-	select = Controle::selectRouletteWheel(sol, visao, randomic);
+	select = Controle::selectRouletteWheel(sol, (int)visao, randomic);
 	if(polEscolha == -1)
 		while((*select)->exec.tabu == true)
 			if(select != sol->begin())

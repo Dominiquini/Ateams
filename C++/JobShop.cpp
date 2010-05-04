@@ -87,14 +87,14 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	pATEAMS->tamanhoPopulacao = par != -1 ? (int)par : 500;
 
 	par = locNumberPar(parametros, size, (char*)"[makespanBest]");
-	pATEAMS->makespanBest = par;
+	pATEAMS->makespanBest = (int)par;
 
 
 	par = locNumberPar(parametros, size, (char*)"[probBT]");
-	pBT->probBT = par != -1 ? par : (int)50;
+	pBT->probBT = par != -1 ? (int)par : 50;
 
 	par = locNumberPar(parametros, size, (char*)"[polEscolhaBT]");
-	pBT->polEscolha = par;
+	pBT->polEscolha = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[iterBT]");
 	pBT->numeroIteracoes = par != -1 ? (int)par : 500;
@@ -110,19 +110,19 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 
 
 	par = locNumberPar(parametros, size, (char*)"[probAG]");
-	pAG->probAG = par != -1 ? par : (int)50;
+	pAG->probAG = par != -1 ? (int)par : 50;
 
 	par = locNumberPar(parametros, size, (char*)"[polEscolhaAG]");
-	pAG->polEscolha = par;
+	pAG->polEscolha = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[iterAG]");
-	pAG->numeroIteracoes = par != -1 ? par : (int)100;
+	pAG->numeroIteracoes = par != -1 ? (int)par : 100;
 
 	par = locNumberPar(parametros, size, (char*)"[tamPopAG]");
-	pAG->tamanhoPopulacao = par != -1 ? par : (int)250;
+	pAG->tamanhoPopulacao = par != -1 ? (int)par : 250;
 
 	par = locNumberPar(parametros, size, (char*)"[tamParticaoAG]");
-	pAG->tamanhoParticionamento = par;
+	pAG->tamanhoParticionamento = (int)par;
 
 
 	par = locNumberPar(parametros, size, (char*)"[probCrossOverAG]");

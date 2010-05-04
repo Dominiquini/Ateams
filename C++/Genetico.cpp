@@ -49,10 +49,10 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 	}
 	else
 	{
-		int visao = polEscolha < 0 ? Problema::totalMakespan : polEscolha;
+		double visao = polEscolha < 0 ? Problema::totalMakespan : polEscolha;
 		for(i = 1; i < tamPopGenetico; i++)
 		{
-			iter = Controle::selectRouletteWheel(sol, visao, rand());
+			iter = Controle::selectRouletteWheel(sol, (int)visao, rand());
 
 			(*iter)->exec.genetico = true;
 			popAG->push_back(Problema::alloc(**iter));
@@ -78,7 +78,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	vector<pair<Problema*, Problema*>* >::iterator iter1;
 	vector<Problema*>::iterator iter2;
 
-	int numCrossOver = tamPopGenetico * probCrossOver;
+	int numCrossOver = (int)((float)tamPopGenetico * probCrossOver);
 	int sumP, sumB;
 
 	bad_pop->push_back(Problema::alloc(*pop->front()));
@@ -90,8 +90,8 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 			break;
 
 		/* Escolhe os casais de 'pop' que se cruzarao */
-		sumP = Problema::sumFitness(pop, pop->size());
-		sumB = Problema::sumFitness(bad_pop, bad_pop->size());
+		sumP = (int)Problema::sumFitness(pop, pop->size());
+		sumB = (int)Problema::sumFitness(bad_pop, bad_pop->size());
 
 		for(int j = 0; j < numCrossOver; j++)
 		{
