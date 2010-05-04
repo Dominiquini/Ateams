@@ -167,10 +167,19 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 		aux_pop->clear();
 	}
-	/* Remove populacao dos pais */
+
 	for(iter2 = bad_pop->begin(); iter2 != bad_pop->end(); iter2++)
-		delete *iter2;
+	{
+		if((*iter2)->getMakespan() != -1)
+			pop->push_back(*iter2);
+		else
+			delete *iter2;
+	}
 	bad_pop->clear();
+
+	sort(pop->begin(), pop->end(), fncomp2);
+
+	pop = unique(pop, tamPopGenetico);
 
 	delete pais;
 	delete filhos;
@@ -178,4 +187,23 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	delete bad_pop;
 
 	return pop;
+}
+
+inline vector<Problema*>* unique(vector<Problema*>* pop, int n)
+{
+	vector<Problema*>* aux = new vector<Problema*>();
+
+	for(int i = 1; i < (int)pop->size(); i++)
+	{
+		if(fnequal(pop->at(i-1), pop->at(i)) || i > n)
+			delete pop->at(i-1);
+		else
+			aux->push_back(pop->at(i-1));
+	}
+	delete pop->at(pop->size()-1);
+
+	pop->clear();
+	delete pop;
+
+	return aux;
 }

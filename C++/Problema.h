@@ -20,7 +20,7 @@ class Problema;
 
 bool fncomp1(Problema*, Problema*);
 bool fncomp2(Problema*, Problema*);
-bool isequal(Problema*, Problema*);
+bool fnequal(Problema*, Problema*);
 
 class Problema
 {
@@ -71,7 +71,7 @@ public:
 	executado exec;
 
 	friend class JobShop;
-	friend bool isequal(Problema*, Problema*);
+	friend bool fnequal(Problema*, Problema*);
 	friend bool fncomp1(Problema*, Problema*);
 	friend bool fncomp2(Problema*, Problema*);
 	friend bool vtcomp(pair<Problema*, tTabu*>*, pair<Problema*, tTabu*>*);
