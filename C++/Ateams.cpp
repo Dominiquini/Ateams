@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 
 	Problema* best = ctr->start();
 
-	cout << endl << endl << "Pior Solução: " << Problema::best << endl << endl;
+	cout << endl << endl << "Pior Solução: " << ctr->getSol(pATEAMS->tamanhoPopulacao)->getMakespan() << endl << endl;
 	cout << endl << "Melhor Solução: " << best->getMakespan() << endl << endl;
 
 	gettimeofday(&tv2, NULL);

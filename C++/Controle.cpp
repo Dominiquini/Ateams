@@ -63,6 +63,26 @@ void Controle::addHeuristic(Heuristica* alg)
 	sort(algs->begin(), algs->end(), cmpAlg);
 }
 
+list<Problema*>* Controle::getPop()
+{
+	list<Problema*>* sol = new list<Problema*>();
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+
+	for(iter = pop->begin(); iter != pop->end(); iter++)
+		sol->push_back(*iter);
+
+	return sol;
+}
+
+Problema* Controle::getSol(int n)
+{
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter = pop->begin();
+
+	for(int i = 0; i <= n && iter != pop->end(); iter++);
+
+	return *(--iter);
+}
+
 Problema* Controle::start()
 {
 	srand(unsigned(time(NULL)));

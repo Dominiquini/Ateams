@@ -29,6 +29,8 @@ public:
 	~Controle();
 
 	void addHeuristic(Heuristica* alg);
+	list<Problema*>* getPop();
+	Problema* getSol(int n);
 
 	/* Comeca a execucao do Ateams utilizando os algoritmos disponiveis */
 	Problema* start();
