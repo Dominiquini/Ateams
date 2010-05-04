@@ -99,40 +99,14 @@ Problema* Controle::start()
 
 	int tempo = 0, ins;
 
-	vector<Problema*>* prob;
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
-	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
+	vector<Problema*> *prob = NULL;
+
 	for(int i = 0; i < numAteams && tempo < maxTempo; i++)
 	{
-		ins = 0;
 		prob = exec(rand());
-		for(register int j = 0; j < (int)prob->size(); j++)
-		{
-			ret = pop->insert(prob->at(j));
-			if(ret.second == true)
-			{
-				Problema::totalMakespan += prob->at(j)->getFitness();
 
-				iter = pop->end();
-				iter--;
+		ins = addSol(prob);
 
-				if((int)pop->size() > tamPop)
-				{
-					if(ret.first == iter)
-						ins--;
-
-					Problema::totalMakespan -= (*iter)->getFitness();
-					pop->erase(iter);
-					delete *iter;
-				}
-
-				ins++;
-			}
-			else
-			{
-				delete prob->at(j);
-			}
-		}
 		prob->clear();
 		delete prob;
 
@@ -156,14 +130,50 @@ Problema* Controle::start()
 	return *(pop->begin());
 }
 
-vector<Problema*>* Controle::exec(int randomic)
+inline vector<Problema*>* Controle::exec(int randomic)
 {
 	Heuristica* alg = selectRouletteWheel(algs, Heuristica::numHeuristic, randomic);
 	atual = alg->name;
 	return alg->start(pop, randomic);
 }
 
-void Controle::geraPop()
+inline int Controle::addSol(vector<Problema*> *prob)
+{
+	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	int ins = 0;
+
+	for(register int j = 0; j < (int)prob->size(); j++)
+	{
+		ret = pop->insert(prob->at(j));
+		if(ret.second == true)
+		{
+			Problema::totalMakespan += prob->at(j)->getFitness();
+
+			iter = pop->end();
+			iter--;
+
+			if((int)pop->size() > tamPop)
+			{
+				if(ret.first == iter)
+					ins--;
+
+				Problema::totalMakespan -= (*iter)->getFitness();
+				pop->erase(iter);
+				delete *iter;
+			}
+
+			ins++;
+		}
+		else
+		{
+			delete prob->at(j);
+		}
+	}
+	return ins;
+}
+
+inline void Controle::geraPop()
 {
 	srand(unsigned(time(NULL)));
 

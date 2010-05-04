@@ -35,8 +35,12 @@ public:
 	/* Comeca a execucao do Ateams utilizando os algoritmos disponiveis */
 	Problema* start();
 
+private:
 	/* Seleciona um dos algoritmos implementados para executar */
 	vector<Problema*>* exec(int randWheel);
+
+	/* Adiciona um novo conjunto de solucao a populacao corrente */
+	int addSol(vector<Problema*> *prob);
 
 	/* Gera uma populacao inicial aleatoria com 'tamPop' elementos */
 	void geraPop();

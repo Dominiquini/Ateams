@@ -35,6 +35,7 @@ Tabu::Tabu(ParametrosBT* pBT)
 vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
 {
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator select = sol->begin();
+	Problema* solBT;
 
 	if(polEscolha == 0)
 		return exec(*select);
@@ -53,7 +54,9 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 
 	(*select)->exec.tabu = true;
 
-	return exec(*select);
+	solBT = Problema::alloc(**select);
+
+	return exec(solBT);
 }
 
 /* Executa uma busca por solucoes a partir de 'init' por 'iterTabu' vezes */
@@ -66,7 +69,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 	list<tTabu> *listaTabu = new list<tTabu>;
 
 	// Maximos globais e locais na execucao da Busca Tabu
-	Problema *maxGlobal = Problema::alloc(*init), *maxLocal = Problema::alloc(*init);
+	Problema *maxGlobal = Problema::alloc(*init), *maxLocal = init;
 
 	// Loop principal
 	for(int i = 0, j = 0; i < iterTabu && j < tentSemMelhora; i++, j++)
