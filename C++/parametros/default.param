@@ -1,19 +1,19 @@
 ## '-1' para algum atributo indica omissao e sera usado o valor padrao
 
 #ATEAMS
-[iterAteams] = 50          // Numero de iteracoes do Ateams
-[maxTempoAteams] = -1      // Tempo maximo de execucao
-[tamPopulacaoAteams] = 500 // Tamanho da populacao
-[makespanBest] = -1        // Melhor makespan conhecido
+[iterAteams] = 50		// Numero de iteracoes do Ateams
+[maxTempoAteams] = -1		// Tempo maximo de execucao
+[tamPopulacaoAteams] = 500	// Tamanho da populacao
+[makespanBest] = -1		// Melhor makespan conhecido
 
 
 #BT
 [probBT] = 75		// Probabilidade de se executar BT em cada iteração do ATEAMS
 [polEscolhaBT] = -1	// Política de escolha
 [funcAspiracaoBT] = 1	// Função de Aspiração
-[iterBT] = 500          // Iterações do BT
+[iterBT] = 500		// Iterações do BT
 [tentSemMelhoraBT] = 50 // Política de leitura do BT
-[tamListaBT] = 25       // Tamanho de lista do BT
+[tamListaBT] = 25	// Tamanho de lista do BT
 
 #AG
 [probAG] = 25		// Probabilidade de se executar AG em cada iteração do ATEAMS

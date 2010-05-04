@@ -13,16 +13,6 @@ short int **JobShop::maq = NULL, **JobShop::time = NULL;
 int JobShop::njob = 0, JobShop::nmaq = 0;
 
 
-Problema::Problema()
-{
-	numInst++;
-}
-
-Problema::~Problema()
-{
-	numInst--;
-}
-
 Problema* Problema::alloc()
 {
 	return new JobShop();

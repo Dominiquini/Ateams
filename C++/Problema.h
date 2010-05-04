@@ -43,9 +43,9 @@ public:
 
 	static void desalocaMemoria();
 
-	static Problema* alloc();												// Nova solucao aleatoria
-	static Problema* alloc(short int **prob);										// Copia de prob
-	static Problema* alloc(const Problema &prob);									// Copia de prob
+	static Problema* alloc();													// Nova solucao aleatoria
+	static Problema* alloc(short int **prob);									// Copia de prob
+	static Problema* alloc(const Problema &prob);								// Copia de prob
 	static Problema* alloc(const Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
 	static tTabu* newTabu(int maq, int p1, int p2);
@@ -53,9 +53,9 @@ public:
 	static double sumFitness(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
 	static double sumFitness(vector<Problema*> *pop, int n);
 
-	Problema();		// numInst++
+	Problema() {numInst++;}				// numInst++
 
-	~Problema();	// numInst--
+	virtual ~Problema() {numInst--;}	// numInst--
 
 	virtual int calcMakespan() = 0;			// Calcula o makespan
 	virtual void imprimir(bool esc) = 0;	// Imprime o escalonamento

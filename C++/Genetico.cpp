@@ -78,7 +78,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	vector<pair<Problema*, Problema*>* >::iterator iter1;
 	vector<Problema*>::iterator iter2;
 
-	int numCrossOver = (int)((float)tamPopGenetico * probCrossOver);
+	int numCrossOver;
 	int sumP, sumB;
 
 	bad_pop->push_back(Problema::alloc(*pop->front()));
@@ -89,31 +89,42 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		if(PARAR == 1)
 			break;
 
+		numCrossOver = (int)((float)pop->size() * probCrossOver);
+
 		/* Escolhe os casais de 'pop' que se cruzarao */
 		sumP = (int)Problema::sumFitness(pop, pop->size());
 		sumB = (int)Problema::sumFitness(bad_pop, bad_pop->size());
 
-		for(int j = 0; j < numCrossOver; j++)
+		for(int j = 0; j < numCrossOver/2; j++)
 		{
 			temp = new pair<Problema*, Problema*>();
 
-			/* Garante a inclusao da melhor solucao atual */
-			if(j == 0)
+			if(rand() < RAND_MAX*probMutacao && (int)bad_pop->size() > 0)
 			{
-				temp->first = pop->front();
-				temp->second = Controle::selectRouletteWheel(pop, sumP, rand());
+				iter2 = Controle::selectRouletteWheel(bad_pop, sumB, rand());
+				temp->first = *iter2;
 			}
 			else
 			{
-				if(rand() < RAND_MAX*probMutacao)
-					temp->first = Controle::selectRouletteWheel(bad_pop, sumB, rand());
-				else
-					temp->first = Controle::selectRouletteWheel(pop, sumP, rand());
+				iter2 = Controle::selectRouletteWheel(pop, sumP, rand());
+				sumP -= (*iter2)->getFitness();
+				aux_pop->push_back(*iter2);
+				temp->first = *iter2;
+				pop->erase(iter2);
+			}
 
-				if(rand() < RAND_MAX*probMutacao)
-					temp->second = Controle::selectRouletteWheel(bad_pop, sumB, rand());
-				else
-					temp->second = Controle::selectRouletteWheel(pop, sumP, rand());
+			if(rand() < RAND_MAX*probMutacao && (int)bad_pop->size() > 0)
+			{
+				iter2 = Controle::selectRouletteWheel(bad_pop, sumB, rand());
+				temp->second = *iter2;
+			}
+			else
+			{
+				iter2 = Controle::selectRouletteWheel(pop, sumP, rand());
+				sumP -= (*iter2)->getFitness();
+				aux_pop->push_back(*iter2);
+				temp->second = *iter2;
+				pop->erase(iter2);
 			}
 
 			pais->push_back(temp);
@@ -124,24 +135,35 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		{
 			temp = (*iter1)->first->crossOver((*iter1)->second, tamParticionamento);
 
+			if(rand() < (RAND_MAX*probMutacao/2))
+				temp->first->mutacao();
+
+			if(rand() < (RAND_MAX*probMutacao/2))
+				temp->second->mutacao();
+
 			filhos->push_back(temp);
 
 			delete *iter1;
 		}
 
-		/* Remove populacao dos pais */
+		/* Restaura a populacao dos pais */
 		for(iter2 = pop->begin(); iter2 != pop->end(); iter2++)
-			if((int)aux_pop->size() < tamPopGenetico - numCrossOver)
-				aux_pop->push_back(*iter2);
-			else
-				delete *iter2;
+			aux_pop->push_back(*iter2);
+
 		pop->clear();
 
 		/* Adiciona a populacao dos filhos */
 		for(iter1 = filhos->begin(); iter1 != filhos->end(); iter1++)
 		{
-			aux_pop->push_back((*iter1)->first);
-			aux_pop->push_back((*iter1)->second);
+			if((*iter1)->first->getMakespan() != -1)
+				pop->push_back((*iter1)->first);
+			else
+				bad_pop->push_back((*iter1)->first);	// Armazenado para possivel reaproveitamento
+
+			if((*iter1)->second->getMakespan() != -1)
+				pop->push_back((*iter1)->second);
+			else
+				bad_pop->push_back((*iter1)->second);	// Armazenado para possivel reaproveitamento
 
 			delete *iter1;
 		}
@@ -149,21 +171,19 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		pais->clear();
 		filhos->clear();
 
-		/* Ordena a nova populacao */
+		/* Ordena a antiga populacao dos pais */
 		sort(aux_pop->begin(), aux_pop->end(), fncomp2);
 
 		/* Selecao dos melhores */
 		for(iter2 = aux_pop->begin(); iter2 != aux_pop->end(); iter2++)
 		{
-			/* Introduz uma mutacao com chance 'probMutacao' */
-			if(rand() < RAND_MAX*probMutacao)
-				(*iter2)->mutacao();
-
-			if((*iter2)->getMakespan() != -1 && (int)pop->size() < tamPopGenetico)
-				pop->push_back(*iter2);		// Colocado no conjunto de boas solucoes
+			if((int)pop->size() < tamPopGenetico)
+				pop->push_back(*iter2);
 			else
 				bad_pop->push_back(*iter2);	// Armazenado para possivel reaproveitamento
 		}
+
+		sort(pop->begin(), pop->end(), fncomp2);
 
 		aux_pop->clear();
 	}
@@ -183,14 +203,13 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 	delete pais;
 	delete filhos;
-	delete aux_pop;
 	delete bad_pop;
 
 	return pop;
 }
 
 inline vector<Problema*>* unique(vector<Problema*>* pop, int n)
-{
+		{
 	vector<Problema*>* aux = new vector<Problema*>();
 
 	for(int i = 1; i < (int)pop->size(); i++)
@@ -206,4 +225,4 @@ inline vector<Problema*>* unique(vector<Problema*>* pop, int n)
 	delete pop;
 
 	return aux;
-}
+		}

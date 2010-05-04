@@ -21,6 +21,8 @@ public:
 	JobShop(const Problema &prob);								// Copia de prob
 	JobShop(const Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
+	~JobShop();
+
 	int calcMakespan();			// Calcula o makespan
 	void imprimir(bool esc);	// Imprime o escaloonamento atual
 
