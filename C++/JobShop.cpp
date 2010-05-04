@@ -39,12 +39,12 @@ Problema* Problema::alloc(short int** prob)
 	return new JobShop(prob);
 }
 
-Problema* Problema::alloc(Problema& prob)
+Problema* Problema::alloc(const Problema& prob)
 {
 	return new JobShop(prob);
 }
 
-Problema* Problema::alloc(Problema& prob, int maq, int pos1, int pos2)
+Problema* Problema::alloc(const Problema& prob, int maq, int pos1, int pos2)
 {
 	return new JobShop(prob, maq, pos1, pos2);
 }
@@ -302,7 +302,7 @@ JobShop::JobShop(short int **prob) : Problema::Problema()
 	exec.genetico = false;
 }
 
-JobShop::JobShop(Problema &prob) : Problema::Problema()
+JobShop::JobShop(const Problema &prob) : Problema::Problema()
 {
 	sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	for(int i = 0; i < nmaq; i++)
@@ -327,7 +327,7 @@ JobShop::JobShop(Problema &prob) : Problema::Problema()
 	exec = prob.exec;
 }
 
-JobShop::JobShop(Problema &prob, int maq, int pos1, int pos2) : Problema::Problema()
+JobShop::JobShop(const Problema &prob, int maq, int pos1, int pos2) : Problema::Problema()
 {
 	sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	for(int i = 0; i < nmaq; i++)

@@ -9,8 +9,8 @@ public:
 
 	static int numHeuristic;
 
-	int prob, polEscolha;
 	string name;
+	int prob;
 
 	virtual vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic) = 0;
 };

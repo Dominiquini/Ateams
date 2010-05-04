@@ -47,6 +47,11 @@ Controle::~Controle()
 	pop->clear();
 	delete pop;
 
+	vector<Heuristica*>::iterator it;
+
+	for(it = algs->begin(); it != algs->end(); it++)
+		Heuristica::numHeuristic -= (*it)->prob;
+
 	algs->clear();
 	delete algs;
 }
@@ -78,7 +83,7 @@ Problema* Controle::start()
 	for(int i = 0; i < numAteams && tempo < maxTempo; i++)
 	{
 		prob = exec(rand());
-		for(int j = 0; j < (int)prob->size(); j++)
+		for(register int j = 0; j < (int)prob->size(); j++)
 		{
 			ret = pop->insert(prob->at(j));
 			if(ret.second == true)

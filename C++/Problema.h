@@ -45,8 +45,8 @@ public:
 
 	static Problema* alloc();												// Nova solucao aleatoria
 	static Problema* alloc(short int **prob);										// Copia de prob
-	static Problema* alloc(Problema &prob);									// Copia de prob
-	static Problema* alloc(Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
+	static Problema* alloc(const Problema &prob);									// Copia de prob
+	static Problema* alloc(const Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
 	static tTabu* newTabu(int maq, int p1, int p2);
 	static bool movTabuCMP(tTabu& t1, tTabu& t2);
