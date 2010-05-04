@@ -21,12 +21,6 @@ Problema::Problema()
 Problema::~Problema()
 {
 	numInst--;
-
-	if(sol.esc != NULL)
-		desalocaMatriz(2, sol.esc, JobShop::nmaq, 0);
-
-	if(sol.escalon != NULL)
-		desalocaMatriz(3, sol.escalon, JobShop::nmaq, JobShop::njob);
 }
 
 Problema* Problema::alloc()
@@ -349,6 +343,15 @@ JobShop::JobShop(const Problema &prob, int maq, int pos1, int pos2) : Problema::
 
 	exec.tabu = false;
 	exec.genetico = false;
+}
+
+JobShop::~JobShop()
+{
+	if(sol.esc != NULL)
+		desalocaMatriz(2, sol.esc, JobShop::nmaq, 0);
+
+	if(sol.escalon != NULL)
+		desalocaMatriz(3, sol.escalon, JobShop::nmaq, JobShop::njob);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
