@@ -88,7 +88,6 @@ Problema* Controle::start()
 	srand(unsigned(time(NULL)));
 
 	geraPop();
-	Problema::best = (*pop->rbegin())->getMakespan();
 
 	cout << "CTR : 0 : " << (*pop->begin())->getMakespan() << endl << endl << flush;
 
@@ -102,6 +101,9 @@ Problema* Controle::start()
 	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
 	for(int i = 0; i < numAteams && tempo < maxTempo; i++)
 	{
+		Problema::best = (*pop->begin())->getMakespan();
+		Problema::worst = (*pop->rbegin())->getMakespan();
+
 		k = 0;
 		prob = exec(rand());
 		for(register int j = 0; j < (int)prob->size(); j++)

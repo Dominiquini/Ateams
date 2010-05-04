@@ -12,7 +12,7 @@
 [polEscolhaBT] = -1	// Política de escolha
 [funcAspiracaoBT] = 1	// Função de Aspiração
 [iterBT] = 500		// Iterações do BT
-[tentSemMelhoraBT] = 50 // Política de leitura do BT
+[tentSemMelhoraBT] = 75	// Política de leitura do BT
 [tamListaBT] = 25	// Tamanho de lista do BT
 
 #AG

@@ -28,7 +28,8 @@ protected:
 	soluction sol;	// Makespan e escalonamentos que definem a solucao
 
 public:
-	static int best;				// Melhor solucao ate o momento
+	static int best;				// Melhor solucao do momento
+	static int worst;				// Pior solucao do momento
 	static int numInst;				// Quantidade de instancias criadas
 	static double totalMakespan;	// Soma do inverso do makespan de todos os individuos na populacao
 
