@@ -118,7 +118,8 @@ Problema* Controle::start()
 				pop->erase(iter);
 				delete *iter;
 
-				k++;
+				if(ret.first != iter)
+					k++;
 			}
 			else
 			{
