@@ -189,15 +189,9 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	}
 
 	for(iter2 = bad_pop->begin(); iter2 != bad_pop->end(); iter2++)
-	{
-		if((*iter2)->getMakespan() != -1)
-			pop->push_back(*iter2);
-		else
-			delete *iter2;
-	}
-	bad_pop->clear();
+		delete *iter2;
 
-	sort(pop->begin(), pop->end(), fncomp2);
+	bad_pop->clear();
 
 	pop = unique(pop, tamPopGenetico);
 
@@ -209,7 +203,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 }
 
 inline vector<Problema*>* unique(vector<Problema*>* pop, int n)
-		{
+{
 	vector<Problema*>* aux = new vector<Problema*>();
 
 	for(int i = 1; i < (int)pop->size(); i++)
@@ -219,10 +213,10 @@ inline vector<Problema*>* unique(vector<Problema*>* pop, int n)
 		else
 			aux->push_back(pop->at(i-1));
 	}
-	delete pop->at(pop->size()-1);
+	aux->push_back(pop->at(pop->size()-1));
 
 	pop->clear();
 	delete pop;
 
 	return aux;
-		}
+}

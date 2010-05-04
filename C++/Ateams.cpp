@@ -119,8 +119,8 @@ int main(int argc, char *argv[])
 
 	Problema* best = ctr->start();
 
-	cout << endl << endl << "Pior Solução: " << ctr->getSol(pATEAMS->tamanhoPopulacao)->getMakespan() << endl << endl;
-	cout << endl << "Melhor Solução: " << best->getMakespan() << endl << endl;
+	cout << endl << endl << "Pior Solução: " << Problema::worst << endl << endl;
+	cout << endl << "Melhor Solução: " << Problema::best << endl << endl;
 
 	gettimeofday(&tv2, NULL);
 	Problema::imprimeResultado(tv1, tv2, fresultados, best->getMakespan());

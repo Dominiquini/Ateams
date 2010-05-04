@@ -89,22 +89,22 @@ Problema* Controle::start()
 
 	geraPop();
 
+	Problema::best = (*pop->begin())->getMakespan();
+	Problema::worst = (*pop->rbegin())->getMakespan();
+
 	cout << "CTR : 0 : " << (*pop->begin())->getMakespan() << endl << endl << flush;
 
 	struct timeval time1, time2;
 	gettimeofday(&time1, NULL);
 
-	int tempo = 0, k;
+	int tempo = 0, ins;
 
 	vector<Problema*>* prob;
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
 	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
 	for(int i = 0; i < numAteams && tempo < maxTempo; i++)
 	{
-		Problema::best = (*pop->begin())->getMakespan();
-		Problema::worst = (*pop->rbegin())->getMakespan();
-
-		k = 0;
+		ins = 0;
 		prob = exec(rand());
 		for(register int j = 0; j < (int)prob->size(); j++)
 		{
@@ -116,12 +116,17 @@ Problema* Controle::start()
 				iter = pop->end();
 				iter--;
 
-				Problema::totalMakespan -= (*iter)->getFitness();
-				pop->erase(iter);
-				delete *iter;
+				if((int)pop->size() > tamPop)
+				{
+					if(ret.first == iter)
+						ins--;
 
-				if(ret.first != iter)
-					k++;
+					Problema::totalMakespan -= (*iter)->getFitness();
+					pop->erase(iter);
+					delete *iter;
+				}
+
+				ins++;
 			}
 			else
 			{
@@ -131,17 +136,23 @@ Problema* Controle::start()
 		prob->clear();
 		delete prob;
 
-		cout << atual << " : " << i+1 << " : " << (*pop->begin())->getMakespan() << " -> " << k << endl << flush;
+		Problema::best = (*pop->begin())->getMakespan();
+		Problema::worst = (*pop->rbegin())->getMakespan();
+
+		cout << atual << " : " << i+1 << " : " << Problema::best << " -> " << ins << endl << flush;
 
 		if((*pop->begin())->getMakespan() <= makespanBest)
 			break;
 
-		if(PARAR == 1)
-			break;
-
 		gettimeofday(&time2, NULL);
 		tempo = time2.tv_sec - time1.tv_sec;
+
+		if(PARAR == 1)
+			break;
 	}
+	Problema::best = (*pop->begin())->getMakespan();
+	Problema::worst = (*pop->rbegin())->getMakespan();
+
 	return *(pop->begin());
 }
 
