@@ -38,7 +38,6 @@ public:
 	double getFitness();
 	int getMakespan();
 
-private:
 	int** getEscalonameto();
 };
 

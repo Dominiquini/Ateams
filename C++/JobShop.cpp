@@ -730,7 +730,7 @@ inline bool ppcomp(pair<Problema*, Problema*>* p1, pair<Problema*, Problema*>* p
 	return (p1->first->getMakespan() + p1->second->getMakespan()) < (p2->first->getMakespan() + p2->second->getMakespan());
 }
 
-bool fnequal(Problema* p1, Problema* p2)
+inline bool fnequal(Problema* p1, Problema* p2)
 {
 	if(p1->sol.makespan == p2->sol.makespan)
 	{
