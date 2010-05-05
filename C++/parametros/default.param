@@ -8,18 +8,18 @@
 
 
 #BT
-[probBT] = 60		// Probabilidade de se executar BT em cada iteração do ATEAMS
-[polEscolhaBT] = -1	// Política de escolha
-[funcAspiracaoBT] = 1	// Função de Aspiração
-[iterBT] = 500		// Iterações do BT
-[tentSemMelhoraBT] = 75	// Política de leitura do BT
-[tamListaBT] = 10	// Tamanho de lista do BT
+[probBT] = 60			// Probabilidade de se executar BT em cada iteração do ATEAMS
+[polEscolhaBT] = -1		// Política de escolha
+[funcAspiracaoBT] = 1		// Função de Aspiração
+[iterBT] = 500			// Iterações do BT
+[tentSemMelhoraBT] = 100	// Política de leitura do BT
+[tamListaBT] = 25		// Tamanho de lista do BT
 
 #AG
-[probAG] = 40		// Probabilidade de se executar AG em cada iteração do ATEAMS
-[polEscolhaAG] = -1	// Política de escolha
-[iterAG] = 250		// Iterações do AG
-[tamPopAG] = 250	// Tamanho da população intermediária do AG
-[tamParticaoAG] = -1	// Tamanho de uma divisão durante o Crossover
-[probCrossOverAG] = 0.8	// Probabilidade de cruzamento
-[probMutacaoAG] = 0.2	// Probabilidade de haver mutação
+[probAG] = 40			// Probabilidade de se executar AG em cada iteração do ATEAMS
+[polEscolhaAG] = -1		// Política de escolha
+[iterAG] = 250			// Iterações do AG
+[tamPopAG] = 250		// Tamanho da população intermediária do AG
+[tamParticaoAG] = -1		// Tamanho de uma divisão durante o Crossover
+[probCrossOverAG] = 0.9		// Probabilidade de cruzamento
+[probMutacaoAG] = 0.1		// Probabilidade de haver mutação

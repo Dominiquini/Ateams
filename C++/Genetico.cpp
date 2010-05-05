@@ -13,7 +13,7 @@ Genetico::Genetico()
 	iterGenetico = 250;
 	tamPopGenetico = 250;
 	probCrossOver = 0.8;
-	probMutacao = 0.02;
+	probMutacao = 0.2;
 	tamParticionamento = -1;
 
 	Heuristica::numHeuristic += prob;
