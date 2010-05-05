@@ -3,7 +3,7 @@
 
 exec="./Ateams"
 
-if [ $i -le $2 ];
+if [ $1 -le $2 ];
 then
     for((j = 0; j < $3; j++));
     do
