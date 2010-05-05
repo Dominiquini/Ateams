@@ -84,7 +84,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 		for(iter = local->begin(); iter != local->end(); iter++)
 		{
 			// Se nao for tabu...
-			if(!isTabu(listaTabu, *(*iter)->second))
+			if(!isTabu(listaTabu, (*iter)->second))
 			{
 				if((*iter)->first->getMakespan() < maxLocal->getMakespan())
 					j = 0;
@@ -96,9 +96,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 					delete maxGlobal;
 					maxGlobal = Problema::alloc(*maxLocal);
 				}
-				listaTabu->push_front(*(*iter)->second);
-				if((int)listaTabu->size() > tamListaTabu)
-					listaTabu->pop_back();
+				addTabu(listaTabu, (*iter)->second, tamListaTabu);
 
 				break;
 			}
@@ -141,13 +139,20 @@ vector<Problema*>* Tabu::exec(Problema* init)
 }
 
 /* Verdadeiro se movimento avaliado for Tabu */
-inline bool isTabu(list<tTabu> *listaTabu, tTabu m)
+inline bool isTabu(list<tTabu> *listaTabu, tTabu *m)
 {
 	list<tTabu>::iterator iter;
 
 	for(iter = listaTabu->begin(); iter != listaTabu->end(); iter++)
-		if(Problema::movTabuCMP(*iter, m))
+		if(Problema::movTabuCMP(*iter, *m))
 			return true;
 
 	return false;
+}
+
+inline void addTabu(list<tTabu>* listaTabu, tTabu *m, int max)
+{
+	listaTabu->push_front(*m);
+	if((int)listaTabu->size() > max)
+		listaTabu->pop_back();
 }

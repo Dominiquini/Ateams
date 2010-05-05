@@ -36,7 +36,7 @@ Genetico::Genetico(ParametrosAG* pAG)
 vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
 {
 	vector<Problema*>* popAG = new vector<Problema*>();
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter = sol->end();
 	int i = 0;
 
 	if(polEscolha == 0)
@@ -52,7 +52,9 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 		double visao = polEscolha < 0 ? Problema::totalMakespan : polEscolha;
 		for(i = 1; i < tamPopGenetico; i++)
 		{
-			iter = Controle::selectRouletteWheel(sol, (int)visao, rand());
+			/* Evita a escolha de individuos repetidos */
+			while(iter == sol->end() || find(popAG, *iter))
+				iter = Controle::selectRouletteWheel(sol, (int)visao, rand());
 
 			(*iter)->exec.genetico = true;
 			popAG->push_back(Problema::alloc(**iter));
@@ -219,4 +221,15 @@ inline vector<Problema*>* isUnique(vector<Problema*>* pop, int n)
 	delete pop;
 
 	return aux;
+}
+
+inline bool find(vector<Problema*> *vect, Problema *p)
+{
+	vector<Problema*>::iterator iter;
+
+	for(iter = vect->begin(); iter != vect->end(); iter++)
+		if(fnequal((*iter), p) == true)
+			return true;
+
+	return false;
 }

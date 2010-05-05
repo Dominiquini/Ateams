@@ -23,8 +23,8 @@ private:
 	vector<Problema*>* exec(Problema*);
 };
 
-bool isTabu(list<tTabu> *listaTabu, tTabu m);
+bool isTabu(list<tTabu> *listaTabu, tTabu *m);
 
-bool mvcomp(Tabu, Tabu);
+void addTabu(list<tTabu>* listaTabu, tTabu *m, int max);
 
 #endif
