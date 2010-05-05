@@ -23,6 +23,6 @@ private:
 	vector<Problema*>* exec(vector<Problema*>* pop);
 };
 
-vector<Problema*>* unique(vector<Problema*>* pop, int n);
+vector<Problema*>* isUnique(vector<Problema*>* pop, int n);
 
 #endif

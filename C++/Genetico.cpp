@@ -193,7 +193,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 	bad_pop->clear();
 
-	pop = unique(pop, tamPopGenetico);
+	pop = isUnique(pop, tamPopGenetico);
 
 	delete pais;
 	delete filhos;
@@ -202,7 +202,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	return pop;
 }
 
-inline vector<Problema*>* unique(vector<Problema*>* pop, int n)
+inline vector<Problema*>* isUnique(vector<Problema*>* pop, int n)
 {
 	vector<Problema*>* aux = new vector<Problema*>();
 
