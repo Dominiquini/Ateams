@@ -65,6 +65,9 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[iterAteams]");
 	pATEAMS->iteracoesAteams = par != -1 ? (int)par : 50;
 
+	par = locNumberPar(parametros, size, (char*)"[numThreads]");
+	pATEAMS->numThreads = par != -1 ? (int)par : 1;
+
 	par = locNumberPar(parametros, size, (char*)"[maxTempoAteams]");
 	pATEAMS->maxTempo = par != -1 ? (int)par : INT_MAX;
 
@@ -129,6 +132,9 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, Pa
 
 	if((p = locComPar(argv, argc, (char*)"--iterAteams")) != -1)
 		pATEAMS->iteracoesAteams = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--numThreads")) != -1)
+		pATEAMS->numThreads = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--maxTempoAteams")) != -1)
 		pATEAMS->maxTempo = atoi(argv[p]);

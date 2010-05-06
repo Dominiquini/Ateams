@@ -33,6 +33,7 @@ typedef struct movTabu
 typedef struct ParametrosATEAMS {
 	int tamanhoPopulacao;
 	int iteracoesAteams;
+	int numThreads;
 	int maxTempo;
 	int makespanBest;
 } ParametrosATEAMS;

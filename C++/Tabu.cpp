@@ -5,6 +5,8 @@ using namespace std;
 
 extern bool PARAR;
 
+extern pthread_mutex_t mutex;
+
 Tabu::Tabu()
 {
 	name = "DEFAULT_BT";
@@ -39,16 +41,23 @@ Tabu::~Tabu()
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
 vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
 {
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator select = sol->begin();
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator select;
 	Problema* solBT;
 
 	if(polEscolha == 0)
+	{
+		pthread_mutex_lock(&mutex);
+		select = sol->begin();
+		pthread_mutex_unlock(&mutex);
+
 		return exec(*select);
+	}
 
 	// Escolhe alguem dentre os 'pollEscolha' primeiras solucoes
 	double visao = polEscolha < 0 ? Problema::totalMakespan : Problema::sumFitness(sol, polEscolha);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
+	pthread_mutex_lock(&mutex);
 	select = Controle::selectRouletteWheel(sol, (int)visao, randomic);
 	if(polEscolha == -1)
 		while((*select)->exec.tabu == true)
@@ -60,6 +69,7 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	(*select)->exec.tabu = true;
 
 	solBT = Problema::alloc(**select);
+	pthread_mutex_unlock(&mutex);
 
 	return exec(solBT);
 }

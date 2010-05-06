@@ -5,6 +5,8 @@ using namespace std;
 
 extern bool PARAR;
 
+extern pthread_mutex_t mutex;
+
 Genetico::Genetico()
 {
 	name = "DEFAULT_AG";
@@ -58,15 +60,19 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 
 	if(polEscolha == 0)
 	{
+		pthread_mutex_lock(&mutex);
 		for(iter = sol->begin(), i = 0; iter != sol->end() && i < tamPopGenetico; iter++, i++)
 		{
 			(*iter)->exec.genetico = true;
 			popAG->push_back(Problema::alloc(**iter));
 		}
+		pthread_mutex_unlock(&mutex);
 	}
 	else
 	{
 		double visao = polEscolha < 0 ? Problema::totalMakespan : polEscolha;
+
+		pthread_mutex_lock(&mutex);
 		for(i = 1; i < tamPopGenetico; i++)
 		{
 			/* Evita a escolha de individuos repetidos */
@@ -77,6 +83,7 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 			popAG->push_back(Problema::alloc(**iter));
 		}
 		popAG->push_back(Problema::alloc(**sol->begin()));
+		pthread_mutex_unlock(&mutex);
 
 		sort(popAG->begin(), popAG->end(), fncomp2);
 	}

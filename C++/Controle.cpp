@@ -7,10 +7,13 @@ using namespace std;
 
 extern bool PARAR;
 
+pthread_mutex_t mutex;
+
 Controle::Controle()
 {
 	tamPop = 500;
 	numAteams = 50;
+	numThreads = 1;
 	maxTempo = INT_MAX;
 	makespanBest = -1;
 
@@ -20,12 +23,15 @@ Controle::Controle()
 	pop = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
 
 	algs = new vector<Heuristica*>;
+
+	pthread_mutex_init(&mutex, NULL);
 }
 
 Controle::Controle(ParametrosATEAMS* pATEAMS)
 {
 	tamPop = pATEAMS->tamanhoPopulacao;
 	numAteams = pATEAMS->iteracoesAteams;
+	numThreads = pATEAMS->numThreads;
 	maxTempo = pATEAMS->maxTempo;
 	makespanBest = pATEAMS->makespanBest;
 
@@ -35,6 +41,8 @@ Controle::Controle(ParametrosATEAMS* pATEAMS)
 	pop = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
 
 	algs = new vector<Heuristica*>;
+
+	pthread_mutex_init(&mutex, NULL);
 }
 
 Controle::~Controle()
@@ -54,6 +62,9 @@ Controle::~Controle()
 
 	algs->clear();
 	delete algs;
+
+	pthread_mutex_destroy(&mutex);
+
 }
 
 void Controle::addHeuristic(Heuristica* alg)
@@ -85,6 +96,10 @@ Problema* Controle::getSol(int n)
 
 Problema* Controle::start()
 {
+	pthread_t t;
+	deque<pthread_t> threads_create(numThreads, t);
+	deque<pthread_t> threads_join(numThreads, t);
+
 	srand(unsigned(time(NULL)));
 
 	geraPop();
@@ -97,32 +112,48 @@ Problema* Controle::start()
 	struct timeval time1, time2;
 	gettimeofday(&time1, NULL);
 
-	int tempo = 0, ins;
+	int tempo = 0, ins = 0, execThreads = 0;
 
+	void *temp = NULL;
 	vector<Problema*> *prob = NULL;
 
 	for(int i = 0; i < numAteams && tempo < maxTempo; i++)
 	{
-		prob = exec(rand());
+		if(execThreads < numThreads)
+		{
+			pthread_create(&threads_create.front(), NULL, run, (void*)this);
+			threads_join.push_front(threads_create.front());
+			threads_create.pop_front();
+			execThreads++;
+		}
+		else
+		{
+			pthread_join(threads_join.front(), &temp);
+			threads_join.pop_front();
 
-		ins = addSol(prob);
+			prob = (vector<Problema*>*)temp;
 
-		prob->clear();
-		delete prob;
+			pthread_mutex_lock(&mutex);
+			ins = addSol(prob);
+			pthread_mutex_unlock(&mutex);
 
-		Problema::best = (*pop->begin())->getMakespan();
-		Problema::worst = (*pop->rbegin())->getMakespan();
+			prob->clear();
+			delete prob;
 
-		cout << atual << " : " << i+1 << " : " << Problema::best << " -> " << ins << endl << flush;
+			Problema::best = (*pop->begin())->getMakespan();
+			Problema::worst = (*pop->rbegin())->getMakespan();
 
-		if((*pop->begin())->getMakespan() <= makespanBest)
-			break;
+			cout << atual << " : " << i+1 << " : " << Problema::best << " -> " << ins << endl << flush;
 
-		gettimeofday(&time2, NULL);
-		tempo = time2.tv_sec - time1.tv_sec;
+			if((*pop->begin())->getMakespan() <= makespanBest)
+				break;
 
-		if(PARAR == 1)
-			break;
+			gettimeofday(&time2, NULL);
+			tempo = time2.tv_sec - time1.tv_sec;
+
+			if(PARAR == 1)
+				break;
+		}
 	}
 	Problema::best = (*pop->begin())->getMakespan();
 	Problema::worst = (*pop->rbegin())->getMakespan();
@@ -194,6 +225,14 @@ inline void Controle::geraPop()
 		else
 			delete prob;
 	}
+}
+
+void* Controle::run(void *obj)
+{
+	Controle *ctr = (Controle*)obj;
+	void *ret = (void*)ctr->exec(rand());
+
+	return ret;
 }
 
 set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal, int randWheel)

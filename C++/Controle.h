@@ -11,6 +11,8 @@ using namespace std;
 class Controle
 {
 public:
+	static void* run(void *obj);
+
 	/* Seleciona um individuo da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
 	static set<Problema*, bool(*)(Problema*, Problema*)>::iterator selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal, int randWheel);
 	static vector<Problema*>::iterator selectRouletteWheel(vector<Problema*>* pop, int fitTotal, int randWheel);
@@ -19,6 +21,7 @@ public:
 	vector<Heuristica*>* algs;			// Algoritmos disponiveis
 
 	string atual;
+	int numThreads;
 	int makespanBest;					// Melhor makespan conhecido
 	int tamPop, numAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao
 	set<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal

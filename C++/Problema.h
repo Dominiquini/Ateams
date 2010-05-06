@@ -1,10 +1,12 @@
 #include <stdio.h>
+#include <pthread.h>
 
 #include <functional>
 #include <algorithm>
 #include <iostream>
 #include <cstdlib>
 #include <vector>
+#include <deque>
 #include <ctime>
 #include <list>
 #include <set>
