@@ -130,6 +130,7 @@ Problema* Controle::start()
 		{
 			pthread_join(threads_join.front(), &temp);
 			threads_join.pop_front();
+			execThreads--;
 
 			prob = (vector<Problema*>*)temp;
 
