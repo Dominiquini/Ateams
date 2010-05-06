@@ -106,6 +106,9 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[tamPopAG]");
 	pAG->tamanhoPopulacao = par != -1 ? (int)par : 250;
 
+	par = locNumberPar(parametros, size, (char*)"[tamPopAG]");
+	pAG->tamanhoAuxPopulacao = (int)par;
+
 	par = locNumberPar(parametros, size, (char*)"[tamParticaoAG]");
 	pAG->tamanhoParticionamento = (int)par;
 
@@ -167,6 +170,9 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, Pa
 
 	if((p = locComPar(argv, argc, (char*)"--tamPopAG")) != -1)
 		pAG->tamanhoPopulacao = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--tamAuxPopAG")) != -1)
+		pAG->tamanhoAuxPopulacao = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--tamParticaoAG")) != -1)
 		pAG->tamanhoParticionamento = atoi(argv[p]);

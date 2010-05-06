@@ -10,7 +10,7 @@ class Genetico : public Heuristica
 {
 public:
 
-	int iterGenetico, tamPopGenetico, tamParticionamento, polEscolha;
+	int iterGenetico, tamPopGenetico, tamBadGenetico, tamParticionamento, polEscolha;
 	float probCrossOver, probMutacao;
 	vector<Problema*> *bad_pop;
 

@@ -12,12 +12,12 @@ Genetico::Genetico()
 	polEscolha = -1;
 	iterGenetico = 250;
 	tamPopGenetico = 250;
+	tamBadGenetico = 2500;
 	probCrossOver = 0.9;
 	probMutacao = 0.1;
 	tamParticionamento = -1;
 
-	vector<Problema*> *bad_pop = new vector<Problema*>();
-	bad_pop->push_back(Problema::alloc());
+	bad_pop = new vector<Problema*>();
 
 	Heuristica::numHeuristic += prob;
 }
@@ -29,12 +29,12 @@ Genetico::Genetico(ParametrosAG* pAG)
 	polEscolha = pAG->polEscolha;
 	iterGenetico = pAG->numeroIteracoes;
 	tamPopGenetico = pAG->tamanhoPopulacao;
+	tamBadGenetico = pAG->tamanhoAuxPopulacao != -1 ? pAG->tamanhoAuxPopulacao : 10*tamPopGenetico;
 	probCrossOver = pAG->probCrossOver;
 	probMutacao = pAG->probMutacao;
 	tamParticionamento = pAG->tamanhoParticionamento;
 
 	bad_pop = new vector<Problema*>();
-	bad_pop->push_back(Problema::alloc());
 
 	Heuristica::numHeuristic += prob;
 }
@@ -98,8 +98,6 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 	int numCrossOver;
 	int sumP, sumB;
-
-	bad_pop->push_back(Problema::alloc(*pop->front()));
 
 	/* Iteracao principal do AG */
 	for(int i = 0; i < iterGenetico; i++)
@@ -210,7 +208,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 	/* Ordena a polulacao ruim */
 	sort(bad_pop->begin(), bad_pop->end(), fncomp2);
-	bad_pop = isUnique(bad_pop, 10*tamPopGenetico);
+	bad_pop = isUnique(bad_pop, tamBadGenetico);
 
 	delete pais;
 	delete filhos;

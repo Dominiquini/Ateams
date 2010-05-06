@@ -34,7 +34,7 @@ typedef struct ParametrosATEAMS {
 	int tamanhoPopulacao;
 	int iteracoesAteams;
 	int maxTempo;
-	int makespanBest;       /* Melhor makespan conhecido */
+	int makespanBest;
 } ParametrosATEAMS;
 
 typedef struct ParametrosAG {
@@ -42,6 +42,7 @@ typedef struct ParametrosAG {
 	int polEscolha;
 	int numeroIteracoes;
 	int tamanhoPopulacao;
+	int tamanhoAuxPopulacao;
 	int tamanhoParticionamento;
 	float probCrossOver;
 	float probMutacao;
