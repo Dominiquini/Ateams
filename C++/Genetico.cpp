@@ -207,15 +207,19 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 inline vector<Problema*>* isUnique(vector<Problema*>* pop, int n)
 {
 	vector<Problema*>* aux = new vector<Problema*>();
+	int max = 0;
 
-	for(int i = 1; i < (int)pop->size(); i++)
+	for(max = 0; max < (int)pop->size(); max++)
 	{
-		if(fnequal(pop->at(i-1), pop->at(i)) || i > n)
-			delete pop->at(i-1);
+		if(fnequal(pop->at(max-1), pop->at(max)) || max >= n)
+			delete pop->at(max-1);
 		else
-			aux->push_back(pop->at(i-1));
+			aux->push_back(pop->at(max-1));
 	}
-	aux->push_back(pop->at(pop->size()-1));
+	if(max >= n)
+		delete pop->at(max-1);
+	else
+		aux->push_back(pop->at(max-1));
 
 	pop->clear();
 	delete pop;
