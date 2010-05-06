@@ -50,7 +50,7 @@ Controle::~Controle()
 	vector<Heuristica*>::iterator it;
 
 	for(it = algs->begin(); it != algs->end(); it++)
-		Heuristica::numHeuristic -= (*it)->prob;
+		delete *it;
 
 	algs->clear();
 	delete algs;

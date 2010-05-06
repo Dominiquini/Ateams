@@ -15,6 +15,7 @@ public:
 
 	Tabu();
 	Tabu(ParametrosBT*);
+	~Tabu();
 
 	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic);
 

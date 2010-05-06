@@ -12,9 +12,11 @@ public:
 
 	int iterGenetico, tamPopGenetico, tamParticionamento, polEscolha;
 	float probCrossOver, probMutacao;
+	vector<Problema*> *bad_pop;
 
 	Genetico();
 	Genetico(ParametrosAG*);
+	~Genetico();
 
 	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic);
 

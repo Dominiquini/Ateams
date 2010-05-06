@@ -12,6 +12,8 @@ public:
 	string name;
 	int prob;
 
+	virtual ~Heuristica() {}
+
 	virtual vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic) = 0;
 };
 

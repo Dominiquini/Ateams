@@ -31,6 +31,11 @@ Tabu::Tabu(ParametrosBT* pBT)
 	Heuristica::numHeuristic += prob;
 }
 
+Tabu::~Tabu()
+{
+	Heuristica::numHeuristic -= prob;
+}
+
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
 vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
 {

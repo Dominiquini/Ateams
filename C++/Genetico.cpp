@@ -12,9 +12,12 @@ Genetico::Genetico()
 	polEscolha = -1;
 	iterGenetico = 250;
 	tamPopGenetico = 250;
-	probCrossOver = 0.8;
-	probMutacao = 0.2;
+	probCrossOver = 0.9;
+	probMutacao = 0.1;
 	tamParticionamento = -1;
+
+	vector<Problema*> *bad_pop = new vector<Problema*>();
+	bad_pop->push_back(Problema::alloc());
 
 	Heuristica::numHeuristic += prob;
 }
@@ -30,7 +33,21 @@ Genetico::Genetico(ParametrosAG* pAG)
 	probMutacao = pAG->probMutacao;
 	tamParticionamento = pAG->tamanhoParticionamento;
 
+	bad_pop = new vector<Problema*>();
+	bad_pop->push_back(Problema::alloc());
+
 	Heuristica::numHeuristic += prob;
+}
+
+Genetico::~Genetico()
+{
+	Heuristica::numHeuristic -= prob;
+
+	for(vector<Problema*>::iterator iter = bad_pop->begin(); iter != bad_pop->end(); iter++)
+		delete *iter;
+
+	bad_pop->clear();
+	delete bad_pop;
 }
 
 vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
@@ -72,7 +89,6 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 {
 	pair<Problema*, Problema*>* temp;
 	vector<Problema*>* aux_pop = new vector<Problema*>();
-	vector<Problema*>* bad_pop = new vector<Problema*>();
 	vector<pair<Problema*, Problema*>* > *pais, *filhos;
 	pais = new vector<pair<Problema*, Problema*>* >();
 	filhos = new vector<pair<Problema*, Problema*>* >();
@@ -190,16 +206,14 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		aux_pop->clear();
 	}
 
-	for(iter2 = bad_pop->begin(); iter2 != bad_pop->end(); iter2++)
-		delete *iter2;
-
-	bad_pop->clear();
-
 	pop = isUnique(pop, tamPopGenetico);
+
+	/* Ordena a polulacao ruim */
+	sort(bad_pop->begin(), bad_pop->end(), fncomp2);
+	bad_pop = isUnique(bad_pop, 10*tamPopGenetico);
 
 	delete pais;
 	delete filhos;
-	delete bad_pop;
 
 	return pop;
 }
@@ -209,7 +223,7 @@ inline vector<Problema*>* isUnique(vector<Problema*>* pop, int n)
 	vector<Problema*>* aux = new vector<Problema*>();
 	int max = 0;
 
-	for(max = 0; max < (int)pop->size(); max++)
+	for(max = 1; max < (int)pop->size(); max++)
 	{
 		if(fnequal(pop->at(max-1), pop->at(max)) || max >= n)
 			delete pop->at(max-1);
