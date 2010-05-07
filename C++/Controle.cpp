@@ -94,6 +94,7 @@ Problema* Controle::getSol(int n)
 	return *(--iter);
 }
 
+#ifdef THREADS
 Problema* Controle::start()
 {
 	pthread_t t;
@@ -161,6 +162,54 @@ Problema* Controle::start()
 
 	return *(pop->begin());
 }
+#else
+Problema* Controle::start()
+{
+	srand(unsigned(time(NULL)));
+
+	geraPop();
+
+	Problema::best = (*pop->begin())->getMakespan();
+	Problema::worst = (*pop->rbegin())->getMakespan();
+
+	cout << "CTR : 0 : " << (*pop->begin())->getMakespan() << endl << endl << flush;
+
+	struct timeval time1, time2;
+	gettimeofday(&time1, NULL);
+
+	int tempo = 0, ins;
+
+	vector<Problema*> *prob = NULL;
+
+	for(int i = 0; i < numAteams && tempo < maxTempo; i++)
+	{
+		prob = exec(rand());
+
+		ins = addSol(prob);
+
+		prob->clear();
+		delete prob;
+
+		Problema::best = (*pop->begin())->getMakespan();
+		Problema::worst = (*pop->rbegin())->getMakespan();
+
+		cout << atual << " : " << i+1 << " : " << Problema::best << " -> " << ins << endl << flush;
+
+		if((*pop->begin())->getMakespan() <= makespanBest)
+			break;
+
+		gettimeofday(&time2, NULL);
+		tempo = time2.tv_sec - time1.tv_sec;
+
+		if(PARAR == 1)
+			break;
+	}
+	Problema::best = (*pop->begin())->getMakespan();
+	Problema::worst = (*pop->rbegin())->getMakespan();
+
+	return *(pop->begin());
+}
+#endif
 
 inline vector<Problema*>* Controle::exec(int randomic)
 {

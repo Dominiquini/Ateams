@@ -272,15 +272,18 @@ JobShop::JobShop() : Problema::Problema()
 
 	sol.makespan = calcMakespan();
 
-	if(sol.makespan != -1 && ESCALONAMENTO == false)
+#ifndef ESCALONAMENTO
+	if(sol.makespan != -1)
 	{
 		desalocaMatriz(3, sol.escalon, nmaq, njob);
 		sol.escalon = NULL;
 	}
+#endif
 
 	exec.tabu = false;
 	exec.genetico = false;
 }
+
 
 JobShop::JobShop(short int **prob) : Problema::Problema()
 {
@@ -289,11 +292,13 @@ JobShop::JobShop(short int **prob) : Problema::Problema()
 	sol.escalon = NULL;
 	sol.makespan = calcMakespan();
 
-	if(sol.makespan != -1 && ESCALONAMENTO == false)
+#ifndef ESCALONAMENTO
+	if(sol.makespan != -1)
 	{
 		desalocaMatriz(3, sol.escalon, nmaq, njob);
 		sol.escalon = NULL;
 	}
+#endif
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -308,7 +313,8 @@ JobShop::JobShop(const Problema &prob) : Problema::Problema()
 
 	sol.makespan = prob.sol.makespan;
 
-	if(prob.sol.escalon != NULL && ESCALONAMENTO == true)
+#ifdef ESCALONAMENTO
+	if(prob.sol.escalon != NULL)
 	{
 		sol.escalon = (short int***)alocaMatriz(3, nmaq, njob, 3);
 		for(int i = 0; i < nmaq; i++)
@@ -316,10 +322,9 @@ JobShop::JobShop(const Problema &prob) : Problema::Problema()
 				for(int k = 0; k < 3; k++)
 					sol.escalon[i][j][k] = prob.sol.escalon[i][j][k];
 	}
-	else
-	{
-		sol.escalon = NULL;
-	}
+#else
+	sol.escalon = NULL;
+#endif
 
 	exec = prob.exec;
 }
@@ -338,11 +343,13 @@ JobShop::JobShop(const Problema &prob, int maq, int pos1, int pos2) : Problema::
 	sol.escalon = NULL;
 	sol.makespan = calcMakespan();
 
-	if(sol.makespan != -1 && ESCALONAMENTO == false)
+#ifndef ESCALONAMENTO
+	if(sol.makespan != -1)
 	{
 		desalocaMatriz(3, sol.escalon, nmaq, njob);
 		sol.escalon = NULL;
 	}
+#endif
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -450,7 +457,7 @@ inline void JobShop::imprimir(bool esc)
 {
 	if(esc == true)
 	{
-		if(sol.escalon == NULL || ESCALONAMENTO == false)
+		if(sol.escalon == NULL)
 			calcMakespan();
 
 		printf("\n");
@@ -548,19 +555,13 @@ inline void JobShop::mutacao()
 	sol.esc[maq][pos1] = sol.esc[maq][pos2];
 	sol.esc[maq][pos2] = aux;
 
-	if(sol.makespan != -1 && ESCALONAMENTO == true)
+	if(sol.makespan != -1 && sol.escalon != NULL)
 	{
 		desalocaMatriz(3, sol.escalon, nmaq, njob);
 		sol.escalon = NULL;
 	}
 
 	sol.makespan = calcMakespan();
-
-	if(sol.makespan != -1 && ESCALONAMENTO == false)
-	{
-		desalocaMatriz(3, sol.escalon, nmaq, njob);
-		sol.escalon = NULL;
-	}
 
 	exec.tabu = false;
 	exec.genetico = false;
