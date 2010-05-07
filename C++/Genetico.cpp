@@ -5,8 +5,6 @@ using namespace std;
 
 extern bool PARAR;
 
-pthread_mutex_t mutAG;
-
 Genetico::Genetico()
 {
 	name = "DEFAULT_AG";

@@ -99,8 +99,8 @@ Problema* Controle::getSol(int n)
 Problema* Controle::start()
 {
 	pthread_t *threads = (pthread_t*)malloc(numAteams * sizeof(pthread_t));
-	pthread_t *threads_create = threads;
-	pthread_t *threads_join = threads;
+	int threads_create = 0;
+	int threads_join = 0;
 
 	srand(unsigned(time(NULL)));
 
@@ -124,15 +124,13 @@ Problema* Controle::start()
 	{
 		if(execThreads < numThreads && cont < numAteams && PARAR == false)
 		{
-			pthread_create(threads_create++, NULL, run, (void*)this);
+			pthread_create(&threads[threads_create++], NULL, run, (void*)this);
 			execThreads++;
 			cont++;
-
-			cout << "Iteração " << cont << " : " << Problema::best << endl << flush;
 		}
 		else if(execThreads > 0)
 		{
-			pthread_join(*(threads_join++), &temp);
+			pthread_join(threads[threads_join++], &temp);
 			execThreads--;
 
 			prob = (vector<Problema*>*)temp;
@@ -147,8 +145,13 @@ Problema* Controle::start()
 			Problema::best = (*pop->begin())->getMakespan();
 			Problema::worst = (*pop->rbegin())->getMakespan();
 
-			gettimeofday(&time2, NULL);
-			tempo = time2.tv_sec - time1.tv_sec;
+			if(threads_join < 10)
+				cout << "Iteração 00" << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
+			else if(threads_join < 100)
+				cout << "Iteração 0" << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
+			else
+				cout << "Iteração " << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
+
 
 			if((*pop->begin())->getMakespan() <= makespanBest)
 				PARAR = true;
@@ -158,12 +161,13 @@ Problema* Controle::start()
 		}
 		else
 		{
-			if(threads_create != threads_join)
-				cout << "AINDA FALTANDO!\n\n";
-
 			break;
 		}
+
+		gettimeofday(&time2, NULL);
+		tempo = time2.tv_sec - time1.tv_sec;
 	}
+
 	Problema::best = (*pop->begin())->getMakespan();
 	Problema::worst = (*pop->rbegin())->getMakespan();
 
@@ -202,7 +206,10 @@ Problema* Controle::start()
 		Problema::best = (*pop->begin())->getMakespan();
 		Problema::worst = (*pop->rbegin())->getMakespan();
 
-		cout << atual << " : " << i+1 << " : " << Problema::best << " -> " << ins << endl << flush;
+		if((i+1) < 10)
+			cout << atual << " : 0" << i+1 << " : " << Problema::best << " -> " << ins << endl << flush;
+		else
+			cout << atual << " : " << i+1 << " : " << Problema::best << " -> " << ins << endl << flush;
 
 		if((*pop->begin())->getMakespan() <= makespanBest)
 			break;
