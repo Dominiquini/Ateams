@@ -1,7 +1,11 @@
-#include "JobShop.h"
+#include "Problema.h"
+
+using namespace std;
 
 #ifndef _HEURISTICA_
 #define _HEURISTICA_
+
+extern pthread_mutex_t mutex;
 
 class Heuristica
 {

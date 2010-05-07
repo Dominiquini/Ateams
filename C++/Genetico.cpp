@@ -5,7 +5,7 @@ using namespace std;
 
 extern bool PARAR;
 
-extern pthread_mutex_t mutex;
+pthread_mutex_t mutAG;
 
 Genetico::Genetico()
 {
@@ -19,7 +19,9 @@ Genetico::Genetico()
 	probMutacao = 0.1;
 	tamParticionamento = -1;
 
+#ifndef THREADS
 	bad_pop = new vector<Problema*>();
+#endif
 
 	Heuristica::numHeuristic += prob;
 }
@@ -36,7 +38,9 @@ Genetico::Genetico(ParametrosAG* pAG)
 	probMutacao = pAG->probMutacao;
 	tamParticionamento = pAG->tamanhoParticionamento;
 
+#ifndef THREADS
 	bad_pop = new vector<Problema*>();
+#endif
 
 	Heuristica::numHeuristic += prob;
 }
@@ -45,11 +49,13 @@ Genetico::~Genetico()
 {
 	Heuristica::numHeuristic -= prob;
 
+#ifndef THREADS
 	for(vector<Problema*>::iterator iter = bad_pop->begin(); iter != bad_pop->end(); iter++)
 		delete *iter;
 
 	bad_pop->clear();
 	delete bad_pop;
+#endif
 }
 
 vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
@@ -95,7 +101,7 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 {
 	pair<Problema*, Problema*>* temp;
-	vector<Problema*>* aux_pop = new vector<Problema*>();
+	vector<Problema*> *aux_pop = new vector<Problema*>();
 	vector<pair<Problema*, Problema*>* > *pais, *filhos;
 	pais = new vector<pair<Problema*, Problema*>* >();
 	filhos = new vector<pair<Problema*, Problema*>* >();
@@ -106,10 +112,14 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	int numCrossOver;
 	int sumP, sumB;
 
+#ifdef THREADS
+	vector<Problema*> *bad_pop = new vector<Problema*>();
+#endif
+
 	/* Iteracao principal do AG */
 	for(int i = 0; i < iterGenetico; i++)
 	{
-		if(PARAR == 1)
+		if(PARAR == true)
 			break;
 
 		numCrossOver = (int)((float)pop->size() * probCrossOver);
@@ -213,9 +223,17 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 	pop = isUnique(pop, tamPopGenetico);
 
+#ifndef THREADS
 	/* Ordena a polulacao ruim */
 	sort(bad_pop->begin(), bad_pop->end(), fncomp2);
 	bad_pop = isUnique(bad_pop, tamBadGenetico);
+#else
+	for(iter2 = bad_pop->begin(); iter2 != bad_pop->end(); iter2++)
+		delete *iter2;
+
+	bad_pop->clear();
+	delete bad_pop;
+#endif
 
 	delete pais;
 	delete filhos;

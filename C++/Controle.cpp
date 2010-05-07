@@ -8,6 +8,7 @@ using namespace std;
 extern bool PARAR;
 
 pthread_mutex_t mutex;
+pthread_mutex_t mut_p;
 
 Controle::Controle()
 {
@@ -97,9 +98,9 @@ Problema* Controle::getSol(int n)
 #ifdef THREADS
 Problema* Controle::start()
 {
-	pthread_t t;
-	deque<pthread_t> threads_create(numThreads, t);
-	deque<pthread_t> threads_join(numThreads, t);
+	pthread_t *threads = (pthread_t*)malloc(numAteams * sizeof(pthread_t));
+	pthread_t *threads_create = threads;
+	pthread_t *threads_join = threads;
 
 	srand(unsigned(time(NULL)));
 
@@ -118,19 +119,20 @@ Problema* Controle::start()
 	void *temp = NULL;
 	vector<Problema*> *prob = NULL;
 
-	for(int i = 0; i < numAteams && tempo < maxTempo; i++)
+	int cont = 0;
+	while(true)
 	{
-		if(execThreads < numThreads)
+		if(execThreads < numThreads && cont < numAteams && PARAR == false)
 		{
-			pthread_create(&threads_create.front(), NULL, run, (void*)this);
-			threads_join.push_front(threads_create.front());
-			threads_create.pop_front();
+			pthread_create(threads_create++, NULL, run, (void*)this);
 			execThreads++;
+			cont++;
+
+			cout << "Iteração " << cont << " : " << Problema::best << endl << flush;
 		}
-		else
+		else if(execThreads > 0)
 		{
-			pthread_join(threads_join.front(), &temp);
-			threads_join.pop_front();
+			pthread_join(*(threads_join++), &temp);
 			execThreads--;
 
 			prob = (vector<Problema*>*)temp;
@@ -145,20 +147,27 @@ Problema* Controle::start()
 			Problema::best = (*pop->begin())->getMakespan();
 			Problema::worst = (*pop->rbegin())->getMakespan();
 
-			cout << atual << " : " << i+1 << " : " << Problema::best << " -> " << ins << endl << flush;
-
-			if((*pop->begin())->getMakespan() <= makespanBest)
-				break;
-
 			gettimeofday(&time2, NULL);
 			tempo = time2.tv_sec - time1.tv_sec;
 
-			if(PARAR == 1)
-				break;
+			if((*pop->begin())->getMakespan() <= makespanBest)
+				PARAR = true;
+
+			if(tempo > maxTempo)
+				PARAR = true;
+		}
+		else
+		{
+			if(threads_create != threads_join)
+				cout << "AINDA FALTANDO!\n\n";
+
+			break;
 		}
 	}
 	Problema::best = (*pop->begin())->getMakespan();
 	Problema::worst = (*pop->rbegin())->getMakespan();
+
+	free(threads);
 
 	return *(pop->begin());
 }

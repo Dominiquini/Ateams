@@ -1,3 +1,5 @@
+#include "JobShop.h"
+
 #include "Problema.h"
 #include "Controle.h"
 #include "Ateams.h"

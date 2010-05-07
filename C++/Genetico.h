@@ -12,7 +12,10 @@ public:
 
 	int iterGenetico, tamPopGenetico, tamBadGenetico, tamParticionamento, polEscolha;
 	float probCrossOver, probMutacao;
+
+#ifndef THREADS
 	vector<Problema*> *bad_pop;
+#endif
 
 	Genetico();
 	Genetico(ParametrosAG*);

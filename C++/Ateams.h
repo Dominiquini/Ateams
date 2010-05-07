@@ -9,12 +9,14 @@ using namespace std;
 
 // #define ESCALONAMENTO
 
+#define THREADS
+
 #ifndef _ATEAMS_
 #define _ATEAMS_
 
 typedef struct soluction
 {
-	int makespan;					// Makespan da solucao
+	int makespan;			// Makespan da solucao
 	short int **esc;		// Solucao
 	short int ***escalon;	// Escalonamento nas maquinas
 } soluction;

@@ -18,6 +18,8 @@ using namespace std;
 #ifndef _PROBLEMA_
 #define _PROBLEMA_
 
+extern pthread_mutex_t mut_p;
+
 class Problema;
 
 bool fncomp1(Problema*, Problema*);
@@ -56,9 +58,13 @@ public:
 	static double sumFitness(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
 	static double sumFitness(vector<Problema*> *pop, int n);
 
+#ifdef THREADS
+	Problema() {pthread_mutex_lock(&mut_p); numInst++; pthread_mutex_unlock(&mut_p);}			// numInst++
+	virtual ~Problema() {pthread_mutex_lock(&mut_p); numInst--; pthread_mutex_unlock(&mut_p);}	// numInst--
+#else
 	Problema() {numInst++;}				// numInst++
-
 	virtual ~Problema() {numInst--;}	// numInst--
+#endif
 
 	virtual int calcMakespan() = 0;			// Calcula o makespan
 	virtual void imprimir(bool esc) = 0;	// Imprime o escalonamento
