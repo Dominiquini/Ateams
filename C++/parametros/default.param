@@ -1,7 +1,7 @@
 ## '-1' para algum atributo indica omissao e sera usado o valor padrao
 
 #ATEAMS
-[iterAteams] = 50		// Número de iteracoes do Ateams
+[iterAteams] = 100		// Número de iteracoes do Ateams
 [numThreads] = 4		// Número máximo de threads ativas
 [maxTempoAteams] = -1		// Tempo maximo de execucao
 [tamPopulacaoAteams] = 1000	// Tamanho da populacao
