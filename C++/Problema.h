@@ -1,12 +1,8 @@
-#include <stdio.h>
-#include <pthread.h>
-
 #include <functional>
 #include <algorithm>
 #include <iostream>
 #include <cstdlib>
 #include <vector>
-#include <deque>
 #include <ctime>
 #include <list>
 #include <set>
@@ -72,6 +68,7 @@ public:
 	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual */
 	virtual vector<pair<Problema*, tTabu*>* >* buscaLocal() = 0;
 	virtual pair<Problema*, Problema*>* crossOver(Problema*, int) = 0;
+	virtual pair<Problema*, Problema*>* crossOver(Problema*) = 0;
 	virtual void mutacao() = 0;
 
 	virtual double getFitness() = 0;

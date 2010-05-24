@@ -1,4 +1,3 @@
-#include "Controle.h"
 #include "Tabu.h"
 
 using namespace std;

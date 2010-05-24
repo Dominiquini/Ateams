@@ -1,5 +1,6 @@
 #include "Problema.h"
 #include "Heuristica.h"
+#include "Controle.h"
 
 using namespace std;
 

@@ -31,6 +31,7 @@ public:
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
 	pair<Problema*, Problema*>* crossOver(Problema*, int);
+	pair<Problema*, Problema*>* crossOver(Problema*);
 
 	/* Provoca uma mutacao na solucao atual */
 	void mutacao();

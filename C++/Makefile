@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -O3 -lpthread
+CFLAGS = -O3 -lpthread -Wall -pedantic
 SOURCES = Ateams.cpp Controle.cpp JobShop.cpp Tabu.cpp Genetico.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 EXEC = Ateams

@@ -546,6 +546,26 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamPart
 	return filhos;
 }
 
+inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai)
+{
+	short int **f1 = (short int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (short int**)alocaMatriz(2, nmaq, njob, 1);
+	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
+	int particao = 0;
+
+	for(register int i = 0; i < nmaq; i++)
+	{
+		particao = (rand() % njob) + 1;
+
+		swap_vect(this->sol.esc[i], pai->sol.esc[i], f1[i], 0, particao);
+		swap_vect(pai->sol.esc[i], this->sol.esc[i], f2[i], 0, particao);
+	}
+
+	filhos->first = new JobShop(f1);
+	filhos->second = new JobShop(f2);
+
+	return filhos;
+}
+
 inline void JobShop::mutacao()
 {
 	int maq = rand() % nmaq;

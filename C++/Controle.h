@@ -1,7 +1,9 @@
-#include <sys/time.h>
-
 #include "Problema.h"
 #include "Heuristica.h"
+
+#ifdef THREADS
+#include <pthread.h>
+#endif
 
 using namespace std;
 

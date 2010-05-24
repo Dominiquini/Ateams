@@ -1,4 +1,3 @@
-#include "Controle.h"
 #include "Genetico.h"
 
 using namespace std;
@@ -162,19 +161,41 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		}
 
 		/* Faz o cruzamento de todos os pares definidos anteriormente */
-		for(iter1 = pais->begin(); iter1 != pais->end(); iter1++)
+		if(rand() < RAND_MAX/2)
 		{
-			temp = (*iter1)->first->crossOver((*iter1)->second, tamParticionamento);
+			/* Crossover com dois pontos de particionamento escolhidos aleatoriamente e tamanho 'tamParticionmento' */
+			for(iter1 = pais->begin(); iter1 != pais->end(); iter1++)
+			{
+				temp = (*iter1)->first->crossOver((*iter1)->second, tamParticionamento);
 
-			if(rand() < (RAND_MAX*probMutacao/2))
-				temp->first->mutacao();
+				if(rand() < (RAND_MAX*probMutacao/2))
+					temp->first->mutacao();
 
-			if(rand() < (RAND_MAX*probMutacao/2))
-				temp->second->mutacao();
+				if(rand() < (RAND_MAX*probMutacao/2))
+					temp->second->mutacao();
 
-			filhos->push_back(temp);
+				filhos->push_back(temp);
 
-			delete *iter1;
+				delete *iter1;
+			}
+		}
+		else
+		{
+			/* Crossover com um ponto de particionamento escolhido aleatoriamente */
+			for(iter1 = pais->begin(); iter1 != pais->end(); iter1++)
+			{
+				temp = (*iter1)->first->crossOver((*iter1)->second);
+
+				if(rand() < (RAND_MAX*probMutacao/2))
+					temp->first->mutacao();
+
+				if(rand() < (RAND_MAX*probMutacao/2))
+					temp->second->mutacao();
+
+				filhos->push_back(temp);
+
+				delete *iter1;
+			}
 		}
 
 		/* Restaura a populacao dos pais */
@@ -240,7 +261,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 }
 
 inline vector<Problema*>* isUnique(vector<Problema*>* pop, int n)
-{
+		{
 	vector<Problema*>* aux = new vector<Problema*>();
 	int max = 0;
 
@@ -260,7 +281,7 @@ inline vector<Problema*>* isUnique(vector<Problema*>* pop, int n)
 	delete pop;
 
 	return aux;
-}
+		}
 
 inline bool find(vector<Problema*> *vect, Problema *p)
 {

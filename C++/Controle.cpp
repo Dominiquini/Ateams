@@ -1,6 +1,3 @@
-#include "Problema.h"
-#include "JobShop.h"
-#include "Tabu.h"
 #include "Controle.h"
 
 using namespace std;

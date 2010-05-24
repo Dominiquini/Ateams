@@ -1,8 +1,9 @@
-#include "JobShop.h"
+#include "Ateams.h"
 
 #include "Problema.h"
+#include "JobShop.h"
+
 #include "Controle.h"
-#include "Ateams.h"
 
 #include "Tabu.h"
 #include "Genetico.h"
