@@ -16,6 +16,8 @@ public:
 	static short int **maq, **time;	// Matriz de maquinas e de tempos
 	static int njob, nmaq;			// Quantidade de jobs e de maquinas
 
+	static tTabu* newTabu(int maq, int p1, int p2);
+
 	JobShop();												// Nova solucao aleatoria
 	JobShop(short int **prob);								// Copia de prob
 	JobShop(const Problema &prob);								// Copia de prob

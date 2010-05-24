@@ -203,17 +203,6 @@ void Problema::desalocaMemoria()
 	desalocaMatriz(2, JobShop::time, JobShop::njob, 0);
 }
 
-tTabu* Problema::newTabu(int maq, int p1, int p2)
-{
-	tTabu *tabu = (tTabu*)malloc(sizeof(tTabu));
-
-	tabu->maq = maq;
-	tabu->A = p1;
-	tabu->B = p2;
-
-	return tabu;
-}
-
 bool Problema::movTabuCMP(tTabu& t1, tTabu& t2)
 {
 	if(t1.maq == t2.maq && (t1.A == t2.A || t1.A == t2.B) && (t1.B == t2.B || t1.B == t2.A))
@@ -242,6 +231,17 @@ double Problema::sumFitness(vector<Problema*> *pop, int n)
 		sum += (*iter)->getFitness();
 
 	return sum;
+}
+
+tTabu* JobShop::newTabu(int maq, int p1, int p2)
+{
+	tTabu *tabu = (tTabu*)malloc(sizeof(tTabu));
+
+	tabu->maq = maq;
+	tabu->A = p1;
+	tabu->B = p2;
+
+	return tabu;
 }
 
 /* Metodos */
@@ -510,7 +510,7 @@ inline vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
 				{
 					temp = new pair<Problema*, tTabu*>();
 					temp->first = job;
-					temp->second = Problema::newTabu(maq, p1, p2);
+					temp->second = JobShop::newTabu(maq, p1, p2);
 
 					local->push_back(temp);
 				}

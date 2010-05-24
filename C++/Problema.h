@@ -49,7 +49,6 @@ public:
 	static Problema* alloc(const Problema &prob);								// Copia de prob
 	static Problema* alloc(const Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
-	static tTabu* newTabu(int maq, int p1, int p2);
 	static bool movTabuCMP(tTabu& t1, tTabu& t2);
 	static double sumFitness(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
 	static double sumFitness(vector<Problema*> *pop, int n);
