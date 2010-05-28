@@ -56,7 +56,7 @@ void Problema::leProblema(FILE *f)
 	}
 }
 
-void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, ParametrosAG *pAG)
+void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, ParametrosAG *pAG, ParametrosSA *pSA)
 {
 	char *parametros = (char*)malloc(4097 * sizeof(char));
 	size_t size = fread(parametros, sizeof(char), 4096, f);
@@ -79,7 +79,7 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 
 
 	par = locNumberPar(parametros, size, (char*)"[probBT]");
-	pBT->probBT = par != -1 ? (int)par : 50;
+	pBT->probBT = par != -1 ? (int)par : 60;
 
 	par = locNumberPar(parametros, size, (char*)"[polEscolhaBT]");
 	pBT->polEscolha = (int)par;
@@ -98,7 +98,7 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 
 
 	par = locNumberPar(parametros, size, (char*)"[probAG]");
-	pAG->probAG = par != -1 ? (int)par : 50;
+	pAG->probAG = par != -1 ? (int)par : 40;
 
 	par = locNumberPar(parametros, size, (char*)"[polEscolhaAG]");
 	pAG->polEscolha = (int)par;
@@ -115,18 +115,36 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[tamParticaoAG]");
 	pAG->tamanhoParticionamento = (int)par;
 
-
 	par = locNumberPar(parametros, size, (char*)"[probCrossOverAG]");
 	pAG->probCrossOver = par != -1 ? par : (float)0.8;
 
 	par = locNumberPar(parametros, size, (char*)"[probMutacaoAG]");
 	pAG->probMutacao = par != -1 ? par : (float)0.1;
 
+
+	par = locNumberPar(parametros, size, (char*)"[probSA]");
+	pSA->probSA = par != -1 ? (int)par : 50;
+
+	par = locNumberPar(parametros, size, (char*)"[polEscolhaSA]");
+	pSA->polEscolha = (int)par;
+
+	par = locNumberPar(parametros, size, (char*)"[maxIterSA]");
+	pSA->maxIter = par != -1? (int)par : 100;
+
+	par = locNumberPar(parametros, size, (char*)"[initTempSA]");
+	pSA->initTemp = par != -1 ? (int)par : 100;
+
+	par = locNumberPar(parametros, size, (char*)"[finalTempSA]");
+	pSA->fimTemp = par != -1? (int)par : 1;
+
+	par = locNumberPar(parametros, size, (char*)"[alphaSA]");
+	pSA->alfa = par != -1 ? par : (float)0.99;
+
 	free(parametros);
 }
 
 /* Le argumentos adicionais passados por linha de comando */
-void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, ParametrosAG *pAG)
+void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, ParametrosAG *pAG, ParametrosSA *pSA)
 {
 	int p = -1;
 
@@ -188,6 +206,25 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, Pa
 
 	if((p = locComPar(argv, argc, (char*)"--probMutacaoAG")) != -1)
 		pAG->probMutacao = atof(argv[p]);
+
+
+	if((p = locComPar(argv, argc, (char*)"--probSA")) != -1)
+		pSA->probSA = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--polEscolhaSA")) != -1)
+		pSA->polEscolha = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--maxIterSA")) != -1)
+		pSA->maxIter = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--initTempSA")) != -1)
+		pSA->initTemp = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--finalTempSA")) != -1)
+		pSA->fimTemp = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--alphaSA")) != -1)
+		pSA->alfa = atof(argv[p]);
 }
 
 void Problema::imprimeResultado (struct timeval tv1, struct timeval tv2, FILE *resultados, int bestMakespan)
@@ -490,6 +527,16 @@ inline void JobShop::imprimir(bool esc)
 		}
 	}
 	return;
+}
+
+inline Problema* JobShop::vizinho()
+{
+	int maq = rand() % nmaq, p1 = rand() % njob, p2 = rand() % njob;
+
+	while(p2 == p1)
+		p2 = rand() % njob;
+
+	return new JobShop(*this, maq, p1, p2);
 }
 
 inline vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()

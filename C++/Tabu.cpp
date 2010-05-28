@@ -45,9 +45,10 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	{
 		pthread_mutex_lock(&mutex);
 		select = sol->begin();
+		solBT = Problema::alloc(**select);
 		pthread_mutex_unlock(&mutex);
 
-		return exec(*select);
+		return exec(solBT);
 	}
 
 	// Escolhe alguem dentre os 'pollEscolha' primeiras solucoes

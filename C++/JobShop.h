@@ -28,6 +28,9 @@ public:
 	int calcMakespan();			// Calcula o makespan
 	void imprimir(bool esc);	// Imprime o escaloonamento atual
 
+	/* Retorna um novo vizinho aleatorio */
+	Problema* vizinho();
+
 	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
 	vector<pair<Problema*, tTabu*>* >* buscaLocal();
 

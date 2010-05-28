@@ -60,4 +60,13 @@ typedef struct ParametrosBT {
 	float funcAsp;
 } ParametrosBT;
 
+typedef struct ParametrosSA {
+	int probSA;
+	int polEscolha;
+	int maxIter;
+	int initTemp;
+	int fimTemp;
+	float alfa;
+} ParametrosSA;
+
 #endif

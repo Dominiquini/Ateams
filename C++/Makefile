@@ -1,6 +1,6 @@
 CC = g++
-CFLAGS = -O3 -lpthread -Wall -pedantic
-SOURCES = Ateams.cpp Controle.cpp JobShop.cpp Tabu.cpp Genetico.cpp
+CFLAGS = -O3 -lm -lpthread -Wall -pedantic
+SOURCES = Ateams.cpp Controle.cpp JobShop.cpp Tabu.cpp Genetico.cpp Annealing.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 EXEC = Ateams
 

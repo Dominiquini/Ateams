@@ -14,7 +14,7 @@ public:
 	static int numHeuristic;
 
 	string name;
-	int prob;
+	int prob, polEscolha;
 
 	virtual ~Heuristica() {}
 

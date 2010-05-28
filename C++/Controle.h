@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "Problema.h"
 #include "Heuristica.h"
 

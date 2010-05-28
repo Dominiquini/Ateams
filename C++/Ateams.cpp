@@ -7,6 +7,7 @@
 
 #include "Tabu.h"
 #include "Genetico.h"
+#include "Annealing.h"
 
 using namespace std;
 
@@ -37,10 +38,12 @@ int main(int argc, char *argv[])
 	ParametrosATEAMS *pATEAMS;
 	ParametrosAG *pAG;
 	ParametrosBT *pBT;
+	ParametrosSA *pSA;
 
 	pATEAMS = (ParametrosATEAMS*)malloc(sizeof(ParametrosATEAMS));
 	pBT = (ParametrosBT*)malloc(sizeof(ParametrosBT));
 	pAG = (ParametrosAG*)malloc(sizeof(ParametrosAG));
+	pSA = (ParametrosSA*)malloc(sizeof(ParametrosSA));
 
 	char dados[32];
 	int p = -1;
@@ -107,18 +110,19 @@ int main(int argc, char *argv[])
 	}
 
 	Problema::leProblema(fdados);
-	Problema::leParametros(fparametros, pATEAMS, pBT, pAG);
+	Problema::leParametros(fparametros, pATEAMS, pBT, pAG, pSA);
 
 	fclose(fdados);
 	fclose(fparametros);
 
-	Problema::leArgumentos(argv, argc, pATEAMS, pBT, pAG);
+	Problema::leArgumentos(argv, argc, pATEAMS, pBT, pAG, pSA);
 
 	cout << endl;
 
 	Controle* ctr = new Controle(pATEAMS);
 	ctr->addHeuristic(new Tabu(pBT));
 	ctr->addHeuristic(new Genetico(pAG));
+	ctr->addHeuristic(new Annealing(pSA));
 
 	Problema* best = ctr->start();
 

@@ -37,8 +37,8 @@ public:
 	static void leProblema(FILE*);
 
 	// Le arquivo de parametros de entrada
-	static void leParametros(FILE*, ParametrosATEAMS*, ParametrosBT*, ParametrosAG*);
-	static void leArgumentos(char**, int, ParametrosATEAMS*, ParametrosBT*, ParametrosAG*);
+	static void leParametros(FILE*, ParametrosATEAMS*, ParametrosBT*, ParametrosAG*, ParametrosSA*);
+	static void leArgumentos(char**, int, ParametrosATEAMS*, ParametrosBT*, ParametrosAG*, ParametrosSA*);
 
 	static void imprimeResultado (struct timeval, struct timeval, FILE*, int);
 
@@ -64,10 +64,17 @@ public:
 	virtual int calcMakespan() = 0;			// Calcula o makespan
 	virtual void imprimir(bool esc) = 0;	// Imprime o escalonamento
 
+	/* Retorna um vizinho aleatorio */
+	virtual Problema* vizinho() = 0;
+
 	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual */
 	virtual vector<pair<Problema*, tTabu*>* >* buscaLocal() = 0;
+
+	/* Realiza um crossover com uma outra solucao */
 	virtual pair<Problema*, Problema*>* crossOver(Problema*, int) = 0;
 	virtual pair<Problema*, Problema*>* crossOver(Problema*) = 0;
+
+	/* Provoca uma mutacao aleatoria na solucao */
 	virtual void mutacao() = 0;
 
 	virtual double getFitness() = 0;
