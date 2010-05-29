@@ -575,6 +575,7 @@ inline vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
 			}
 		}
 	}
+	random_shuffle(local->begin(), local->end());
 	sort(local->begin(), local->end(), ptcomp);
 
 	return local;

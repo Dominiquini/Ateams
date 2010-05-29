@@ -155,6 +155,15 @@ vector<Problema*>* Tabu::exec(Problema* init)
 				}
 			}
 		}
+		while(!vizinhanca->empty())
+		{
+			local = vizinhanca->back();
+			vizinhanca->pop_back();
+
+			delete local->first;
+			delete local->second;
+			delete local;
+		}
 		vizinhanca->clear();
 		delete vizinhanca;
 	}
