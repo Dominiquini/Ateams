@@ -103,10 +103,10 @@ Problema* Controle::start()
 
 	geraPop();
 
-	Problema::best = (*pop->begin())->getMakespan();
-	Problema::worst = (*pop->rbegin())->getMakespan();
+	Problema::best = (*pop->begin())->getFitnessMinimize();
+	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
-	cout << "CTR : 0 : " << (*pop->begin())->getMakespan() << endl << endl << flush;
+	cout << "CTR : 0 : " << (*pop->begin())->getFitnessMinimize() << endl << endl << flush;
 
 	struct timeval time1, time2;
 	gettimeofday(&time1, NULL);
@@ -139,8 +139,8 @@ Problema* Controle::start()
 			prob->clear();
 			delete prob;
 
-			Problema::best = (*pop->begin())->getMakespan();
-			Problema::worst = (*pop->rbegin())->getMakespan();
+			Problema::best = (*pop->begin())->getFitnessMinimize();
+			Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
 			if(threads_join < 10)
 				cout << "Iteração 00" << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
@@ -150,7 +150,7 @@ Problema* Controle::start()
 				cout << "Iteração " << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
 
 
-			if((*pop->begin())->getMakespan() <= makespanBest)
+			if((*pop->begin())->getFitnessMinimize() <= makespanBest)
 				PARAR = true;
 
 			if(tempo > maxTempo)
@@ -165,8 +165,8 @@ Problema* Controle::start()
 		tempo = time2.tv_sec - time1.tv_sec;
 	}
 
-	Problema::best = (*pop->begin())->getMakespan();
-	Problema::worst = (*pop->rbegin())->getMakespan();
+	Problema::best = (*pop->begin())->getFitnessMinimize();
+	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
 	free(threads);
 
@@ -184,10 +184,10 @@ Problema* Controle::start()
 
 	geraPop();
 
-	Problema::best = (*pop->begin())->getMakespan();
-	Problema::worst = (*pop->rbegin())->getMakespan();
+	Problema::best = (*pop->begin())->getFitnessMinimize();
+	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
-	cout << "CTR : 0 : " << (*pop->begin())->getMakespan() << endl << endl << flush;
+	cout << "CTR : 0 : " << (*pop->begin())->getFitnessMinimize() << endl << endl << flush;
 
 	struct timeval time1, time2;
 	gettimeofday(&time1, NULL);
@@ -205,15 +205,15 @@ Problema* Controle::start()
 		prob->clear();
 		delete prob;
 
-		Problema::best = (*pop->begin())->getMakespan();
-		Problema::worst = (*pop->rbegin())->getMakespan();
+		Problema::best = (*pop->begin())->getFitnessMinimize();
+		Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
 		if((i+1) < 10)
 			cout << atual << " : 0" << i+1 << " : " << Problema::best << " -> " << ins << endl << flush;
 		else
 			cout << atual << " : " << i+1 << " : " << Problema::best << " -> " << ins << endl << flush;
 
-		if((*pop->begin())->getMakespan() <= makespanBest)
+		if((*pop->begin())->getFitnessMinimize() <= makespanBest)
 			break;
 
 		gettimeofday(&time2, NULL);
@@ -222,8 +222,8 @@ Problema* Controle::start()
 		if(PARAR == 1)
 			break;
 	}
-	Problema::best = (*pop->begin())->getMakespan();
-	Problema::worst = (*pop->rbegin())->getMakespan();
+	Problema::best = (*pop->begin())->getFitnessMinimize();
+	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
 	return *(pop->begin());
 }
@@ -247,7 +247,7 @@ inline int Controle::addSol(vector<Problema*> *prob)
 		ret = pop->insert(prob->at(j));
 		if(ret.second == true)
 		{
-			Problema::totalMakespan += prob->at(j)->getFitness();
+			Problema::totalFitness += prob->at(j)->getFitnessMaximize();
 
 			iter = pop->end();
 			iter--;
@@ -257,7 +257,7 @@ inline int Controle::addSol(vector<Problema*> *prob)
 				if(ret.first == iter)
 					ins--;
 
-				Problema::totalMakespan -= (*iter)->getFitness();
+				Problema::totalFitness -= (*iter)->getFitnessMaximize();
 				pop->erase(iter);
 				delete *iter;
 			}
@@ -282,11 +282,11 @@ inline void Controle::geraPop()
 	{
 		prob = Problema::alloc();
 
-		if(prob->getMakespan() != -1)
+		if(prob->getFitnessMinimize() != -1)
 		{
 			ret = pop->insert(prob);
 			if(ret.second == true)
-				Problema::totalMakespan += prob->getFitness();
+				Problema::totalFitness += prob->getFitnessMaximize();
 			else
 				delete prob;
 		}
@@ -313,7 +313,7 @@ set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRoulette
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
 	for(iter = pop->begin(); iter != pop->end(); iter++)
 	{
-		sum -= (int)(*iter)->getFitness();
+		sum -= (int)(*iter)->getFitnessMaximize();
 		if(sum <= randWheel)
 		{
 			return iter;
@@ -332,7 +332,7 @@ vector<Problema*>::iterator Controle::selectRouletteWheel(vector<Problema*>* pop
 	vector<Problema*>::iterator iter;
 	for(iter = pop->begin(); iter != pop->end(); iter++)
 	{
-		sum -= (int)(*iter)->getFitness();
+		sum -= (int)(*iter)->getFitnessMaximize();
 		if(sum <= randWheel)
 		{
 			return iter;
@@ -357,6 +357,16 @@ Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, int pro
 		}
 	}
 	return heuristc->at(0);
+}
+
+vector<Problema*>::iterator Controle::selectRandom(vector<Problema*>* pop, int randWheel)
+{
+	randWheel = randWheel % pop->size();
+
+	vector<Problema*>::iterator iter = pop->begin();
+	for(int i = 0; iter != pop->end() && i < randWheel; iter++, i++);
+
+	return iter;
 }
 
 inline bool cmpAlg(Heuristica *h1, Heuristica *h2)

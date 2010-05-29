@@ -31,7 +31,7 @@ public:
 	static int best;				// Melhor solucao do momento
 	static int worst;				// Pior solucao do momento
 	static int numInst;				// Quantidade de instancias criadas
-	static double totalMakespan;	// Soma do inverso do makespan de todos os individuos na populacao
+	static double totalFitness;		// Soma do inverso do makespan de todos os individuos na populacao
 
 	// Le arquivo de dados de entrada
 	static void leProblema(FILE*);
@@ -77,8 +77,8 @@ public:
 	/* Provoca uma mutacao aleatoria na solucao */
 	virtual void mutacao() = 0;
 
-	virtual double getFitness() = 0;
-	virtual int getMakespan() = 0;
+	virtual double getFitnessMaximize() = 0;
+	virtual double getFitnessMinimize() = 0;
 
 	executado exec;
 

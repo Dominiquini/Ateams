@@ -58,7 +58,7 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	}
 
 	// Escolhe alguem dentre os 'polEscolha' primeiras solucoes
-	double visao = polEscolha < 0 ? Problema::totalMakespan : Problema::sumFitness(sol, polEscolha);
+	double visao = polEscolha < 0 ? Problema::totalFitness : Problema::sumFitness(sol, polEscolha);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	pthread_mutex_lock(&mutex);
@@ -96,20 +96,20 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 		{
 			Sn = S->vizinho();
 
-			if(Sn->getMakespan() == -1)
+			if(Sn->getFitnessMinimize() == -1)
 			{
 				i--;
 				delete Sn;
 				continue;
 			}
 
-			Ds = Sn->getMakespan() - S->getMakespan();
+			Ds = Sn->getFitnessMinimize() - S->getFitnessMinimize();
 			if(Ds < 0 || accept((double)rand(), Ds, T))
 			{
 				delete S;
 				S = Sn;
 
-				if(S->getMakespan() < Sf->getMakespan())
+				if(S->getFitnessMinimize() < Sf->getFitnessMinimize())
 				{
 					delete Sf;
 					Sf = Problema::alloc(*S);

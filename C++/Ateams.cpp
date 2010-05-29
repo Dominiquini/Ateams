@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 	cout << endl << "Melhor Solução: " << Problema::best << endl << endl;
 
 	gettimeofday(&tv2, NULL);
-	Problema::imprimeResultado(tv1, tv2, fresultados, best->getMakespan());
+	Problema::imprimeResultado(tv1, tv2, fresultados, best->getFitnessMinimize());
 	fclose(fresultados);
 
 	cout << endl << "Escalonamento: " << endl << endl;

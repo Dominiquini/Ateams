@@ -7,7 +7,7 @@ using namespace std;
 int Problema::best = 0;
 int Problema::worst = 0;
 int Problema::numInst = 0;
-double Problema::totalMakespan = 0;
+double Problema::totalFitness = 0;
 
 char JobShop::name[128];
 short int **JobShop::maq = NULL, **JobShop::time = NULL;
@@ -254,7 +254,7 @@ double Problema::sumFitness(set<Problema*, bool(*)(Problema*, Problema*)> *pop, 
 	double sum = 0, i = 0;
 
 	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
-		sum += (*iter)->getFitness();
+		sum += (*iter)->getFitnessMaximize();
 
 	return sum;
 }
@@ -265,7 +265,7 @@ double Problema::sumFitness(vector<Problema*> *pop, int n)
 	double sum = 0, i = 0;
 
 	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
-		sum += (*iter)->getFitness();
+		sum += (*iter)->getFitnessMaximize();
 
 	return sum;
 }
@@ -319,6 +319,7 @@ JobShop::JobShop() : Problema::Problema()
 
 	exec.tabu = false;
 	exec.genetico = false;
+	exec.annealing = false;
 }
 
 
@@ -339,6 +340,7 @@ JobShop::JobShop(short int **prob) : Problema::Problema()
 
 	exec.tabu = false;
 	exec.genetico = false;
+	exec.annealing = false;
 }
 
 JobShop::JobShop(const Problema &prob) : Problema::Problema()
@@ -390,6 +392,7 @@ JobShop::JobShop(const Problema &prob, int maq, int pos1, int pos2) : Problema::
 
 	exec.tabu = false;
 	exec.genetico = false;
+	exec.annealing = false;
 }
 
 JobShop::~JobShop()
@@ -632,19 +635,17 @@ inline void JobShop::mutacao()
 
 	exec.tabu = false;
 	exec.genetico = false;
+	exec.annealing = false;
 }
 
-inline double JobShop::getFitness()
+inline double JobShop::getFitnessMaximize()
 {
-	if(sol.makespan != -1)
-		return (double)INT_MAX/sol.makespan;
-	else
-		return (double)INT_MAX/Problema::worst;
+	return (double)INT_MAX/sol.makespan;
 }
 
-inline int JobShop::getMakespan()
+inline double JobShop::getFitnessMinimize()
 {
-	return sol.makespan;
+	return (double)sol.makespan;
 }
 
 inline int** JobShop::getEscalonameto()
@@ -802,12 +803,12 @@ bool fncomp2(Problema *prob1, Problema *prob2)
 
 inline bool ptcomp(pair<Problema*, tTabu*>* p1, pair<Problema*, tTabu*>* p2)
 {
-	return (p1->first->getMakespan()) < p2->first->getMakespan();
+	return (p1->first->getFitnessMinimize()) < p2->first->getFitnessMinimize();
 }
 
 inline bool ppcomp(pair<Problema*, Problema*>* p1, pair<Problema*, Problema*>* p2)
 {
-	return (p1->first->getMakespan() + p1->second->getMakespan()) < (p2->first->getMakespan() + p2->second->getMakespan());
+	return (p1->first->getFitnessMinimize() + p1->second->getFitnessMinimize()) < (p2->first->getFitnessMinimize() + p2->second->getFitnessMinimize());
 }
 
 bool fnequal(Problema* p1, Problema* p2)

@@ -58,7 +58,7 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	}
 
 	// Escolhe alguem dentre os 'polEscolha' primeiras solucoes
-	double visao = polEscolha < 0 ? Problema::totalMakespan : Problema::sumFitness(sol, polEscolha);
+	double visao = polEscolha < 0 ? Problema::totalFitness : Problema::sumFitness(sol, polEscolha);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	pthread_mutex_lock(&mutex);
@@ -105,12 +105,12 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			// Se nao for tabu...
 			if(!isTabu(listaTabu, (*iter)->second))
 			{
-				if((*iter)->first->getMakespan() < maxLocal->getMakespan())
+				if((*iter)->first->getFitnessMinimize() < maxLocal->getFitnessMinimize())
 					j = 0;
 
 				delete maxLocal;
 				maxLocal = Problema::alloc(*(*iter)->first);
-				if((*iter)->first->getMakespan() < maxGlobal->getMakespan())
+				if((*iter)->first->getFitnessMinimize() < maxGlobal->getFitnessMinimize())
 				{
 					delete maxGlobal;
 					maxGlobal = Problema::alloc(*maxLocal);
@@ -123,7 +123,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			else
 			{
 				// Satisfaz a funcao de aspiracao
-				if((*iter)->first->getMakespan() < ((funcAsp*maxGlobal->getMakespan()) + ((1-funcAsp)*maxLocal->getMakespan())))
+				if((*iter)->first->getFitnessMinimize() < ((funcAsp*maxGlobal->getFitnessMinimize()) + ((1-funcAsp)*maxLocal->getFitnessMinimize())))
 				{
 					j = 0;
 

@@ -79,7 +79,7 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 	}
 	else
 	{
-		double visao = polEscolha < 0 ? Problema::totalMakespan : polEscolha;
+		double visao = polEscolha < 0 ? Problema::totalFitness : polEscolha;
 
 		pthread_mutex_lock(&mutex);
 		for(i = 1; i < tamPopGenetico; i++)
@@ -117,7 +117,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	vector<Problema*>::iterator iter2;
 
 	int numCrossOver;
-	int sumP, sumB;
+	int sumP;
 
 #ifdef THREADS
 	vector<Problema*> *bad_pop = new vector<Problema*>();
@@ -133,7 +133,6 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 		/* Escolhe os casais de 'pop' que se cruzarao */
 		sumP = (int)Problema::sumFitness(pop, pop->size());
-		sumB = (int)Problema::sumFitness(bad_pop, bad_pop->size());
 
 		for(int j = 0; j < numCrossOver/2; j++)
 		{
@@ -141,13 +140,13 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 			if(rand() < RAND_MAX*probMutacao && (int)bad_pop->size() > 0)
 			{
-				iter2 = Controle::selectRouletteWheel(bad_pop, sumB, rand());
+				iter2 = Controle::selectRandom(bad_pop, rand());
 				temp->first = *iter2;
 			}
 			else
 			{
 				iter2 = Controle::selectRouletteWheel(pop, sumP, rand());
-				sumP -= (*iter2)->getFitness();
+				sumP -= (*iter2)->getFitnessMaximize();
 				aux_pop->push_back(*iter2);
 				temp->first = *iter2;
 				pop->erase(iter2);
@@ -155,13 +154,13 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 			if(rand() < RAND_MAX*probMutacao && (int)bad_pop->size() > 0)
 			{
-				iter2 = Controle::selectRouletteWheel(bad_pop, sumB, rand());
+				iter2 = Controle::selectRandom(bad_pop, rand());
 				temp->second = *iter2;
 			}
 			else
 			{
 				iter2 = Controle::selectRouletteWheel(pop, sumP, rand());
-				sumP -= (*iter2)->getFitness();
+				sumP -= (*iter2)->getFitnessMaximize();
 				aux_pop->push_back(*iter2);
 				temp->second = *iter2;
 				pop->erase(iter2);
@@ -217,12 +216,12 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		/* Adiciona a populacao dos filhos */
 		for(iter1 = filhos->begin(); iter1 != filhos->end(); iter1++)
 		{
-			if((*iter1)->first->getMakespan() != -1)
+			if((*iter1)->first->getFitnessMinimize() != -1)
 				pop->push_back((*iter1)->first);
 			else
 				bad_pop->push_back((*iter1)->first);	// Armazenado para possivel reaproveitamento
 
-			if((*iter1)->second->getMakespan() != -1)
+			if((*iter1)->second->getFitnessMinimize() != -1)
 				pop->push_back((*iter1)->second);
 			else
 				bad_pop->push_back((*iter1)->second);	// Armazenado para possivel reaproveitamento
@@ -252,17 +251,11 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 	pop = isUnique(pop, tamPopGenetico);
 
-#ifndef THREADS
-	/* Ordena a polulacao ruim */
-	sort(bad_pop->begin(), bad_pop->end(), fncomp2);
-	bad_pop = isUnique(bad_pop, tamBadGenetico);
-#else
 	for(iter2 = bad_pop->begin(); iter2 != bad_pop->end(); iter2++)
 		delete *iter2;
 
 	bad_pop->clear();
 	delete bad_pop;
-#endif
 
 	delete pais;
 	delete filhos;

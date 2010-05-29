@@ -41,8 +41,8 @@ public:
 	/* Provoca uma mutacao na solucao atual */
 	void mutacao();
 
-	double getFitness();
-	int getMakespan();
+	double getFitnessMaximize();
+	double getFitnessMinimize();
 
 	int** getEscalonameto();
 };
