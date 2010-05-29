@@ -11,8 +11,8 @@ Annealing::Annealing()
 	name = "DEFAULT_SA";
 	prob = 50;
 	polEscolha = 10;
-	maxIter = 100;
-	initTemp = 100;
+	maxIter = 125;
+	initTemp = -1;
 	fimTemp = 1;
 	restauraSol = false;
 	alfa = 0.99;
@@ -25,13 +25,13 @@ Annealing::Annealing(ParametrosSA *pSA)
 	numExec = 0;
 
 	name = "SA";
-	prob = pSA->probSA;
-	polEscolha = pSA->polEscolha;
-	maxIter = pSA->maxIter;
-	initTemp = pSA->initTemp;
-	fimTemp = pSA->fimTemp;
+	prob = pSA->probSA != -1 ? pSA->probSA : 50;
+	polEscolha = pSA->polEscolha != -1 ? pSA->polEscolha : 10;
+	maxIter = pSA->maxIter != -1 ? pSA->maxIter : 125;
+	initTemp = pSA->initTemp != -1 ? pSA->initTemp : -1;
+	fimTemp = pSA->fimTemp > 0 ? pSA->fimTemp : 1;
 	restauraSol = pSA->restauraSol != 0 ? true : false;
-	alfa = pSA->alfa;
+	alfa = pSA->alfa != -1 ? pSA->alfa : 0.99;
 
 	Heuristica::numHeuristic += prob;
 }
@@ -62,9 +62,11 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	// Escolhe alguem dentre os 'polEscolha' primeiras solucoes
 	double visao = polEscolha < 0 ? Problema::totalFitness : Problema::sumFitness(sol, polEscolha);
 
+	srand(randomic);
+
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	pthread_mutex_lock(&mutex);
-	select = Controle::selectRouletteWheel(sol, (int)visao, randomic);
+	select = Controle::selectRouletteWheel(sol, (int)visao, rand());
 
 	(*select)->exec.annealing = true;
 

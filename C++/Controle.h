@@ -1,11 +1,5 @@
-#include <math.h>
-
 #include "Problema.h"
 #include "Heuristica.h"
-
-#ifdef THREADS
-#include <pthread.h>
-#endif
 
 using namespace std;
 
@@ -30,7 +24,7 @@ public:
 	string atual;
 	int numThreads;
 	int makespanBest;					// Melhor makespan conhecido
-	int tamPop, numAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao
+	int tamPop, iterAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao
 	set<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
 
 	Controle();

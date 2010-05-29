@@ -1,15 +1,21 @@
+#define THREADS
+
+#include <sys/time.h>
+#include <pthread.h>
 #include <signal.h>
 #include <limits.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/time.h>
+#include <math.h>
+
+#ifdef THREADS
+#include <pthread.h>
+#endif
 
 using namespace std;
 
 // #define ESCALONAMENTO
-
-#define THREADS
 
 #ifndef _ATEAMS_
 #define _ATEAMS_

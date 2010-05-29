@@ -63,51 +63,51 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	float par = -1;
 
 	par = locNumberPar(parametros, size, (char*)"[iterAteams]");
-	pATEAMS->iteracoesAteams = par != -1 ? (int)par : 50;
+	pATEAMS->iteracoesAteams = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[numThreads]");
-	pATEAMS->numThreads = par != -1 ? (int)par : 1;
+	pATEAMS->numThreads = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[maxTempoAteams]");
-	pATEAMS->maxTempo = par != -1 ? (int)par : INT_MAX;
+	pATEAMS->maxTempo = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[tamPopulacaoAteams]");
-	pATEAMS->tamanhoPopulacao = par != -1 ? (int)par : 500;
+	pATEAMS->tamanhoPopulacao = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[makespanBest]");
 	pATEAMS->makespanBest = (int)par;
 
 
 	par = locNumberPar(parametros, size, (char*)"[probBT]");
-	pBT->probBT = par != -1 ? (int)par : 60;
+	pBT->probBT = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[polEscolhaBT]");
 	pBT->polEscolha = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[iterBT]");
-	pBT->numeroIteracoes = par != -1 ? (int)par : 500;
+	pBT->numeroIteracoes = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[tentSemMelhoraBT]");
-	pBT->tentativasSemMelhora = par != -1 ? (int)par : 50;
+	pBT->tentativasSemMelhora = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[tamListaBT]");
-	pBT->tamanhoListaTabu = par != -1 ? (int)par : 25;
+	pBT->tamanhoListaTabu = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[funcAspiracaoBT]");
-	pBT->funcAsp = par != -1 ? par : (float)0.5;
+	pBT->funcAsp = (float)par;
 
 
 	par = locNumberPar(parametros, size, (char*)"[probAG]");
-	pAG->probAG = par != -1 ? (int)par : 40;
+	pAG->probAG = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[polEscolhaAG]");
 	pAG->polEscolha = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[iterAG]");
-	pAG->numeroIteracoes = par != -1 ? (int)par : 100;
+	pAG->numeroIteracoes = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[tamPopAG]");
-	pAG->tamanhoPopulacao = par != -1 ? (int)par : 250;
+	pAG->tamanhoPopulacao = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[tamPopAG]");
 	pAG->tamanhoAuxPopulacao = (int)par;
@@ -116,32 +116,32 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	pAG->tamanhoParticionamento = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[probCrossOverAG]");
-	pAG->probCrossOver = par != -1 ? par : (float)0.8;
+	pAG->probCrossOver = (float)par;
 
 	par = locNumberPar(parametros, size, (char*)"[probMutacaoAG]");
-	pAG->probMutacao = par != -1 ? par : (float)0.1;
+	pAG->probMutacao = (float)par;
 
 
 	par = locNumberPar(parametros, size, (char*)"[probSA]");
-	pSA->probSA = par != -1 ? (int)par : 50;
+	pSA->probSA = (float)par;
 
 	par = locNumberPar(parametros, size, (char*)"[polEscolhaSA]");
 	pSA->polEscolha = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[maxIterSA]");
-	pSA->maxIter = par != -1? (int)par : 100;
+	pSA->maxIter = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[initTempSA]");
 	pSA->initTemp = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[finalTempSA]");
-	pSA->fimTemp = par != -1? (int)par : 1;
+	pSA->fimTemp = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[restauraSolSA]");
 	pSA->restauraSol = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[alphaSA]");
-	pSA->alfa = par != -1 ? par : (float)0.99;
+	pSA->alfa = (float)par;
 
 	free(parametros);
 }

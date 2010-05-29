@@ -9,12 +9,12 @@ Tabu::Tabu()
 	numExec = 0;
 
 	name = "DEFAULT_BT";
-	prob = 60;
-	funcAsp = 1;
-	polEscolha = -1;
-	iterTabu = 500;
+	prob = 30;
+	funcAsp = 0.5;
+	polEscolha = 90;
+	iterTabu = 250;
 	tamListaTabu = 25;
-	tentSemMelhora = 50;
+	tentSemMelhora = 125;
 
 	Heuristica::numHeuristic += prob;
 }
@@ -24,12 +24,12 @@ Tabu::Tabu(ParametrosBT* pBT)
 	numExec = 0;
 
 	name = "BT";
-	prob = pBT->probBT;
-	funcAsp = pBT->funcAsp;
-	polEscolha = pBT->polEscolha;
-	iterTabu = pBT->numeroIteracoes;
-	tamListaTabu = pBT->tamanhoListaTabu;
-	tentSemMelhora = pBT->tentativasSemMelhora;
+	prob = pBT->probBT != -1 ? pBT->probBT : 30;
+	funcAsp = pBT->funcAsp != -1 ? pBT->funcAsp : 0.5;
+	polEscolha = pBT->polEscolha != -1 ? pBT->polEscolha : 90;
+	iterTabu = pBT->numeroIteracoes != -1 ? pBT->numeroIteracoes : 250;
+	tamListaTabu = pBT->tamanhoListaTabu != -1 ? pBT->tamanhoListaTabu : 25;
+	tentSemMelhora = pBT->tentativasSemMelhora != -1 ? pBT->tentativasSemMelhora : 125;
 
 	Heuristica::numHeuristic += prob;
 }
@@ -60,9 +60,11 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	// Escolhe alguem dentre os 'polEscolha' primeiras solucoes
 	double visao = polEscolha < 0 ? Problema::totalFitness : Problema::sumFitness(sol, polEscolha);
 
+	srand(randomic);
+
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	pthread_mutex_lock(&mutex);
-	select = Controle::selectRouletteWheel(sol, (int)visao, randomic);
+	select = Controle::selectRouletteWheel(sol, (int)visao, rand());
 	if(polEscolha == -1)
 		while((*select)->exec.tabu == true)
 			if(select != sol->begin())
@@ -104,6 +106,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 		{
 			local = vizinhanca->back();
 			vizinhanca->pop_back();
+
 			// Se nao for tabu...
 			if(!isTabu(listaTabu, local->second))
 			{
@@ -111,7 +114,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 					j = 0;
 
 				delete maxLocal;
-				maxLocal = Problema::alloc(*local->first);
+				maxLocal = local->first;
 
 				if(local->first->getFitnessMinimize() < maxGlobal->getFitnessMinimize())
 				{
@@ -121,8 +124,6 @@ vector<Problema*>* Tabu::exec(Problema* init)
 
 				addTabu(listaTabu, local->second, tamListaTabu);
 
-				delete local->first;
-				delete local->second;
 				delete local;
 
 				break;
@@ -131,17 +132,16 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			else
 			{
 				// Satisfaz a funcao de aspiracao
-				if(local->first->getFitnessMinimize() < ((funcAsp*maxGlobal->getFitnessMinimize()) + ((1-funcAsp)*maxLocal->getFitnessMinimize())))
+				if(local->first->getFitnessMinimize() < aspiracao(funcAsp, maxLocal->getFitnessMinimize(), maxGlobal->getFitnessMinimize()))
 				{
 					j = 0;
 
 					delete maxLocal;
-					maxLocal = Problema::alloc(*local->first);
+					maxLocal = local->first;
 
 					delete maxGlobal;
 					maxGlobal = Problema::alloc(*maxLocal);
 
-					delete local->first;
 					delete local->second;
 					delete local;
 
@@ -193,4 +193,9 @@ inline void addTabu(list<tTabu>* listaTabu, tTabu *m, int max)
 	listaTabu->push_front(*m);
 	if((int)listaTabu->size() > max)
 		listaTabu->pop_back();
+}
+
+inline double aspiracao(float paramAsp, double local, double global)
+{
+	return ((paramAsp*global) + ((1-paramAsp)*local));
 }

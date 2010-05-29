@@ -9,11 +9,11 @@ Genetico::Genetico()
 	numExec = 0;
 
 	name = "DEFAULT_AG";
-	prob = 40;
+	prob = 20;
 	polEscolha = -1;
 	iterGenetico = 250;
 	tamPopGenetico = 250;
-	tamBadGenetico = 2500;
+	tamBadGenetico = 750;
 	probCrossOver = 0.9;
 	probMutacao = 0.1;
 	tamParticionamento = -1;
@@ -30,14 +30,14 @@ Genetico::Genetico(ParametrosAG* pAG)
 	numExec = 0;
 
 	name = "AG";
-	prob = pAG->probAG;
-	polEscolha = pAG->polEscolha;
-	iterGenetico = pAG->numeroIteracoes;
-	tamPopGenetico = pAG->tamanhoPopulacao;
-	tamBadGenetico = pAG->tamanhoAuxPopulacao != -1 ? pAG->tamanhoAuxPopulacao : 10*tamPopGenetico;
-	probCrossOver = pAG->probCrossOver;
-	probMutacao = pAG->probMutacao;
-	tamParticionamento = pAG->tamanhoParticionamento;
+	prob = pAG->probAG != -1 ? pAG->probAG : 20;
+	polEscolha = pAG->polEscolha != -1 ? pAG->polEscolha : -1;
+	iterGenetico = pAG->numeroIteracoes != -1 ? pAG->numeroIteracoes : 250;
+	tamPopGenetico = pAG->tamanhoPopulacao != -1 ? pAG->tamanhoPopulacao : 250;
+	tamBadGenetico = pAG->tamanhoAuxPopulacao != -1 ? pAG->tamanhoAuxPopulacao : 750;
+	probCrossOver = pAG->probCrossOver != -1 ? pAG->probCrossOver : 0.9;
+	probMutacao = pAG->probMutacao != -1 ? pAG->probMutacao : 0.1;
+	tamParticionamento = pAG->tamanhoParticionamento != -1 ? pAG->tamanhoParticionamento : -1;
 
 #ifndef THREADS
 	bad_pop = new vector<Problema*>();
@@ -81,6 +81,8 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 	{
 		double visao = polEscolha < 0 ? Problema::totalFitness : polEscolha;
 
+		srand(randomic);
+
 		pthread_mutex_lock(&mutex);
 		for(i = 1; i < tamPopGenetico; i++)
 		{
@@ -116,6 +118,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	vector<pair<Problema*, Problema*>* >::iterator iter1;
 	vector<Problema*>::iterator iter2;
 
+	bool tipoCrossOver = true;
 	int numCrossOver;
 	int sumP;
 
@@ -170,41 +173,30 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		}
 
 		/* Faz o cruzamento de todos os pares definidos anteriormente */
-		if(rand() < RAND_MAX/2)
+		for(iter1 = pais->begin(); iter1 != pais->end(); iter1++)
 		{
-			/* Crossover com dois pontos de particionamento escolhidos aleatoriamente e tamanho 'tamParticionmento' */
-			for(iter1 = pais->begin(); iter1 != pais->end(); iter1++)
+			if(tipoCrossOver)
 			{
+				/* Crossover com dois pontos de particionamento escolhidos aleatoriamente e tamanho 'tamParticionmento' */
 				temp = (*iter1)->first->crossOver((*iter1)->second, tamParticionamento);
-
-				if(rand() < (RAND_MAX*probMutacao/2))
-					temp->first->mutacao();
-
-				if(rand() < (RAND_MAX*probMutacao/2))
-					temp->second->mutacao();
-
-				filhos->push_back(temp);
-
-				delete *iter1;
 			}
-		}
-		else
-		{
-			/* Crossover com um ponto de particionamento escolhido aleatoriamente */
-			for(iter1 = pais->begin(); iter1 != pais->end(); iter1++)
+			else
 			{
+				/* Crossover com um ponto de particionamento escolhido aleatoriamente */
 				temp = (*iter1)->first->crossOver((*iter1)->second);
-
-				if(rand() < (RAND_MAX*probMutacao/2))
-					temp->first->mutacao();
-
-				if(rand() < (RAND_MAX*probMutacao/2))
-					temp->second->mutacao();
-
-				filhos->push_back(temp);
-
-				delete *iter1;
 			}
+
+			if(rand() < (RAND_MAX*probMutacao/2))
+				temp->first->mutacao();
+
+			if(rand() < (RAND_MAX*probMutacao/2))
+				temp->second->mutacao();
+
+			filhos->push_back(temp);
+
+			delete *iter1;
+
+			tipoCrossOver = !tipoCrossOver;
 		}
 
 		/* Restaura a populacao dos pais */
@@ -264,7 +256,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 }
 
 inline vector<Problema*>* isUnique(vector<Problema*>* pop, int n)
-		{
+								{
 	vector<Problema*>* aux = new vector<Problema*>();
 	int max = 0;
 
@@ -284,7 +276,7 @@ inline vector<Problema*>* isUnique(vector<Problema*>* pop, int n)
 	delete pop;
 
 	return aux;
-		}
+								}
 
 inline bool find(vector<Problema*> *vect, Problema *p)
 {

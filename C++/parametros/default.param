@@ -10,7 +10,7 @@
 
 #BT
 [probBT] = 30			// Probabilidade de se executar BT em cada iteração do ATEAMS
-[polEscolhaBT] = 100		// Política de escolha
+[polEscolhaBT] = 90		// Política de escolha
 [funcAspiracaoBT] = 0.5		// Função de Aspiração
 [iterBT] = 250			// Iterações do BT
 [tentSemMelhoraBT] = 125	// Política de leitura do BT

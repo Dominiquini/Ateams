@@ -9,9 +9,9 @@ pthread_mutex_t mut_p;
 
 Controle::Controle()
 {
-	tamPop = 500;
-	numAteams = 50;
-	numThreads = 1;
+	tamPop = 1000;
+	iterAteams = 100;
+	numThreads = 4;
 	maxTempo = INT_MAX;
 	makespanBest = -1;
 
@@ -27,11 +27,11 @@ Controle::Controle()
 
 Controle::Controle(ParametrosATEAMS* pATEAMS)
 {
-	tamPop = pATEAMS->tamanhoPopulacao;
-	numAteams = pATEAMS->iteracoesAteams;
-	numThreads = pATEAMS->numThreads;
-	maxTempo = pATEAMS->maxTempo;
-	makespanBest = pATEAMS->makespanBest;
+	tamPop = pATEAMS->tamanhoPopulacao != -1 ? pATEAMS->tamanhoPopulacao : 1000;
+	iterAteams = pATEAMS->iteracoesAteams != -1 ? pATEAMS->iteracoesAteams: 100;
+	numThreads = pATEAMS->numThreads != -1 ? pATEAMS->numThreads : 4;
+	maxTempo = pATEAMS->maxTempo != -1 ? pATEAMS->maxTempo : INT_MAX;
+	makespanBest = pATEAMS->makespanBest != -1 ? pATEAMS->makespanBest : -1;
 
 	srand(unsigned(time(NULL)));
 
@@ -95,7 +95,7 @@ Problema* Controle::getSol(int n)
 #ifdef THREADS
 Problema* Controle::start()
 {
-	pthread_t *threads = (pthread_t*)malloc(numAteams * sizeof(pthread_t));
+	pthread_t *threads = (pthread_t*)malloc(iterAteams * sizeof(pthread_t));
 	int threads_create = 0;
 	int threads_join = 0;
 
@@ -119,7 +119,7 @@ Problema* Controle::start()
 	int cont = 0;
 	while(true)
 	{
-		if(execThreads < numThreads && cont < numAteams && PARAR == false)
+		if(execThreads < numThreads && cont < iterAteams && PARAR == false)
 		{
 			pthread_create(&threads[threads_create++], NULL, run, (void*)this);
 			execThreads++;
@@ -196,7 +196,7 @@ Problema* Controle::start()
 
 	vector<Problema*> *prob = NULL;
 
-	for(int i = 0; i < numAteams && tempo < maxTempo; i++)
+	for(int i = 0; i < iterAteams && tempo < maxTempo; i++)
 	{
 		prob = exec(rand());
 
