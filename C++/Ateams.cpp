@@ -121,8 +121,8 @@ int main(int argc, char *argv[])
 
 	Controle* ctr = new Controle(pATEAMS);
 	ctr->addHeuristic(new Tabu(pBT));
-//	ctr->addHeuristic(new Genetico(pAG));
-//	ctr->addHeuristic(new Annealing(pSA));
+	ctr->addHeuristic(new Genetico(pAG));
+	ctr->addHeuristic(new Annealing(pSA));
 
 	Problema* best = ctr->start();
 
