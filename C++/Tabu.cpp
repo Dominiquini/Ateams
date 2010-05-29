@@ -142,7 +142,8 @@ vector<Problema*>* Tabu::exec(Problema* init)
 					delete maxGlobal;
 					maxGlobal = Problema::alloc(*maxLocal);
 
-					delete local->second;
+					addTabu(listaTabu, local->second, tamListaTabu);
+
 					delete local;
 
 					break;
@@ -150,7 +151,6 @@ vector<Problema*>* Tabu::exec(Problema* init)
 				else
 				{
 					delete local->first;
-					delete local->second;
 					delete local;
 				}
 			}
@@ -161,7 +161,6 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			vizinhanca->pop_back();
 
 			delete local->first;
-			delete local->second;
 			delete local;
 		}
 		vizinhanca->clear();
