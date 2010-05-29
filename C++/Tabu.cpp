@@ -81,8 +81,8 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 /* Executa uma busca por solucoes a partir de 'init' por 'iterTabu' vezes */
 vector<Problema*>* Tabu::exec(Problema* init)
 {
-	vector<pair<Problema*, tTabu*>* >* local;
-	vector<pair<Problema*, tTabu*>* >::iterator iter;
+	vector<pair<Problema*, tTabu*>* >* vizinhanca;
+	pair<Problema*, tTabu*>* local;
 
 	// Lista Tabu de movimentos repetidos
 	list<tTabu> *listaTabu = new list<tTabu>;
@@ -97,25 +97,33 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			break;
 
 		// Pega uma lista de todos os "vizinhos" de maxLocal
-		local = maxLocal->buscaLocal();
+		vizinhanca = maxLocal->buscaLocal();
 
-		// Pega a primeira solucao nao tabu
-		for(iter = local->begin(); iter != local->end(); iter++)
+		// Escolhe a solucao de peso minimo
+		while(!vizinhanca->empty())
 		{
+			local = vizinhanca->back();
+			vizinhanca->pop_back();
 			// Se nao for tabu...
-			if(!isTabu(listaTabu, (*iter)->second))
+			if(!isTabu(listaTabu, local->second))
 			{
-				if((*iter)->first->getFitnessMinimize() < maxLocal->getFitnessMinimize())
+				if(local->first->getFitnessMinimize() < maxLocal->getFitnessMinimize())
 					j = 0;
 
 				delete maxLocal;
-				maxLocal = Problema::alloc(*(*iter)->first);
-				if((*iter)->first->getFitnessMinimize() < maxGlobal->getFitnessMinimize())
+				maxLocal = Problema::alloc(*local->first);
+
+				if(local->first->getFitnessMinimize() < maxGlobal->getFitnessMinimize())
 				{
 					delete maxGlobal;
 					maxGlobal = Problema::alloc(*maxLocal);
 				}
-				addTabu(listaTabu, (*iter)->second, tamListaTabu);
+
+				addTabu(listaTabu, local->second, tamListaTabu);
+
+				delete local->first;
+				delete local->second;
+				delete local;
 
 				break;
 			}
@@ -123,30 +131,32 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			else
 			{
 				// Satisfaz a funcao de aspiracao
-				if((*iter)->first->getFitnessMinimize() < ((funcAsp*maxGlobal->getFitnessMinimize()) + ((1-funcAsp)*maxLocal->getFitnessMinimize())))
+				if(local->first->getFitnessMinimize() < ((funcAsp*maxGlobal->getFitnessMinimize()) + ((1-funcAsp)*maxLocal->getFitnessMinimize())))
 				{
 					j = 0;
 
 					delete maxLocal;
-					maxLocal = Problema::alloc(*(*iter)->first);
+					maxLocal = Problema::alloc(*local->first);
 
 					delete maxGlobal;
 					maxGlobal = Problema::alloc(*maxLocal);
 
+					delete local->first;
+					delete local->second;
+					delete local;
+
 					break;
+				}
+				else
+				{
+					delete local->first;
+					delete local->second;
+					delete local;
 				}
 			}
 		}
-
-		/* Libera espaco da buscaLocal() */
-		for(iter = local->begin(); iter != local->end(); iter++)
-		{
-			delete (*iter)->first;
-			free((*iter)->second);
-			delete *iter;
-		}
-		local->clear();
-		delete local;
+		vizinhanca->clear();
+		delete vizinhanca;
 	}
 
 	delete listaTabu;

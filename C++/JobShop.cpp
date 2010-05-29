@@ -94,7 +94,7 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	pBT->tamanhoListaTabu = par != -1 ? (int)par : 25;
 
 	par = locNumberPar(parametros, size, (char*)"[funcAspiracaoBT]");
-	pBT->funcAsp = par != -1 ? par : (float)1;
+	pBT->funcAsp = par != -1 ? par : (float)0.5;
 
 
 	par = locNumberPar(parametros, size, (char*)"[probAG]");
@@ -809,7 +809,7 @@ bool fncomp2(Problema *prob1, Problema *prob2)
 
 inline bool ptcomp(pair<Problema*, tTabu*>* p1, pair<Problema*, tTabu*>* p2)
 {
-	return (p1->first->getFitnessMinimize()) < p2->first->getFitnessMinimize();
+	return (p1->first->getFitnessMinimize()) > p2->first->getFitnessMinimize();
 }
 
 inline bool ppcomp(pair<Problema*, Problema*>* p1, pair<Problema*, Problema*>* p2)
