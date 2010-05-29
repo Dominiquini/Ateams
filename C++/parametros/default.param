@@ -1,7 +1,7 @@
 ## Caso algum atributo seja omitido ou definido como '-1', será usado o seu valor padrão!
 
 #ATEAMS
-[iterAteams] = 50		// Número de iteracoes do Ateams
+[iterAteams] = 100		// Número de iteracoes do Ateams
 [numThreads] = 4		// Número máximo de threads ativas
 [maxTempoAteams] = -1		// Tempo maximo de execucao
 [tamPopulacaoAteams] = 1000	// Tamanho da populacao
@@ -13,7 +13,7 @@
 [polEscolhaBT] = -1		// Política de escolha
 [funcAspiracaoBT] = 1		// Função de Aspiração
 [iterBT] = 250			// Iterações do BT
-[tentSemMelhoraBT] = 100	// Política de leitura do BT
+[tentSemMelhoraBT] = 125	// Política de leitura do BT
 [tamListaBT] = 25		// Tamanho de lista do BT
 
 #AG
@@ -29,7 +29,7 @@
 #SA
 [probSA] = 50                   // Probabilidade de se executar SA em cada iteração do ATEAMS
 [polEscolhaSA] = 10             // Política de escolha
-[maxIterSA] = 100		// Número de iterações para atingir o equilíbrio
+[maxIterSA] = 125		// Número de iterações para atingir o equilíbrio
 [initTempSA] = 100		// Temperatura inicial
 [finalTempSA] = 1		// Temperatura final
 [alphaSA] = 0.99		// Índice de redução da temperatura
