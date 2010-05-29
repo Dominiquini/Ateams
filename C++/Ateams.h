@@ -25,6 +25,7 @@ typedef struct executado
 {
 	bool tabu;
 	bool genetico;
+	bool annealing;
 } executado;
 
 typedef struct movTabu

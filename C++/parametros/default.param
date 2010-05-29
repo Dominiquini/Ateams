@@ -9,7 +9,7 @@
 
 
 #BT
-[probBT] = 40			// Probabilidade de se executar BT em cada iteração do ATEAMS
+[probBT] = 30			// Probabilidade de se executar BT em cada iteração do ATEAMS
 [polEscolhaBT] = -1		// Política de escolha
 [funcAspiracaoBT] = 1		// Função de Aspiração
 [iterBT] = 250			// Iterações do BT
@@ -17,7 +17,7 @@
 [tamListaBT] = 25		// Tamanho de lista do BT
 
 #AG
-[probAG] = 40			// Probabilidade de se executar AG em cada iteração do ATEAMS
+[probAG] = 20			// Probabilidade de se executar AG em cada iteração do ATEAMS
 [polEscolhaAG] = -1		// Política de escolha
 [iterAG] = 250			// Iterações do AG
 [tamPopAG] = 250		// Tamanho da população intermediária do AG
@@ -27,7 +27,7 @@
 [probMutacaoAG] = 0.1		// Probabilidade de haver mutação
 
 #SA
-[probSA] = 60                   // Probabilidade de se executar SA em cada iteração do ATEAMS
+[probSA] = 50                   // Probabilidade de se executar SA em cada iteração do ATEAMS
 [polEscolhaSA] = 10             // Política de escolha
 [maxIterSA] = 100		// Número de iterações para atingir o equilíbrio
 [initTempSA] = 100		// Temperatura inicial

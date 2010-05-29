@@ -6,6 +6,8 @@ extern bool PARAR;
 
 Genetico::Genetico()
 {
+	numExec = 0;
+
 	name = "DEFAULT_AG";
 	prob = 40;
 	polEscolha = -1;
@@ -25,6 +27,8 @@ Genetico::Genetico()
 
 Genetico::Genetico(ParametrosAG* pAG)
 {
+	numExec = 0;
+
 	name = "AG";
 	prob = pAG->probAG;
 	polEscolha = pAG->polEscolha;
@@ -61,6 +65,8 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter = sol->end();
 	int i = 0;
 
+	numExec++;
+
 	if(polEscolha == 0)
 	{
 		pthread_mutex_lock(&mutex);
@@ -79,13 +85,17 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 		for(i = 1; i < tamPopGenetico; i++)
 		{
 			/* Evita a escolha de individuos repetidos */
-			while(iter == sol->end() || find(popAG, *iter))
+			while(iter == sol->end() || (*iter)->exec.genetico == true)
 				iter = Controle::selectRouletteWheel(sol, (int)visao, rand());
 
 			(*iter)->exec.genetico = true;
 			popAG->push_back(Problema::alloc(**iter));
 		}
 		popAG->push_back(Problema::alloc(**sol->begin()));
+
+		for(iter = sol->begin(); iter != sol->end(); iter++)
+			(*iter)->exec.genetico = false;
+
 		pthread_mutex_unlock(&mutex);
 
 		sort(popAG->begin(), popAG->end(), fncomp2);

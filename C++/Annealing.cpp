@@ -6,6 +6,8 @@ extern bool PARAR;
 
 Annealing::Annealing()
 {
+	numExec = 0;
+
 	name = "DEFAULT_SA";
 	prob = 50;
 	polEscolha = 10;
@@ -13,10 +15,14 @@ Annealing::Annealing()
 	initTemp = 100;
 	fimTemp = 1;
 	alfa = 0.99;
+
+	Heuristica::numHeuristic += prob;
 }
 
 Annealing::Annealing(ParametrosSA *pAS)
 {
+	numExec = 0;
+
 	name = "SA";
 	prob = pAS->probSA;
 	polEscolha = pAS->polEscolha;
@@ -24,6 +30,8 @@ Annealing::Annealing(ParametrosSA *pAS)
 	initTemp = pAS->initTemp;
 	fimTemp = pAS->fimTemp;
 	alfa = pAS->alfa;
+
+	Heuristica::numHeuristic += prob;
 }
 
 Annealing::~Annealing()
@@ -37,6 +45,8 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator select;
 	Problema* solBT;
 
+	numExec++;
+
 	if(polEscolha == 0)
 	{
 		pthread_mutex_lock(&mutex);
@@ -47,20 +57,14 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 		return exec(solBT);
 	}
 
-	// Escolhe alguem dentre os 'pollEscolha' primeiras solucoes
+	// Escolhe alguem dentre os 'polEscolha' primeiras solucoes
 	double visao = polEscolha < 0 ? Problema::totalMakespan : Problema::sumFitness(sol, polEscolha);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	pthread_mutex_lock(&mutex);
 	select = Controle::selectRouletteWheel(sol, (int)visao, randomic);
-	if(polEscolha == -1)
-		while((*select)->exec.tabu == true)
-			if(select != sol->begin())
-				select--;
-			else
-				break;
 
-	(*select)->exec.tabu = true;
+	(*select)->exec.annealing = true;
 
 	solBT = Problema::alloc(**select);
 	pthread_mutex_unlock(&mutex);
@@ -68,7 +72,7 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	return exec(solBT);
 }
 
-/* Executa uma busca por solucoes a partir de 'init' por no maximo 'maxIter' vezes */
+/* Executa uma busca por solucoes a partir de 'init' */
 vector<Problema*>* Annealing::exec(Problema* Si)
 {
 	Problema *Sf, *S, *Sn;

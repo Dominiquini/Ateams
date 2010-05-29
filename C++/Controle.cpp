@@ -170,6 +170,11 @@ Problema* Controle::start()
 
 	free(threads);
 
+	vector<Heuristica*>::iterator it;
+	cout << endl << endl << "Execuções:" << endl << endl;
+	for(it = algs->begin(); it != algs->end(); it++)
+		cout << (*it)->name << " : " << (*it)->numExec << endl;
+
 	return *(pop->begin());
 }
 #else

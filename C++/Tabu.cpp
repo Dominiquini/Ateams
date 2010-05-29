@@ -6,6 +6,8 @@ extern bool PARAR;
 
 Tabu::Tabu()
 {
+	numExec = 0;
+
 	name = "DEFAULT_BT";
 	prob = 60;
 	funcAsp = 1;
@@ -19,6 +21,8 @@ Tabu::Tabu()
 
 Tabu::Tabu(ParametrosBT* pBT)
 {
+	numExec = 0;
+
 	name = "BT";
 	prob = pBT->probBT;
 	funcAsp = pBT->funcAsp;
@@ -41,6 +45,8 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator select;
 	Problema* solBT;
 
+	numExec++;
+
 	if(polEscolha == 0)
 	{
 		pthread_mutex_lock(&mutex);
@@ -51,7 +57,7 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 		return exec(solBT);
 	}
 
-	// Escolhe alguem dentre os 'pollEscolha' primeiras solucoes
+	// Escolhe alguem dentre os 'polEscolha' primeiras solucoes
 	double visao = polEscolha < 0 ? Problema::totalMakespan : Problema::sumFitness(sol, polEscolha);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
