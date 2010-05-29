@@ -19,17 +19,17 @@ Annealing::Annealing()
 	Heuristica::numHeuristic += prob;
 }
 
-Annealing::Annealing(ParametrosSA *pAS)
+Annealing::Annealing(ParametrosSA *pSA)
 {
 	numExec = 0;
 
 	name = "SA";
-	prob = pAS->probSA;
-	polEscolha = pAS->polEscolha;
-	maxIter = pAS->maxIter;
-	initTemp = pAS->initTemp;
-	fimTemp = pAS->fimTemp;
-	alfa = pAS->alfa;
+	prob = pSA->probSA;
+	polEscolha = pSA->polEscolha;
+	maxIter = pSA->maxIter;
+	initTemp = pSA->initTemp;
+	fimTemp = pSA->fimTemp;
+	alfa = pSA->alfa;
 
 	Heuristica::numHeuristic += prob;
 }
