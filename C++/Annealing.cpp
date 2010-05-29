@@ -14,6 +14,7 @@ Annealing::Annealing()
 	maxIter = 100;
 	initTemp = 100;
 	fimTemp = 1;
+	restauraSol = false;
 	alfa = 0.99;
 
 	Heuristica::numHeuristic += prob;
@@ -29,6 +30,7 @@ Annealing::Annealing(ParametrosSA *pSA)
 	maxIter = pSA->maxIter;
 	initTemp = pSA->initTemp;
 	fimTemp = pSA->fimTemp;
+	restauraSol = pSA->restauraSol != 0 ? true : false;
 	alfa = pSA->alfa;
 
 	Heuristica::numHeuristic += prob;
@@ -80,8 +82,8 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 	int L = maxIter;
 	double Ds;
 
-	Ti = initTemp;
-	Tf = fimTemp;
+	Ti = initTemp != -1 ? initTemp : (Problema::best - Problema::worst) / log(0.5);
+	Tf = fimTemp > 0 ? fimTemp : 1;
 
 	T = Ti;
 	S = Si;
@@ -121,6 +123,12 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 			}
 		}
 		T = alfa*T;
+
+		if(restauraSol)
+		{
+			delete S;
+			S = Problema::alloc(*Sf);
+		}
 	}
 
 	delete S;

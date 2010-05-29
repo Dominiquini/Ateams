@@ -132,10 +132,13 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	pSA->maxIter = par != -1? (int)par : 100;
 
 	par = locNumberPar(parametros, size, (char*)"[initTempSA]");
-	pSA->initTemp = par != -1 ? (int)par : 100;
+	pSA->initTemp = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[finalTempSA]");
 	pSA->fimTemp = par != -1? (int)par : 1;
+
+	par = locNumberPar(parametros, size, (char*)"[restauraSolSA]");
+	pSA->restauraSol = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[alphaSA]");
 	pSA->alfa = par != -1 ? par : (float)0.99;
@@ -222,6 +225,9 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, Pa
 
 	if((p = locComPar(argv, argc, (char*)"--finalTempSA")) != -1)
 		pSA->fimTemp = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--restauraSolSA")) != -1)
+		pSA->restauraSol = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--alphaSA")) != -1)
 		pSA->alfa = atof(argv[p]);

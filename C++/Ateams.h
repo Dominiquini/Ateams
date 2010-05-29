@@ -67,6 +67,7 @@ typedef struct ParametrosSA {
 	int maxIter;
 	int initTemp;
 	int fimTemp;
+	int restauraSol;
 	float alfa;
 } ParametrosSA;
 
