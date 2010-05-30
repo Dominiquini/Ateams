@@ -817,16 +817,7 @@ bool fncomp2(Problema *prob1, Problema *prob2)
 	return prob1->sol.makespan < prob2->sol.makespan;
 }
 
-inline bool ptcomp(pair<Problema*, tTabu*>* p1, pair<Problema*, tTabu*>* p2)
-{
-	return (p1->first->getFitnessMinimize()) > p2->first->getFitnessMinimize();
-}
-
-inline bool ppcomp(pair<Problema*, Problema*>* p1, pair<Problema*, Problema*>* p2)
-{
-	return (p1->first->getFitnessMinimize() + p1->second->getFitnessMinimize()) < (p2->first->getFitnessMinimize() + p2->second->getFitnessMinimize());
-}
-
+// comparator function:
 bool fnequal(Problema* p1, Problema* p2)
 {
 	if(p1->sol.makespan == p2->sol.makespan)
@@ -839,4 +830,20 @@ bool fnequal(Problema* p1, Problema* p2)
 	}
 	else
 		return false;
+}
+
+inline bool ptcomp(pair<Problema*, tTabu*>* p1, pair<Problema*, tTabu*>* p2)
+{
+	return (p1->first->getFitnessMinimize() > p2->first->getFitnessMinimize());
+}
+
+inline bool find(vector<Problema*> *vect, Problema *p)
+{
+	vector<Problema*>::iterator iter;
+
+	for(iter = vect->begin(); iter != vect->end(); iter++)
+		if(fnequal((*iter), p))
+			return true;
+
+	return false;
 }

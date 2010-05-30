@@ -253,37 +253,39 @@ inline pair<vector<Problema*>*, string*>* Controle::exec(int randomic)
 	return par;
 }
 
-inline int Controle::addSol(vector<Problema*> *prob)
+inline int Controle::addSol(vector<Problema*> *news)
 {
 	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iterSol;
+	vector<Problema*>::iterator iterNews;
 	int ins = 0;
 
-	for(register int j = 0; j < (int)prob->size(); j++)
+	for(iterNews = news->begin(); iterNews != news->end(); iterNews++)
 	{
-		ret = pop->insert(prob->at(j));
+		ret = pop->insert(*iterNews);
+
 		if(ret.second == true)
 		{
-			Problema::totalFitness += prob->at(j)->getFitnessMaximize();
+			Problema::totalFitness += (*iterNews)->getFitnessMaximize();
 
-			iter = pop->end();
-			iter--;
+			iterSol = pop->end();
+			iterSol--;
 
 			if((int)pop->size() > tamPop)
 			{
-				if(ret.first == iter)
+				if(fnequal(*iterNews, *iterSol))
 					ins--;
 
-				Problema::totalFitness -= (*iter)->getFitnessMaximize();
-				pop->erase(iter);
-				delete *iter;
+				Problema::totalFitness -= (*iterSol)->getFitnessMaximize();
+				pop->erase(iterSol);
+				delete *iterSol;
 			}
 
 			ins++;
 		}
 		else
 		{
-			delete prob->at(j);
+			delete *iterNews;
 		}
 	}
 	return ins;

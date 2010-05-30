@@ -64,6 +64,6 @@ void desalocaMatriz(int, void*, int, int);
 
 bool ptcomp(pair<Problema*, tTabu*>*, pair<Problema*, tTabu*>*);
 
-bool ppcomp(pair<Problema*, Problema*>* p1, pair<Problema*, Problema*>* p2);
+bool find(vector<Problema*> *vect, Problema *p);
 
 #endif

@@ -239,7 +239,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		/* Selecao dos melhores */
 		for(iter2 = aux_pop->begin(); iter2 != aux_pop->end(); iter2++)
 		{
-			if((int)pop->size() < tamPopGenetico)
+			if((int)pop->size() <= tamPopGenetico)
 				pop->push_back(*iter2);
 			else
 				bad_pop->push_back(*iter2);	// Armazenado para possivel reaproveitamento
@@ -248,7 +248,6 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 		aux_pop->clear();
 	}
-	pop = isUnique(pop, tamPopGenetico);
 
 #ifdef THREADS
 	for(iter2 = bad_pop->begin(); iter2 != bad_pop->end(); iter2++)
@@ -270,39 +269,4 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	delete aux_pop;
 
 	return pop;
-}
-
-inline vector<Problema*>* isUnique(vector<Problema*>* pop, int n)
-{
-	vector<Problema*>* aux = new vector<Problema*>();
-	int max = 0;
-
-	for(max = 1; max < (int)pop->size(); max++)
-	{
-		if(fnequal(pop->at(max-1), pop->at(max)) || max >= n)
-			delete pop->at(max-1);
-		else
-			aux->push_back(pop->at(max-1));
-	}
-
-	if(max >= n)
-		delete pop->at(max-1);
-	else
-		aux->push_back(pop->at(max-1));
-
-	pop->clear();
-	delete pop;
-
-	return aux;
-}
-
-inline bool find(vector<Problema*> *vect, Problema *p)
-{
-	vector<Problema*>::iterator iter;
-
-	for(iter = vect->begin(); iter != vect->end(); iter++)
-		if(fnequal((*iter), p) == true)
-			return true;
-
-	return false;
 }

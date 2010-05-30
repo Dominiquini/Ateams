@@ -43,7 +43,7 @@ private:
 	pair<vector<Problema*>*, string*>* exec(int randWheel);
 
 	/* Adiciona um novo conjunto de solucao a populacao corrente */
-	int addSol(vector<Problema*> *prob);
+	int addSol(vector<Problema*> *news);
 
 	/* Gera uma populacao inicial aleatoria com 'tamPop' elementos */
 	void geraPop();

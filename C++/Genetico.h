@@ -29,8 +29,4 @@ private:
 	vector<Problema*>* exec(vector<Problema*>* pop);
 };
 
-vector<Problema*>* isUnique(vector<Problema*>* pop, int n);
-
-bool find(vector<Problema*> *vect, Problema *p);
-
 #endif
