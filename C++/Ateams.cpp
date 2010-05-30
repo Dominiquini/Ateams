@@ -132,9 +132,9 @@ int main(int argc, char *argv[])
 
 	delete ctr;
 
-	cout << endl << endl << "Memória Alocada: " << Problema::numInst << endl << endl << endl;
-
 	Problema::desalocaMemoria();
+
+	cout << endl << endl << "Memória Alocada: " << Problema::numInst << endl << endl << endl;
 
 	return 0;
 }

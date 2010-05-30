@@ -12,7 +12,7 @@ class Tabu : public Heuristica
 public:
 
 	int iterTabu, tamListaTabu, tentSemMelhora;
-	float funcAsp;
+	float funcAsp, polExploracao;
 
 	Tabu();
 	Tabu(ParametrosBT*);

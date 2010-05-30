@@ -67,12 +67,13 @@ public:
 	/* Retorna um vizinho aleatorio */
 	virtual Problema* vizinho() = 0;
 
-	/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual */
-	virtual vector<pair<Problema*, tTabu*>* >* buscaLocal() = 0;
+	/* Retorna um conjunto de solucoes viaveis vizinhas da atual */
+	virtual vector<pair<Problema*, tTabu*>* >* buscaLocal() = 0;	// Todos os vizinhos
+	virtual vector<pair<Problema*, tTabu*>* >* buscaLocal(float) = 0;	// Uma parcela aleatoria
 
 	/* Realiza um crossover com uma outra solucao */
-	virtual pair<Problema*, Problema*>* crossOver(Problema*, int) = 0;
-	virtual pair<Problema*, Problema*>* crossOver(Problema*) = 0;
+	virtual pair<Problema*, Problema*>* crossOver(Problema*, int) = 0;	// Dois pivos
+	virtual pair<Problema*, Problema*>* crossOver(Problema*) = 0;		// Um pivo
 
 	/* Provoca uma mutacao aleatoria na solucao */
 	virtual void mutacao() = 0;

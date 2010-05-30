@@ -15,6 +15,7 @@ Tabu::Tabu()
 	iterTabu = 250;
 	tamListaTabu = 25;
 	tentSemMelhora = 125;
+	polExploracao = -1;
 
 	Heuristica::numHeuristic += prob;
 }
@@ -30,6 +31,7 @@ Tabu::Tabu(ParametrosBT* pBT)
 	iterTabu = pBT->numeroIteracoes != -1 ? pBT->numeroIteracoes : 250;
 	tamListaTabu = pBT->tamanhoListaTabu != -1 ? pBT->tamanhoListaTabu : 25;
 	tentSemMelhora = pBT->tentativasSemMelhora != -1 ? pBT->tentativasSemMelhora : 125;
+	polExploracao = pBT->polExploracao != -1 ? pBT->polExploracao : -1;
 
 	Heuristica::numHeuristic += prob;
 }
@@ -98,8 +100,16 @@ vector<Problema*>* Tabu::exec(Problema* init)
 		if(PARAR == true)
 			break;
 
-		// Pega uma lista de todos os "vizinhos" de maxLocal
-		vizinhanca = maxLocal->buscaLocal();
+		if(polExploracao == -1)
+		{
+			// Pega uma lista de todos os "vizinhos" de maxLocal
+			vizinhanca = maxLocal->buscaLocal();
+		}
+		else
+		{
+			// Pega uma parcela 'polExploracao' dos "vizinhos" de maxLocal
+			vizinhanca = maxLocal->buscaLocal(polExploracao);
+		}
 
 		// Escolhe a solucao de peso minimo
 		while(!vizinhanca->empty())
@@ -139,8 +149,11 @@ vector<Problema*>* Tabu::exec(Problema* init)
 					delete maxLocal;
 					maxLocal = local->first;
 
-					delete maxGlobal;
-					maxGlobal = Problema::alloc(*maxLocal);
+					if(local->first->getFitnessMinimize() < maxGlobal->getFitnessMinimize())
+					{
+						delete maxGlobal;
+						maxGlobal = Problema::alloc(*maxLocal);
+					}
 
 					addTabu(listaTabu, local->second, tamListaTabu);
 

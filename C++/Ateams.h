@@ -65,6 +65,7 @@ typedef struct ParametrosBT {
 	int tentativasSemMelhora;
 	int numeroIteracoes;
 	int tamanhoListaTabu;
+	float polExploracao;
 	float funcAsp;
 } ParametrosBT;
 

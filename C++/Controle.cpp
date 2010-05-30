@@ -62,7 +62,6 @@ Controle::~Controle()
 	delete algs;
 
 	pthread_mutex_destroy(&mutex);
-
 }
 
 void Controle::addHeuristic(Heuristica* alg)
@@ -106,7 +105,7 @@ Problema* Controle::start()
 	Problema::best = (*pop->begin())->getFitnessMinimize();
 	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
-	cout << "CTR : 0 : " << Problema::best << " : " << Problema::worst << endl << endl << flush;
+	cout << "(THREADS) CTR : " << Problema::best << " : " << Problema::worst << endl << endl << flush;
 
 	struct timeval time1, time2;
 	gettimeofday(&time1, NULL);
@@ -155,7 +154,7 @@ Problema* Controle::start()
 				cout << *algName << " " << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
 
 
-			if((*pop->begin())->getFitnessMinimize() <= makespanBest)
+			if(Problema::best <= makespanBest)
 				PARAR = true;
 
 			if(tempo > maxTempo)
@@ -192,7 +191,7 @@ Problema* Controle::start()
 	Problema::best = (*pop->begin())->getFitnessMinimize();
 	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
-	cout << "CTR : 0 : " << (*pop->begin())->getFitnessMinimize() << endl << endl << flush;
+	cout << "CTR : " << Problema::best << " : " << Problema::worst << endl << endl << flush;
 
 	struct timeval time1, time2;
 	gettimeofday(&time1, NULL);
@@ -205,6 +204,9 @@ Problema* Controle::start()
 
 	for(int i = 1; i <= iterAteams && tempo < maxTempo; i++)
 	{
+		if(PARAR == 1)
+			break;
+
 		par = exec(rand());
 
 		prob = par->first;
@@ -225,17 +227,22 @@ Problema* Controle::start()
 		else
 			cout << *algName << " : " << i << " : " << Problema::best << " -> " << ins << endl << flush;
 
-		if((*pop->begin())->getFitnessMinimize() <= makespanBest)
-			break;
+		if(Problema::best <= makespanBest)
+			PARAR = true;
+
+		if(tempo > maxTempo)
+			PARAR = true;
 
 		gettimeofday(&time2, NULL);
 		tempo = time2.tv_sec - time1.tv_sec;
-
-		if(PARAR == 1)
-			break;
 	}
 	Problema::best = (*pop->begin())->getFitnessMinimize();
 	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
+
+	vector<Heuristica*>::iterator it;
+	cout << endl << endl << "Execuções:" << endl << endl;
+	for(it = algs->begin(); it != algs->end(); it++)
+		cout << (*it)->name << " : " << (*it)->numExec << endl;
 
 	return *(pop->begin());
 }

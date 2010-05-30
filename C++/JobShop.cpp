@@ -93,6 +93,9 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[tamListaBT]");
 	pBT->tamanhoListaTabu = (int)par;
 
+	par = locNumberPar(parametros, size, (char*)"[polExplorBT]");
+	pBT->polExploracao = (float)par;
+
 	par = locNumberPar(parametros, size, (char*)"[funcAspiracaoBT]");
 	pBT->funcAsp = (float)par;
 
@@ -175,6 +178,9 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, Pa
 
 	if((p = locComPar(argv, argc, (char*)"--funcAspiracaoBT")) != -1)
 		pBT->funcAsp = atof(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--polExplorBT")) != -1)
+		pBT->polExploracao = atof(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--iterBT")) != -1)
 		pBT->numeroIteracoes = atoi(argv[p]);
@@ -590,6 +596,52 @@ inline vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
 	return local;
 }
 
+inline vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal(float parcela)
+{
+	Problema *job = NULL;
+	int maq, p1, p2;
+	int numMaqs = nmaq, numJobs = njob;
+	pair<Problema*, tTabu*>* temp;
+	vector<pair<Problema*, tTabu*>* >* local = new vector<pair<Problema*, tTabu*>* >();
+	int total, def, i;
+
+	for(total = 0, i = njob; i > 0; i--)
+		total += i;
+	total *= nmaq;
+
+	def = (int)((float)total*parcela);
+
+	#pragma omp parallel for shared(local, numMaqs, numJobs, def) private(maq, p1, p2, job, temp, i)
+	for(i = 0; i < def; i++)
+	{
+		maq = rand() % numMaqs, p1 = rand() % numJobs, p2 = rand() % numJobs;
+
+		while(p2 == p1)
+			p2 = rand() % numJobs;
+
+		job = new JobShop(*this, maq, p1, p2);
+		if(job->sol.makespan != -1)
+		{
+			temp = new pair<Problema*, tTabu*>();
+			temp->first = job;
+			temp->second = JobShop::newTabu(maq, p1, p2);
+
+			#pragma omp critical
+			{
+				local->push_back(temp);
+			}
+		}
+		else
+		{
+			delete job;
+		}
+	}
+	random_shuffle(local->begin(), local->end());
+	sort(local->begin(), local->end(), ptcomp);
+
+	return local;
+}
+
 inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamParticao)
 {
 	short int **f1 = (short int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (short int**)alocaMatriz(2, nmaq, njob, 1);
@@ -716,14 +768,14 @@ float locNumberPar(char *in, int num, char *key)
 }
 
 char* locPosPar(char *in, int num, char *key)
-{
+				{
 	char *str = strstr(in, key);
 
 	if(str != NULL)
 		return strstr(str, "=") + 1;
 	else
 		return NULL;
-}
+				}
 
 int findOrdem(int M, int maq, short int* job)
 {
@@ -734,7 +786,7 @@ int findOrdem(int M, int maq, short int* job)
 }
 
 inline void* alocaMatriz(int dim, int a, int b, int c)
-{
+				{
 	if(dim == 1)
 	{
 		short int *M = (short int*)malloc(a * sizeof(short int));
@@ -763,7 +815,7 @@ inline void* alocaMatriz(int dim, int a, int b, int c)
 	}
 	else
 		return NULL;
-}
+				}
 
 inline void desalocaMatriz(int dim, void *MMM, int a, int b)
 {
