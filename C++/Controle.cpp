@@ -113,8 +113,10 @@ Problema* Controle::start()
 
 	int tempo = 0, ins = 0, execThreads = 0;
 
+	string* algName;
 	void *temp = NULL;
 	vector<Problema*> *prob = NULL;
+	pair<vector<Problema*>*, string*>* par = NULL;
 
 	int cont = 0;
 	while(true)
@@ -130,7 +132,10 @@ Problema* Controle::start()
 			pthread_join(threads[threads_join++], &temp);
 			execThreads--;
 
-			prob = (vector<Problema*>*)temp;
+			par = (pair<vector<Problema*>*, string*>*)temp;
+
+			prob = par->first;
+			algName = par->second;
 
 			pthread_mutex_lock(&mutex);
 			ins = addSol(prob);
@@ -143,11 +148,11 @@ Problema* Controle::start()
 			Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
 			if(threads_join < 10)
-				cout << "Iteração 00" << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
+				cout << *algName << " 00" << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
 			else if(threads_join < 100)
-				cout << "Iteração 0" << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
+				cout << *algName << " 0" << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
 			else
-				cout << "Iteração " << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
+				cout << *algName << " " << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
 
 
 			if((*pop->begin())->getFitnessMinimize() <= makespanBest)
@@ -194,11 +199,16 @@ Problema* Controle::start()
 
 	int tempo = 0, ins;
 
+	string* algName;
 	vector<Problema*> *prob = NULL;
+	pair<vector<Problema*>*, string*>* par = NULL;
 
 	for(int i = 1; i <= iterAteams && tempo < maxTempo; i++)
 	{
-		prob = exec(rand());
+		par = exec(rand());
+
+		prob = par->first;
+		algName = par->second;
 
 		ins = addSol(prob);
 
@@ -209,9 +219,11 @@ Problema* Controle::start()
 		Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
 		if(i < 10)
-			cout << atual << " : 0" << i << " : " << Problema::best << " -> " << ins << endl << flush;
+			cout << *algName << " : 00" << i << " : " << Problema::best << " -> " << ins << endl << flush;
+		else if(i < 100)
+			cout << *algName << " : 0" << i << " : " << Problema::best << " -> " << ins << endl << flush;
 		else
-			cout << atual << " : " << i << " : " << Problema::best << " -> " << ins << endl << flush;
+			cout << *algName << " : " << i << " : " << Problema::best << " -> " << ins << endl << flush;
 
 		if((*pop->begin())->getFitnessMinimize() <= makespanBest)
 			break;
@@ -229,11 +241,16 @@ Problema* Controle::start()
 }
 #endif
 
-inline vector<Problema*>* Controle::exec(int randomic)
+inline pair<vector<Problema*>*, string*>* Controle::exec(int randomic)
 {
 	Heuristica* alg = selectRouletteWheel(algs, Heuristica::numHeuristic, randomic);
-	atual = alg->name;
-	return alg->start(pop, randomic);
+
+	pair<vector<Problema*>*, string*>* par = new pair<vector<Problema*>*, string*>();
+
+	par->first = alg->start(pop, randomic);
+	par->second = new string(alg->name);
+
+	return par;
 }
 
 inline int Controle::addSol(vector<Problema*> *prob)

@@ -21,7 +21,6 @@ public:
 
 	vector<Heuristica*>* algs;			// Algoritmos disponiveis
 
-	string atual;
 	int numThreads;
 	int makespanBest;					// Melhor makespan conhecido
 	int tamPop, iterAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao
@@ -41,7 +40,7 @@ public:
 
 private:
 	/* Seleciona um dos algoritmos implementados para executar */
-	vector<Problema*>* exec(int randWheel);
+	pair<vector<Problema*>*, string*>* exec(int randWheel);
 
 	/* Adiciona um novo conjunto de solucao a populacao corrente */
 	int addSol(vector<Problema*> *prob);

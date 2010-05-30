@@ -102,8 +102,6 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 
 		sort(popAG->begin(), popAG->end(), fncomp2);
 	}
-
-	srand(unsigned(randomic));
 	return exec(popAG);
 }
 
@@ -237,17 +235,26 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 		aux_pop->clear();
 	}
-
 	pop = isUnique(pop, tamPopGenetico);
 
+#ifdef THREADS
 	for(iter2 = bad_pop->begin(); iter2 != bad_pop->end(); iter2++)
 		delete *iter2;
 
 	bad_pop->clear();
 	delete bad_pop;
+#else
+	random_shuffle(bad_pop->begin(), bad_pop->end());
+	while((int)bad_pop->size() > tamBadGenetico)
+	{
+		delete bad_pop->back();
+		bad_pop->pop_back();
+	}
+#endif
 
 	delete pais;
 	delete filhos;
+	delete aux_pop;
 
 	return pop;
 }
