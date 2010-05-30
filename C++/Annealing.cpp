@@ -9,8 +9,8 @@ Annealing::Annealing()
 	numExec = 0;
 
 	name = "DEFAULT_SA";
-	prob = 50;
-	polEscolha = 10;
+	prob = 45;
+	polEscolha = 100;
 	maxIter = 125;
 	initTemp = 100;
 	fimTemp = 1;
@@ -25,8 +25,8 @@ Annealing::Annealing(ParametrosSA *pSA)
 	numExec = 0;
 
 	name = "SA";
-	prob = pSA->probSA != -1 ? pSA->probSA : 50;
-	polEscolha = pSA->polEscolha != -1 ? pSA->polEscolha : 10;
+	prob = pSA->probSA != -1 ? pSA->probSA : 45;
+	polEscolha = pSA->polEscolha != -1 ? pSA->polEscolha : 100;
 	maxIter = pSA->maxIter != -1 ? pSA->maxIter : 125;
 	initTemp = pSA->initTemp != -1 ? pSA->initTemp : 100;
 	fimTemp = pSA->fimTemp > 0 ? pSA->fimTemp : 1;

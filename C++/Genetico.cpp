@@ -11,11 +11,11 @@ Genetico::Genetico()
 	name = "DEFAULT_AG";
 	prob = 20;
 	polEscolha = -1;
-	iterGenetico = 250;
+	iterGenetico = 500;
 	tamPopGenetico = 250;
 	tamBadGenetico = 750;
-	probCrossOver = 0.9;
-	probMutacao = 0.1;
+	probCrossOver = 0.8;
+	probMutacao = 0.02;
 	tamParticionamento = -1;
 
 #ifndef THREADS
@@ -32,11 +32,11 @@ Genetico::Genetico(ParametrosAG* pAG)
 	name = "AG";
 	prob = pAG->probAG != -1 ? pAG->probAG : 20;
 	polEscolha = pAG->polEscolha != -1 ? pAG->polEscolha : -1;
-	iterGenetico = pAG->numeroIteracoes != -1 ? pAG->numeroIteracoes : 250;
+	iterGenetico = pAG->numeroIteracoes != -1 ? pAG->numeroIteracoes : 500;
 	tamPopGenetico = pAG->tamanhoPopulacao != -1 ? pAG->tamanhoPopulacao : 250;
 	tamBadGenetico = pAG->tamanhoAuxPopulacao != -1 ? pAG->tamanhoAuxPopulacao : 750;
-	probCrossOver = pAG->probCrossOver != -1 ? pAG->probCrossOver : 0.9;
-	probMutacao = pAG->probMutacao != -1 ? pAG->probMutacao : 0.1;
+	probCrossOver = pAG->probCrossOver != -1 ? pAG->probCrossOver : 0.8;
+	probMutacao = pAG->probMutacao != -1 ? pAG->probMutacao : 0.02;
 	tamParticionamento = pAG->tamanhoParticionamento != -1 ? pAG->tamanhoParticionamento : -1;
 
 #ifndef THREADS
@@ -239,7 +239,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		/* Selecao dos melhores */
 		for(iter2 = aux_pop->begin(); iter2 != aux_pop->end(); iter2++)
 		{
-			if((int)pop->size() <= tamPopGenetico)
+			if((int)pop->size() < tamPopGenetico)
 				pop->push_back(*iter2);
 			else
 				bad_pop->push_back(*iter2);	// Armazenado para possivel reaproveitamento

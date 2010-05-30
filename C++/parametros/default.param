@@ -9,26 +9,26 @@
 
 
 #BT
-[probBT] = 30			// Probabilidade de se executar BT em cada iteração do ATEAMS
+[probBT] = 35			// Probabilidade de se executar BT em cada iteração do ATEAMS
 [polEscolhaBT] = 100		// Política de escolha
 [funcAspiracaoBT] = 0.5		// Função de Aspiração
-[iterBT] = 250			// Iterações do BT
-[tentSemMelhoraBT] = 125	// Política de leitura do BT
-[tamListaBT] = 25		// Tamanho de lista do BT
-[polExplorBT] = -1		// Política na exploração da vizinhança
+[iterBT] = 500			// Iterações do BT
+[tentSemMelhoraBT] = 250	// Política de leitura do BT
+[tamListaBT] = 10		// Tamanho de lista do BT
+[polExplorBT] = 0.25		// Política na exploração da vizinhança
 
 #AG
 [probAG] = 20			// Probabilidade de se executar AG em cada iteração do ATEAMS
 [polEscolhaAG] = -1		// Política de escolha
-[iterAG] = 250			// Iterações do AG
+[iterAG] = 500			// Iterações do AG
 [tamPopAG] = 250		// Tamanho da população intermediária do AG
 [tamAuxPopAG] = 750		// Tamanho da população de indivíduos ruins do AG
 [tamParticaoAG] = -1		// Tamanho de uma divisão durante o Crossover
-[probCrossOverAG] = 0.9		// Probabilidade de cruzamento
-[probMutacaoAG] = 0.1		// Probabilidade de haver mutação
+[probCrossOverAG] = 0.8		// Probabilidade de cruzamento
+[probMutacaoAG] = 0.02		// Probabilidade de haver mutação
 
 #SA
-[probSA] = 50			// Probabilidade de se executar SA em cada iteração do ATEAMS
+[probSA] = 45			// Probabilidade de se executar SA em cada iteração do ATEAMS
 [polEscolhaSA] = 100		// Política de escolha
 [maxIterSA] = 125		// Número de iterações para atingir o equilíbrio
 [initTempSA] = 100		// Temperatura inicial
