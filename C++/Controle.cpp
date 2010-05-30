@@ -196,7 +196,7 @@ Problema* Controle::start()
 
 	vector<Problema*> *prob = NULL;
 
-	for(int i = 0; i < iterAteams && tempo < maxTempo; i++)
+	for(int i = 1; i <= iterAteams && tempo < maxTempo; i++)
 	{
 		prob = exec(rand());
 
@@ -208,10 +208,10 @@ Problema* Controle::start()
 		Problema::best = (*pop->begin())->getFitnessMinimize();
 		Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
-		if((i+1) < 10)
-			cout << atual << " : 0" << i+1 << " : " << Problema::best << " -> " << ins << endl << flush;
+		if(i < 10)
+			cout << atual << " : 0" << i << " : " << Problema::best << " -> " << ins << endl << flush;
 		else
-			cout << atual << " : " << i+1 << " : " << Problema::best << " -> " << ins << endl << flush;
+			cout << atual << " : " << i << " : " << Problema::best << " -> " << ins << endl << flush;
 
 		if((*pop->begin())->getFitnessMinimize() <= makespanBest)
 			break;

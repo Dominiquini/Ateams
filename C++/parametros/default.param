@@ -30,7 +30,7 @@
 [probSA] = 50                   // Probabilidade de se executar SA em cada iteração do ATEAMS
 [polEscolhaSA] = 10             // Política de escolha
 [maxIterSA] = 125		// Número de iterações para atingir o equilíbrio
-[initTempSA] = -1		// Temperatura inicial
+[initTempSA] = 100		// Temperatura inicial
 [finalTempSA] = 1		// Temperatura final
 [restauraSolSA] = 0		// Restaura a solução para o mínimo de cada iteração
 [alphaSA] = 0.99		// Índice de redução da temperatura

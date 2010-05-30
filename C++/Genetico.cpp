@@ -168,7 +168,6 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 				temp->second = *iter2;
 				pop->erase(iter2);
 			}
-
 			pais->push_back(temp);
 		}
 
@@ -220,7 +219,6 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 			delete *iter1;
 		}
-
 		pais->clear();
 		filhos->clear();
 
@@ -235,7 +233,6 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 			else
 				bad_pop->push_back(*iter2);	// Armazenado para possivel reaproveitamento
 		}
-
 		sort(pop->begin(), pop->end(), fncomp2);
 
 		aux_pop->clear();
@@ -256,7 +253,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 }
 
 inline vector<Problema*>* isUnique(vector<Problema*>* pop, int n)
-								{
+{
 	vector<Problema*>* aux = new vector<Problema*>();
 	int max = 0;
 
@@ -267,6 +264,7 @@ inline vector<Problema*>* isUnique(vector<Problema*>* pop, int n)
 		else
 			aux->push_back(pop->at(max-1));
 	}
+
 	if(max >= n)
 		delete pop->at(max-1);
 	else
@@ -276,7 +274,7 @@ inline vector<Problema*>* isUnique(vector<Problema*>* pop, int n)
 	delete pop;
 
 	return aux;
-								}
+}
 
 inline bool find(vector<Problema*> *vect, Problema *p)
 {

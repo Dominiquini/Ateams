@@ -29,6 +29,6 @@ bool isTabu(list<tTabu> *listaTabu, tTabu *m);
 
 void addTabu(list<tTabu>* listaTabu, tTabu *m, int max);
 
-double aspiracao(float paramAsp, double local, double global);
+double aspiracao(double paramAsp, double local, double global);
 
 #endif

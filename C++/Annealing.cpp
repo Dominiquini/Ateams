@@ -12,7 +12,7 @@ Annealing::Annealing()
 	prob = 50;
 	polEscolha = 10;
 	maxIter = 125;
-	initTemp = -1;
+	initTemp = 100;
 	fimTemp = 1;
 	restauraSol = false;
 	alfa = 0.99;
@@ -28,7 +28,7 @@ Annealing::Annealing(ParametrosSA *pSA)
 	prob = pSA->probSA != -1 ? pSA->probSA : 50;
 	polEscolha = pSA->polEscolha != -1 ? pSA->polEscolha : 10;
 	maxIter = pSA->maxIter != -1 ? pSA->maxIter : 125;
-	initTemp = pSA->initTemp != -1 ? pSA->initTemp : -1;
+	initTemp = pSA->initTemp != -1 ? pSA->initTemp : 100;
 	fimTemp = pSA->fimTemp > 0 ? pSA->fimTemp : 1;
 	restauraSol = pSA->restauraSol != 0 ? true : false;
 	alfa = pSA->alfa != -1 ? pSA->alfa : 0.99;
@@ -108,7 +108,7 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 			}
 
 			Ds = Sn->getFitnessMinimize() - S->getFitnessMinimize();
-			if(Ds < 0 || accept((double)rand(), Ds, T))
+			if(Ds <= 0 || accept((double)rand(), Ds, T))
 			{
 				delete S;
 				S = Sn;
@@ -132,7 +132,6 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 			S = Problema::alloc(*Sf);
 		}
 	}
-
 	delete S;
 
 	return new vector<Problema*>(1, Sf);
@@ -140,8 +139,5 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 
 inline bool accept(double rand, double Ds, double T)
 {
-	double u = rand/((float)RAND_MAX);
-	double a = exp(-Ds/T);
-
-	return (u < a);
+	return ((rand/((float)RAND_MAX)) < (exp(-Ds/T)));
 }

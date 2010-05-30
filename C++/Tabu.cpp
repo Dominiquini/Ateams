@@ -132,7 +132,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			else
 			{
 				// Satisfaz a funcao de aspiracao
-				if(local->first->getFitnessMinimize() < aspiracao(funcAsp, maxLocal->getFitnessMinimize(), maxGlobal->getFitnessMinimize()))
+				if(local->first->getFitnessMinimize() < aspiracao((double)funcAsp, maxLocal->getFitnessMinimize(), maxGlobal->getFitnessMinimize()))
 				{
 					j = 0;
 
@@ -166,7 +166,6 @@ vector<Problema*>* Tabu::exec(Problema* init)
 		vizinhanca->clear();
 		delete vizinhanca;
 	}
-
 	delete listaTabu;
 	delete maxLocal;
 
@@ -194,7 +193,7 @@ inline void addTabu(list<tTabu>* listaTabu, tTabu *m, int max)
 		listaTabu->pop_back();
 }
 
-inline double aspiracao(float paramAsp, double local, double global)
+inline double aspiracao(double paramAsp, double local, double global)
 {
 	return ((paramAsp*global) + ((1-paramAsp)*local));
 }
