@@ -24,7 +24,7 @@
 <tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.2019815737" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug">
 <option id="gnu.cpp.compiler.exe.debug.option.optimization.level.209351618" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.exe.debug.option.debugging.level.675600582" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
-<option id="gnu.cpp.compiler.option.other.other.96679085" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -lpthread" valueType="string"/>
+<option id="gnu.cpp.compiler.option.other.other.96679085" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -lm -lpthread" valueType="string"/>
 <option id="gnu.cpp.compiler.option.other.verbose.439236657" name="Verbose (-v)" superClass="gnu.cpp.compiler.option.other.verbose" value="false" valueType="boolean"/>
 <option id="gnu.cpp.compiler.option.include.paths.959919960" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths"/>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.816057518" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -32,13 +32,14 @@
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1583857633" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
 <option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.exe.debug.option.optimization.level.1031511464" name="Optimization Level" superClass="gnu.c.compiler.exe.debug.option.optimization.level" valueType="enumerated"/>
 <option id="gnu.c.compiler.exe.debug.option.debugging.level.1269639112" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
-<option id="gnu.c.compiler.option.misc.other.661130505" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -lpthread" valueType="string"/>
+<option id="gnu.c.compiler.option.misc.other.661130505" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0  -lm -lpthread" valueType="string"/>
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.131215474" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1174000057" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug"/>
 <tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.921540228" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
 <option id="gnu.cpp.link.option.libs.1114609499" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 <listOptionValue builtIn="false" value="pthread"/>
+<listOptionValue builtIn="false" value="m"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.149368453" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
