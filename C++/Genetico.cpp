@@ -117,9 +117,8 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	vector<Problema*>::iterator iter2;
 
 	vector<vector<pair<Problema*, Problema*>* >::iterator> paisIter;
-	int paisSize;
+	int paisSize, particao, mutacao;
 
-	bool tipoCrossOver = true;
 	int numCrossOver;
 	int sumP;
 
@@ -176,17 +175,19 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		for(iter1 = pais->begin(); iter1 != pais->end(); iter1++)
 			paisIter.push_back(iter1);
 		paisSize = pais->size();
+		particao = tamParticionamento;
+		mutacao = probMutacao;
 
 		/* Faz o cruzamento de todos os pares definidos anteriormente */
-		#pragma omp parallel for shared(filhos, pais) private(temp, iter1)
+		#pragma omp parallel for shared(filhos, pais, paisIter, paisSize, particao, mutacao) private(i, temp, iter1)
 		for(int i = 0; i < paisSize; i++)
 		{
 			iter1 = paisIter[i];
 
-			if(tipoCrossOver)
+			if(i % 2 == 0)
 			{
 				/* Crossover com dois pontos de particionamento escolhidos aleatoriamente e tamanho 'tamParticionmento' */
-				temp = (*iter1)->first->crossOver((*iter1)->second, tamParticionamento);
+				temp = (*iter1)->first->crossOver((*iter1)->second, particao);
 			}
 			else
 			{
@@ -194,18 +195,18 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 				temp = (*iter1)->first->crossOver((*iter1)->second);
 			}
 
-			if(rand() < (RAND_MAX*probMutacao/2))
+			if(rand() < ((RAND_MAX*mutacao)/2))
 				temp->first->mutacao();
 
-			if(rand() < (RAND_MAX*probMutacao/2))
+			if(rand() < ((RAND_MAX*mutacao)/2))
 				temp->second->mutacao();
 
 			#pragma omp critical
-			filhos->push_back(temp);
+			{
+				filhos->push_back(temp);
+			}
 
 			delete *iter1;
-
-			tipoCrossOver = !tipoCrossOver;
 		}
 
 		/* Restaura a populacao dos pais */

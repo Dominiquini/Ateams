@@ -106,7 +106,7 @@ Problema* Controle::start()
 	Problema::best = (*pop->begin())->getFitnessMinimize();
 	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
-	cout << "CTR : 0 : " << (*pop->begin())->getFitnessMinimize() << endl << endl << flush;
+	cout << "CTR : 0 : " << Problema::best << " : " << Problema::worst << endl << endl << flush;
 
 	struct timeval time1, time2;
 	gettimeofday(&time1, NULL);

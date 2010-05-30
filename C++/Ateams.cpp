@@ -86,26 +86,19 @@ int main(int argc, char *argv[])
 		printf("Parametros: '%s'\n", PARAMETROS);
 	}
 
+	char resultado[32] = {"resultados/"};
 	if((p = locComPar(argv, argc, (char*)"-r")) != -1)
 	{
-		if ((fresultados = fopen(argv[p], "a")) == NULL)
-		{
-			printf("Arquivo \"%s\" nao encontrado.\n\n", argv[p]);
-			exit(1);
-		}
-		else
-		{
-			printf("Resultados: '%s'\n", argv[p]);
-		}
+		strcpy(resultado, argv[p]);
+
+		printf("Resultado: '%s'\n", resultado);
 	}
 	else
 	{
-		char resultado[32] = {"resultados/"};
 		strcat(resultado, strstr(dados, "dados/") + 6);
 		resultado[strlen(resultado) - 3] = '\0';
 		strcat(resultado, "res");
 
-		fresultados = fopen(resultado, "a");
 		printf("Resultado: '%s'\n", resultado);
 	}
 
@@ -130,6 +123,7 @@ int main(int argc, char *argv[])
 	cout << endl << "Melhor Solução: " << Problema::best << endl << endl;
 
 	gettimeofday(&tv2, NULL);
+	fresultados = fopen(resultado, "a");
 	Problema::imprimeResultado(tv1, tv2, fresultados, best->getFitnessMinimize());
 	fclose(fresultados);
 

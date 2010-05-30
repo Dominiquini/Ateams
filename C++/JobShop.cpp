@@ -423,17 +423,14 @@ inline int JobShop::calcMakespan()
 
 	register int i, j, k;
 
-	#pragma omp parallel for shared(tmp) private(i, j)
 	for (i = 0; i < njob; i++)
 		for(j = 0; j <= nmaq; j++)
 			tmp[i][j] = j == 0 ? 0 : -1;
 
-	#pragma omp parallel for shared(aux_esc) private(i, j)
 	for (i = 0; i < nmaq; i++)
 		for(j = 0; j < njob; j++)
 			aux_esc[i][j][0] = -1;
 
-	#pragma omp parallel for shared(pos) private(i)
 	for(i = 0; i < nmaq; i++)
 		pos[i] = 0;
 
@@ -555,20 +552,18 @@ inline Problema* JobShop::vizinho()
 
 inline vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
 {
-	pair<Problema*, tTabu*>* temp;
-	vector<pair<Problema*, tTabu*>* >* local;
-	local = new vector<pair<Problema*, tTabu*>* >();
-
-	register int maq, p1, p2;
-
 	Problema *job = NULL;
+	register int maq, p1, p2;
+	int numMaqs = nmaq, numJobs = njob;
+	pair<Problema*, tTabu*>* temp;
+	vector<pair<Problema*, tTabu*>* >* local = new vector<pair<Problema*, tTabu*>* >();
 
-	#pragma omp parallel for shared(local) private(maq, p1, p2, job, temp)
-	for(maq = 0; maq < nmaq; maq++)
+	#pragma omp parallel for shared(local, numMaqs, numJobs) private(maq, p1, p2, job, temp)
+	for(maq = 0; maq < numMaqs; maq++)
 	{
-		for(p1 = 0; p1 < njob-1; p1++)
+		for(p1 = 0; p1 < numJobs-1; p1++)
 		{
-			for(p2 = p1+1; p2 < njob; p2++)
+			for(p2 = p1+1; p2 < numJobs; p2++)
 			{
 				job = new JobShop(*this, maq, p1, p2);
 				if(job->sol.makespan != -1)
@@ -578,10 +573,14 @@ inline vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
 					temp->second = JobShop::newTabu(maq, p1, p2);
 
 					#pragma omp critical
-					local->push_back(temp);
+					{
+						local->push_back(temp);
+					}
 				}
 				else
+				{
 					delete job;
+				}
 			}
 		}
 	}
@@ -598,10 +597,7 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamPart
 	int particao = tamParticao == -1 ? (JobShop::njob)/2 : tamParticao;
 	int inicioPart = 0, fimPart = 0;
 
-	register int i;
-
-	#pragma omp parallel for private(i)
-	for(i = 0; i < nmaq; i++)
+	for(register int i = 0; i < nmaq; i++)
 	{
 		inicioPart = rand() % njob;
 		fimPart = inicioPart+particao <= njob ? inicioPart+particao : njob;
@@ -622,10 +618,7 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai)
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
 	int particao = 0;
 
-	register int i;
-
-	#pragma omp parallel for private(i)
-	for(i = 0; i < nmaq; i++)
+	for(register int i = 0; i < nmaq; i++)
 	{
 		particao = (rand() % njob) + 1;
 
