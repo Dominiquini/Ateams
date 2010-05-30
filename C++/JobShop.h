@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <omp.h>
 
 #include "Problema.h"
 

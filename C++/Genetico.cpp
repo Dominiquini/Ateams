@@ -116,6 +116,9 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	vector<pair<Problema*, Problema*>* >::iterator iter1;
 	vector<Problema*>::iterator iter2;
 
+	vector<vector<pair<Problema*, Problema*>* >::iterator> paisIter;
+	int paisSize;
+
 	bool tipoCrossOver = true;
 	int numCrossOver;
 	int sumP;
@@ -169,9 +172,17 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 			pais->push_back(temp);
 		}
 
-		/* Faz o cruzamento de todos os pares definidos anteriormente */
+		/* OpenMP nao trabalha direito com STL */
 		for(iter1 = pais->begin(); iter1 != pais->end(); iter1++)
+			paisIter.push_back(iter1);
+		paisSize = pais->size();
+
+		/* Faz o cruzamento de todos os pares definidos anteriormente */
+		#pragma omp parallel for shared(filhos, pais) private(temp, iter1)
+		for(int i = 0; i < paisSize; i++)
 		{
+			iter1 = paisIter[i];
+
 			if(tipoCrossOver)
 			{
 				/* Crossover com dois pontos de particionamento escolhidos aleatoriamente e tamanho 'tamParticionmento' */
@@ -189,6 +200,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 			if(rand() < (RAND_MAX*probMutacao/2))
 				temp->second->mutacao();
 
+			#pragma omp critical
 			filhos->push_back(temp);
 
 			delete *iter1;
