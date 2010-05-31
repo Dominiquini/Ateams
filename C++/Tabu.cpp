@@ -15,7 +15,7 @@ Tabu::Tabu()
 	iterTabu = 500;
 	tamListaTabu = 10;
 	tentSemMelhora = 250;
-	polExploracao = 0.25;
+	polExploracao = 0.5;
 
 	Heuristica::numHeuristic += prob;
 }
@@ -31,7 +31,7 @@ Tabu::Tabu(ParametrosBT* pBT)
 	iterTabu = pBT->numeroIteracoes != -1 ? pBT->numeroIteracoes : 500;
 	tamListaTabu = pBT->tamanhoListaTabu != -1 ? pBT->tamanhoListaTabu : 10;
 	tentSemMelhora = pBT->tentativasSemMelhora != -1 ? pBT->tentativasSemMelhora : 250;
-	polExploracao = pBT->polExploracao != -1 ? pBT->polExploracao : 0.25;
+	polExploracao = pBT->polExploracao != -1 ? pBT->polExploracao : 0.5;
 
 	Heuristica::numHeuristic += prob;
 }

@@ -15,7 +15,7 @@
 [iterBT] = 500			// Iterações do BT
 [tentSemMelhoraBT] = 250	// Política de leitura do BT
 [tamListaBT] = 10		// Tamanho de lista do BT
-[polExplorBT] = 0.25		// Política na exploração da vizinhança
+[polExplorBT] = 0.5		// Política na exploração da vizinhança
 
 #AG
 [probAG] = 20			// Probabilidade de se executar AG em cada iteração do ATEAMS
