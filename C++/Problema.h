@@ -56,8 +56,6 @@ public:
 	static double sumFitnessMinimize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
 	static double sumFitnessMinimize(vector<Problema*> *pop, int n);
 
-	// Verifica se 't1' eh igual a 't2'
-	static bool movTabuCMP(tTabu& t1, tTabu& t2);
 
 	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
 	Problema() {pthread_mutex_lock(&mut_p); numInst++; pthread_mutex_unlock(&mut_p);}			// numInst++
@@ -70,8 +68,8 @@ public:
 	virtual Problema* vizinho() = 0;
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual */
-	virtual vector<pair<Problema*, tTabu*>* >* buscaLocal() = 0;	// Todos os vizinhos
-	virtual vector<pair<Problema*, tTabu*>* >* buscaLocal(float) = 0;	// Uma parcela aleatoria
+	virtual vector<pair<Problema*, movTabu*>* >* buscaLocal() = 0;	// Todos os vizinhos
+	virtual vector<pair<Problema*, movTabu*>* >* buscaLocal(float) = 0;	// Uma parcela aleatoria
 
 	/* Realiza um crossover com uma outra solucao */
 	virtual pair<Problema*, Problema*>* crossOver(Problema*, int) = 0;	// Dois pivos
@@ -90,7 +88,7 @@ public:
 	friend bool fnequal(Problema*, Problema*);
 	friend bool fncomp1(Problema*, Problema*);
 	friend bool fncomp2(Problema*, Problema*);
-	friend bool vtcomp(pair<Problema*, tTabu*>*, pair<Problema*, tTabu*>*);
+	friend bool vtcomp(pair<Problema*, movTabu*>*, pair<Problema*, movTabu*>*);
 };
 
 #endif

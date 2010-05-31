@@ -295,25 +295,6 @@ double Problema::sumFitnessMinimize(vector<Problema*> *pop, int n)
 	return sum;
 }
 
-bool Problema::movTabuCMP(tTabu& t1, tTabu& t2)
-{
-	if(t1.maq == t2.maq && (t1.A == t2.A || t1.A == t2.B) && (t1.B == t2.B || t1.B == t2.A))
-		return true;
-	else
-		return false;
-}
-
-tTabu* JobShop::newTabu(int maq, int p1, int p2)
-{
-	tTabu *tabu = (tTabu*)malloc(sizeof(tTabu));
-
-	tabu->maq = maq;
-	tabu->A = p1;
-	tabu->B = p2;
-
-	return tabu;
-}
-
 /* Metodos */
 
 JobShop::JobShop() : Problema::Problema()
@@ -577,13 +558,13 @@ inline Problema* JobShop::vizinho()
 	return new JobShop(*this, maq, p1, p2);
 }
 
-inline vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
+inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
 {
 	Problema *job = NULL;
 	register int maq, p1, p2;
 	int numMaqs = nmaq, numJobs = njob;
-	pair<Problema*, tTabu*>* temp;
-	vector<pair<Problema*, tTabu*>* >* local = new vector<pair<Problema*, tTabu*>* >();
+	pair<Problema*, movTabu*>* temp;
+	vector<pair<Problema*, movTabu*>* >* local = new vector<pair<Problema*, movTabu*>* >();
 
 	#pragma omp parallel for shared(local, numMaqs, numJobs) private(maq, p1, p2, job, temp)
 	for(maq = 0; maq < numMaqs; maq++)
@@ -595,9 +576,9 @@ inline vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
 				job = new JobShop(*this, maq, p1, p2);
 				if(job->sol.makespan != -1)
 				{
-					temp = new pair<Problema*, tTabu*>();
+					temp = new pair<Problema*, movTabu*>();
 					temp->first = job;
-					temp->second = JobShop::newTabu(maq, p1, p2);
+					temp->second = new movTabu(maq, p1, p2);
 
 					#pragma omp critical
 					{
@@ -617,13 +598,13 @@ inline vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal()
 	return local;
 }
 
-inline vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal(float parcela)
+inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 {
 	Problema *job = NULL;
 	int maq, p1, p2;
 	int numMaqs = nmaq, numJobs = njob;
-	pair<Problema*, tTabu*>* temp;
-	vector<pair<Problema*, tTabu*>* >* local = new vector<pair<Problema*, tTabu*>* >();
+	pair<Problema*, movTabu*>* temp;
+	vector<pair<Problema*, movTabu*>* >* local = new vector<pair<Problema*, movTabu*>* >();
 	int total, def, i;
 
 	for(total = 0, i = njob; i > 0; i--)
@@ -643,9 +624,9 @@ inline vector<pair<Problema*, tTabu*>* >* JobShop::buscaLocal(float parcela)
 		job = new JobShop(*this, maq, p1, p2);
 		if(job->sol.makespan != -1)
 		{
-			temp = new pair<Problema*, tTabu*>();
+			temp = new pair<Problema*, movTabu*>();
 			temp->first = job;
-			temp->second = JobShop::newTabu(maq, p1, p2);
+			temp->second = new movTabu(maq, p1, p2);
 
 			#pragma omp critical
 			{
@@ -904,7 +885,7 @@ bool fnequal(Problema* p1, Problema* p2)
 		return false;
 }
 
-inline bool ptcomp(pair<Problema*, tTabu*>* p1, pair<Problema*, tTabu*>* p2)
+inline bool ptcomp(pair<Problema*, movTabu*>* p1, pair<Problema*, movTabu*>* p2)
 {
 	return (p1->first->getFitnessMinimize() > p2->first->getFitnessMinimize());
 }

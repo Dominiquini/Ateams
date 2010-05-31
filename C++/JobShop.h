@@ -19,8 +19,6 @@ public:
 	static short int **maq, **time;	// Matriz de maquinas e de tempos
 	static int njob, nmaq;			// Quantidade de jobs e de maquinas
 
-	static tTabu* newTabu(int maq, int p1, int p2);	// Retorna um movimento tabu
-
 	JobShop();												// Nova solucao aleatoria
 	JobShop(short int **prob);								// Copia de prob
 	JobShop(const Problema &prob);								// Copia de prob
@@ -35,8 +33,8 @@ public:
 	Problema* vizinho();
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
-	vector<pair<Problema*, tTabu*>* >* buscaLocal();	// Todos os vizinhos
-	vector<pair<Problema*, tTabu*>* >* buscaLocal(float);	// Uma parcela aleatoria
+	vector<pair<Problema*, movTabu*>* >* buscaLocal();	// Todos os vizinhos
+	vector<pair<Problema*, movTabu*>* >* buscaLocal(float);	// Uma parcela aleatoria
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
 	pair<Problema*, Problema*>* crossOver(Problema*, int);	// Dois pivos
@@ -66,7 +64,7 @@ void* alocaMatriz(int, int, int, int);
 
 void desalocaMatriz(int, void*, int, int);
 
-bool ptcomp(pair<Problema*, tTabu*>*, pair<Problema*, tTabu*>*);
+bool ptcomp(pair<Problema*, movTabu*>*, pair<Problema*, movTabu*>*);
 
 bool find(vector<Problema*> *vect, Problema *p);
 

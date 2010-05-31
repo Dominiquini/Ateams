@@ -85,11 +85,11 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 /* Executa uma busca por solucoes a partir de 'init' por 'iterTabu' vezes */
 vector<Problema*>* Tabu::exec(Problema* init)
 {
-	vector<pair<Problema*, tTabu*>* >* vizinhanca;
-	pair<Problema*, tTabu*>* local;
+	vector<pair<Problema*, movTabu*>* >* vizinhanca;
+	pair<Problema*, movTabu*>* local;
 
 	// Lista Tabu de movimentos repetidos
-	list<tTabu> *listaTabu = new list<tTabu>;
+	list<movTabu*>* listaTabu = new list<movTabu*>;
 
 	// Maximos globais e locais na execucao da Busca Tabu
 	Problema *maxGlobal = Problema::alloc(*init), *maxLocal = init;
@@ -155,15 +155,15 @@ vector<Problema*>* Tabu::exec(Problema* init)
 						maxGlobal = Problema::alloc(*maxLocal);
 					}
 
-					addTabu(listaTabu, local->second, tamListaTabu);
-
 					delete local;
+					delete local->second;
 
 					break;
 				}
 				else
 				{
 					delete local->first;
+					delete local->second;
 					delete local;
 				}
 			}
@@ -174,13 +174,21 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			vizinhanca->pop_back();
 
 			delete local->first;
+			delete local->second;
 			delete local;
 		}
 		vizinhanca->clear();
 		delete vizinhanca;
 	}
-	delete listaTabu;
 	delete maxLocal;
+
+	while(!listaTabu->empty())
+	{
+		delete listaTabu->back();
+		listaTabu->pop_back();
+	}
+	listaTabu->clear();
+	delete listaTabu;
 
 	maxGlobal->exec.tabu = true;
 
@@ -188,22 +196,26 @@ vector<Problema*>* Tabu::exec(Problema* init)
 }
 
 /* Verdadeiro se movimento avaliado for Tabu */
-inline bool isTabu(list<tTabu> *listaTabu, tTabu *m)
+inline bool isTabu(list<movTabu*> *listaTabu, movTabu *m)
 {
-	list<tTabu>::iterator iter;
+	list<movTabu*>::iterator iter;
 
 	for(iter = listaTabu->begin(); iter != listaTabu->end(); iter++)
-		if(Problema::movTabuCMP(*iter, *m))
+		if(m->movTabuCMP(**iter))
 			return true;
 
 	return false;
 }
 
-inline void addTabu(list<tTabu>* listaTabu, tTabu *m, int max)
+inline void addTabu(list<movTabu*>* listaTabu, movTabu *m, int max)
 {
-	listaTabu->push_front(*m);
+	listaTabu->push_front(m);
+
 	if((int)listaTabu->size() > max)
+	{
+		delete listaTabu->back();
 		listaTabu->pop_back();
+	}
 }
 
 inline double aspiracao(double paramAsp, double local, double global)

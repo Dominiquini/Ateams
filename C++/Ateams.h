@@ -35,10 +35,26 @@ typedef struct executado
 	bool annealing;
 } executado;
 
-typedef struct movTabu
+struct movTabu
 {
 	short int maq, A, B;
-} tTabu;
+
+	movTabu(int xmaq, int xA, int xB)
+	{
+		maq = xmaq;
+		A = xA;
+		B = xB;
+	}
+
+	// Verifica se 't1' eh igual a 't2'
+	bool movTabuCMP(movTabu& t)
+	{
+		if(maq == t.maq && (A == t.A || A == t.B) && (B == t.B || B == t.A))
+			return true;
+		else
+			return false;
+	}
+};
 
 typedef struct ParametrosATEAMS {
 	int tamanhoPopulacao;
