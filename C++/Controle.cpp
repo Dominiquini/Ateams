@@ -91,7 +91,6 @@ Problema* Controle::getSol(int n)
 	return *(--iter);
 }
 
-#ifdef THREADS
 Problema* Controle::start()
 {
 	pthread_t *threads = (pthread_t*)malloc(iterAteams * sizeof(pthread_t));
@@ -181,72 +180,6 @@ Problema* Controle::start()
 
 	return *(pop->begin());
 }
-#else
-Problema* Controle::start()
-{
-	srand(unsigned(time(NULL)));
-
-	geraPop();
-
-	Problema::best = (*pop->begin())->getFitnessMinimize();
-	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
-
-	cout << "CTR : " << Problema::best << " : " << Problema::worst << endl << endl << flush;
-
-	struct timeval time1, time2;
-	gettimeofday(&time1, NULL);
-
-	int tempo = 0, ins;
-
-	string* algName;
-	vector<Problema*> *prob = NULL;
-	pair<vector<Problema*>*, string*>* par = NULL;
-
-	for(int i = 1; i <= iterAteams && tempo < maxTempo; i++)
-	{
-		if(PARAR == 1)
-			break;
-
-		par = exec(rand());
-
-		prob = par->first;
-		algName = par->second;
-
-		ins = addSol(prob);
-
-		prob->clear();
-		delete prob;
-
-		Problema::best = (*pop->begin())->getFitnessMinimize();
-		Problema::worst = (*pop->rbegin())->getFitnessMinimize();
-
-		if(i < 10)
-			cout << *algName << " : 00" << i << " : " << Problema::best << " -> " << ins << endl << flush;
-		else if(i < 100)
-			cout << *algName << " : 0" << i << " : " << Problema::best << " -> " << ins << endl << flush;
-		else
-			cout << *algName << " : " << i << " : " << Problema::best << " -> " << ins << endl << flush;
-
-		if(Problema::best <= makespanBest)
-			PARAR = true;
-
-		if(tempo > maxTempo)
-			PARAR = true;
-
-		gettimeofday(&time2, NULL);
-		tempo = time2.tv_sec - time1.tv_sec;
-	}
-	Problema::best = (*pop->begin())->getFitnessMinimize();
-	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
-
-	vector<Heuristica*>::iterator it;
-	cout << endl << endl << "Execuções:" << endl << endl;
-	for(it = algs->begin(); it != algs->end(); it++)
-		cout << (*it)->name << " : " << (*it)->numExec << endl;
-
-	return *(pop->begin());
-}
-#endif
 
 inline pair<vector<Problema*>*, string*>* Controle::exec(int randomic)
 {

@@ -1,5 +1,3 @@
-#define THREADS
-
 #include <sys/time.h>
 #include <pthread.h>
 #include <signal.h>
@@ -9,10 +7,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <omp.h>
-
-#ifdef THREADS
-#include <pthread.h>
-#endif
 
 using namespace std;
 

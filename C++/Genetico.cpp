@@ -18,10 +18,6 @@ Genetico::Genetico()
 	probMutacao = 0.02;
 	tamParticionamento = -1;
 
-#ifndef THREADS
-	bad_pop = new vector<Problema*>();
-#endif
-
 	Heuristica::numHeuristic += prob;
 }
 
@@ -39,24 +35,12 @@ Genetico::Genetico(ParametrosAG* pAG)
 	probMutacao = pAG->probMutacao != -1 ? pAG->probMutacao : 0.02;
 	tamParticionamento = pAG->tamanhoParticionamento != -1 ? pAG->tamanhoParticionamento : -1;
 
-#ifndef THREADS
-	bad_pop = new vector<Problema*>();
-#endif
-
 	Heuristica::numHeuristic += prob;
 }
 
 Genetico::~Genetico()
 {
 	Heuristica::numHeuristic -= prob;
-
-#ifndef THREADS
-	for(vector<Problema*>::iterator iter = bad_pop->begin(); iter != bad_pop->end(); iter++)
-		delete *iter;
-
-	bad_pop->clear();
-	delete bad_pop;
-#endif
 }
 
 vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
@@ -122,9 +106,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	int numCrossOver;
 	double sumP;
 
-#ifdef THREADS
 	vector<Problema*> *bad_pop = new vector<Problema*>();
-#endif
 
 	/* Iteracao principal do AG */
 	for(int i = 0; i < iterGenetico; i++)
@@ -249,20 +231,11 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		aux_pop->clear();
 	}
 
-#ifdef THREADS
 	for(iter2 = bad_pop->begin(); iter2 != bad_pop->end(); iter2++)
 		delete *iter2;
 
 	bad_pop->clear();
 	delete bad_pop;
-#else
-	random_shuffle(bad_pop->begin(), bad_pop->end());
-	while((int)bad_pop->size() > tamBadGenetico)
-	{
-		delete bad_pop->back();
-		bad_pop->pop_back();
-	}
-#endif
 
 	delete pais;
 	delete filhos;
