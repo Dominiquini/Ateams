@@ -105,7 +105,7 @@ Problema* Controle::start()
 	Problema::best = (*pop->begin())->getFitnessMinimize();
 	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
-	cout << "(THREADS) CTR : " << Problema::best << " : " << Problema::worst << endl << endl << flush;
+	cout << "(" << numThreads << " THREADS) CTR : " << Problema::best << " : " << Problema::worst << endl << endl << flush;
 
 	struct timeval time1, time2;
 	gettimeofday(&time1, NULL);
