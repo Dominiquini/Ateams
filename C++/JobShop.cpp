@@ -251,14 +251,6 @@ void Problema::desalocaMemoria()
 	desalocaMatriz(2, JobShop::time, JobShop::njob, 0);
 }
 
-bool Problema::movTabuCMP(tTabu& t1, tTabu& t2)
-{
-	if(t1.maq == t2.maq && (t1.A == t2.A || t1.A == t2.B) && (t1.B == t2.B || t1.B == t2.A))
-		return true;
-	else
-		return false;
-}
-
 double Problema::sumFitnessMaximize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n)
 {
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
@@ -279,6 +271,36 @@ double Problema::sumFitnessMaximize(vector<Problema*> *pop, int n)
 		sum += (*iter)->getFitnessMaximize();
 
 	return sum;
+}
+
+double Problema::sumFitnessMinimize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n)
+{
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	double sum = 0, i = 0;
+
+	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
+		sum += (*iter)->getFitnessMinimize();
+
+	return sum;
+}
+
+double Problema::sumFitnessMinimize(vector<Problema*> *pop, int n)
+{
+	vector<Problema*>::iterator iter;
+	double sum = 0, i = 0;
+
+	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
+		sum += (*iter)->getFitnessMinimize();
+
+	return sum;
+}
+
+bool Problema::movTabuCMP(tTabu& t1, tTabu& t2)
+{
+	if(t1.maq == t2.maq && (t1.A == t2.A || t1.A == t2.B) && (t1.B == t2.B || t1.B == t2.A))
+		return true;
+	else
+		return false;
 }
 
 tTabu* JobShop::newTabu(int maq, int p1, int p2)

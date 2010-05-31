@@ -39,19 +39,27 @@ public:
 	static void leParametros(FILE*, ParametrosATEAMS*, ParametrosBT*, ParametrosAG*, ParametrosSA*);
 	static void leArgumentos(char**, int, ParametrosATEAMS*, ParametrosBT*, ParametrosAG*, ParametrosSA*);
 
+	// Imprime em um arquivo os resultados da execucao
 	static void imprimeResultado (struct timeval, struct timeval, FILE*, int);
 
 	static void desalocaMemoria();
 
+	// Alocador generico
 	static Problema* alloc();													// Nova solucao aleatoria
 	static Problema* alloc(short int **prob);									// Copia de prob
 	static Problema* alloc(const Problema &prob);								// Copia de prob
 	static Problema* alloc(const Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
-	static bool movTabuCMP(tTabu& t1, tTabu& t2);
+	// Retorna a soma de fitness de uma populacao
 	static double sumFitnessMaximize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
 	static double sumFitnessMaximize(vector<Problema*> *pop, int n);
+	static double sumFitnessMinimize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
+	static double sumFitnessMinimize(vector<Problema*> *pop, int n);
 
+	// Verifica se 't1' eh igual a 't2'
+	static bool movTabuCMP(tTabu& t1, tTabu& t2);
+
+	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
 	Problema() {pthread_mutex_lock(&mut_p); numInst++; pthread_mutex_unlock(&mut_p);}			// numInst++
 	virtual ~Problema() {pthread_mutex_lock(&mut_p); numInst--; pthread_mutex_unlock(&mut_p);}	// numInst--
 
@@ -72,6 +80,7 @@ public:
 	/* Provoca uma mutacao aleatoria na solucao */
 	virtual void mutacao() = 0;
 
+	/* Devolve o valor da solucao */
 	virtual double getFitnessMaximize() = 0;
 	virtual double getFitnessMinimize() = 0;
 

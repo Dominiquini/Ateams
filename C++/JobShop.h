@@ -19,7 +19,7 @@ public:
 	static short int **maq, **time;	// Matriz de maquinas e de tempos
 	static int njob, nmaq;			// Quantidade de jobs e de maquinas
 
-	static tTabu* newTabu(int maq, int p1, int p2);
+	static tTabu* newTabu(int maq, int p1, int p2);	// Retorna um movimento tabu
 
 	JobShop();												// Nova solucao aleatoria
 	JobShop(short int **prob);								// Copia de prob
@@ -45,6 +45,7 @@ public:
 	/* Provoca uma mutacao na solucao atual */
 	void mutacao();
 
+	/* Devolve o valor da solucao */
 	double getFitnessMaximize();
 	double getFitnessMinimize();
 
