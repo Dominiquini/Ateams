@@ -55,6 +55,7 @@ Controle::~Controle()
 
 	vector<Heuristica*>::iterator it;
 
+	cout << endl << endl << "Execuções:" << endl << endl;
 	for(it = algs->begin(); it != algs->end(); it++)
 		delete *it;
 
@@ -173,11 +174,6 @@ Problema* Controle::start()
 
 	free(threads);
 
-	vector<Heuristica*>::iterator it;
-	cout << endl << endl << "Execuções:" << endl << endl;
-	for(it = algs->begin(); it != algs->end(); it++)
-		cout << (*it)->name << " : " << (*it)->numExec << endl;
-
 	return *(pop->begin());
 }
 
@@ -262,7 +258,7 @@ set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRoulette
 	// Armazena o fitness total da populacao
 	unsigned int sum = fitTotal;
 	// Um numero entre zero e "sum" e sorteado
-	randWheel = randWheel % (sum + 1);
+	randWheel = xRand(randWheel, 0, sum+1);
 
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
 	for(iter = pop->begin(); iter != pop->end(); iter++)
@@ -281,7 +277,7 @@ vector<Problema*>::iterator Controle::selectRouletteWheel(vector<Problema*>* pop
 	// Armazena o fitness total da populacao
 	unsigned int sum = fitTotal;
 	// Um numero entre zero e "sum" e sorteado
-	randWheel = randWheel % (sum + 1);
+	randWheel = xRand(randWheel, 0, sum+1);
 
 	vector<Problema*>::iterator iter;
 	for(iter = pop->begin(); iter != pop->end(); iter++)
@@ -300,7 +296,7 @@ Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, unsigne
 	// Armazena o fitness total da populacao
 	unsigned int sum = probTotal;
 	// Um numero entre zero e "sum" e sorteado
-	randWheel = randWheel % (sum + 1);
+	randWheel = xRand(randWheel, 0, sum+1);
 
 	for(int i = 0; i < (int)heuristc->size(); i++)
 	{

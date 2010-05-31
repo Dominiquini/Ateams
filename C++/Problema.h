@@ -31,6 +31,7 @@ public:
 	static int best;				// Melhor solucao do momento
 	static int worst;				// Pior solucao do momento
 	static int numInst;				// Quantidade de instancias criadas
+	static int totalNumInst;
 
 	// Le arquivo de dados de entrada
 	static void leProblema(FILE*);
@@ -58,8 +59,8 @@ public:
 
 
 	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
-	Problema() {pthread_mutex_lock(&mut_p); numInst++; pthread_mutex_unlock(&mut_p);}			// numInst++
-	virtual ~Problema() {pthread_mutex_lock(&mut_p); numInst--; pthread_mutex_unlock(&mut_p);}	// numInst--
+	Problema() {pthread_mutex_lock(&mut_p); numInst++; totalNumInst++; pthread_mutex_unlock(&mut_p);}	// numInst++
+	virtual ~Problema() {pthread_mutex_lock(&mut_p); numInst--; pthread_mutex_unlock(&mut_p);}			// numInst--
 
 	virtual int calcMakespan() = 0;			// Calcula o makespan
 	virtual void imprimir(bool esc) = 0;	// Imprime o escalonamento
@@ -88,7 +89,6 @@ public:
 	friend bool fnequal(Problema*, Problema*);
 	friend bool fncomp1(Problema*, Problema*);
 	friend bool fncomp2(Problema*, Problema*);
-	friend bool vtcomp(pair<Problema*, movTabu*>*, pair<Problema*, movTabu*>*);
 };
 
 #endif

@@ -4,11 +4,10 @@ using namespace std;
 
 extern bool PARAR;
 
-Annealing::Annealing()
+Annealing::Annealing() : Heuristica::Heuristica("DEFAULT_SA")
 {
 	numExec = 0;
 
-	name = "DEFAULT_SA";
 	prob = 45;
 	polEscolha = 100;
 	maxIter = 125;
@@ -20,11 +19,10 @@ Annealing::Annealing()
 	Heuristica::numHeuristic += prob;
 }
 
-Annealing::Annealing(ParametrosSA *pSA)
+Annealing::Annealing(string nome, ParametrosSA *pSA) : Heuristica::Heuristica(nome)
 {
 	numExec = 0;
 
-	name = "SA";
 	prob = pSA->probSA != -1 ? pSA->probSA : 45;
 	polEscolha = pSA->polEscolha != -1 ? pSA->polEscolha : 100;
 	maxIter = pSA->maxIter != -1 ? pSA->maxIter : 125;

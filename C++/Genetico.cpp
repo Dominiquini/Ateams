@@ -4,11 +4,10 @@ using namespace std;
 
 extern bool PARAR;
 
-Genetico::Genetico()
+Genetico::Genetico() : Heuristica::Heuristica("DEFAULT_AG")
 {
 	numExec = 0;
 
-	name = "DEFAULT_AG";
 	prob = 20;
 	polEscolha = -1;
 	iterGenetico = 500;
@@ -21,11 +20,10 @@ Genetico::Genetico()
 	Heuristica::numHeuristic += prob;
 }
 
-Genetico::Genetico(ParametrosAG* pAG)
+Genetico::Genetico(string nome, ParametrosAG *pAG) : Heuristica::Heuristica(nome)
 {
 	numExec = 0;
 
-	name = "AG";
 	prob = pAG->probAG != -1 ? pAG->probAG : 20;
 	polEscolha = pAG->polEscolha != -1 ? pAG->polEscolha : -1;
 	iterGenetico = pAG->numeroIteracoes != -1 ? pAG->numeroIteracoes : 500;

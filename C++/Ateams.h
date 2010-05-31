@@ -89,4 +89,8 @@ typedef struct ParametrosSA {
 	float alfa;
 } ParametrosSA;
 
+void Interrompe(int signum);
+
+int xRand(int rand, int a, int b);
+
 #endif

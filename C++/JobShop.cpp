@@ -7,6 +7,7 @@ using namespace std;
 int Problema::best = 0;
 int Problema::worst = 0;
 int Problema::numInst = 0;
+int Problema::totalNumInst = 0;
 
 char JobShop::name[128];
 short int **JobShop::maq = NULL, **JobShop::time = NULL;
@@ -550,10 +551,10 @@ inline void JobShop::imprimir(bool esc)
 
 inline Problema* JobShop::vizinho()
 {
-	int maq = rand() % nmaq, p1 = rand() % njob, p2 = rand() % njob;
+	int maq = xRand(rand(), 0, nmaq), p1 = xRand(rand(), 0, njob), p2 = xRand(rand(), 0, njob);
 
 	while(p2 == p1)
-		p2 = rand() % njob;
+		p2 = xRand(rand(), 0, njob);
 
 	return new JobShop(*this, maq, p1, p2);
 }
@@ -616,10 +617,10 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 	#pragma omp parallel for shared(local, numMaqs, numJobs, def) private(maq, p1, p2, job, temp, i)
 	for(i = 0; i < def; i++)
 	{
-		maq = rand() % numMaqs, p1 = rand() % numJobs, p2 = rand() % numJobs;
+		maq = xRand(rand(), 0, numMaqs), p1 = xRand(rand(), 0, numJobs), p2 = xRand(rand(), 0, numJobs);
 
 		while(p2 == p1)
-			p2 = rand() % numJobs;
+			p2 = xRand(rand(), 0, numJobs);
 
 		job = new JobShop(*this, maq, p1, p2);
 		if(job->sol.makespan != -1)
@@ -652,7 +653,7 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamPart
 
 	for(register int i = 0; i < nmaq; i++)
 	{
-		inicioPart = rand() % njob;
+		inicioPart = xRand(rand(), 0, njob);
 		fimPart = inicioPart+particao <= njob ? inicioPart+particao : njob;
 
 		swap_vect(this->sol.esc[i], pai->sol.esc[i], f1[i], inicioPart, fimPart-inicioPart);
@@ -673,7 +674,7 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai)
 
 	for(register int i = 0; i < nmaq; i++)
 	{
-		particao = (rand() % njob) + 1;
+		particao = xRand(rand(), 1, njob);
 
 		swap_vect(this->sol.esc[i], pai->sol.esc[i], f1[i], 0, particao);
 		swap_vect(pai->sol.esc[i], this->sol.esc[i], f2[i], 0, particao);
@@ -687,8 +688,11 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai)
 
 inline void JobShop::mutacao()
 {
-	int maq = rand() % nmaq;
-	int pos1 = rand() % njob, pos2 = rand() % njob;
+	int maq = xRand(rand(), 0, nmaq);
+	int pos1 = xRand(rand(), 0, njob), pos2 = xRand(rand(), 0, njob);
+
+	while(pos2 == pos1)
+		pos2 = xRand(rand(), 0, njob);
 
 	short int aux = sol.esc[maq][pos1];
 	sol.esc[maq][pos1] = sol.esc[maq][pos2];

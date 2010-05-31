@@ -4,11 +4,10 @@ using namespace std;
 
 extern bool PARAR;
 
-Tabu::Tabu()
+Tabu::Tabu() : Heuristica::Heuristica("DEFAULT_BT")
 {
 	numExec = 0;
 
-	name = "DEFAULT_BT";
 	prob = 35;
 	funcAsp = 0.5;
 	polEscolha = 100;
@@ -20,11 +19,10 @@ Tabu::Tabu()
 	Heuristica::numHeuristic += prob;
 }
 
-Tabu::Tabu(ParametrosBT* pBT)
+Tabu::Tabu(string nome, ParametrosBT *pBT) : Heuristica::Heuristica(nome)
 {
 	numExec = 0;
 
-	name = "BT";
 	prob = pBT->probBT != -1 ? pBT->probBT : 35;
 	funcAsp = pBT->funcAsp != -1 ? pBT->funcAsp : 0.5;
 	polEscolha = pBT->polEscolha != -1 ? pBT->polEscolha : 100;

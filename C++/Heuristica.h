@@ -13,10 +13,12 @@ public:
 
 	static int numHeuristic;
 
+	int numExec;
 	string name;
-	int prob, polEscolha, numExec;
+	int prob, polEscolha;
 
-	virtual ~Heuristica() {}
+	Heuristica(string nome) {name = nome;}
+	virtual ~Heuristica() {cout << name << ": " << numExec << endl;}
 
 	virtual vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic) = 0;
 };

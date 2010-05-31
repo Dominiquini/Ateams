@@ -16,12 +16,6 @@ using namespace std;
 
 bool PARAR = false;
 
-void Interrompe(int signum)
-{
-	PARAR = true;
-}
-
-
 int main(int argc, char *argv[])
 {
 	/* Interrompe o programa ao se pessionar 'ctrl-c' */
@@ -29,6 +23,8 @@ int main(int argc, char *argv[])
 
 	struct timeval tv1, tv2;
 	gettimeofday(&tv1, NULL);
+
+	srand(unsigned(time(NULL)));
 
 	/* Leitura dos parametros passados por linha de comando */
 	FILE *fdados;
@@ -113,9 +109,9 @@ int main(int argc, char *argv[])
 	cout << endl;
 
 	Controle* ctr = new Controle(pATEAMS);
-	ctr->addHeuristic(new Tabu(pBT));
-	ctr->addHeuristic(new Genetico(pAG));
-	ctr->addHeuristic(new Annealing(pSA));
+	ctr->addHeuristic(new Tabu("BT", pBT));
+	ctr->addHeuristic(new Genetico("AG", pAG));
+	ctr->addHeuristic(new Annealing("SA", pSA));
 
 	Problema* best = ctr->start();
 
@@ -134,7 +130,18 @@ int main(int argc, char *argv[])
 
 	Problema::desalocaMemoria();
 
-	cout << endl << endl << "Memória Alocada: " << Problema::numInst << endl << endl << endl;
+	cout << endl << endl << "Memória Total Alocada: " << Problema::totalNumInst;
+	cout << endl << endl << "Memória Ainda Alocada: " << Problema::numInst << endl << endl << endl;
 
 	return 0;
+}
+
+void Interrompe(int signum)
+{
+	PARAR = true;
+}
+
+int xRand(int rand, int a, int b)
+{
+	return a + (int)((double)(b-a)*rand/(RAND_MAX+1.0));
 }

@@ -16,7 +16,7 @@ public:
 	float alfa;
 
 	Annealing();
-	Annealing(ParametrosSA*);
+	Annealing(string, ParametrosSA*);
 	~Annealing();
 
 	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic);

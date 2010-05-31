@@ -15,7 +15,7 @@ public:
 	float funcAsp, polExploracao;
 
 	Tabu();
-	Tabu(ParametrosBT*);
+	Tabu(string, ParametrosBT*);
 	~Tabu();
 
 	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic);
