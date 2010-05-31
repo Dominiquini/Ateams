@@ -1,11 +1,8 @@
 syntax: glob
 
 *.res
-ateams
 Ateams
 *.o
-C/Debug
-C/Release
-C++/Debug
-C++/Release
-RESULTADOS
+Debug/*
+Release/*
+log*
