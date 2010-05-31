@@ -7,7 +7,6 @@ using namespace std;
 int Problema::best = 0;
 int Problema::worst = 0;
 int Problema::numInst = 0;
-double Problema::totalFitness = 0;
 
 char JobShop::name[128];
 short int **JobShop::maq = NULL, **JobShop::time = NULL;
@@ -260,7 +259,7 @@ bool Problema::movTabuCMP(tTabu& t1, tTabu& t2)
 		return false;
 }
 
-double Problema::sumFitness(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n)
+double Problema::sumFitnessMaximize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n)
 {
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
 	double sum = 0, i = 0;
@@ -271,7 +270,7 @@ double Problema::sumFitness(set<Problema*, bool(*)(Problema*, Problema*)> *pop, 
 	return sum;
 }
 
-double Problema::sumFitness(vector<Problema*> *pop, int n)
+double Problema::sumFitnessMaximize(vector<Problema*> *pop, int n)
 {
 	vector<Problema*>::iterator iter;
 	double sum = 0, i = 0;
@@ -707,7 +706,7 @@ inline void JobShop::mutacao()
 
 inline double JobShop::getFitnessMaximize()
 {
-	return (double)INT_MAX/sol.makespan;
+	return (double)INV_FITNESS/sol.makespan;
 }
 
 inline double JobShop::getFitnessMinimize()

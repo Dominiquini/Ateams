@@ -12,9 +12,9 @@ public:
 	static void* run(void *obj);
 
 	/* Seleciona um individuo da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
-	static set<Problema*, bool(*)(Problema*, Problema*)>::iterator selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal, int randWheel);
-	static vector<Problema*>::iterator selectRouletteWheel(vector<Problema*>* pop, int fitTotal, int randWheel);
-	static Heuristica* selectRouletteWheel(vector<Heuristica*>* heuristc, int probTotal, int randWheel);
+	static set<Problema*, bool(*)(Problema*, Problema*)>::iterator selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, double fitTotal, unsigned int randWheel);
+	static vector<Problema*>::iterator selectRouletteWheel(vector<Problema*>* pop, double fitTotal, unsigned int randWheel);
+	static Heuristica* selectRouletteWheel(vector<Heuristica*>* heuristc, unsigned int probTotal, unsigned int randWheel);
 
 	/* Seleciona um individuo aleatoriamente */
 	static vector<Problema*>::iterator selectRandom(vector<Problema*>* pop, int randWheel);

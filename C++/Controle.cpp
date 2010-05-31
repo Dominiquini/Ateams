@@ -273,8 +273,6 @@ inline int Controle::addSol(vector<Problema*> *news)
 
 		if(ret.second == true)
 		{
-			Problema::totalFitness += (*iterNews)->getFitnessMaximize();
-
 			iterSol = pop->end();
 			iterSol--;
 
@@ -283,7 +281,6 @@ inline int Controle::addSol(vector<Problema*> *news)
 				if(fnequal(*iterNews, *iterSol))
 					ins--;
 
-				Problema::totalFitness -= (*iterSol)->getFitnessMaximize();
 				pop->erase(iterSol);
 				delete *iterSol;
 			}
@@ -311,9 +308,7 @@ inline void Controle::geraPop()
 		if(prob->getFitnessMinimize() != -1)
 		{
 			ret = pop->insert(prob);
-			if(ret.second == true)
-				Problema::totalFitness += prob->getFitnessMaximize();
-			else
+			if(!ret.second)
 				delete prob;
 		}
 		else
@@ -329,10 +324,10 @@ void* Controle::run(void *obj)
 	return ret;
 }
 
-set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, int fitTotal, int randWheel)
+set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, double fitTotal, unsigned int randWheel)
 {
 	// Armazena o fitness total da populacao
-	int sum = fitTotal;
+	unsigned int sum = fitTotal;
 	// Um numero entre zero e "sum" e sorteado
 	randWheel = randWheel % (sum + 1);
 
@@ -348,10 +343,10 @@ set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRoulette
 	return (pop->begin());
 }
 
-vector<Problema*>::iterator Controle::selectRouletteWheel(vector<Problema*>* pop, int fitTotal, int randWheel)
+vector<Problema*>::iterator Controle::selectRouletteWheel(vector<Problema*>* pop, double fitTotal, unsigned int randWheel)
 {
 	// Armazena o fitness total da populacao
-	int sum = fitTotal;
+	unsigned int sum = fitTotal;
 	// Um numero entre zero e "sum" e sorteado
 	randWheel = randWheel % (sum + 1);
 
@@ -367,10 +362,10 @@ vector<Problema*>::iterator Controle::selectRouletteWheel(vector<Problema*>* pop
 	return pop->begin();
 }
 
-Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, int probTotal, int randWheel)
+Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, unsigned int probTotal, unsigned int randWheel)
 {
 	// Armazena o fitness total da populacao
-	int sum = probTotal;
+	unsigned int sum = probTotal;
 	// Um numero entre zero e "sum" e sorteado
 	randWheel = randWheel % (sum + 1);
 

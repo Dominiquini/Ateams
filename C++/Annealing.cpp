@@ -60,13 +60,13 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	}
 
 	// Escolhe alguem dentre os 'polEscolha' primeiras solucoes
-	double visao = polEscolha < 0 ? Problema::totalFitness : Problema::sumFitness(sol, polEscolha);
+	double visao = polEscolha < 0 ? Problema::sumFitnessMaximize(sol, sol->size()) : Problema::sumFitnessMaximize(sol, polEscolha);
 
 	srand(randomic);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	pthread_mutex_lock(&mutex);
-	select = Controle::selectRouletteWheel(sol, (int)visao, rand());
+	select = Controle::selectRouletteWheel(sol, visao, rand());
 
 	(*select)->exec.annealing = true;
 

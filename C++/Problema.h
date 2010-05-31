@@ -31,7 +31,6 @@ public:
 	static int best;				// Melhor solucao do momento
 	static int worst;				// Pior solucao do momento
 	static int numInst;				// Quantidade de instancias criadas
-	static double totalFitness;		// Soma do inverso do makespan de todos os individuos na populacao
 
 	// Le arquivo de dados de entrada
 	static void leProblema(FILE*);
@@ -50,8 +49,8 @@ public:
 	static Problema* alloc(const Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
 	static bool movTabuCMP(tTabu& t1, tTabu& t2);
-	static double sumFitness(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
-	static double sumFitness(vector<Problema*> *pop, int n);
+	static double sumFitnessMaximize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
+	static double sumFitnessMaximize(vector<Problema*> *pop, int n);
 
 	Problema() {pthread_mutex_lock(&mut_p); numInst++; pthread_mutex_unlock(&mut_p);}			// numInst++
 	virtual ~Problema() {pthread_mutex_lock(&mut_p); numInst--; pthread_mutex_unlock(&mut_p);}	// numInst--

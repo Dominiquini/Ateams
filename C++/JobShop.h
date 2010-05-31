@@ -5,6 +5,8 @@
 
 #include "Problema.h"
 
+#define INV_FITNESS 1000000
+
 using namespace std;
 
 #ifndef _JobShop_

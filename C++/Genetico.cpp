@@ -79,7 +79,7 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 	}
 	else
 	{
-		double visao = polEscolha < 0 ? Problema::totalFitness : polEscolha;
+		double visao = polEscolha < 0 ? Problema::sumFitnessMaximize(sol, sol->size()) : Problema::sumFitnessMaximize(sol, polEscolha);
 
 		srand(randomic);
 
@@ -88,7 +88,7 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 		{
 			/* Evita a escolha de individuos repetidos */
 			while(iter == sol->end() || (*iter)->exec.genetico == true)
-				iter = Controle::selectRouletteWheel(sol, (int)visao, rand());
+				iter = Controle::selectRouletteWheel(sol, visao, rand());
 
 			(*iter)->exec.genetico = true;
 			popAG->push_back(Problema::alloc(**iter));
@@ -120,7 +120,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	int paisSize, particao, mutacao;
 
 	int numCrossOver;
-	int sumP;
+	double sumP;
 
 #ifdef THREADS
 	vector<Problema*> *bad_pop = new vector<Problema*>();
@@ -135,7 +135,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		numCrossOver = (int)((float)pop->size() * probCrossOver);
 
 		/* Escolhe os casais de 'pop' que se cruzarao */
-		sumP = (int)Problema::sumFitness(pop, pop->size());
+		sumP = (int)Problema::sumFitnessMaximize(pop, pop->size());
 
 		for(int j = 0; j < numCrossOver/2; j++)
 		{
