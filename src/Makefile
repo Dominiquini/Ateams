@@ -1,12 +1,12 @@
 CC = g++
 CFLAGS = -O3 -lm -lpthread -Wall -pedantic -fopenmp
 
-PATH_DADOS = dados/
-PATH_PARAM = parametros/
-PATH_PROJ = ./
-PATH_BIN = bin/
-PATH_SRC = src/
-PATH_RES = resultados/
+PATH_DADOS = ../dados/
+PATH_PARAM = ../parametros/
+PATH_PROJ = ../
+PATH_BIN = ../bin/
+PATH_SRC = ./
+PATH_RES = ../resultados/
 
 BIN = Ateams
 SRCS = $(PATH_SRC)Ateams.cpp $(PATH_SRC)Controle.cpp $(PATH_SRC)JobShop.cpp $(PATH_SRC)Tabu.cpp $(PATH_SRC)Genetico.cpp $(PATH_SRC)Annealing.cpp
