@@ -24,24 +24,30 @@ RM = rm -rf
 
 .PHONY: all install run clean purge
 
-all:		$(EXEC)
+all:		$(PATH_BIN) $(EXEC)
 
 install:	all
 		@cp $(EXEC) $(PATH_PROJ)
+
+$(PATH_BIN):
+		@mkdir $(PATH_BIN)
 
 $(EXEC):	$(OBJS)
 		@$(CC) $(CFLAGS) $^ -o $@
 		@echo "$(CC) $(CFLAGS) $(PATH_BIN)*.o -o $@"
 
 $(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.h
-		$(CC) $(CFLAGS) -c $< -o $@
+		@$(CC) $(CFLAGS) -c $< -o $@
+		@echo "$(CC) $(CFLAGS) -c $< -o $@"
 
 
 run:		$(EXEC)
 		./$^ $(RUN_PARAM)
 
 clean:
-		$(RM) $(OBJS) $(EXEC) $(PATH_PROJ)$(BIN)
+		@$(RM) $(OBJS) $(EXEC) $(PATH_PROJ)$(BIN)
+		@echo "$(RM) $(PATH_BIN)* $(PATH_PROJ)$(BIN)"
 
 purge:		clean
-		$(RM) $(PATH_RES)*.res
+		@$(RM) $(PATH_RES)*.res $(PATH_BIN)
+		@echo "$(RM) $(PATH_RES)*.res $(PATH_BIN)"
