@@ -1,6 +1,7 @@
 CC = g++
 CFLAGS = -O3 -lm -lpthread -Wall -pedantic -fopenmp
 
+PATH_SCRIPT = ../scripts/
 PATH_DADOS = ../dados/
 PATH_PARAM = ../parametros/
 PATH_PROJ = ../
@@ -14,15 +15,22 @@ OBJS = $(PATH_BIN)Ateams.o $(PATH_BIN)Controle.o $(PATH_BIN)JobShop.o $(PATH_BIN
 INCL = $(SRCS:.cpp=.h) $(PATH_SRC)Problema.h $(PATH_SRC)Heuristica.h
 EXEC = $(PATH_BIN)$(BIN)
 
+SCRIPT = exec_makespan.sh
+
 RUN_PARAM = -i $(PATH_DADOS)la01.prb -p $(PATH_PARAM)default.param -r $(PATH_RES)la01.res
+RUN_SCRIPT = $(PATH_SCRIPT)$(SCRIPT) 01 40 1
 
 RM = rm -rf
 
+.PHONY: all install run clean purge
+
 all:		$(EXEC)
+
+install:	all
+		@cp $(EXEC) $(PATH_PROJ)
 
 $(EXEC):	$(OBJS)
 		@$(CC) $(CFLAGS) $^ -o $@
-		@cp $(EXEC) $(PATH_PROJ)
 		@echo "$(CC) $(CFLAGS) $(PATH_BIN)*.o -o $@"
 
 $(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.h
