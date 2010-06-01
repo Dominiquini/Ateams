@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -lm -lpthread -Wall -pedantic -fopenmp -O3 -march=native -mfpmath=sse,387 -fomit-frame-pointer
+CFLAGS = -lm -lpthread -Wall -pedantic -fopenmp -O3 -march=native -fomit-frame-pointer
 
 PATH_SCRIPT = scripts/
 PATH_DADOS = dados/
