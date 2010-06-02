@@ -10,7 +10,7 @@ Annealing::Annealing() : Heuristica::Heuristica("DEFAULT_SA")
 
 	prob = 45;
 	polEscolha = 100;
-	maxIter = 125;
+	maxIter = 250;
 	initTemp = 100;
 	fimTemp = 1;
 	restauraSol = false;
@@ -25,7 +25,7 @@ Annealing::Annealing(string nome, ParametrosSA *pSA) : Heuristica::Heuristica(no
 
 	prob = pSA->probSA != -1 ? pSA->probSA : 45;
 	polEscolha = pSA->polEscolha != -1 ? pSA->polEscolha : 100;
-	maxIter = pSA->maxIter != -1 ? pSA->maxIter : 125;
+	maxIter = pSA->maxIter != -1 ? pSA->maxIter : 250;
 	initTemp = pSA->initTemp != -1 ? pSA->initTemp : 100;
 	fimTemp = pSA->fimTemp > 0 ? pSA->fimTemp : 1;
 	restauraSol = pSA->restauraSol != 0 ? true : false;
