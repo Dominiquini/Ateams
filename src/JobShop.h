@@ -26,6 +26,13 @@ public:
 
 	~JobShop();
 
+	bool operator == (Problema&);
+	bool operator != (Problema&);
+	bool operator <= (Problema&);
+	bool operator >= (Problema&);
+	bool operator < (Problema&);
+	bool operator > (Problema&);
+
 	int calcMakespan();			// Calcula o makespan
 	void imprimir(bool esc);	// Imprime o escaloonamento atual
 

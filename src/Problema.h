@@ -18,9 +18,10 @@ extern pthread_mutex_t mut_p;
 
 class Problema;
 
-bool fncomp1(Problema*, Problema*);
-bool fncomp2(Problema*, Problema*);
-bool fnequal(Problema*, Problema*);
+bool fncomp1(Problema*, Problema*);		//Se P1 for menor que P2
+bool fncomp2(Problema*, Problema*); 	//Se P1 for menor que P2, considerando apenas o fitness
+bool fnequal1(Problema*, Problema*);	//Se P1 for igual a P2, considerando apenas o fitness
+bool fnequal2(Problema*, Problema*);	//Se P1 for igual a P2, considerando apenas o fitness
 
 class Problema
 {
@@ -62,6 +63,13 @@ public:
 	Problema() {pthread_mutex_lock(&mut_p); numInst++; totalNumInst++; pthread_mutex_unlock(&mut_p);}	// numInst++
 	virtual ~Problema() {pthread_mutex_lock(&mut_p); numInst--; pthread_mutex_unlock(&mut_p);}			// numInst--
 
+	virtual bool operator == (Problema&) = 0;
+	virtual bool operator != (Problema&) = 0;
+	virtual bool operator <= (Problema&) = 0;
+	virtual bool operator >= (Problema&) = 0;
+	virtual bool operator < (Problema&) = 0;
+	virtual bool operator > (Problema&) = 0;
+
 	virtual int calcMakespan() = 0;			// Calcula o makespan
 	virtual void imprimir(bool esc) = 0;	// Imprime o escalonamento
 
@@ -86,7 +94,8 @@ public:
 	executado exec;
 
 	friend class JobShop;
-	friend bool fnequal(Problema*, Problema*);
+	friend bool fnequal1(Problema*, Problema*);
+	friend bool fnequal2(Problema*, Problema*);
 	friend bool fncomp1(Problema*, Problema*);
 	friend bool fncomp2(Problema*, Problema*);
 };

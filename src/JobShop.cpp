@@ -419,6 +419,36 @@ JobShop::~JobShop()
 		desalocaMatriz(3, sol.escalon, JobShop::nmaq, JobShop::njob);
 }
 
+bool JobShop::operator == (Problema& p)
+{
+	return fnequal1(this, &p);
+}
+
+bool JobShop::operator != (Problema& p)
+{
+	return fnequal2(this, &p);
+}
+
+bool JobShop::operator <= (Problema& p)
+{
+	return fncomp1(this, &p);
+}
+
+bool JobShop::operator >= (Problema& p)
+{
+	return fncomp1(&p, this);
+}
+
+bool JobShop::operator < (Problema& p)
+{
+	return fncomp2(this, &p);
+}
+
+bool JobShop::operator > (Problema& p)
+{
+	return fncomp1(&p, this);
+}
+
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 inline int JobShop::calcMakespan()
 {
@@ -854,6 +884,27 @@ inline void desalocaMatriz(int dim, void *MMM, int a, int b)
 }
 
 // comparator function:
+bool fnequal1(Problema* p1, Problema* p2)
+{
+	if(p1->sol.makespan == p2->sol.makespan)
+	{
+		for(int i = 0; i < JobShop::nmaq; i++)
+			for(int j = 0; j < JobShop::njob; j++)
+				if(p1->sol.esc[i][j] != p2->sol.esc[i][j])
+					return false;
+		return true;
+	}
+	else
+		return false;
+}
+
+// comparator function:
+bool fnequal2(Problema* p1, Problema* p2)
+{
+	return p1->sol.makespan == p2->sol.makespan;
+}
+
+// comparator function:
 bool fncomp1(Problema *prob1, Problema *prob2)
 {
 	if(prob1->sol.makespan == prob2->sol.makespan)
@@ -874,20 +925,6 @@ bool fncomp2(Problema *prob1, Problema *prob2)
 	return prob1->sol.makespan < prob2->sol.makespan;
 }
 
-// comparator function:
-bool fnequal(Problema* p1, Problema* p2)
-{
-	if(p1->sol.makespan == p2->sol.makespan)
-	{
-		for(int i = 0; i < JobShop::nmaq; i++)
-			for(int j = 0; j < JobShop::njob; j++)
-				if(p1->sol.esc[i][j] != p2->sol.esc[i][j])
-					return false;
-		return true;
-	}
-	else
-		return false;
-}
 
 inline bool ptcomp(pair<Problema*, movTabu*>* p1, pair<Problema*, movTabu*>* p2)
 {
@@ -899,7 +936,7 @@ inline bool find(vector<Problema*> *vect, Problema *p)
 	vector<Problema*>::iterator iter;
 
 	for(iter = vect->begin(); iter != vect->end(); iter++)
-		if(fnequal((*iter), p))
+		if(fnequal1((*iter), p))
 			return true;
 
 	return false;

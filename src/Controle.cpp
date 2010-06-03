@@ -207,7 +207,7 @@ inline int Controle::addSol(vector<Problema*> *news)
 
 			if((int)pop->size() > tamPop)
 			{
-				if(fnequal(*iterNews, *iterSol))
+				if(fnequal1(*iterNews, *iterSol))
 					ins--;
 
 				pop->erase(iterSol);
