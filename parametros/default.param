@@ -22,10 +22,10 @@
 [polEscolhaAG] = -1		// Política de escolha
 [iterAG] = 500			// Iterações do AG
 [tamPopAG] = 250		// Tamanho da população intermediária do AG
-[tamAuxPopAG] = 750		// Tamanho da população de indivíduos ruins do AG
+[tamAuxPopAG] = 2500		// Tamanho da população de indivíduos ruins do AG
 [tamParticaoAG] = -1		// Tamanho de uma divisão durante o Crossover
 [probCrossOverAG] = 0.8		// Probabilidade de cruzamento
-[probMutacaoAG] = 0.02		// Probabilidade de haver mutação
+[probMutacaoAG] = 0.08		// Probabilidade de haver mutação
 
 #SA
 [probSA] = 45			// Probabilidade de se executar SA em cada iteração do ATEAMS
