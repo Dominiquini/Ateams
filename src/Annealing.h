@@ -11,7 +11,8 @@ class Annealing: public Heuristica
 {
 public:
 
-	int maxIter, initTemp, fimTemp, polEscolha;
+	float initTemp, fimTemp;
+	int maxIter, polEscolha;
 	bool restauraSol;
 	float alfa;
 

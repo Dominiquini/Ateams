@@ -22,7 +22,6 @@
 [polEscolhaAG] = -1		// Política de escolha
 [iterAG] = 500			// Iterações do AG
 [tamPopAG] = 250		// Tamanho da população intermediária do AG
-[tamAuxPopAG] = 2500		// Tamanho da população de indivíduos ruins do AG
 [tamParticaoAG] = -1		// Tamanho de uma divisão durante o Crossover
 [probCrossOverAG] = 0.8		// Probabilidade de cruzamento
 [probMutacaoAG] = 0.08		// Probabilidade de haver mutação
@@ -31,8 +30,8 @@
 [probSA] = 45			// Probabilidade de se executar SA em cada iteração do ATEAMS
 [polEscolhaSA] = 10		// Política de escolha
 [maxIterSA] = 250		// Número de iterações para atingir o equilíbrio
-[initTempSA] = 100		// Temperatura inicial
-[finalTempSA] = 1		// Temperatura final
+[initTempSA] = 125		// Temperatura inicial
+[finalTempSA] = 0.75		// Temperatura final
 [restauraSolSA] = 0		// Restaura a solução para o mínimo de cada iteração
 [alphaSA] = 0.99		// Índice de redução da temperatura
 

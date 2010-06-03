@@ -12,7 +12,6 @@ Genetico::Genetico() : Heuristica::Heuristica("DEFAULT_AG")
 	polEscolha = -1;
 	iterGenetico = 500;
 	tamPopGenetico = 250;
-	tamBadGenetico = 750;
 	probCrossOver = 0.8;
 	probMutacao = 0.02;
 	tamParticionamento = -1;
@@ -28,7 +27,6 @@ Genetico::Genetico(string nome, ParametrosAG *pAG) : Heuristica::Heuristica(nome
 	polEscolha = pAG->polEscolha != -1 ? pAG->polEscolha : -1;
 	iterGenetico = pAG->numeroIteracoes != -1 ? pAG->numeroIteracoes : 500;
 	tamPopGenetico = pAG->tamanhoPopulacao != -1 ? pAG->tamanhoPopulacao : 250;
-	tamBadGenetico = pAG->tamanhoAuxPopulacao != -1 ? pAG->tamanhoAuxPopulacao : 750;
 	probCrossOver = pAG->probCrossOver != -1 ? pAG->probCrossOver : 0.8;
 	probMutacao = pAG->probMutacao != -1 ? pAG->probMutacao : 0.02;
 	tamParticionamento = pAG->tamanhoParticionamento != -1 ? pAG->tamanhoParticionamento : -1;

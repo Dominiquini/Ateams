@@ -112,9 +112,6 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[tamPopAG]");
 	pAG->tamanhoPopulacao = (int)par;
 
-	par = locNumberPar(parametros, size, (char*)"[tamPopAG]");
-	pAG->tamanhoAuxPopulacao = (int)par;
-
 	par = locNumberPar(parametros, size, (char*)"[tamParticaoAG]");
 	pAG->tamanhoParticionamento = (int)par;
 
@@ -135,10 +132,10 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	pSA->maxIter = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[initTempSA]");
-	pSA->initTemp = (int)par;
+	pSA->initTemp = (float)par;
 
 	par = locNumberPar(parametros, size, (char*)"[finalTempSA]");
-	pSA->fimTemp = (int)par;
+	pSA->fimTemp = (float)par;
 
 	par = locNumberPar(parametros, size, (char*)"[restauraSolSA]");
 	pSA->restauraSol = (int)par;
@@ -204,9 +201,6 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, Pa
 	if((p = locComPar(argv, argc, (char*)"--tamPopAG")) != -1)
 		pAG->tamanhoPopulacao = atoi(argv[p]);
 
-	if((p = locComPar(argv, argc, (char*)"--tamAuxPopAG")) != -1)
-		pAG->tamanhoAuxPopulacao = atoi(argv[p]);
-
 	if((p = locComPar(argv, argc, (char*)"--tamParticaoAG")) != -1)
 		pAG->tamanhoParticionamento = atoi(argv[p]);
 
@@ -227,10 +221,10 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, Pa
 		pSA->maxIter = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--initTempSA")) != -1)
-		pSA->initTemp = atoi(argv[p]);
+		pSA->initTemp = atof(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--finalTempSA")) != -1)
-		pSA->fimTemp = atoi(argv[p]);
+		pSA->fimTemp = atof(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--restauraSolSA")) != -1)
 		pSA->restauraSol = atoi(argv[p]);

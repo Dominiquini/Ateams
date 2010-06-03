@@ -11,7 +11,7 @@ class Genetico : public Heuristica
 {
 public:
 
-	int iterGenetico, tamPopGenetico, tamBadGenetico, tamParticionamento;
+	int iterGenetico, tamPopGenetico, tamParticionamento;
 	float probCrossOver, probMutacao;
 
 #ifndef THREADS

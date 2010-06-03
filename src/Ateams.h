@@ -63,7 +63,6 @@ typedef struct ParametrosAG {
 	int polEscolha;
 	int numeroIteracoes;
 	int tamanhoPopulacao;
-	int tamanhoAuxPopulacao;
 	int tamanhoParticionamento;
 	float probCrossOver;
 	float probMutacao;
@@ -83,8 +82,8 @@ typedef struct ParametrosSA {
 	int probSA;
 	int polEscolha;
 	int maxIter;
-	int initTemp;
-	int fimTemp;
+	float initTemp;
+	float fimTemp;
 	int restauraSol;
 	float alfa;
 } ParametrosSA;
