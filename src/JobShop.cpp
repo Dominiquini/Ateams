@@ -81,14 +81,17 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<Parametro
 	for(int i = 0; i < numAlgs; i++)
 	{
 		parametros = algs[i];
+		parametros[6] = '\0';
 
-		pos = strstr(parametros, (char*)"(name) = ");
-		pos = pos + strlen((char*)"(name) = ");
-		sscanf(pos, "%s", pTEMP.algName);
-
-		if(strstr(parametros, (char*)"#(SA)#"))
+		if(strcmp(parametros, (char*)"#(SA)#") == 0)
 		{
 			pTEMP.alg = SA;
+
+			parametros += 7;
+
+			pos = strstr(parametros, (char*)"(name) = ");
+			pos = pos + strlen((char*)"(name) = ");
+			sscanf(pos, "%s", pTEMP.algName);
 
 			par = locNumberPar(parametros, size, (char*)"[probSA]");
 			pTEMP.probSA = (float)par;
@@ -111,9 +114,15 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<Parametro
 			par = locNumberPar(parametros, size, (char*)"[alphaSA]");
 			pTEMP.alphaSA = (float)par;
 		}
-		else if(strstr(parametros, (char*)"#(AG)#"))
+		else if(strcmp(parametros, (char*)"#(AG)#") == 0)
 		{
 			pTEMP.alg = AG;
+
+			parametros += 7;
+
+			pos = strstr(parametros, (char*)"(name) = ");
+			pos = pos + strlen((char*)"(name) = ");
+			sscanf(pos, "%s", pTEMP.algName);
 
 			par = locNumberPar(parametros, size, (char*)"[probAG]");
 			pTEMP.probAG = (int)par;
@@ -136,9 +145,15 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<Parametro
 			par = locNumberPar(parametros, size, (char*)"[probMutacaoAG]");
 			pTEMP.probMutacaoAG = (float)par;
 		}
-		else if(strstr(parametros, (char*)"#(BT)#"))
+		else if(strcmp(parametros, (char*)"#(BT)#") == 0)
 		{
 			pTEMP.alg = BT;
+
+			parametros += 7;
+
+			pos = strstr(parametros, (char*)"(name) = ");
+			pos = pos + strlen((char*)"(name) = ");
+			sscanf(pos, "%s", pTEMP.algName);
 
 			par = locNumberPar(parametros, size, (char*)"[probBT]");
 			pTEMP.probBT = (int)par;
@@ -549,6 +564,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
 	pair<Problema*, movTabu*>* temp;
 	vector<pair<Problema*, movTabu*>* >* local = new vector<pair<Problema*, movTabu*>* >();
 
+	omp_set_num_threads(10);
 	#pragma omp parallel for shared(local, numMaqs, numJobs) private(maq, p1, p2, job, temp) schedule(dynamic)
 	for(maq = 0; maq < numMaqs; maq++)
 	{
@@ -596,6 +612,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 
 	def = (int)((float)total*parcela);
 
+	omp_set_num_threads(10);
 	#pragma omp parallel for shared(local, numMaqs, numJobs, def) private(maq, p1, p2, job, temp, i) schedule(dynamic)
 	for(i = 0; i < def; i++)
 	{
