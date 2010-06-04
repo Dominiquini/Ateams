@@ -254,9 +254,10 @@ void* Controle::run(void *obj)
 
 		pthread_mutex_unlock(&mutex);
 
-		gettimeofday(&ctr->time2, NULL);
+		struct timeval time2;
+		gettimeofday(&time2, NULL);
 
-		if(((ctr->time2.tv_sec - ctr->time1.tv_sec) > ctr->maxTempo) || (Problema::best <= ctr->makespanBest))
+		if(((time2.tv_sec - ctr->time1.tv_sec) > ctr->maxTempo) || (Problema::best <= ctr->makespanBest))
 			PARAR = true;
 	}
 

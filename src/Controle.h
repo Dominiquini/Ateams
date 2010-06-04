@@ -4,7 +4,7 @@
 
 using namespace std;
 
-extern bool PARAR;
+extern volatile bool PARAR;
 
 #ifndef _Controle_
 #define _Controle_
@@ -32,7 +32,7 @@ private:
 	int tamPop, iterAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao
 	set<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
 
-	struct timeval time1, time2;		// Medidores de tempo
+	struct timeval time1;				// Medidores de tempo
 	int execThreads;					// Threads executadas
 
 	/* Seleciona um dos algoritmos implementados para executar */

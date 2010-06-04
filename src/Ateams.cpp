@@ -14,7 +14,7 @@ using namespace std;
 #define DADOS "dados/la01.prb"
 #define PARAMETROS "parametros/default.param"
 
-bool PARAR = false;
+volatile bool PARAR = false;
 
 int main(int argc, char *argv[])
 {

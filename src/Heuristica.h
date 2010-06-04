@@ -4,7 +4,7 @@ using namespace std;
 
 extern pthread_mutex_t mutex;
 
-extern bool PARAR;
+extern volatile bool PARAR;
 
 #ifndef _HEURISTICA_
 #define _HEURISTICA_
