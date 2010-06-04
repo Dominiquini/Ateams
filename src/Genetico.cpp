@@ -19,17 +19,17 @@ Genetico::Genetico() : Heuristica::Heuristica("DEFAULT_AG")
 	Heuristica::numHeuristic += prob;
 }
 
-Genetico::Genetico(string nome, ParametrosAG *pAG) : Heuristica::Heuristica(nome)
+Genetico::Genetico(string nome, ParametrosHeuristicas& pAG) : Heuristica::Heuristica(nome)
 {
 	numExec = 0;
 
-	prob = pAG->probAG != -1 ? pAG->probAG : 20;
-	polEscolha = pAG->polEscolha != -1 ? pAG->polEscolha : -1;
-	iterGenetico = pAG->numeroIteracoes != -1 ? pAG->numeroIteracoes : 500;
-	tamPopGenetico = pAG->tamanhoPopulacao != -1 ? pAG->tamanhoPopulacao : 250;
-	probCrossOver = pAG->probCrossOver != -1 ? pAG->probCrossOver : 0.8;
-	probMutacao = pAG->probMutacao != -1 ? pAG->probMutacao : 0.02;
-	tamParticionamento = pAG->tamanhoParticionamento != -1 ? pAG->tamanhoParticionamento : -1;
+	prob = pAG.probAG != -1 ? pAG.probAG : 20;
+	polEscolha = pAG.polEscolhaAG != -1 ? pAG.polEscolhaAG : -1;
+	iterGenetico = pAG.iterAG != -1 ? pAG.iterAG : 500;
+	tamPopGenetico = pAG.tamPopAG != -1 ? pAG.tamPopAG : 250;
+	probCrossOver = pAG.probCrossOverAG != -1 ? pAG.probCrossOverAG : 0.8;
+	probMutacao = pAG.probMutacaoAG != -1 ? pAG.probMutacaoAG : 0.02;
+	tamParticionamento = pAG.tamParticaoAG != -1 ? pAG.tamParticaoAG : -1;
 
 	Heuristica::numHeuristic += prob;
 }

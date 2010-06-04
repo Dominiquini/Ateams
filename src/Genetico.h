@@ -19,7 +19,7 @@ public:
 #endif
 
 	Genetico();
-	Genetico(string, ParametrosAG*);
+	Genetico(string, ParametrosHeuristicas&);
 	~Genetico();
 
 	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic);

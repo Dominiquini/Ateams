@@ -32,14 +32,10 @@ int main(int argc, char *argv[])
 	FILE *fresultados;
 
 	ParametrosATEAMS *pATEAMS;
-	ParametrosAG *pAG;
-	ParametrosBT *pBT;
-	ParametrosSA *pSA;
+	vector<ParametrosHeuristicas> *pHEURISTICAS;
 
 	pATEAMS = (ParametrosATEAMS*)malloc(sizeof(ParametrosATEAMS));
-	pBT = (ParametrosBT*)malloc(sizeof(ParametrosBT));
-	pAG = (ParametrosAG*)malloc(sizeof(ParametrosAG));
-	pSA = (ParametrosSA*)malloc(sizeof(ParametrosSA));
+	pHEURISTICAS = new vector<ParametrosHeuristicas>;
 
 	char dados[32];
 	int p = -1;
@@ -99,19 +95,25 @@ int main(int argc, char *argv[])
 	}
 
 	Problema::leProblema(fdados);
-	Problema::leParametros(fparametros, pATEAMS, pBT, pAG, pSA);
+	Problema::leParametros(fparametros, pATEAMS, pHEURISTICAS);
 
 	fclose(fdados);
 	fclose(fparametros);
 
-	Problema::leArgumentos(argv, argc, pATEAMS, pBT, pAG, pSA);
+	Problema::leArgumentos(argv, argc, pATEAMS);
 
 	cout << endl;
 
 	Controle* ctr = new Controle(pATEAMS);
-	ctr->addHeuristic(new Tabu("BT", pBT));
-	ctr->addHeuristic(new Genetico("AG", pAG));
-	ctr->addHeuristic(new Annealing("SA", pSA));
+	for(int i = 0; i < (int)pHEURISTICAS->size(); i++)
+	{
+		if(pHEURISTICAS->at(i).alg == SA)
+			ctr->addHeuristic(new Annealing(pHEURISTICAS->at(i).algName, pHEURISTICAS->at(i)));
+		if(pHEURISTICAS->at(i).alg == AG)
+			ctr->addHeuristic(new Genetico(pHEURISTICAS->at(i).algName, pHEURISTICAS->at(i)));
+		if(pHEURISTICAS->at(i).alg == BT)
+			ctr->addHeuristic(new Tabu(pHEURISTICAS->at(i).algName, pHEURISTICAS->at(i)));
+	}
 
 	Problema* best = ctr->start();
 

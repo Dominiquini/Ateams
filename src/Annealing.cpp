@@ -19,17 +19,17 @@ Annealing::Annealing() : Heuristica::Heuristica("DEFAULT_SA")
 	Heuristica::numHeuristic += prob;
 }
 
-Annealing::Annealing(string nome, ParametrosSA *pSA) : Heuristica::Heuristica(nome)
+Annealing::Annealing(string nome, ParametrosHeuristicas& pSA) : Heuristica::Heuristica(nome)
 {
 	numExec = 0;
 
-	prob = pSA->probSA != -1 ? pSA->probSA : 45;
-	polEscolha = pSA->polEscolha != -1 ? pSA->polEscolha : 10;
-	maxIter = pSA->maxIter != -1 ? pSA->maxIter : 250;
-	initTemp = pSA->initTemp != -1 ? pSA->initTemp : 125;
-	fimTemp = pSA->fimTemp > 0 ? pSA->fimTemp : 0.75;
-	restauraSol = pSA->restauraSol != 0 ? true : false;
-	alfa = pSA->alfa != -1 ? pSA->alfa : 0.99;
+	prob = pSA.probSA != -1 ? pSA.probSA : 45;
+	polEscolha = pSA.polEscolhaSA != -1 ? pSA.polEscolhaSA : 10;
+	maxIter = pSA.maxIterSA != -1 ? pSA.maxIterSA : 250;
+	initTemp = pSA.initTempSA != -1 ? pSA.initTempSA : 125;
+	fimTemp = pSA.finalTempSA > 0 ? pSA.finalTempSA : 0.75;
+	restauraSol = pSA.restauraSolSA != 0 ? true : false;
+	alfa = pSA.alphaSA != -1 ? pSA.alphaSA : 0.99;
 
 	Heuristica::numHeuristic += prob;
 }

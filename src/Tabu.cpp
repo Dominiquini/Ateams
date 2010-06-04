@@ -19,17 +19,17 @@ Tabu::Tabu() : Heuristica::Heuristica("DEFAULT_BT")
 	Heuristica::numHeuristic += prob;
 }
 
-Tabu::Tabu(string nome, ParametrosBT *pBT) : Heuristica::Heuristica(nome)
+Tabu::Tabu(string nome, ParametrosHeuristicas& pBT) : Heuristica::Heuristica(nome)
 {
 	numExec = 0;
 
-	prob = pBT->probBT != -1 ? pBT->probBT : 35;
-	funcAsp = pBT->funcAsp != -1 ? pBT->funcAsp : 0.5;
-	polEscolha = pBT->polEscolha != -1 ? pBT->polEscolha : 100;
-	iterTabu = pBT->numeroIteracoes != -1 ? pBT->numeroIteracoes : 500;
-	tamListaTabu = pBT->tamanhoListaTabu != -1 ? pBT->tamanhoListaTabu : 10;
-	tentSemMelhora = pBT->tentativasSemMelhora != -1 ? pBT->tentativasSemMelhora : 250;
-	polExploracao = pBT->polExploracao != -1 ? pBT->polExploracao : 0.5;
+	prob = pBT.probBT != -1 ? pBT.probBT : 35;
+	funcAsp = pBT.funcAspiracaoBT != -1 ? pBT.funcAspiracaoBT : 0.5;
+	polEscolha = pBT.polEscolhaBT != -1 ? pBT.polEscolhaBT : 100;
+	iterTabu = pBT.iterBT != -1 ? pBT.iterBT : 500;
+	tamListaTabu = pBT.tamListaBT != -1 ? pBT.tamListaBT : 10;
+	tentSemMelhora = pBT.tentSemMelhoraBT != -1 ? pBT.tentSemMelhoraBT : 250;
+	polExploracao = pBT.polExplorBT != -1 ? pBT.polExplorBT : 0.5;
 
 	Heuristica::numHeuristic += prob;
 }

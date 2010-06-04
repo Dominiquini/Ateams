@@ -32,14 +32,14 @@ public:
 	static int best;				// Melhor solucao do momento
 	static int worst;				// Pior solucao do momento
 	static int numInst;				// Quantidade de instancias criadas
-	static int totalNumInst;
+	static long int totalNumInst;	// Quantidade total de problemas processados
 
 	// Le arquivo de dados de entrada
 	static void leProblema(FILE*);
 
 	// Le arquivo de parametros de entrada
-	static void leParametros(FILE*, ParametrosATEAMS*, ParametrosBT*, ParametrosAG*, ParametrosSA*);
-	static void leArgumentos(char**, int, ParametrosATEAMS*, ParametrosBT*, ParametrosAG*, ParametrosSA*);
+	static void leParametros(FILE*, ParametrosATEAMS*, vector<ParametrosHeuristicas>*);
+	static void leArgumentos(char**, int, ParametrosATEAMS*);
 
 	// Imprime em um arquivo os resultados da execucao
 	static void imprimeResultado (struct timeval, struct timeval, FILE*, int);
@@ -48,9 +48,7 @@ public:
 
 	// Alocador generico
 	static Problema* alloc();													// Nova solucao aleatoria
-	static Problema* alloc(short int **prob);									// Copia de prob
 	static Problema* alloc(const Problema &prob);								// Copia de prob
-	static Problema* alloc(const Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
 	// Retorna a soma de fitness de uma populacao
 	static double sumFitnessMaximize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);

@@ -7,7 +7,7 @@ using namespace std;
 int Problema::best = 0;
 int Problema::worst = 0;
 int Problema::numInst = 0;
-int Problema::totalNumInst = 0;
+long int Problema::totalNumInst = 0;
 
 char JobShop::name[128];
 short int **JobShop::maq = NULL, **JobShop::time = NULL;
@@ -19,19 +19,9 @@ Problema* Problema::alloc()
 	return new JobShop();
 }
 
-Problema* Problema::alloc(short int** prob)
-{
-	return new JobShop(prob);
-}
-
 Problema* Problema::alloc(const Problema& prob)
 {
 	return new JobShop(prob);
-}
-
-Problema* Problema::alloc(const Problema& prob, int maq, int pos1, int pos2)
-{
-	return new JobShop(prob, maq, pos1, pos2);
 }
 
 
@@ -56,10 +46,11 @@ void Problema::leProblema(FILE *f)
 	}
 }
 
-void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, ParametrosAG *pAG, ParametrosSA *pSA)
+void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<ParametrosHeuristicas> *pHEURISTICAS)
 {
-	char *parametros = (char*)malloc(4097 * sizeof(char));
+	char *parametros = (char*)malloc(4097 * sizeof(char)), *algs[16], *pos;
 	size_t size = fread(parametros, sizeof(char), 4096, f);
+	int numAlgs = 0;
 	float par = -1;
 
 	par = locNumberPar(parametros, size, (char*)"[iterAteams]");
@@ -77,77 +68,110 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, ParametrosBT *pB
 	par = locNumberPar(parametros, size, (char*)"[makespanBest]");
 	pATEAMS->makespanBest = (int)par;
 
+	pos = strstr(parametros, (char*)"##(");
+	while (pos != NULL)
+	{
+		*pos = '\0';
+		algs[numAlgs++] = pos+1;
+		parametros = pos+7;
+		pos = strstr(parametros, (char*)"##(");
+	}
 
-	par = locNumberPar(parametros, size, (char*)"[probBT]");
-	pBT->probBT = (int)par;
+	ParametrosHeuristicas pTEMP;
+	for(int i = 0; i < numAlgs; i++)
+	{
+		parametros = algs[i];
 
-	par = locNumberPar(parametros, size, (char*)"[polEscolhaBT]");
-	pBT->polEscolha = (int)par;
+		pos = strstr(parametros, (char*)"(name) = ");
+		pos = pos + strlen((char*)"(name) = ");
+		sscanf(pos, "%s", pTEMP.algName);
 
-	par = locNumberPar(parametros, size, (char*)"[iterBT]");
-	pBT->numeroIteracoes = (int)par;
+		if(strstr(parametros, (char*)"#(SA)#"))
+		{
+			pTEMP.alg = SA;
 
-	par = locNumberPar(parametros, size, (char*)"[tentSemMelhoraBT]");
-	pBT->tentativasSemMelhora = (int)par;
+			par = locNumberPar(parametros, size, (char*)"[probSA]");
+			pTEMP.probSA = (float)par;
 
-	par = locNumberPar(parametros, size, (char*)"[tamListaBT]");
-	pBT->tamanhoListaTabu = (int)par;
+			par = locNumberPar(parametros, size, (char*)"[polEscolhaSA]");
+			pTEMP.polEscolhaSA = (int)par;
 
-	par = locNumberPar(parametros, size, (char*)"[polExplorBT]");
-	pBT->polExploracao = (float)par;
+			par = locNumberPar(parametros, size, (char*)"[maxIterSA]");
+			pTEMP.maxIterSA = (int)par;
 
-	par = locNumberPar(parametros, size, (char*)"[funcAspiracaoBT]");
-	pBT->funcAsp = (float)par;
+			par = locNumberPar(parametros, size, (char*)"[initTempSA]");
+			pTEMP.initTempSA = (float)par;
 
+			par = locNumberPar(parametros, size, (char*)"[finalTempSA]");
+			pTEMP.finalTempSA = (float)par;
 
-	par = locNumberPar(parametros, size, (char*)"[probAG]");
-	pAG->probAG = (int)par;
+			par = locNumberPar(parametros, size, (char*)"[restauraSolSA]");
+			pTEMP.restauraSolSA = (int)par;
 
-	par = locNumberPar(parametros, size, (char*)"[polEscolhaAG]");
-	pAG->polEscolha = (int)par;
+			par = locNumberPar(parametros, size, (char*)"[alphaSA]");
+			pTEMP.alphaSA = (float)par;
+		}
+		else if(strstr(parametros, (char*)"#(AG)#"))
+		{
+			pTEMP.alg = AG;
 
-	par = locNumberPar(parametros, size, (char*)"[iterAG]");
-	pAG->numeroIteracoes = (int)par;
+			par = locNumberPar(parametros, size, (char*)"[probAG]");
+			pTEMP.probAG = (int)par;
 
-	par = locNumberPar(parametros, size, (char*)"[tamPopAG]");
-	pAG->tamanhoPopulacao = (int)par;
+			par = locNumberPar(parametros, size, (char*)"[polEscolhaAG]");
+			pTEMP.polEscolhaAG = (int)par;
 
-	par = locNumberPar(parametros, size, (char*)"[tamParticaoAG]");
-	pAG->tamanhoParticionamento = (int)par;
+			par = locNumberPar(parametros, size, (char*)"[iterAG]");
+			pTEMP.iterAG = (int)par;
 
-	par = locNumberPar(parametros, size, (char*)"[probCrossOverAG]");
-	pAG->probCrossOver = (float)par;
+			par = locNumberPar(parametros, size, (char*)"[tamPopAG]");
+			pTEMP.tamPopAG = (int)par;
 
-	par = locNumberPar(parametros, size, (char*)"[probMutacaoAG]");
-	pAG->probMutacao = (float)par;
+			par = locNumberPar(parametros, size, (char*)"[tamParticaoAG]");
+			pTEMP.tamParticaoAG = (int)par;
 
+			par = locNumberPar(parametros, size, (char*)"[probCrossOverAG]");
+			pTEMP.probCrossOverAG = (float)par;
 
-	par = locNumberPar(parametros, size, (char*)"[probSA]");
-	pSA->probSA = (float)par;
+			par = locNumberPar(parametros, size, (char*)"[probMutacaoAG]");
+			pTEMP.probMutacaoAG = (float)par;
+		}
+		else if(strstr(parametros, (char*)"#(BT)#"))
+		{
+			pTEMP.alg = BT;
 
-	par = locNumberPar(parametros, size, (char*)"[polEscolhaSA]");
-	pSA->polEscolha = (int)par;
+			par = locNumberPar(parametros, size, (char*)"[probBT]");
+			pTEMP.probBT = (int)par;
 
-	par = locNumberPar(parametros, size, (char*)"[maxIterSA]");
-	pSA->maxIter = (int)par;
+			par = locNumberPar(parametros, size, (char*)"[polEscolhaBT]");
+			pTEMP.polEscolhaBT = (int)par;
 
-	par = locNumberPar(parametros, size, (char*)"[initTempSA]");
-	pSA->initTemp = (float)par;
+			par = locNumberPar(parametros, size, (char*)"[iterBT]");
+			pTEMP.iterBT = (int)par;
 
-	par = locNumberPar(parametros, size, (char*)"[finalTempSA]");
-	pSA->fimTemp = (float)par;
+			par = locNumberPar(parametros, size, (char*)"[tentSemMelhoraBT]");
+			pTEMP.tentSemMelhoraBT = (int)par;
 
-	par = locNumberPar(parametros, size, (char*)"[restauraSolSA]");
-	pSA->restauraSol = (int)par;
+			par = locNumberPar(parametros, size, (char*)"[tamListaBT]");
+			pTEMP.tamListaBT = (int)par;
 
-	par = locNumberPar(parametros, size, (char*)"[alphaSA]");
-	pSA->alfa = (float)par;
+			par = locNumberPar(parametros, size, (char*)"[polExplorBT]");
+			pTEMP.polExplorBT = (float)par;
 
-	free(parametros);
+			par = locNumberPar(parametros, size, (char*)"[funcAspiracaoBT]");
+			pTEMP.funcAspiracaoBT = (float)par;
+		}
+		else
+		{
+			printf("\n\nERRO NO ARQUIVO DE PARÂMETROS!!!\n\n");
+			exit(0);
+		}
+		pHEURISTICAS->push_back(pTEMP);
+	}
 }
 
 /* Le argumentos adicionais passados por linha de comando */
-void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, ParametrosBT *pBT, ParametrosAG *pAG, ParametrosSA *pSA)
+void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS)
 {
 	int p = -1;
 
@@ -165,72 +189,6 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS, Pa
 
 	if((p = locComPar(argv, argc, (char*)"--makespanBest")) != -1)
 		pATEAMS->makespanBest = atoi(argv[p]);
-
-
-	if((p = locComPar(argv, argc, (char*)"--probBT")) != -1)
-		pBT->probBT = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--polEscolhaBT")) != -1)
-		pBT->polEscolha = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--funcAspiracaoBT")) != -1)
-		pBT->funcAsp = atof(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--polExplorBT")) != -1)
-		pBT->polExploracao = atof(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--iterBT")) != -1)
-		pBT->numeroIteracoes = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--tentSemMelhoraBT")) != -1)
-		pBT->tentativasSemMelhora = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--tamListaBT")) != -1)
-		pBT->tamanhoListaTabu = atoi(argv[p]);
-
-
-	if((p = locComPar(argv, argc, (char*)"--probAG")) != -1)
-		pAG->probAG = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--polEscolhaAG")) != -1)
-		pAG->polEscolha = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--iterAG")) != -1)
-		pAG->numeroIteracoes = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--tamPopAG")) != -1)
-		pAG->tamanhoPopulacao = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--tamParticaoAG")) != -1)
-		pAG->tamanhoParticionamento = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--probCrossOverAG")) != -1)
-		pAG->probCrossOver = atof(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--probMutacaoAG")) != -1)
-		pAG->probMutacao = atof(argv[p]);
-
-
-	if((p = locComPar(argv, argc, (char*)"--probSA")) != -1)
-		pSA->probSA = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--polEscolhaSA")) != -1)
-		pSA->polEscolha = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--maxIterSA")) != -1)
-		pSA->maxIter = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--initTempSA")) != -1)
-		pSA->initTemp = atof(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--finalTempSA")) != -1)
-		pSA->fimTemp = atof(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--restauraSolSA")) != -1)
-		pSA->restauraSol = atoi(argv[p]);
-
-	if((p = locComPar(argv, argc, (char*)"--alphaSA")) != -1)
-		pSA->alfa = atof(argv[p]);
 }
 
 void Problema::imprimeResultado (struct timeval tv1, struct timeval tv2, FILE *resultados, int bestMakespan)
@@ -414,24 +372,24 @@ JobShop::~JobShop()
 }
 
 bool JobShop::operator == (Problema& p)
-{
+		{
 	return fnequal1(this, &p);
-}
+		}
 
 bool JobShop::operator != (Problema& p)
-{
+		{
 	return fnequal2(this, &p);
-}
+		}
 
 bool JobShop::operator <= (Problema& p)
-{
+		{
 	return fncomp1(this, &p);
-}
+		}
 
 bool JobShop::operator >= (Problema& p)
-{
+		{
 	return fncomp1(&p, this);
-}
+		}
 
 bool JobShop::operator < (Problema& p)
 {
@@ -591,7 +549,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
 	pair<Problema*, movTabu*>* temp;
 	vector<pair<Problema*, movTabu*>* >* local = new vector<pair<Problema*, movTabu*>* >();
 
-	#pragma omp parallel for shared(local, numMaqs, numJobs) private(maq, p1, p2, job, temp)
+#pragma omp parallel for shared(local, numMaqs, numJobs) private(maq, p1, p2, job, temp)
 	for(maq = 0; maq < numMaqs; maq++)
 	{
 		for(p1 = 0; p1 < numJobs-1; p1++)
@@ -605,7 +563,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
 					temp->first = job;
 					temp->second = new movTabu(maq, p1, p2);
 
-					#pragma omp critical
+#pragma omp critical
 					{
 						local->push_back(temp);
 					}
@@ -638,7 +596,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 
 	def = (int)((float)total*parcela);
 
-	#pragma omp parallel for shared(local, numMaqs, numJobs, def) private(maq, p1, p2, job, temp, i)
+#pragma omp parallel for shared(local, numMaqs, numJobs, def) private(maq, p1, p2, job, temp, i)
 	for(i = 0; i < def; i++)
 	{
 		maq = xRand(rand(), 0, numMaqs), p1 = xRand(rand(), 0, numJobs), p2 = xRand(rand(), 0, numJobs);
@@ -653,7 +611,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 			temp->first = job;
 			temp->second = new movTabu(maq, p1, p2);
 
-			#pragma omp critical
+#pragma omp critical
 			{
 				local->push_back(temp);
 			}
@@ -797,14 +755,14 @@ float locNumberPar(char *in, int num, char *key)
 }
 
 char* locPosPar(char *in, int num, char *key)
-				{
+						{
 	char *str = strstr(in, key);
 
 	if(str != NULL)
 		return strstr(str, "=") + 1;
 	else
 		return NULL;
-				}
+						}
 
 int findOrdem(int M, int maq, short int* job)
 {
@@ -815,7 +773,7 @@ int findOrdem(int M, int maq, short int* job)
 }
 
 inline void* alocaMatriz(int dim, int a, int b, int c)
-				{
+						{
 	if(dim == 1)
 	{
 		short int *M = (short int*)malloc(a * sizeof(short int));
@@ -844,7 +802,7 @@ inline void* alocaMatriz(int dim, int a, int b, int c)
 	}
 	else
 		return NULL;
-				}
+						}
 
 inline void desalocaMatriz(int dim, void *MMM, int a, int b)
 {

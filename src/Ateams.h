@@ -50,43 +50,44 @@ struct movTabu
 	}
 };
 
-typedef struct ParametrosATEAMS {
+struct ParametrosATEAMS {
 	int tamanhoPopulacao;
 	int iteracoesAteams;
 	int numThreads;
 	int maxTempo;
 	int makespanBest;
-} ParametrosATEAMS;
+};
 
-typedef struct ParametrosAG {
+enum Heuristicas {SA, BT, AG};
+
+struct ParametrosHeuristicas {
+	Heuristicas alg;
+	char algName[16];
+
 	int probAG;
-	int polEscolha;
-	int numeroIteracoes;
-	int tamanhoPopulacao;
-	int tamanhoParticionamento;
-	float probCrossOver;
-	float probMutacao;
-} ParametrosAG;
+	int polEscolhaAG;
+	int iterAG;
+	int tamPopAG;
+	int tamParticaoAG;
+	float probCrossOverAG;
+	float probMutacaoAG;
 
-typedef struct ParametrosBT {
 	int probBT;
-	int polEscolha;
-	int tentativasSemMelhora;
-	int numeroIteracoes;
-	int tamanhoListaTabu;
-	float polExploracao;
-	float funcAsp;
-} ParametrosBT;
+	int polEscolhaBT;
+	int tentSemMelhoraBT;
+	int iterBT;
+	int tamListaBT;
+	float polExplorBT;
+	float funcAspiracaoBT;
 
-typedef struct ParametrosSA {
 	int probSA;
-	int polEscolha;
-	int maxIter;
-	float initTemp;
-	float fimTemp;
-	int restauraSol;
-	float alfa;
-} ParametrosSA;
+	int polEscolhaSA;
+	int maxIterSA;
+	float initTempSA;
+	float finalTempSA;
+	int restauraSolSA;
+	float alphaSA;
+};
 
 void Interrompe(int signum);
 
