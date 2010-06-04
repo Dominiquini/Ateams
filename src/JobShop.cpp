@@ -549,7 +549,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
 	pair<Problema*, movTabu*>* temp;
 	vector<pair<Problema*, movTabu*>* >* local = new vector<pair<Problema*, movTabu*>* >();
 
-#pragma omp parallel for shared(local, numMaqs, numJobs) private(maq, p1, p2, job, temp)
+	#pragma omp parallel for shared(local, numMaqs, numJobs) private(maq, p1, p2, job, temp) schedule(dynamic)
 	for(maq = 0; maq < numMaqs; maq++)
 	{
 		for(p1 = 0; p1 < numJobs-1; p1++)
@@ -563,7 +563,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
 					temp->first = job;
 					temp->second = new movTabu(maq, p1, p2);
 
-#pragma omp critical
+					#pragma omp critical
 					{
 						local->push_back(temp);
 					}
@@ -596,7 +596,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 
 	def = (int)((float)total*parcela);
 
-#pragma omp parallel for shared(local, numMaqs, numJobs, def) private(maq, p1, p2, job, temp, i)
+	#pragma omp parallel for shared(local, numMaqs, numJobs, def) private(maq, p1, p2, job, temp, i) schedule(dynamic)
 	for(i = 0; i < def; i++)
 	{
 		maq = xRand(rand(), 0, numMaqs), p1 = xRand(rand(), 0, numJobs), p2 = xRand(rand(), 0, numJobs);
@@ -611,7 +611,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 			temp->first = job;
 			temp->second = new movTabu(maq, p1, p2);
 
-#pragma omp critical
+			#pragma omp critical
 			{
 				local->push_back(temp);
 			}

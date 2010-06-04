@@ -157,7 +157,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		mutacao = probMutacao;
 
 		/* Faz o cruzamento de todos os pares definidos anteriormente */
-		#pragma omp parallel for shared(filhos, pais, paisIter, paisSize, particao, mutacao) private(i, temp, iter1)
+		#pragma omp parallel for shared(filhos, pais, paisIter, paisSize, particao, mutacao) private(i, temp, iter1) schedule(dynamic)
 		for(int i = 0; i < paisSize; i++)
 		{
 			iter1 = paisIter[i];

@@ -15,6 +15,8 @@ Controle::Controle()
 	maxTempo = INT_MAX;
 	makespanBest = -1;
 
+	omp_set_num_threads(numThreads);
+
 	srand(unsigned(time(NULL)));
 
 	bool(*fn_pt)(Problema*, Problema*) = fncomp1;
@@ -32,6 +34,8 @@ Controle::Controle(ParametrosATEAMS* pATEAMS)
 	numThreads = pATEAMS->numThreads != -1 ? pATEAMS->numThreads : 4;
 	maxTempo = pATEAMS->maxTempo != -1 ? pATEAMS->maxTempo : INT_MAX;
 	makespanBest = pATEAMS->makespanBest != -1 ? pATEAMS->makespanBest : -1;
+
+	omp_set_num_threads(numThreads);
 
 	srand(unsigned(time(NULL)));
 
