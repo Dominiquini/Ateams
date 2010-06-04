@@ -579,7 +579,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
 					temp->first = job;
 					temp->second = new movTabu(maq, p1, p2);
 
-					#pragma omp critical
+					#pragma omp critical (BT0)
 					{
 						local->push_back(temp);
 					}
@@ -628,7 +628,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 			temp->first = job;
 			temp->second = new movTabu(maq, p1, p2);
 
-			#pragma omp critical
+			#pragma omp critical (BT1)
 			{
 				local->push_back(temp);
 			}

@@ -180,7 +180,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 			if(rand() < ((RAND_MAX*mutacao)/2))
 				temp->second->mutacao();
 
-			#pragma omp critical
+			#pragma omp critical (AG)
 			{
 				filhos->push_back(temp);
 			}
