@@ -5,6 +5,8 @@ using namespace std;
 pthread_mutex_t mutex;
 pthread_mutex_t mut_p;
 
+sem_t semaphore;
+
 Controle::Controle()
 {
 	tamPop = 1000;
@@ -22,6 +24,8 @@ Controle::Controle()
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_mutex_init(&mut_p, NULL);
+
+	sem_init(&semaphore, 0, numThreads);
 }
 
 Controle::Controle(ParametrosATEAMS* pATEAMS)
@@ -41,6 +45,8 @@ Controle::Controle(ParametrosATEAMS* pATEAMS)
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_mutex_init(&mut_p, NULL);
+
+	sem_init(&semaphore, 0, numThreads);
 }
 
 Controle::~Controle()
@@ -162,8 +168,7 @@ Problema* Controle::getSol(int n)
 Problema* Controle::start()
 {
 	pthread_t *threads = (pthread_t*)malloc(iterAteams * sizeof(pthread_t));
-	int threads_create = 0;
-	int threads_join = 0;
+	void* temp = NULL;
 
 	srand(unsigned(time(NULL)));
 
@@ -174,73 +179,28 @@ Problema* Controle::start()
 
 	cout << "(" << numThreads << " THREADS) CTR : " << Problema::best << " : " << Problema::worst << endl << endl << flush;
 
-	struct timeval time1, time2;
 	gettimeofday(&time1, NULL);
 
-	decTempo = execAteams = 0;
-	int ins = 0;
+	pair<int, Controle*>* par = NULL;
+	long int ins = 0;
+	execThreads = 0;
 
-	string* algName;
-	void *temp = NULL;
-	vector<Problema*> *prob = NULL;
-	pair<vector<Problema*>*, string*>* par = NULL;
-
-	int cont = 0;
-	while(true)
+	for(int execAteams = 1; execAteams <= iterAteams; execAteams++)
 	{
-		if(execAteams < numThreads && cont < iterAteams && PARAR == false)
-		{
-			pthread_create(&threads[threads_create++], NULL, run, (void*)this);
-			execAteams++;
-			cont++;
-		}
-		else if(execAteams > 0)
-		{
-			pthread_join(threads[threads_join++], &temp);
-			execAteams--;
+		par = new pair<int, Controle*>();
+		par->first = execAteams;
+		par->second = this;
 
-			par = (pair<vector<Problema*>*, string*>*)temp;
-
-			prob = par->first;
-			algName = par->second;
-
-			pthread_mutex_lock(&mutex);
-			ins = addSol(prob);
-			pthread_mutex_unlock(&mutex);
-
-			prob->clear();
-			delete prob;
-
-			Problema::best = (*pop->begin())->getFitnessMinimize();
-			Problema::worst = (*pop->rbegin())->getFitnessMinimize();
-
-			if(threads_join < 10)
-				cout << *algName << " 00" << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
-			else if(threads_join < 100)
-				cout << *algName << " 0" << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
-			else
-				cout << *algName << " " << threads_join << " : " << Problema::best << " -> " << ins << endl << flush;
-
-
-			if(Problema::best <= makespanBest)
-				PARAR = true;
-
-			if(decTempo > maxTempo)
-				PARAR = true;
-		}
-		else
-		{
-			break;
-		}
-
-		gettimeofday(&time2, NULL);
-		decTempo = time2.tv_sec - time1.tv_sec;
+		pthread_create(&threads[execAteams], NULL, run, (void*)par);
 	}
 
-	Problema::best = (*pop->begin())->getFitnessMinimize();
-	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
+	for(int execAteams = 1; execAteams <= iterAteams; execAteams++)
+	{
+		pthread_join(threads[execAteams], &temp);
+		ins += (long int)temp;
+	}
 
-	free(threads);
+	cout << endl << "Soluções Permutadas: " << ins << endl;
 
 	return *(pop->begin());
 }
@@ -259,10 +219,50 @@ inline pair<vector<Problema*>*, string*>* Controle::exec(int randomic)
 
 void* Controle::run(void *obj)
 {
-	Controle *ctr = (Controle*)obj;
-	void *ret = (void*)ctr->exec(rand());
+	string* algName;
+	vector<Problema*> *prob = NULL;
+	pair<vector<Problema*>*, string*>* out = NULL;
 
-	pthread_exit(ret);
+	pair<int, Controle*>* in = (pair<int, Controle*>*)obj;
+	int execAteams = in->first;
+	Controle *ctr = in->second;
+
+	long int ins = 0;
+
+	sem_wait(&semaphore);
+
+	if(PARAR != true)
+	{
+		out = ctr->exec(rand());
+
+		prob = out->first;
+		algName = out->second;
+
+		pthread_mutex_lock(&mutex);
+
+		ins = ctr->addSol(prob);
+
+		prob->clear();
+		delete prob;
+
+		delete in;
+		delete out;
+
+		ctr->execThreads++;
+
+		printf("%s (%.3d|%.3d) : %.4d -> %.3ld\n", algName->c_str(),  execAteams, ctr->execThreads, Problema::best, ins);
+
+		pthread_mutex_unlock(&mutex);
+
+		gettimeofday(&ctr->time2, NULL);
+
+		if(((ctr->time2.tv_sec - ctr->time1.tv_sec) > ctr->maxTempo) || (Problema::best <= ctr->makespanBest))
+			PARAR = true;
+	}
+
+	sem_post(&semaphore);
+
+	pthread_exit((void*)ins);
 }
 
 inline int Controle::addSol(vector<Problema*> *news)
@@ -297,6 +297,9 @@ inline int Controle::addSol(vector<Problema*> *news)
 			delete *iterNews;
 		}
 	}
+	Problema::best = (*pop->begin())->getFitnessMinimize();
+	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
+
 	return ins;
 }
 

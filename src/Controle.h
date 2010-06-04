@@ -12,6 +12,7 @@ extern bool PARAR;
 class Controle
 {
 private:
+	/* Funcao que executa em multiplas threads e retorna o numero de solucoes inseridas */
 	static void* run(void *obj);
 
 public:
@@ -31,7 +32,8 @@ private:
 	int tamPop, iterAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao
 	set<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
 
-	int execAteams, decTempo;			// Iterações executadas e tempo decorrido
+	struct timeval time1, time2;		// Medidores de tempo
+	int execThreads;					// Threads executadas
 
 	/* Seleciona um dos algoritmos implementados para executar */
 	pair<vector<Problema*>*, string*>* exec(int randWheel);
