@@ -2,8 +2,6 @@
 
 using namespace std;
 
-extern bool PARAR;
-
 pthread_mutex_t mutex;
 pthread_mutex_t mut_p;
 
@@ -23,6 +21,7 @@ Controle::Controle()
 	algs = new vector<Heuristica*>;
 
 	pthread_mutex_init(&mutex, NULL);
+	pthread_mutex_init(&mut_p, NULL);
 }
 
 Controle::Controle(ParametrosATEAMS* pATEAMS)
@@ -41,6 +40,7 @@ Controle::Controle(ParametrosATEAMS* pATEAMS)
 	algs = new vector<Heuristica*>;
 
 	pthread_mutex_init(&mutex, NULL);
+	pthread_mutex_init(&mut_p, NULL);
 }
 
 Controle::~Controle()
@@ -63,6 +63,7 @@ Controle::~Controle()
 	delete algs;
 
 	pthread_mutex_destroy(&mutex);
+	pthread_mutex_destroy(&mut_p);
 }
 
 set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, double fitTotal, unsigned int randWheel)

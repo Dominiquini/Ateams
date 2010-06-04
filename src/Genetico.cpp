@@ -2,8 +2,6 @@
 
 using namespace std;
 
-extern bool PARAR;
-
 Genetico::Genetico() : Heuristica::Heuristica("DEFAULT_AG")
 {
 	numExec = 0;

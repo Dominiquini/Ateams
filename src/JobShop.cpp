@@ -387,9 +387,9 @@ JobShop::~JobShop()
 }
 
 bool JobShop::operator == (Problema& p)
-		{
+{
 	return fnequal1(this, &p);
-		}
+}
 
 bool JobShop::operator != (Problema& p)
 		{
@@ -397,14 +397,14 @@ bool JobShop::operator != (Problema& p)
 		}
 
 bool JobShop::operator <= (Problema& p)
-		{
+{
 	return fncomp1(this, &p);
-		}
+}
 
 bool JobShop::operator >= (Problema& p)
-		{
+{
 	return fncomp1(&p, this);
-		}
+}
 
 bool JobShop::operator < (Problema& p)
 {

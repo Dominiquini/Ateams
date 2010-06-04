@@ -2,8 +2,6 @@
 
 using namespace std;
 
-extern bool PARAR;
-
 Tabu::Tabu() : Heuristica::Heuristica("DEFAULT_BT")
 {
 	numExec = 0;

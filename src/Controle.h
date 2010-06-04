@@ -1,7 +1,10 @@
+#include "Ateams.h"
 #include "Problema.h"
 #include "Heuristica.h"
 
 using namespace std;
+
+extern bool PARAR;
 
 #ifndef _Controle_
 #define _Controle_

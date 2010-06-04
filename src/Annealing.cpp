@@ -2,8 +2,6 @@
 
 using namespace std;
 
-extern bool PARAR;
-
 Annealing::Annealing() : Heuristica::Heuristica("DEFAULT_SA")
 {
 	numExec = 0;
