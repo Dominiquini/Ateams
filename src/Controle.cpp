@@ -177,7 +177,8 @@ Problema* Controle::start()
 	struct timeval time1, time2;
 	gettimeofday(&time1, NULL);
 
-	int tempo = 0, ins = 0, execThreads = 0;
+	decTempo = execAteams = 0;
+	int ins = 0;
 
 	string* algName;
 	void *temp = NULL;
@@ -187,16 +188,16 @@ Problema* Controle::start()
 	int cont = 0;
 	while(true)
 	{
-		if(execThreads < numThreads && cont < iterAteams && PARAR == false)
+		if(execAteams < numThreads && cont < iterAteams && PARAR == false)
 		{
 			pthread_create(&threads[threads_create++], NULL, run, (void*)this);
-			execThreads++;
+			execAteams++;
 			cont++;
 		}
-		else if(execThreads > 0)
+		else if(execAteams > 0)
 		{
 			pthread_join(threads[threads_join++], &temp);
-			execThreads--;
+			execAteams--;
 
 			par = (pair<vector<Problema*>*, string*>*)temp;
 
@@ -224,7 +225,7 @@ Problema* Controle::start()
 			if(Problema::best <= makespanBest)
 				PARAR = true;
 
-			if(tempo > maxTempo)
+			if(decTempo > maxTempo)
 				PARAR = true;
 		}
 		else
@@ -233,7 +234,7 @@ Problema* Controle::start()
 		}
 
 		gettimeofday(&time2, NULL);
-		tempo = time2.tv_sec - time1.tv_sec;
+		decTempo = time2.tv_sec - time1.tv_sec;
 	}
 
 	Problema::best = (*pop->begin())->getFitnessMinimize();

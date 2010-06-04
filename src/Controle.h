@@ -31,6 +31,8 @@ private:
 	int tamPop, iterAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao
 	set<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
 
+	int execAteams, decTempo;			// Iterações executadas e tempo decorrido
+
 	/* Seleciona um dos algoritmos implementados para executar */
 	pair<vector<Problema*>*, string*>* exec(int randWheel);
 
