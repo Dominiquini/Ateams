@@ -15,8 +15,6 @@ Controle::Controle()
 	maxTempo = INT_MAX;
 	makespanBest = -1;
 
-	omp_set_num_threads(numThreads);
-
 	srand(unsigned(time(NULL)));
 
 	bool(*fn_pt)(Problema*, Problema*) = fncomp1;
@@ -34,8 +32,6 @@ Controle::Controle(ParametrosATEAMS* pATEAMS)
 	numThreads = pATEAMS->numThreads != -1 ? pATEAMS->numThreads : 4;
 	maxTempo = pATEAMS->maxTempo != -1 ? pATEAMS->maxTempo : INT_MAX;
 	makespanBest = pATEAMS->makespanBest != -1 ? pATEAMS->makespanBest : -1;
-
-	omp_set_num_threads(numThreads);
 
 	srand(unsigned(time(NULL)));
 
@@ -67,6 +63,72 @@ Controle::~Controle()
 	delete algs;
 
 	pthread_mutex_destroy(&mutex);
+}
+
+set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, double fitTotal, unsigned int randWheel)
+{
+	// Armazena o fitness total da populacao
+	unsigned int sum = fitTotal;
+	// Um numero entre zero e "sum" e sorteado
+	randWheel = xRand(randWheel, 0, sum+1);
+
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	for(iter = pop->begin(); iter != pop->end(); iter++)
+	{
+		sum -= (int)(*iter)->getFitnessMaximize();
+		if(sum <= randWheel)
+		{
+			return iter;
+		}
+	}
+	return (pop->begin());
+}
+
+vector<Problema*>::iterator Controle::selectRouletteWheel(vector<Problema*>* pop, double fitTotal, unsigned int randWheel)
+{
+	// Armazena o fitness total da populacao
+	unsigned int sum = fitTotal;
+	// Um numero entre zero e "sum" e sorteado
+	randWheel = xRand(randWheel, 0, sum+1);
+
+	vector<Problema*>::iterator iter;
+	for(iter = pop->begin(); iter != pop->end(); iter++)
+	{
+		sum -= (int)(*iter)->getFitnessMaximize();
+		if(sum <= randWheel)
+		{
+			return iter;
+		}
+	}
+	return pop->begin();
+}
+
+Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, unsigned int probTotal, unsigned int randWheel)
+{
+	// Armazena o fitness total da populacao
+	unsigned int sum = probTotal;
+	// Um numero entre zero e "sum" e sorteado
+	randWheel = xRand(randWheel, 0, sum+1);
+
+	for(int i = 0; i < (int)heuristc->size(); i++)
+	{
+		sum -= heuristc->at(i)->prob;
+		if(sum <= randWheel)
+		{
+			return heuristc->at(i);
+		}
+	}
+	return heuristc->at(0);
+}
+
+vector<Problema*>::iterator Controle::selectRandom(vector<Problema*>* pop, int randWheel)
+{
+	randWheel = randWheel % pop->size();
+
+	vector<Problema*>::iterator iter = pop->begin();
+	for(int i = 0; iter != pop->end() && i < randWheel; iter++, i++);
+
+	return iter;
 }
 
 void Controle::addHeuristic(Heuristica* alg)
@@ -193,6 +255,14 @@ inline pair<vector<Problema*>*, string*>* Controle::exec(int randomic)
 	return par;
 }
 
+void* Controle::run(void *obj)
+{
+	Controle *ctr = (Controle*)obj;
+	void *ret = (void*)ctr->exec(rand());
+
+	pthread_exit(ret);
+}
+
 inline int Controle::addSol(vector<Problema*> *news)
 {
 	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
@@ -247,80 +317,6 @@ inline void Controle::geraPop()
 		else
 			delete prob;
 	}
-}
-
-void* Controle::run(void *obj)
-{
-	Controle *ctr = (Controle*)obj;
-	void *ret = (void*)ctr->exec(rand());
-
-	return ret;
-}
-
-set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, double fitTotal, unsigned int randWheel)
-{
-	// Armazena o fitness total da populacao
-	unsigned int sum = fitTotal;
-	// Um numero entre zero e "sum" e sorteado
-	randWheel = xRand(randWheel, 0, sum+1);
-
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
-	for(iter = pop->begin(); iter != pop->end(); iter++)
-	{
-		sum -= (int)(*iter)->getFitnessMaximize();
-		if(sum <= randWheel)
-		{
-			return iter;
-		}
-	}
-	return (pop->begin());
-}
-
-vector<Problema*>::iterator Controle::selectRouletteWheel(vector<Problema*>* pop, double fitTotal, unsigned int randWheel)
-{
-	// Armazena o fitness total da populacao
-	unsigned int sum = fitTotal;
-	// Um numero entre zero e "sum" e sorteado
-	randWheel = xRand(randWheel, 0, sum+1);
-
-	vector<Problema*>::iterator iter;
-	for(iter = pop->begin(); iter != pop->end(); iter++)
-	{
-		sum -= (int)(*iter)->getFitnessMaximize();
-		if(sum <= randWheel)
-		{
-			return iter;
-		}
-	}
-	return pop->begin();
-}
-
-Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, unsigned int probTotal, unsigned int randWheel)
-{
-	// Armazena o fitness total da populacao
-	unsigned int sum = probTotal;
-	// Um numero entre zero e "sum" e sorteado
-	randWheel = xRand(randWheel, 0, sum+1);
-
-	for(int i = 0; i < (int)heuristc->size(); i++)
-	{
-		sum -= heuristc->at(i)->prob;
-		if(sum <= randWheel)
-		{
-			return heuristc->at(i);
-		}
-	}
-	return heuristc->at(0);
-}
-
-vector<Problema*>::iterator Controle::selectRandom(vector<Problema*>* pop, int randWheel)
-{
-	randWheel = randWheel % pop->size();
-
-	vector<Problema*>::iterator iter = pop->begin();
-	for(int i = 0; iter != pop->end() && i < randWheel; iter++, i++);
-
-	return iter;
 }
 
 inline bool cmpAlg(Heuristica *h1, Heuristica *h2)
