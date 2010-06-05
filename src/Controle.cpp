@@ -67,7 +67,7 @@ Controle::~Controle()
 
 	vector<Heuristica*>::iterator it;
 
-	cout << endl << endl << "Execuções:" << endl << endl;
+	cout << endl << endl << "Execuções: " << execThreads << endl << endl;
 	for(it = algs->begin(); it != algs->end(); it++)
 		delete *it;
 
@@ -186,7 +186,8 @@ Problema* Controle::start()
 	Problema::best = (*pop->begin())->getFitnessMinimize();
 	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
-	cout << "(" << numThreads << " THREADS) CTR : " << Problema::best << " : " << Problema::worst << endl << endl << flush;
+	cout << endl << "Pior Soulução: " << Problema::worst << endl << endl;
+	cout << "Melhor Solução: " << Problema::best << endl << endl << endl;
 
 	gettimeofday(&time1, NULL);
 
@@ -210,6 +211,8 @@ Problema* Controle::start()
 	}
 
 	cout << endl << "Soluções Permutadas: " << ins << endl;
+
+	free(threads);
 
 	return *(pop->begin());
 }
@@ -278,8 +281,8 @@ void* Controle::run(void *obj)
 		for(list<string>::iterator it = ctr->execAlgs->begin(); it != ctr->execAlgs->end(); it++)
 			execNames = execNames + *it + " ";
 
-		printf("%s(%.3d) | ITERAÇÃO: %.3d | MAKESPAN: %.4d | CONTRIBUIÇÃO:  %.3ld", algName->c_str(),  execAteams, ctr->execThreads, Problema::best, ins);
-		printf(" ... (%d : %s)\n", ctr->actThreads, execNames.c_str());
+		printf("ALG: %s(%.3d) | ITER: %.3d | MAKESPAN: %.4d | CONTRIB:  %.3ld", algName->c_str(),  execAteams, ctr->execThreads, Problema::best, ins);
+		printf(" | FILA: (%d : %s)\n", ctr->actThreads, execNames.c_str());
 
 		pthread_mutex_unlock(&mutex);
 
