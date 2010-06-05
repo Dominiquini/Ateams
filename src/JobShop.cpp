@@ -48,10 +48,12 @@ void Problema::leProblema(FILE *f)
 
 void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<ParametrosHeuristicas> *pHEURISTICAS)
 {
-	char *parametros = (char*)malloc(4097 * sizeof(char)), *algs[16], *pos;
-	size_t size = fread(parametros, sizeof(char), 4096, f);
+	char *parametros = (char*)malloc(32769 * sizeof(char)), *algs[16], *pos, *arq;
+	size_t size = fread(parametros, sizeof(char), 32768, f);
 	int numAlgs = 0;
 	float par = -1;
+
+	arq = parametros;
 
 	par = locNumberPar(parametros, size, (char*)"[iterAteams]");
 	pATEAMS->iterAteams = (int)par;

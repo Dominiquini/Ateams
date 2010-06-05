@@ -4,6 +4,7 @@ using namespace std;
 
 pthread_mutex_t mutex;
 pthread_mutex_t mut_p;
+pthread_mutex_t mut_f;
 
 sem_t semaphore;
 
@@ -27,6 +28,7 @@ Controle::Controle()
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_mutex_init(&mut_p, NULL);
+	pthread_mutex_init(&mut_f, NULL);
 
 	sem_init(&semaphore, 0, numThreads);
 }
@@ -51,6 +53,7 @@ Controle::Controle(ParametrosATEAMS* pATEAMS)
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_mutex_init(&mut_p, NULL);
+	pthread_mutex_init(&mut_f, NULL);
 
 	sem_init(&semaphore, 0, numThreads);
 }
@@ -79,6 +82,7 @@ Controle::~Controle()
 
 	pthread_mutex_destroy(&mutex);
 	pthread_mutex_destroy(&mut_p);
+	pthread_mutex_destroy(&mut_f);
 }
 
 set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, double fitTotal, unsigned int randWheel)
@@ -223,24 +227,24 @@ inline pair<vector<Problema*>*, string*>* Controle::exec(int randomic, int eID)
 
 	pair<vector<Problema*>*, string*>* par = new pair<vector<Problema*>*, string*>();
 
-	pthread_mutex_lock(&mutex);
 	char cID[16];
 	sprintf(cID, "%s(%.3d)", alg->name.c_str(), eID);
 	string id = cID;
 
+	pthread_mutex_lock(&mut_f);
 	actThreads++;
 
 	execAlgs->push_back(id);
-	pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&mut_f);
 
 	par->first = alg->start(pop, randomic);
 	par->second = new string(alg->name);
 
-	pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&mut_f);
 	actThreads--;
 
 	execAlgs->erase(find(execAlgs->begin(), execAlgs->end(), id));
-	pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&mut_f);
 
 	return par;
 }
@@ -269,6 +273,11 @@ void* Controle::run(void *obj)
 		pthread_mutex_lock(&mutex);
 
 		ins = ctr->addSol(prob);
+		ctr->execThreads++;
+
+		pthread_mutex_unlock(&mutex);
+
+		sem_post(&semaphore);
 
 		prob->clear();
 		delete prob;
@@ -276,15 +285,21 @@ void* Controle::run(void *obj)
 		delete in;
 		delete out;
 
-		ctr->execThreads++;
+		char cID[16];
+		sprintf(cID, "%s(%.3d)", algName->c_str(), execAteams);
+		string id = cID;
+
+		pthread_mutex_lock(&mut_f);
 
 		for(list<string>::iterator it = ctr->execAlgs->begin(); it != ctr->execAlgs->end(); it++)
 			execNames = execNames + *it + " ";
 
-		printf("ALG: %s(%.3d) | ITER: %.3d | MAKESPAN: %.4d | CONTRIB:  %.3ld", algName->c_str(),  execAteams, ctr->execThreads, Problema::best, ins);
+		printf("ALG: %s) | ITER: %.3d | MAKESPAN: %.4d | CONTRIB:  %.3ld", id.c_str(), ctr->execThreads, Problema::best, ins);
 		printf(" | FILA: (%d : %s)\n", ctr->actThreads, execNames.c_str());
 
-		pthread_mutex_unlock(&mutex);
+		pthread_mutex_unlock(&mut_f);
+
+		delete algName;
 
 		struct timeval time2;
 		gettimeofday(&time2, NULL);
@@ -292,8 +307,10 @@ void* Controle::run(void *obj)
 		if(((time2.tv_sec - ctr->time1.tv_sec) > ctr->maxTempo) || (Problema::best <= ctr->makespanBest))
 			PARAR = true;
 	}
-
-	sem_post(&semaphore);
+	else
+	{
+		sem_post(&semaphore);
+	}
 
 	pthread_exit((void*)ins);
 }
