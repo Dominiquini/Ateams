@@ -278,7 +278,7 @@ void* Controle::run(void *obj)
 		for(list<string>::iterator it = ctr->execAlgs->begin(); it != ctr->execAlgs->end(); it++)
 			execNames = execNames + *it + " ";
 
-		printf("%s (%.3d|%.3d) : %.4d -> %.3ld", algName->c_str(),  execAteams, ctr->execThreads, Problema::best, ins);
+		printf("%s(%.3d) | ITERAÇÃO: %.3d | MAKESPAN: %.4d | CONTRIBUIÇÃO:  %.3ld", algName->c_str(),  execAteams, ctr->execThreads, Problema::best, ins);
 		printf(" ... (%d : %s)\n", ctr->actThreads, execNames.c_str());
 
 		pthread_mutex_unlock(&mutex);
