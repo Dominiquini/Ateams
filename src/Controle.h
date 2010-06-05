@@ -39,7 +39,7 @@ private:
 	int actThreads;
 
 	/* Seleciona um dos algoritmos implementados para executar */
-	pair<vector<Problema*>*, string*>* exec(int randWheel);
+	pair<vector<Problema*>*, string*>* exec(int randWheel, int eID);
 
 	/* Adiciona um novo conjunto de solucao a populacao corrente */
 	int addSol(vector<Problema*> *news);

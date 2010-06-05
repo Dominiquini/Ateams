@@ -214,16 +214,20 @@ Problema* Controle::start()
 	return *(pop->begin());
 }
 
-inline pair<vector<Problema*>*, string*>* Controle::exec(int randomic)
+inline pair<vector<Problema*>*, string*>* Controle::exec(int randomic, int eID)
 {
 	Heuristica* alg = selectRouletteWheel(algs, Heuristica::numHeuristic, randomic);
 
 	pair<vector<Problema*>*, string*>* par = new pair<vector<Problema*>*, string*>();
 
 	pthread_mutex_lock(&mutex);
+	char cID[16];
+	sprintf(cID, "%s(%.3d)", alg->name.c_str(), eID);
+	string id = cID;
+
 	actThreads++;
 
-	execAlgs->push_back(alg->name);
+	execAlgs->push_back(id);
 	pthread_mutex_unlock(&mutex);
 
 	par->first = alg->start(pop, randomic);
@@ -232,7 +236,7 @@ inline pair<vector<Problema*>*, string*>* Controle::exec(int randomic)
 	pthread_mutex_lock(&mutex);
 	actThreads--;
 
-	execAlgs->erase(find(execAlgs->begin(), execAlgs->end(), alg->name));
+	execAlgs->erase(find(execAlgs->begin(), execAlgs->end(), id));
 	pthread_mutex_unlock(&mutex);
 
 	return par;
@@ -254,7 +258,7 @@ void* Controle::run(void *obj)
 
 	if(PARAR != true)
 	{
-		out = ctr->exec(rand());
+		out = ctr->exec(rand(), execAteams);
 
 		prob = out->first;
 		algName = out->second;
