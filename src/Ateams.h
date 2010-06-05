@@ -52,10 +52,10 @@ struct movTabu
 };
 
 struct ParametrosATEAMS {
-	int tamanhoPopulacao;
-	int iteracoesAteams;
+	int tamPopAteams;
+	int iterAteams;
 	int numThreads;
-	int maxTempo;
+	int maxTempoAteams;
 	int makespanBest;
 };
 

@@ -25,15 +25,18 @@ public:
 	static vector<Problema*>::iterator selectRandom(vector<Problema*>* pop, int randWheel);
 
 private:
-	vector<Heuristica*>* algs;			// Algoritmos disponiveis
+	set<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
+	vector<Heuristica*>* algs;							// Algoritmos disponiveis
 
 	int numThreads;						// Número de threads que podem rodar ao mesmo tempo
 	int makespanBest;					// Melhor makespan conhecido
 	int tamPop, iterAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao
-	set<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
+
+	list<string>* execAlgs;			// Algoritmos em execucao no momento
 
 	struct timeval time1;				// Medidores de tempo
 	int execThreads;					// Threads executadas
+	int actThreads;
 
 	/* Seleciona um dos algoritmos implementados para executar */
 	pair<vector<Problema*>*, string*>* exec(int randWheel);

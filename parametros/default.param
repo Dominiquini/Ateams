@@ -4,7 +4,7 @@
 [iterAteams] = 100		// Número de iteracoes do Ateams
 [numThreads] = 4		// Número máximo de threads ativas
 [maxTempoAteams] = -1		// Tempo maximo de execucao
-[tamPopulacaoAteams] = 1000	// Tamanho da populacao
+[tamPopAteams] = 1000		// Tamanho da populacao
 [makespanBest] = -1		// Melhor makespan conhecido
 
 

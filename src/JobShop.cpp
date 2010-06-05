@@ -54,16 +54,16 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<Parametro
 	float par = -1;
 
 	par = locNumberPar(parametros, size, (char*)"[iterAteams]");
-	pATEAMS->iteracoesAteams = (int)par;
+	pATEAMS->iterAteams = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[numThreads]");
 	pATEAMS->numThreads = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[maxTempoAteams]");
-	pATEAMS->maxTempo = (int)par;
+	pATEAMS->maxTempoAteams = (int)par;
 
-	par = locNumberPar(parametros, size, (char*)"[tamPopulacaoAteams]");
-	pATEAMS->tamanhoPopulacao = (int)par;
+	par = locNumberPar(parametros, size, (char*)"[tamPopAteams]");
+	pATEAMS->tamPopAteams = (int)par;
 
 	par = locNumberPar(parametros, size, (char*)"[makespanBest]");
 	pATEAMS->makespanBest = (int)par;
@@ -191,16 +191,16 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS)
 	int p = -1;
 
 	if((p = locComPar(argv, argc, (char*)"--iterAteams")) != -1)
-		pATEAMS->iteracoesAteams = atoi(argv[p]);
+		pATEAMS->iterAteams = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--numThreads")) != -1)
 		pATEAMS->numThreads = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--maxTempoAteams")) != -1)
-		pATEAMS->maxTempo = atoi(argv[p]);
+		pATEAMS->maxTempoAteams = atoi(argv[p]);
 
-	if((p = locComPar(argv, argc, (char*)"--tamPopulacaoAteams")) != -1)
-		pATEAMS->tamanhoPopulacao = atoi(argv[p]);
+	if((p = locComPar(argv, argc, (char*)"--tamPopAteams")) != -1)
+		pATEAMS->tamPopAteams = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--makespanBest")) != -1)
 		pATEAMS->makespanBest = atoi(argv[p]);

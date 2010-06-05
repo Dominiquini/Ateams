@@ -22,6 +22,9 @@ Controle::Controle()
 
 	algs = new vector<Heuristica*>;
 
+	execAlgs = new list<string>;
+	actThreads = 0;
+
 	pthread_mutex_init(&mutex, NULL);
 	pthread_mutex_init(&mut_p, NULL);
 
@@ -30,10 +33,10 @@ Controle::Controle()
 
 Controle::Controle(ParametrosATEAMS* pATEAMS)
 {
-	tamPop = pATEAMS->tamanhoPopulacao != -1 ? pATEAMS->tamanhoPopulacao : 1000;
-	iterAteams = pATEAMS->iteracoesAteams != -1 ? pATEAMS->iteracoesAteams: 100;
+	tamPop = pATEAMS->tamPopAteams != -1 ? pATEAMS->tamPopAteams : 1000;
+	iterAteams = pATEAMS->iterAteams != -1 ? pATEAMS->iterAteams: 100;
 	numThreads = pATEAMS->numThreads != -1 ? pATEAMS->numThreads : 4;
-	maxTempo = pATEAMS->maxTempo != -1 ? pATEAMS->maxTempo : INT_MAX;
+	maxTempo = pATEAMS->maxTempoAteams != -1 ? pATEAMS->maxTempoAteams : INT_MAX;
 	makespanBest = pATEAMS->makespanBest != -1 ? pATEAMS->makespanBest : -1;
 
 	srand(unsigned(time(NULL)));
@@ -42,6 +45,9 @@ Controle::Controle(ParametrosATEAMS* pATEAMS)
 	pop = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
 
 	algs = new vector<Heuristica*>;
+
+	execAlgs = new list<string>;
+	actThreads = 0;
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_mutex_init(&mut_p, NULL);
@@ -67,6 +73,9 @@ Controle::~Controle()
 
 	algs->clear();
 	delete algs;
+
+	execAlgs->clear();
+	delete execAlgs;
 
 	pthread_mutex_destroy(&mutex);
 	pthread_mutex_destroy(&mut_p);
@@ -185,16 +194,16 @@ Problema* Controle::start()
 	long int ins = 0;
 	execThreads = 0;
 
-	for(int execAteams = 1; execAteams <= iterAteams; execAteams++)
+	for(int execAteams = 0; execAteams < iterAteams; execAteams++)
 	{
 		par = new pair<int, Controle*>();
-		par->first = execAteams;
+		par->first = execAteams+1;
 		par->second = this;
 
 		pthread_create(&threads[execAteams], NULL, run, (void*)par);
 	}
 
-	for(int execAteams = 1; execAteams <= iterAteams; execAteams++)
+	for(int execAteams = 0; execAteams < iterAteams; execAteams++)
 	{
 		pthread_join(threads[execAteams], &temp);
 		ins += (long int)temp;
@@ -211,15 +220,27 @@ inline pair<vector<Problema*>*, string*>* Controle::exec(int randomic)
 
 	pair<vector<Problema*>*, string*>* par = new pair<vector<Problema*>*, string*>();
 
+	pthread_mutex_lock(&mutex);
+	actThreads++;
+
+	execAlgs->push_back(alg->name);
+	pthread_mutex_unlock(&mutex);
+
 	par->first = alg->start(pop, randomic);
 	par->second = new string(alg->name);
+
+	pthread_mutex_lock(&mutex);
+	actThreads--;
+
+	execAlgs->erase(find(execAlgs->begin(), execAlgs->end(), alg->name));
+	pthread_mutex_unlock(&mutex);
 
 	return par;
 }
 
 void* Controle::run(void *obj)
 {
-	string* algName;
+	string *algName, execNames;
 	vector<Problema*> *prob = NULL;
 	pair<vector<Problema*>*, string*>* out = NULL;
 
@@ -250,7 +271,11 @@ void* Controle::run(void *obj)
 
 		ctr->execThreads++;
 
-		printf("%s (%.3d|%.3d) : %.4d -> %.3ld\n", algName->c_str(),  execAteams, ctr->execThreads, Problema::best, ins);
+		for(list<string>::iterator it = ctr->execAlgs->begin(); it != ctr->execAlgs->end(); it++)
+			execNames = execNames + *it + " ";
+
+		printf("%s (%.3d|%.3d) : %.4d -> %.3ld", algName->c_str(),  execAteams, ctr->execThreads, Problema::best, ins);
+		printf(" ... (%d : %s)\n", ctr->actThreads, execNames.c_str());
 
 		pthread_mutex_unlock(&mutex);
 
