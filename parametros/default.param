@@ -1,10 +1,10 @@
 /* Caso algum atributo seja omitido ou definido como '-1', será usado o seu valor padrão! */
 
 *ATEAMS*
-[iterAteams] = 100		// Número de iteracoes do Ateams
+[iterAteams] = 100		// Número de iterações do Ateams
 [numThreads] = 4		// Número máximo de threads ativas
-[maxTempoAteams] = -1		// Tempo maximo de execucao
-[tamPopAteams] = 1000		// Tamanho da populacao
+[maxTempoAteams] = -1		// Tempo máximo de execução
+[tamPopAteams] = 1000		// Tamanho da população
 [makespanBest] = -1		// Melhor makespan conhecido
 
 
