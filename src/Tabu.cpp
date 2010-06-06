@@ -63,7 +63,7 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	pthread_mutex_lock(&mutex);
 	select = Controle::selectRouletteWheel(sol, visao, rand());
-	if(polEscolha == -1)
+	if(polEscolha < -1)
 		while((*select)->exec.tabu == true)
 			if(select != sol->begin())
 				select--;
@@ -88,7 +88,10 @@ vector<Problema*>* Tabu::exec(Problema* init)
 	list<movTabu*>* listaTabu = new list<movTabu*>;
 
 	// Maximos globais e locais na execucao da Busca Tabu
-	Problema *maxGlobal = Problema::alloc(*init), *maxLocal = init;
+	vector<Problema*>* maxGlobal = new vector<Problema*>();
+	Problema *maxLocal = init;
+
+	maxGlobal->push_back(Problema::alloc(*maxLocal));
 
 	// Loop principal
 	for(int i = 0, j = 0; i < iterTabu && j < tentSemMelhora; i++, j++)
@@ -122,10 +125,9 @@ vector<Problema*>* Tabu::exec(Problema* init)
 				delete maxLocal;
 				maxLocal = local->first;
 
-				if(local->first->getFitnessMinimize() < maxGlobal->getFitnessMinimize())
+				if(local->first->getFitnessMinimize() < maxGlobal->back()->getFitnessMinimize())
 				{
-					delete maxGlobal;
-					maxGlobal = Problema::alloc(*maxLocal);
+					maxGlobal->push_back(Problema::alloc(*maxLocal));
 				}
 
 				addTabu(listaTabu, local->second, tamListaTabu);
@@ -138,17 +140,16 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			else
 			{
 				// Satisfaz a funcao de aspiracao
-				if(local->first->getFitnessMinimize() < aspiracao((double)funcAsp, maxLocal->getFitnessMinimize(), maxGlobal->getFitnessMinimize()))
+				if(local->first->getFitnessMinimize() < aspiracao((double)funcAsp, maxLocal->getFitnessMinimize(), maxGlobal->back()->getFitnessMinimize()))
 				{
 					j = 0;
 
 					delete maxLocal;
 					maxLocal = local->first;
 
-					if(local->first->getFitnessMinimize() < maxGlobal->getFitnessMinimize())
+					if(local->first->getFitnessMinimize() < maxGlobal->back()->getFitnessMinimize())
 					{
-						delete maxGlobal;
-						maxGlobal = Problema::alloc(*maxLocal);
+						maxGlobal->push_back(Problema::alloc(*maxLocal));
 					}
 
 					delete local;
@@ -186,9 +187,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 	listaTabu->clear();
 	delete listaTabu;
 
-	maxGlobal->exec.tabu = true;
-
-	return new vector<Problema*>(1, maxGlobal);
+	return maxGlobal;
 }
 
 /* Verdadeiro se movimento avaliado for Tabu */

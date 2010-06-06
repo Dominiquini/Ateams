@@ -41,7 +41,7 @@ Annealing::~Annealing()
 vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
 {
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator select;
-	Problema* solBT;
+	Problema* solSA;
 
 	numExec++;
 
@@ -49,10 +49,10 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	{
 		pthread_mutex_lock(&mutex);
 		select = sol->begin();
-		solBT = Problema::alloc(**select);
+		solSA = Problema::alloc(**select);
 		pthread_mutex_unlock(&mutex);
 
-		return exec(solBT);
+		return exec(solSA);
 	}
 
 	// Escolhe alguem dentre os 'polEscolha' primeiras solucoes
@@ -63,19 +63,26 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	pthread_mutex_lock(&mutex);
 	select = Controle::selectRouletteWheel(sol, visao, rand());
+	if(polEscolha < -1)
+		while((*select)->exec.tabu == true)
+			if(select != sol->begin())
+				select--;
+			else
+				break;
 
 	(*select)->exec.annealing = true;
 
-	solBT = Problema::alloc(**select);
+	solSA = Problema::alloc(**select);
 	pthread_mutex_unlock(&mutex);
 
-	return exec(solBT);
+	return exec(solSA);
 }
 
 /* Executa uma busca por solucoes a partir de 'init' */
 vector<Problema*>* Annealing::exec(Problema* Si)
 {
-	Problema *Sf, *S, *Sn;
+	vector<Problema*>* Sf = new vector<Problema*>();
+	Problema *S, *Sn;
 	double Ti, Tf, T;
 	int L = maxIter;
 	double Ds;
@@ -85,7 +92,8 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 
 	T = Ti;
 	S = Si;
-	Sf = Problema::alloc(*Si);
+
+	Sf->push_back(Problema::alloc(*Si));
 
 	while(T > Tf)
 	{
@@ -109,10 +117,9 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 				delete S;
 				S = Sn;
 
-				if(S->getFitnessMinimize() < Sf->getFitnessMinimize())
+				if(S->getFitnessMinimize() < Sf->back()->getFitnessMinimize())
 				{
-					delete Sf;
-					Sf = Problema::alloc(*S);
+					Sf->push_back(Problema::alloc(*S));
 				}
 			}
 			else
@@ -125,12 +132,12 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 		if(restauraSol)
 		{
 			delete S;
-			S = Problema::alloc(*Sf);
+			S = Problema::alloc(*Sf->back());
 		}
 	}
 	delete S;
 
-	return new vector<Problema*>(1, Sf);
+	return Sf;
 }
 
 inline bool accept(double rand, double Ds, double T)
