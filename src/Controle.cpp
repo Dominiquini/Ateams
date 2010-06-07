@@ -2,11 +2,11 @@
 
 using namespace std;
 
-pthread_mutex_t mutex;
-pthread_mutex_t mut_p;
+pthread_mutex_t mutex;	// Mutex que protege a populacao
+pthread_mutex_t mut_p;	// Mutex que protege as variaveis de criacao de novas solucoes
 pthread_mutex_t mut_f;
 
-sem_t semaphore;
+sem_t semaphore;		// Semaforo que controla o acesso dos algoritmos ao processador
 
 Controle::Controle()
 {
@@ -23,7 +23,7 @@ Controle::Controle()
 
 	algs = new vector<Heuristica*>;
 
-	execAlgs = new list<string>;
+	actAlgs = new list<string>;
 	actThreads = 0;
 
 	pthread_mutex_init(&mutex, NULL);
@@ -48,7 +48,7 @@ Controle::Controle(ParametrosATEAMS* pATEAMS)
 
 	algs = new vector<Heuristica*>;
 
-	execAlgs = new list<string>;
+	actAlgs = new list<string>;
 	actThreads = 0;
 
 	pthread_mutex_init(&mutex, NULL);
@@ -77,8 +77,8 @@ Controle::~Controle()
 	algs->clear();
 	delete algs;
 
-	execAlgs->clear();
-	delete execAlgs;
+	actAlgs->clear();
+	delete actAlgs;
 
 	pthread_mutex_destroy(&mutex);
 	pthread_mutex_destroy(&mut_p);
@@ -221,85 +221,79 @@ Problema* Controle::start()
 	return *(pop->begin());
 }
 
-inline pair<vector<Problema*>*, string*>* Controle::exec(int randomic, int eID)
+inline int Controle::exec(int randomic, int eID)
 {
-	Heuristica* alg = selectRouletteWheel(algs, Heuristica::numHeuristic, randomic);
+	srand(randomic);
 
-	pair<vector<Problema*>*, string*>* par = new pair<vector<Problema*>*, string*>();
+	Heuristica* alg = selectRouletteWheel(algs, Heuristica::numHeuristic, rand());
+	vector<Problema*> *prob = NULL;
+	int ins = 0;
 
 	char cID[16];
 	sprintf(cID, "%s(%.3d)", alg->name.c_str(), eID);
 	string id = cID;
 
-	pthread_mutex_lock(&mut_f);
-	actThreads++;
-
-	execAlgs->push_back(id);
-	pthread_mutex_unlock(&mut_f);
-
-	par->first = alg->start(pop, randomic);
-	par->second = new string(alg->name);
+	string execNames;
 
 	pthread_mutex_lock(&mut_f);
-	actThreads--;
+	{
+		actThreads++;
 
-	execAlgs->erase(find(execAlgs->begin(), execAlgs->end(), id));
+		actAlgs->push_back(id);
+
+		execNames = "";
+		for(list<string>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
+			execNames = execNames + *it + " ";
+
+		printf(">>> ALG: %s) | .......................................... | FILA: (%d : %s)\n", id.c_str(), actThreads, execNames.c_str());
+	}
 	pthread_mutex_unlock(&mut_f);
 
-	return par;
+	prob = alg->start(pop, randomic);
+
+	pthread_mutex_lock(&mutex);
+	{
+		ins = addSol(prob);
+		execThreads++;
+
+		prob->clear();
+		delete prob;
+	}
+	pthread_mutex_unlock(&mutex);
+
+	pthread_mutex_lock(&mut_f);
+	{
+		actThreads--;
+
+		actAlgs->erase(find(actAlgs->begin(), actAlgs->end(), id));
+
+		printf("<<< ALG: %s) | ITER: %.3d | MAKESPAN: %.4d | CONTRIB:  %.3d", id.c_str(), execThreads, Problema::best, ins);
+
+		execNames = "";
+		for(list<string>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
+			execNames = execNames + *it + " ";
+
+		printf(" | FILA: (%d : %s)\n", actThreads, execNames.c_str());
+	}
+	pthread_mutex_unlock(&mut_f);
+
+	return ins;
 }
 
 void* Controle::run(void *obj)
 {
-	string *algName, execNames;
-	vector<Problema*> *prob = NULL;
-	pair<vector<Problema*>*, string*>* out = NULL;
-
 	pair<int, Controle*>* in = (pair<int, Controle*>*)obj;
 	int execAteams = in->first;
 	Controle *ctr = in->second;
-
-	long int ins = 0;
+	int ins;
 
 	sem_wait(&semaphore);
 
 	if(PARAR != true)
 	{
-		out = ctr->exec(rand(), execAteams);
-
-		prob = out->first;
-		algName = out->second;
-
-		pthread_mutex_lock(&mutex);
-
-		ins = ctr->addSol(prob);
-		ctr->execThreads++;
-
-		pthread_mutex_unlock(&mutex);
+		ins = ctr->exec(rand(), execAteams);
 
 		sem_post(&semaphore);
-
-		prob->clear();
-		delete prob;
-
-		delete in;
-		delete out;
-
-		char cID[16];
-		sprintf(cID, "%s(%.3d)", algName->c_str(), execAteams);
-		string id = cID;
-
-		pthread_mutex_lock(&mut_f);
-
-		for(list<string>::iterator it = ctr->execAlgs->begin(); it != ctr->execAlgs->end(); it++)
-			execNames = execNames + *it + " ";
-
-		printf("ALG: %s) | ITER: %.3d | MAKESPAN: %.4d | CONTRIB:  %.3ld", id.c_str(), ctr->execThreads, Problema::best, ins);
-		printf(" | FILA: (%d : %s)\n", ctr->actThreads, execNames.c_str());
-
-		pthread_mutex_unlock(&mut_f);
-
-		delete algName;
 
 		struct timeval time2;
 		gettimeofday(&time2, NULL);
@@ -309,6 +303,8 @@ void* Controle::run(void *obj)
 	}
 	else
 	{
+		ins = 0;
+
 		sem_post(&semaphore);
 	}
 

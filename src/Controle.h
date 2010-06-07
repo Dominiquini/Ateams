@@ -32,14 +32,14 @@ private:
 	int makespanBest;					// Melhor makespan conhecido
 	int tamPop, iterAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao
 
-	list<string>* execAlgs;			// Algoritmos em execucao no momento
+	list<string>* actAlgs;				// Algoritmos em execucao no momento
+	int actThreads;						// Threads em execucao no momento
 
 	struct timeval time1;				// Medidores de tempo
 	int execThreads;					// Threads executadas
-	int actThreads;
 
 	/* Seleciona um dos algoritmos implementados para executar */
-	pair<vector<Problema*>*, string*>* exec(int randWheel, int eID);
+	int exec(int randWheel, int eID);
 
 	/* Adiciona um novo conjunto de solucao a populacao corrente */
 	int addSol(vector<Problema*> *news);
