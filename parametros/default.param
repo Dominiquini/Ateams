@@ -34,7 +34,7 @@
 [polEscolhaBT] = 500		// Política de escolha
 [funcAspiracaoBT] = 0.5		// Função de Aspiração
 [iterBT] = 500			// Iterações do BT
-[tentSemMelhoraBT] = 250	// Política de leitura do BT
+[tentSemMelhoraBT] = 500	// Política de leitura do BT
 [tamListaBT] = 10		// Tamanho de lista do BT
 [polExplorBT] = 0.5		// Política na exploração da vizinhança
 
@@ -44,7 +44,7 @@
 [polEscolhaBT] = 50		// Política de escolha
 [funcAspiracaoBT] = 0.5		// Função de Aspiração
 [iterBT] = 500			// Iterações do BT
-[tentSemMelhoraBT] = 250	// Política de leitura do BT
+[tentSemMelhoraBT] = 500	// Política de leitura do BT
 [tamListaBT] = 10		// Tamanho de lista do BT
 [polExplorBT] = -1		// Política na exploração da vizinhança
 
