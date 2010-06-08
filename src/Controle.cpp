@@ -320,29 +320,34 @@ inline int Controle::addSol(vector<Problema*> *news)
 
 	for(iterNews = news->begin(); iterNews != news->end(); iterNews++)
 	{
-		ret = pop->insert(*iterNews);
+		iterSol = pop->end();
+		iterSol--;
 
-		if(ret.second == true)
-		{
-			iterSol = pop->end();
-			iterSol--;
-
-			if((int)pop->size() > tamPop)
-			{
-				if(fnequal1(*iterNews, *iterSol))
-					ins--;
-
-				pop->erase(iterSol);
-				delete *iterSol;
-			}
-
-			ins++;
-		}
-		else
+		if(fncomp1(*iterSol, *iterNews))
 		{
 			delete *iterNews;
 		}
+		else
+		{
+			ret = pop->insert(*iterNews);
+
+			if(ret.second == true)
+			{
+				ins++;
+
+				if((int)pop->size() > tamPop)
+				{
+					pop->erase(iterSol);
+					delete *iterSol;
+				}
+			}
+			else
+			{
+				delete *iterNews;
+			}
+		}
 	}
+
 	Problema::best = (*pop->begin())->getFitnessMinimize();
 	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
