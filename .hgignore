@@ -1,5 +1,7 @@
 syntax: glob
 
+.project
+.cproject
 *.res
 Ateams
 *.o
