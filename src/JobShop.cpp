@@ -415,7 +415,7 @@ bool JobShop::operator < (Problema& p)
 
 bool JobShop::operator > (Problema& p)
 {
-	return fncomp1(&p, this);
+	return fncomp2(&p, this);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
