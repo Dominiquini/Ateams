@@ -323,7 +323,7 @@ inline int Controle::addSol(vector<Problema*> *news)
 		iterSol = pop->end();
 		iterSol--;
 
-		if(*iterNews > *iterSol)
+		if(**iterNews > **iterSol)
 		{
 			delete *iterNews;
 		}
