@@ -85,6 +85,50 @@ Controle::~Controle()
 	pthread_mutex_destroy(&mut_f);
 }
 
+double Controle::sumFitnessMaximize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n)
+{
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	double sum = 0, i = 0;
+
+	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
+		sum += (*iter)->getFitnessMaximize();
+
+	return sum;
+}
+
+double Controle::sumFitnessMaximize(vector<Problema*> *pop, int n)
+{
+	vector<Problema*>::iterator iter;
+	double sum = 0, i = 0;
+
+	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
+		sum += (*iter)->getFitnessMaximize();
+
+	return sum;
+}
+
+double Controle::sumFitnessMinimize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n)
+{
+	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	double sum = 0, i = 0;
+
+	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
+		sum += (*iter)->getFitnessMinimize();
+
+	return sum;
+}
+
+double Controle::sumFitnessMinimize(vector<Problema*> *pop, int n)
+{
+	vector<Problema*>::iterator iter;
+	double sum = 0, i = 0;
+
+	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
+		sum += (*iter)->getFitnessMinimize();
+
+	return sum;
+}
+
 set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, double fitTotal, unsigned int randWheel)
 {
 	// Armazena o fitness total da populacao

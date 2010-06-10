@@ -50,13 +50,6 @@ public:
 	static Problema* alloc();													// Nova solucao aleatoria
 	static Problema* alloc(const Problema &prob);								// Copia de prob
 
-	// Retorna a soma de fitness de uma populacao
-	static double sumFitnessMaximize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
-	static double sumFitnessMaximize(vector<Problema*> *pop, int n);
-	static double sumFitnessMinimize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
-	static double sumFitnessMinimize(vector<Problema*> *pop, int n);
-
-
 	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
 	Problema() {pthread_mutex_lock(&mut_p); numInst++; totalNumInst++; pthread_mutex_unlock(&mut_p);}	// numInst++
 	virtual ~Problema() {pthread_mutex_lock(&mut_p); numInst--; pthread_mutex_unlock(&mut_p);}			// numInst--

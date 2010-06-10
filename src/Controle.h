@@ -16,6 +16,12 @@ private:
 	static void* run(void *obj);
 
 public:
+	// Retorna a soma de fitness de uma populacao
+	static double sumFitnessMaximize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
+	static double sumFitnessMaximize(vector<Problema*> *pop, int n);
+	static double sumFitnessMinimize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n);
+	static double sumFitnessMinimize(vector<Problema*> *pop, int n);
+
 	/* Seleciona um individuo da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
 	static set<Problema*, bool(*)(Problema*, Problema*)>::iterator selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, double fitTotal, unsigned int randWheel);
 	static vector<Problema*>::iterator selectRouletteWheel(vector<Problema*>* pop, double fitTotal, unsigned int randWheel);

@@ -221,50 +221,6 @@ void Problema::desalocaMemoria()
 	desalocaMatriz(2, JobShop::time, JobShop::njob, 0);
 }
 
-double Problema::sumFitnessMaximize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n)
-{
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
-	double sum = 0, i = 0;
-
-	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
-		sum += (*iter)->getFitnessMaximize();
-
-	return sum;
-}
-
-double Problema::sumFitnessMaximize(vector<Problema*> *pop, int n)
-{
-	vector<Problema*>::iterator iter;
-	double sum = 0, i = 0;
-
-	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
-		sum += (*iter)->getFitnessMaximize();
-
-	return sum;
-}
-
-double Problema::sumFitnessMinimize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n)
-{
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
-	double sum = 0, i = 0;
-
-	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
-		sum += (*iter)->getFitnessMinimize();
-
-	return sum;
-}
-
-double Problema::sumFitnessMinimize(vector<Problema*> *pop, int n)
-{
-	vector<Problema*>::iterator iter;
-	double sum = 0, i = 0;
-
-	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
-		sum += (*iter)->getFitnessMinimize();
-
-	return sum;
-}
-
 /* Metodos */
 
 JobShop::JobShop() : Problema::Problema()

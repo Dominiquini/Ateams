@@ -57,7 +57,7 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 	}
 	else
 	{
-		double visao = polEscolha < 0 ? Problema::sumFitnessMaximize(sol, sol->size()) : Problema::sumFitnessMaximize(sol, polEscolha);
+		double visao = polEscolha < 0 ? Controle::sumFitnessMaximize(sol, sol->size()) : Controle::sumFitnessMaximize(sol, polEscolha);
 
 		srand(randomic);
 
@@ -108,7 +108,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		numCrossOver = (int)((float)pop->size() * probCrossOver);
 
 		/* Escolhe os casais de 'pop' que se cruzarao */
-		sumP = (int)Problema::sumFitnessMaximize(pop, pop->size());
+		sumP = Controle::sumFitnessMaximize(pop, pop->size());
 
 		for(int j = 0; j < numCrossOver/2; j++)
 		{
