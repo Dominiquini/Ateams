@@ -91,11 +91,8 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	pais = new vector<pair<Problema*, Problema*>* >();
 	filhos = new vector<pair<Problema*, Problema*>* >();
 
-	vector<pair<Problema*, Problema*>* >::iterator iter1;
-	vector<Problema*>::iterator iter2;
-
-	vector<vector<pair<Problema*, Problema*>* >::iterator> paisIter;
-	int paisSize, particao, mutacao;
+	vector<pair<Problema*, Problema*>* >::iterator iterParProb;
+	vector<Problema*>::iterator iterProb;
 
 	int numCrossOver;
 	double sumP;
@@ -119,88 +116,78 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 			if(rand() < RAND_MAX*probMutacao && (int)bad_pop->size() > 0)
 			{
-				iter2 = Controle::selectRandom(bad_pop, rand());
-				temp->first = *iter2;
+				iterProb = Controle::selectRandom(bad_pop, rand());
+				temp->first = *iterProb;
 			}
 			else
 			{
-				iter2 = Controle::selectRouletteWheel(pop, sumP, rand());
-				sumP -= (*iter2)->getFitnessMaximize();
-				aux_pop->push_back(*iter2);
-				temp->first = *iter2;
-				pop->erase(iter2);
+				iterProb = Controle::selectRouletteWheel(pop, sumP, rand());
+				sumP -= (*iterProb)->getFitnessMaximize();
+				aux_pop->push_back(*iterProb);
+				temp->first = *iterProb;
+				pop->erase(iterProb);
 			}
 
 			if(rand() < RAND_MAX*probMutacao && (int)bad_pop->size() > 0)
 			{
-				iter2 = Controle::selectRandom(bad_pop, rand());
-				temp->second = *iter2;
+				iterProb = Controle::selectRandom(bad_pop, rand());
+				temp->second = *iterProb;
 			}
 			else
 			{
-				iter2 = Controle::selectRouletteWheel(pop, sumP, rand());
-				sumP -= (*iter2)->getFitnessMaximize();
-				aux_pop->push_back(*iter2);
-				temp->second = *iter2;
-				pop->erase(iter2);
+				iterProb = Controle::selectRouletteWheel(pop, sumP, rand());
+				sumP -= (*iterProb)->getFitnessMaximize();
+				aux_pop->push_back(*iterProb);
+				temp->second = *iterProb;
+				pop->erase(iterProb);
 			}
 			pais->push_back(temp);
 		}
 
-		/* OpenMP nao trabalha direito com STL */
-		for(iter1 = pais->begin(); iter1 != pais->end(); iter1++)
-			paisIter.push_back(iter1);
-		paisSize = pais->size();
-		particao = tamParticionamento;
-		mutacao = probMutacao;
-
-		/* Faz o cruzamento de todos os pares definidos anteriormente */
-		for(int i = 0; i < paisSize; i++)
+		for(iterParProb = pais->begin(); iterParProb != pais->end(); iterParProb++)
 		{
-			iter1 = paisIter[i];
-
 			if(i % 2 == 0)
 			{
 				/* Crossover com dois pontos de particionamento escolhidos aleatoriamente e tamanho 'tamParticionmento' */
-				temp = (*iter1)->first->crossOver((*iter1)->second, particao);
+				temp = (*iterParProb)->first->crossOver((*iterParProb)->second, tamParticionamento);
 			}
 			else
 			{
 				/* Crossover com um ponto de particionamento escolhido aleatoriamente */
-				temp = (*iter1)->first->crossOver((*iter1)->second);
+				temp = (*iterParProb)->first->crossOver((*iterParProb)->second);
 			}
 
-			if(rand() < ((RAND_MAX*mutacao)/2))
+			if(rand() < (RAND_MAX*probMutacao/2))
 				temp->first->mutacao();
 
-			if(rand() < ((RAND_MAX*mutacao)/2))
+			if(rand() < (RAND_MAX*probMutacao/2))
 				temp->second->mutacao();
 
 			filhos->push_back(temp);
 
-			delete *iter1;
+			delete *iterParProb;
 		}
 
 		/* Restaura a populacao dos pais */
-		for(iter2 = pop->begin(); iter2 != pop->end(); iter2++)
-			aux_pop->push_back(*iter2);
+		for(iterProb = pop->begin(); iterProb != pop->end(); iterProb++)
+			aux_pop->push_back(*iterProb);
 
 		pop->clear();
 
 		/* Adiciona a populacao dos filhos */
-		for(iter1 = filhos->begin(); iter1 != filhos->end(); iter1++)
+		for(iterParProb = filhos->begin(); iterParProb != filhos->end(); iterParProb++)
 		{
-			if((*iter1)->first->getFitnessMinimize() != -1)
-				pop->push_back((*iter1)->first);
+			if((*iterParProb)->first->getFitnessMinimize() != -1)
+				pop->push_back((*iterParProb)->first);
 			else
-				bad_pop->push_back((*iter1)->first);	// Armazenado para possivel reaproveitamento
+				bad_pop->push_back((*iterParProb)->first);	// Armazenado para possivel reaproveitamento
 
-			if((*iter1)->second->getFitnessMinimize() != -1)
-				pop->push_back((*iter1)->second);
+			if((*iterParProb)->second->getFitnessMinimize() != -1)
+				pop->push_back((*iterParProb)->second);
 			else
-				bad_pop->push_back((*iter1)->second);	// Armazenado para possivel reaproveitamento
+				bad_pop->push_back((*iterParProb)->second);	// Armazenado para possivel reaproveitamento
 
-			delete *iter1;
+			delete *iterParProb;
 		}
 		pais->clear();
 		filhos->clear();
@@ -209,20 +196,20 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		sort(aux_pop->begin(), aux_pop->end(), fncomp2);
 
 		/* Selecao dos melhores */
-		for(iter2 = aux_pop->begin(); iter2 != aux_pop->end(); iter2++)
+		for(iterProb = aux_pop->begin(); iterProb != aux_pop->end(); iterProb++)
 		{
 			if((int)pop->size() < tamPopGenetico)
-				pop->push_back(*iter2);
+				pop->push_back(*iterProb);
 			else
-				bad_pop->push_back(*iter2);	// Armazenado para possivel reaproveitamento
+				bad_pop->push_back(*iterProb);	// Armazenado para possivel reaproveitamento
 		}
 		sort(pop->begin(), pop->end(), fncomp2);
 
 		aux_pop->clear();
 	}
 
-	for(iter2 = bad_pop->begin(); iter2 != bad_pop->end(); iter2++)
-		delete *iter2;
+	for(iterProb = bad_pop->begin(); iterProb != bad_pop->end(); iterProb++)
+		delete *iterProb;
 
 	bad_pop->clear();
 	delete bad_pop;
