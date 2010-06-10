@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -lpthread -fopenmp -Wall -pedantic -O3 -march=native
+CFLAGS = -lpthread -Wall -pedantic -O3 -march=native
 
 PATH_SCRIPT = ../scripts/
 PATH_DADOS = ../dados/

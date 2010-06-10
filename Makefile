@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -lpthread -fopenmp -Wall -pedantic -O3 -march=native
+CFLAGS = -lpthread -Wall -pedantic -O3 -march=native
 
 PATH_SCRIPT = scripts/
 PATH_DADOS = dados/
@@ -29,7 +29,7 @@ all:		$(PATH_BIN) $(EXEC)
 install:	all
 		@cp $(EXEC) $(PATH_PROJ)
 
-$(PATH_BIN):	
+$(PATH_BIN):
 		@mkdir $(PATH_BIN)
 
 

@@ -155,8 +155,6 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		mutacao = probMutacao;
 
 		/* Faz o cruzamento de todos os pares definidos anteriormente */
-		omp_set_num_threads(10);
-		#pragma omp parallel for shared(filhos, pais, paisIter, paisSize, particao, mutacao) private(i, temp, iter1) schedule(dynamic)
 		for(int i = 0; i < paisSize; i++)
 		{
 			iter1 = paisIter[i];
@@ -178,10 +176,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 			if(rand() < ((RAND_MAX*mutacao)/2))
 				temp->second->mutacao();
 
-			#pragma omp critical (AG)
-			{
-				filhos->push_back(temp);
-			}
+			filhos->push_back(temp);
 
 			delete *iter1;
 		}
