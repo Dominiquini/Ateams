@@ -390,32 +390,32 @@ JobShop::~JobShop()
 
 bool JobShop::operator == (Problema& p)
 {
-	return fnequal1(this, &p);
+	return this->sol.makespan == p.sol.makespan;
 }
 
 bool JobShop::operator != (Problema& p)
-		{
-	return fnequal2(this, &p);
-		}
+{
+	return this->sol.makespan != p.sol.makespan;
+}
 
 bool JobShop::operator <= (Problema& p)
 {
-	return fncomp1(this, &p);
+	return this->sol.makespan <= p.sol.makespan;
 }
 
 bool JobShop::operator >= (Problema& p)
 {
-	return fncomp1(&p, this);
+	return this->sol.makespan >= p.sol.makespan;
 }
 
 bool JobShop::operator < (Problema& p)
 {
-	return fncomp2(this, &p);
+	return this->sol.makespan < p.sol.makespan;
 }
 
 bool JobShop::operator > (Problema& p)
 {
-	return fncomp2(&p, this);
+	return this->sol.makespan > p.sol.makespan;
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */

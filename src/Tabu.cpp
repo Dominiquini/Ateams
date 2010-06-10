@@ -119,13 +119,13 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			// Se nao for tabu...
 			if(!isTabu(listaTabu, local->second))
 			{
-				if(local->first->getFitnessMinimize() < maxLocal->getFitnessMinimize())
+				if(*local->first < *maxLocal)
 					j = 0;
 
 				delete maxLocal;
 				maxLocal = local->first;
 
-				if(local->first->getFitnessMinimize() < maxGlobal->back()->getFitnessMinimize())
+				if(*local->first < *maxGlobal->back())
 				{
 					maxGlobal->push_back(Problema::alloc(*maxLocal));
 				}
@@ -140,14 +140,14 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			else
 			{
 				// Satisfaz a funcao de aspiracao
-				if(local->first->getFitnessMinimize() < aspiracao((double)funcAsp, maxLocal->getFitnessMinimize(), maxGlobal->back()->getFitnessMinimize()))
+				if(aspiracao((double)funcAsp, local->first, maxLocal, maxGlobal->back()))
 				{
 					j = 0;
 
 					delete maxLocal;
 					maxLocal = local->first;
 
-					if(local->first->getFitnessMinimize() < maxGlobal->back()->getFitnessMinimize())
+					if(*local->first < *maxGlobal->back())
 					{
 						maxGlobal->push_back(Problema::alloc(*maxLocal));
 					}
@@ -196,7 +196,7 @@ inline bool isTabu(list<movTabu*> *listaTabu, movTabu *m)
 	list<movTabu*>::iterator iter;
 
 	for(iter = listaTabu->begin(); iter != listaTabu->end(); iter++)
-		if(m->movTabuCMP(**iter))
+		if(*m == **iter)
 			return true;
 
 	return false;
@@ -213,7 +213,7 @@ inline void addTabu(list<movTabu*>* listaTabu, movTabu *m, int max)
 	}
 }
 
-inline double aspiracao(double paramAsp, double local, double global)
+inline bool aspiracao(double paramAsp, Problema *atual, Problema *local, Problema *global)
 {
-	return ((paramAsp*global) + ((1-paramAsp)*local));
+	return atual->getFitnessMinimize() < ((paramAsp * global->getFitnessMinimize()) + ((1-paramAsp) * local->getFitnessMinimize()));
 }

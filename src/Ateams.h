@@ -41,7 +41,7 @@ struct movTabu
 	}
 
 	// Verifica se 't1' eh igual a 't2'
-	bool movTabuCMP(movTabu& t)
+	bool operator == (movTabu& t)
 	{
 		if(maq == t.maq && (A == t.A || A == t.B) && (B == t.B || B == t.A))
 			return true;

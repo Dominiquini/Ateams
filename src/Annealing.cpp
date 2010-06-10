@@ -117,7 +117,7 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 				delete S;
 				S = Sn;
 
-				if(S->getFitnessMinimize() < Sf->back()->getFitnessMinimize())
+				if(*S < *Sf->back())
 				{
 					Sf->push_back(Problema::alloc(*S));
 				}
