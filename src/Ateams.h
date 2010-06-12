@@ -54,6 +54,7 @@ struct ParametrosATEAMS {
 	int tamPopAteams;
 	int iterAteams;
 	int numThreads;
+	int tentAteams;
 	int maxTempoAteams;
 	int makespanBest;
 };

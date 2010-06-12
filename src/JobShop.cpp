@@ -61,6 +61,9 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<Parametro
 	par = locNumberPar(parametros, size, (char*)"[numThreads]");
 	pATEAMS->numThreads = (int)par;
 
+	par = locNumberPar(parametros, size, (char*)"[tentAteams]");
+	pATEAMS->tentAteams = (int)par;
+
 	par = locNumberPar(parametros, size, (char*)"[maxTempoAteams]");
 	pATEAMS->maxTempoAteams = (int)par;
 
@@ -197,6 +200,9 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS)
 
 	if((p = locComPar(argv, argc, (char*)"--numThreads")) != -1)
 		pATEAMS->numThreads = atoi(argv[p]);
+
+	if((p = locComPar(argv, argc, (char*)"--tentAteams")) != -1)
+		pATEAMS->tentAteams = atoi(argv[p]);
 
 	if((p = locComPar(argv, argc, (char*)"--maxTempoAteams")) != -1)
 		pATEAMS->maxTempoAteams = atoi(argv[p]);

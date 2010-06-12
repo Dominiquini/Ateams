@@ -12,8 +12,9 @@ Controle::Controle()
 {
 	tamPop = 1000;
 	iterAteams = 100;
-	numThreads = 4;
+	tentAteams = 50;
 	maxTempo = INT_MAX;
+	numThreads = 4;
 	makespanBest = -1;
 
 	srand(unsigned(time(NULL)));
@@ -37,8 +38,9 @@ Controle::Controle(ParametrosATEAMS* pATEAMS)
 {
 	tamPop = pATEAMS->tamPopAteams != -1 ? pATEAMS->tamPopAteams : 1000;
 	iterAteams = pATEAMS->iterAteams != -1 ? pATEAMS->iterAteams: 100;
-	numThreads = pATEAMS->numThreads != -1 ? pATEAMS->numThreads : 4;
+	tentAteams = pATEAMS->tentAteams != -1 ? pATEAMS->tentAteams: 50;
 	maxTempo = pATEAMS->maxTempoAteams != -1 ? pATEAMS->maxTempoAteams : INT_MAX;
+	numThreads = pATEAMS->numThreads != -1 ? pATEAMS->numThreads : 4;
 	makespanBest = pATEAMS->makespanBest != -1 ? pATEAMS->makespanBest : -1;
 
 	srand(unsigned(time(NULL)));
@@ -231,6 +233,8 @@ Problema* Controle::start()
 
 	geraPop();
 
+	iterMelhora = 0;
+
 	Problema::best = (*pop->begin())->getFitnessMinimize();
 	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
@@ -297,6 +301,11 @@ inline int Controle::exec(int randomic, int eID)
 
 	pthread_mutex_lock(&mutex);
 	{
+		if((*prob->begin())->getFitnessMinimize() < Problema::best)
+			iterMelhora = 0;
+		else
+			iterMelhora++;
+
 		ins = addSol(prob);
 		execThreads++;
 
@@ -329,7 +338,7 @@ void* Controle::run(void *obj)
 	pair<int, Controle*>* in = (pair<int, Controle*>*)obj;
 	int execAteams = in->first;
 	Controle *ctr = in->second;
-	int ins;
+	int ins = 0;
 
 	sem_wait(&semaphore);
 
@@ -337,20 +346,14 @@ void* Controle::run(void *obj)
 	{
 		ins = ctr->exec(rand(), execAteams);
 
-		sem_post(&semaphore);
-
 		struct timeval time2;
 		gettimeofday(&time2, NULL);
 
-		if(((time2.tv_sec - ctr->time1.tv_sec) > ctr->maxTempo) || (Problema::best <= ctr->makespanBest))
+		if(((time2.tv_sec - ctr->time1.tv_sec) > ctr->maxTempo) || ctr->iterMelhora > ctr->tentAteams || (Problema::best <= ctr->makespanBest))
 			PARAR = true;
 	}
-	else
-	{
-		ins = 0;
 
-		sem_post(&semaphore);
-	}
+	sem_post(&semaphore);
 
 	pthread_exit((void*)ins);
 }

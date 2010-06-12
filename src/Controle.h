@@ -34,14 +34,15 @@ private:
 	set<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
 	vector<Heuristica*>* algs;							// Algoritmos disponiveis
 
-	int numThreads;						// Número de threads que podem rodar ao mesmo tempo
-	int makespanBest;					// Melhor makespan conhecido
-	int tamPop, iterAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes do Ateams e tempo maximo de execucao
+	int numThreads;									// Número de threads que podem rodar ao mesmo tempo
+	int makespanBest;								// Melhor makespan conhecido
+	int tamPop, iterAteams, tentAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes, tentativas sem melhora e tempo maximo de execucao
 
 	list<string>* actAlgs;				// Algoritmos em execucao no momento
 	int actThreads;						// Threads em execucao no momento
 
 	struct timeval time1;				// Medidores de tempo
+	int iterMelhora;					// Ultima iteracao em que houve melhora
 	int execThreads;					// Threads executadas
 
 	/* Seleciona um dos algoritmos implementados para executar */
