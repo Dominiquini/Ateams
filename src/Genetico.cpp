@@ -107,9 +107,9 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 		numCrossOver = (int)((float)pop->size() * probCrossOver);
 
-		/* Escolhe os casais de 'pop' que se cruzarao */
 		sumP = Controle::sumFitnessMaximize(pop, pop->size());
 
+		/* Escolhe os casais de 'pop' que se cruzarao */
 		for(int j = 0; j < numCrossOver/2; j++)
 		{
 			temp = new pair<Problema*, Problema*>();
@@ -144,6 +144,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 			pais->push_back(temp);
 		}
 
+		/* Faz o cruzamento entre os individuos anteriormente escolhidos */
 		for(iterParProb = pais->begin(); iterParProb != pais->end(); iterParProb++)
 		{
 			if(i % 2 == 0)
