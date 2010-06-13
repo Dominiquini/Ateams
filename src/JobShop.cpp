@@ -254,7 +254,7 @@ JobShop::JobShop() : Problema::Problema()
 	}
 
 	sol.escalon = NULL;
-	sol.makespan = calcMakespan(false);
+	sol.makespan = 0;
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -267,7 +267,7 @@ JobShop::JobShop(short int **prob) : Problema::Problema()
 	sol.esc = prob;
 
 	sol.escalon = NULL;
-	sol.makespan = calcMakespan(false);
+	sol.makespan = 0;
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -307,7 +307,7 @@ JobShop::JobShop(const Problema &prob, int maq, int pos1, int pos2) : Problema::
 	sol.esc[maq][pos2] = aux;
 
 	sol.escalon = NULL;
-	sol.makespan = calcMakespan(false);
+	sol.makespan = 0;
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -325,32 +325,32 @@ JobShop::~JobShop()
 
 bool JobShop::operator == (Problema& p)
 {
-	return this->sol.makespan == p.sol.makespan;
+	return this->getFitnessMinimize() == p.getFitnessMinimize();
 }
 
 bool JobShop::operator != (Problema& p)
 {
-	return this->sol.makespan != p.sol.makespan;
+	return this->getFitnessMinimize() != p.getFitnessMinimize();
 }
 
 bool JobShop::operator <= (Problema& p)
 {
-	return this->sol.makespan <= p.sol.makespan;
+	return this->getFitnessMinimize() <= p.getFitnessMinimize();
 }
 
 bool JobShop::operator >= (Problema& p)
 {
-	return this->sol.makespan >= p.sol.makespan;
+	return this->getFitnessMinimize() >= p.getFitnessMinimize();
 }
 
 bool JobShop::operator < (Problema& p)
 {
-	return this->sol.makespan < p.sol.makespan;
+	return this->getFitnessMinimize() < p.getFitnessMinimize();
 }
 
 bool JobShop::operator > (Problema& p)
 {
-	return this->sol.makespan > p.sol.makespan;
+	return this->getFitnessMinimize() > p.getFitnessMinimize();
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
@@ -435,6 +435,7 @@ inline int JobShop::calcMakespan(bool esc)
 		else
 			sol.escalon = aux_esc;
 
+		sol.makespan = sum_time;
 		return sum_time;
 	}
 	else
@@ -443,6 +444,7 @@ inline int JobShop::calcMakespan(bool esc)
 		desalocaMatriz(2, tmp, njob, 0);
 		desalocaMatriz(1, pos, 0, 0);
 
+		sol.makespan = -1;
 		return -1;
 	}
 }
@@ -510,7 +512,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
 			for(p2 = p1+1; p2 < numJobs; p2++)
 			{
 				job = new JobShop(*this, maq, p1, p2);
-				if(job->sol.makespan != -1)
+				if(job->getFitnessMinimize() != -1)
 				{
 					temp = new pair<Problema*, movTabu*>();
 					temp->first = job;
@@ -554,7 +556,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 			p2 = xRand(rand(), 0, numJobs);
 
 		job = new JobShop(*this, maq, p1, p2);
-		if(job->sol.makespan != -1)
+		if(job->getFitnessMinimize() != -1)
 		{
 			temp = new pair<Problema*, movTabu*>();
 			temp->first = job;
@@ -626,13 +628,13 @@ inline void JobShop::mutacao()
 	sol.esc[maq][pos1] = sol.esc[maq][pos2];
 	sol.esc[maq][pos2] = aux;
 
-	if(sol.makespan != -1 && sol.escalon != NULL)
+	if(sol.makespan > 0 && sol.escalon != NULL)
 	{
 		desalocaMatriz(3, sol.escalon, nmaq, njob);
 		sol.escalon = NULL;
 	}
 
-	sol.makespan = calcMakespan(false);
+	sol.makespan = 0;
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -641,22 +643,23 @@ inline void JobShop::mutacao()
 
 inline double JobShop::getFitnessMaximize()
 {
-	return (double)INV_FITNESS/sol.makespan;
+	if(sol.makespan != 0)
+		return (double)INV_FITNESS/sol.makespan;
+	else
+		return (double)INV_FITNESS/calcMakespan(false);
 }
 
 inline double JobShop::getFitnessMinimize()
 {
-	return (double)sol.makespan;
+	if(sol.makespan != 0)
+		return (double)sol.makespan;
+	else
+		return (double)calcMakespan(false);
 }
 
-inline int** JobShop::getEscalonameto()
+inline soluction* JobShop::getSoluction()
 {
-	int** copy = (int**)alocaMatriz(2, nmaq, njob, 1);
-	for(int i = 0; i < nmaq; i++)
-		for(int j = 0; j < njob; j++)
-			copy[i][j] = this->sol.esc[i][j];
-
-	return copy;
+	return &sol;
 }
 
 /* Auxiliares */
@@ -784,7 +787,7 @@ inline void desalocaMatriz(int dim, void *MMM, int a, int b)
 // comparator function:
 bool fnequal1(Problema* p1, Problema* p2)
 {
-	if(p1->sol.makespan == p2->sol.makespan)
+	if(p1->getFitnessMinimize() == p2->getFitnessMinimize())
 	{
 		for(int i = 0; i < JobShop::nmaq; i++)
 			for(int j = 0; j < JobShop::njob; j++)
@@ -799,13 +802,13 @@ bool fnequal1(Problema* p1, Problema* p2)
 // comparator function:
 bool fnequal2(Problema* p1, Problema* p2)
 {
-	return p1->sol.makespan == p2->sol.makespan;
+	return p1->getFitnessMinimize() == p2->getFitnessMinimize();
 }
 
 // comparator function:
 bool fncomp1(Problema *prob1, Problema *prob2)
 {
-	if(prob1->sol.makespan == prob2->sol.makespan)
+	if(prob1->getFitnessMinimize() == prob2->getFitnessMinimize())
 	{
 		for(int i = 0; i < JobShop::nmaq; i++)
 			for(int j = 0; j < JobShop::njob; j++)
@@ -814,13 +817,13 @@ bool fncomp1(Problema *prob1, Problema *prob2)
 		return false;
 	}
 	else
-		return prob1->sol.makespan < prob2->sol.makespan;
+		return prob1->getFitnessMinimize() < prob2->getFitnessMinimize();
 }
 
 // comparator function:
 bool fncomp2(Problema *prob1, Problema *prob2)
 {
-	return prob1->sol.makespan < prob2->sol.makespan;
+	return prob1->getFitnessMinimize() < prob2->getFitnessMinimize();
 }
 
 

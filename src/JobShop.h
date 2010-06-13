@@ -54,7 +54,7 @@ public:
 	double getFitnessMaximize();
 	double getFitnessMinimize();
 
-	int** getEscalonameto();
+	soluction* getSoluction();
 };
 
 void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);

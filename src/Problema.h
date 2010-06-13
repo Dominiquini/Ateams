@@ -82,6 +82,8 @@ public:
 	virtual double getFitnessMaximize() = 0;
 	virtual double getFitnessMinimize() = 0;
 
+	virtual soluction* getSoluction() = 0;
+
 	executado exec;
 
 	friend class JobShop;
