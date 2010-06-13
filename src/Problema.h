@@ -61,7 +61,7 @@ public:
 	virtual bool operator < (Problema&) = 0;
 	virtual bool operator > (Problema&) = 0;
 
-	virtual int calcMakespan() = 0;			// Calcula o makespan
+	virtual int calcMakespan(bool esc) = 0;	// Calcula o makespan
 	virtual void imprimir(bool esc) = 0;	// Imprime o escalonamento
 
 	/* Retorna um vizinho aleatorio */

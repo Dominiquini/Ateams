@@ -33,7 +33,7 @@ public:
 	bool operator < (Problema&);
 	bool operator > (Problema&);
 
-	int calcMakespan();			// Calcula o makespan
+	int calcMakespan(bool esc);	// Calcula o makespan
 	void imprimir(bool esc);	// Imprime o escaloonamento atual
 
 	/* Retorna um novo vizinho aleatorio */

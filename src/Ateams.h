@@ -10,8 +10,6 @@
 
 using namespace std;
 
-// #define ESCALONAMENTO
-
 #ifndef _ATEAMS_
 #define _ATEAMS_
 

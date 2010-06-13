@@ -253,15 +253,8 @@ JobShop::JobShop() : Problema::Problema()
 		}
 	}
 
-	sol.makespan = calcMakespan();
-
-#ifndef ESCALONAMENTO
-	if(sol.makespan != -1)
-	{
-		desalocaMatriz(3, sol.escalon, nmaq, njob);
-		sol.escalon = NULL;
-	}
-#endif
+	sol.escalon = NULL;
+	sol.makespan = calcMakespan(false);
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -274,15 +267,7 @@ JobShop::JobShop(short int **prob) : Problema::Problema()
 	sol.esc = prob;
 
 	sol.escalon = NULL;
-	sol.makespan = calcMakespan();
-
-#ifndef ESCALONAMENTO
-	if(sol.makespan != -1)
-	{
-		desalocaMatriz(3, sol.escalon, nmaq, njob);
-		sol.escalon = NULL;
-	}
-#endif
+	sol.makespan = calcMakespan(false);
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -296,9 +281,9 @@ JobShop::JobShop(const Problema &prob) : Problema::Problema()
 		for(int j = 0; j < njob; j++)
 			sol.esc[i][j] = prob.sol.esc[i][j];
 
+	sol.escalon = NULL;
 	sol.makespan = prob.sol.makespan;
 
-#ifdef ESCALONAMENTO
 	if(prob.sol.escalon != NULL)
 	{
 		sol.escalon = (short int***)alocaMatriz(3, nmaq, njob, 3);
@@ -307,10 +292,6 @@ JobShop::JobShop(const Problema &prob) : Problema::Problema()
 				for(int k = 0; k < 3; k++)
 					sol.escalon[i][j][k] = prob.sol.escalon[i][j][k];
 	}
-#else
-	sol.escalon = NULL;
-#endif
-
 	exec = prob.exec;
 }
 
@@ -326,15 +307,7 @@ JobShop::JobShop(const Problema &prob, int maq, int pos1, int pos2) : Problema::
 	sol.esc[maq][pos2] = aux;
 
 	sol.escalon = NULL;
-	sol.makespan = calcMakespan();
-
-#ifndef ESCALONAMENTO
-	if(sol.makespan != -1)
-	{
-		desalocaMatriz(3, sol.escalon, nmaq, njob);
-		sol.escalon = NULL;
-	}
-#endif
+	sol.makespan = calcMakespan(false);
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -381,7 +354,7 @@ bool JobShop::operator > (Problema& p)
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
-inline int JobShop::calcMakespan()
+inline int JobShop::calcMakespan(bool esc)
 {
 	register int max, cont = 0;
 	short int ***aux_esc, **tmp, *pos;
@@ -454,10 +427,13 @@ inline int JobShop::calcMakespan()
 			if(tmp[i][nmaq] > sum_time)
 				sum_time = tmp[i][nmaq];
 		}
-		sol.escalon = aux_esc;
-
 		desalocaMatriz(2, tmp, njob, 0);
 		desalocaMatriz(1, pos, 0, 0);
+
+		if(esc == false)
+			desalocaMatriz(3, aux_esc, nmaq, njob);
+		else
+			sol.escalon = aux_esc;
 
 		return sum_time;
 	}
@@ -475,8 +451,7 @@ inline void JobShop::imprimir(bool esc)
 {
 	if(esc == true)
 	{
-		if(sol.escalon == NULL)
-			calcMakespan();
+		calcMakespan(esc);
 
 		printf("\n");
 
@@ -657,7 +632,7 @@ inline void JobShop::mutacao()
 		sol.escalon = NULL;
 	}
 
-	sol.makespan = calcMakespan();
+	sol.makespan = calcMakespan(false);
 
 	exec.tabu = false;
 	exec.genetico = false;
