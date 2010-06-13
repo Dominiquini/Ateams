@@ -468,10 +468,14 @@ inline void JobShop::imprimir(bool esc)
 					printf(" ");
 
 				while(k--)
-					printf("%d", sol.escalon[i][j][0]+1);
+					printf("%c", ((char)sol.escalon[i][j][0]) + 'a');
 			}
 			printf("\n");
 		}
+		printf("\nLegenda:\n\n");
+
+		for(int i = 0; i < njob; i++)
+			printf("%c: %d\n", ((char)i) + 'a', i);
 	}
 	else
 	{
