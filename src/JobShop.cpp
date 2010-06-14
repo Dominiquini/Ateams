@@ -491,6 +491,7 @@ inline void JobShop::imprimir(bool esc)
 	return;
 }
 
+/* Retorna um vizinho aleatorio da solucao atual. */
 inline Problema* JobShop::vizinho()
 {
 	int maq = xRand(rand(), 0, nmaq), p1 = xRand(rand(), 0, njob), p2 = xRand(rand(), 0, njob);
@@ -501,6 +502,7 @@ inline Problema* JobShop::vizinho()
 	return new JobShop(*this, maq, p1, p2);
 }
 
+/* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
 inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
 {
 	Problema *job = NULL;
@@ -537,6 +539,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
 	return local;
 }
 
+/* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
 inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 {
 	Problema *job = NULL;
@@ -578,6 +581,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 	return local;
 }
 
+/* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
 inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamParticao)
 {
 	short int **f1 = (short int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (short int**)alocaMatriz(2, nmaq, njob, 1);
@@ -600,6 +604,7 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamPart
 	return filhos;
 }
 
+/* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
 inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai)
 {
 	short int **f1 = (short int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (short int**)alocaMatriz(2, nmaq, njob, 1);
@@ -620,29 +625,25 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai)
 	return filhos;
 }
 
-inline void JobShop::mutacao()
+/* Devolve uma mutacao aleatoria na solucao atual. */
+inline Problema* JobShop::mutacao()
 {
+	short int **mutacao = (short int**)alocaMatriz(2, nmaq, njob, 1);
+
+	for(int i = 0; i < nmaq; i++)
+		for(int j = 0; j < njob; j++)
+			mutacao[i][j] = sol.esc[i][j];
+
 	int maq = xRand(rand(), 0, nmaq);
 	int pos1 = xRand(rand(), 0, njob), pos2 = xRand(rand(), 0, njob);
 
 	while(pos2 == pos1)
 		pos2 = xRand(rand(), 0, njob);
 
-	short int aux = sol.esc[maq][pos1];
-	sol.esc[maq][pos1] = sol.esc[maq][pos2];
-	sol.esc[maq][pos2] = aux;
+	mutacao[maq][pos1] = sol.esc[maq][pos2];
+	mutacao[maq][pos2] = sol.esc[maq][pos1];
 
-	if(sol.makespan > 0 && sol.escalon != NULL)
-	{
-		desalocaMatriz(3, sol.escalon, nmaq, njob);
-		sol.escalon = NULL;
-	}
-
-	sol.makespan = 0;
-
-	exec.tabu = false;
-	exec.genetico = false;
-	exec.annealing = false;
+	return new JobShop(mutacao);
 }
 
 inline double JobShop::getFitnessMaximize()

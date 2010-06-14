@@ -26,7 +26,9 @@ bool fnequal2(Problema*, Problema*);	//Se P1 for igual a P2, considerando apenas
 class Problema
 {
 protected:
-	soluction sol;	// Makespan e escalonamentos que definem a solucao
+	soluction sol;							// Makespan e escalonamentos que definem a solucao
+
+	virtual int calcMakespan(bool esc) = 0;	// Calcula o makespan
 
 public:
 	static int best;				// Melhor solucao do momento
@@ -42,13 +44,14 @@ public:
 	static void leArgumentos(char**, int, ParametrosATEAMS*);
 
 	// Imprime em um arquivo os resultados da execucao
-	static void imprimeResultado (struct timeval, struct timeval, FILE*, int);
+	static void imprimeResultado(struct timeval, struct timeval, FILE*, int);
 
+	// Desaloca as estruturas do problema
 	static void desalocaMemoria();
 
 	// Alocador generico
-	static Problema* alloc();													// Nova solucao aleatoria
-	static Problema* alloc(const Problema &prob);								// Copia de prob
+	static Problema* alloc();						// Nova solucao aleatoria
+	static Problema* alloc(const Problema &prob);	// Copia de prob
 
 	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
 	Problema() {pthread_mutex_lock(&mut_p); numInst++; totalNumInst++; pthread_mutex_unlock(&mut_p);}	// numInst++
@@ -61,36 +64,36 @@ public:
 	virtual bool operator < (Problema&) = 0;
 	virtual bool operator > (Problema&) = 0;
 
-	virtual int calcMakespan(bool esc) = 0;	// Calcula o makespan
 	virtual void imprimir(bool esc) = 0;	// Imprime o escalonamento
 
-	/* Retorna um vizinho aleatorio */
+	/* Retorna um vizinho aleatorio da solucao atual */
 	virtual Problema* vizinho() = 0;
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual */
-	virtual vector<pair<Problema*, movTabu*>* >* buscaLocal() = 0;	// Todos os vizinhos
+	virtual vector<pair<Problema*, movTabu*>* >* buscaLocal() = 0;		// Todos os vizinhos
 	virtual vector<pair<Problema*, movTabu*>* >* buscaLocal(float) = 0;	// Uma parcela aleatoria
 
 	/* Realiza um crossover com uma outra solucao */
 	virtual pair<Problema*, Problema*>* crossOver(Problema*, int) = 0;	// Dois pivos
 	virtual pair<Problema*, Problema*>* crossOver(Problema*) = 0;		// Um pivo
 
-	/* Provoca uma mutacao aleatoria na solucao */
-	virtual void mutacao() = 0;
+	/* Devolve uma mutacao aleatoria na solucao atual */
+	virtual Problema* mutacao() = 0;
 
 	/* Devolve o valor da solucao */
-	virtual double getFitnessMaximize() = 0;
-	virtual double getFitnessMinimize() = 0;
+	virtual double getFitnessMaximize() = 0;	// Problemas de Maximizacao
+	virtual double getFitnessMinimize() = 0;	// Problemas de Minimizacao
 
+	/* Devolve a representacao interna da solucao */
 	virtual soluction* getSoluction() = 0;
 
-	executado exec;
+	executado exec;								// Algoritmos executados na solucao
 
 	friend class JobShop;
-	friend bool fnequal1(Problema*, Problema*);
-	friend bool fnequal2(Problema*, Problema*);
-	friend bool fncomp1(Problema*, Problema*);
-	friend bool fncomp2(Problema*, Problema*);
+	friend bool fnequal1(Problema*, Problema*);	// Comparacao profunda
+	friend bool fnequal2(Problema*, Problema*);	// Comparacao superficial
+	friend bool fncomp1(Problema*, Problema*);	// Comparacao profunda
+	friend bool fncomp2(Problema*, Problema*);	// Comparacao superficial
 };
 
 #endif

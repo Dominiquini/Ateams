@@ -17,7 +17,7 @@ typedef struct soluction
 {
 	int makespan;			// Makespan da solucao
 	short int **esc;		// Solucao
-	short int ***escalon;	// Escalonamento nas maquinas
+	short int ***escalon;	// Escalonamento nas maquinas - Grafico de Gant
 } soluction;
 
 typedef struct executado

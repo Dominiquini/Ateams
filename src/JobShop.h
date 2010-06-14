@@ -14,6 +14,9 @@ using namespace std;
 
 class JobShop : public Problema
 {
+protected:
+	int calcMakespan(bool esc);		// Calcula o makespan
+
 public:
 	static char name[128];			// Nome do problema
 	static short int **maq, **time;	// Matriz de maquinas e de tempos
@@ -33,7 +36,6 @@ public:
 	bool operator < (Problema&);
 	bool operator > (Problema&);
 
-	int calcMakespan(bool esc);	// Calcula o makespan
 	void imprimir(bool esc);	// Imprime o escaloonamento atual
 
 	/* Retorna um novo vizinho aleatorio */
@@ -47,13 +49,14 @@ public:
 	pair<Problema*, Problema*>* crossOver(Problema*, int);	// Dois pivos
 	pair<Problema*, Problema*>* crossOver(Problema*);		// Um pivo
 
-	/* Provoca uma mutacao na solucao atual */
-	void mutacao();
+	/* Devolve uma mutacao aleatoria na solucao atual */
+	Problema* mutacao();
 
 	/* Devolve o valor da solucao */
 	double getFitnessMaximize();
 	double getFitnessMinimize();
 
+	/* Devolve a representacao interna da solucao */
 	soluction* getSoluction();
 };
 

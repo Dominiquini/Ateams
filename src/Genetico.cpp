@@ -85,6 +85,7 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 
 vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 {
+	Problema *mutante;
 	pair<Problema*, Problema*>* temp;
 	vector<Problema*> *aux_pop = new vector<Problema*>();
 	vector<pair<Problema*, Problema*>* > *pais, *filhos;
@@ -159,10 +160,18 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 			}
 
 			if(rand() < (RAND_MAX*probMutacao/2))
-				temp->first->mutacao();
+			{
+				mutante = temp->first->mutacao();
+				delete temp->first;
+				temp->first = mutante;
+			}
 
 			if(rand() < (RAND_MAX*probMutacao/2))
-				temp->second->mutacao();
+			{
+				mutante = temp->second->mutacao();
+				delete temp->second;
+				temp->second = mutante;
+			}
 
 			filhos->push_back(temp);
 
