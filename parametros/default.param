@@ -1,9 +1,9 @@
 /* Caso algum atributo seja omitido ou definido como '-1', será usado o seu valor padrão! */
 
 *ATEAMS*
-[iterAteams] = 100		// Número de iterações do Ateams
-[tentAteams] = 50		// Tentativas sem melhora
-[maxTempoAteams] = -1		// Tempo máximo de execução
+[iterAteams] = 250		// Número de iterações do Ateams
+[tentAteams] = 100		// Tentativas sem melhora
+[maxTempoAteams] = 3600		// Tempo máximo de execução
 [numThreads] = 4                // Número máximo de threads ativas
 [tamPopAteams] = 1000		// Tamanho da população
 [makespanBest] = -1		// Melhor makespan conhecido
@@ -34,7 +34,7 @@
 [probBT] = 25			// Probabilidade de se executar BT em cada iteração do ATEAMS
 [polEscolhaBT] = 500		// Política de escolha
 [funcAspiracaoBT] = 0.5		// Função de Aspiração
-[iterBT] = 500			// Iterações do BT
+[iterBT] = 750			// Iterações do BT
 [tentSemMelhoraBT] = 500	// Política de leitura do BT
 [tamListaBT] = 10		// Tamanho de lista do BT
 [polExplorBT] = 0.5		// Política na exploração da vizinhança
@@ -44,9 +44,9 @@
 [probBT] = 10			// Probabilidade de se executar BT em cada iteração do ATEAMS
 [polEscolhaBT] = 50		// Política de escolha
 [funcAspiracaoBT] = 0.5		// Função de Aspiração
-[iterBT] = 500			// Iterações do BT
-[tentSemMelhoraBT] = 500	// Política de leitura do BT
-[tamListaBT] = 10		// Tamanho de lista do BT
+[iterBT] = 750			// Iterações do BT
+[tentSemMelhoraBT] = 750	// Política de leitura do BT
+[tamListaBT] = 25		// Tamanho de lista do BT
 [polExplorBT] = -1		// Política na exploração da vizinhança
 
 ##(AG)#
