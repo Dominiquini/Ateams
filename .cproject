@@ -465,8 +465,8 @@
 </scannerInfoProvider>
 </profile>
 </scannerConfigBuildInfo>
-<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1985955452;cdt.managedbuild.config.gnu.exe.release.1985955452.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.142865249;cdt.managedbuild.tool.gnu.cpp.compiler.input.1960649327">
-<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.617954435;cdt.managedbuild.config.gnu.exe.debug.617954435.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.343520453;cdt.managedbuild.tool.gnu.c.compiler.input.1774969376">
+<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 <profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 <buildOutputProvider>
 <openAction enabled="true" filePath=""/>
@@ -568,8 +568,8 @@
 </scannerInfoProvider>
 </profile>
 </scannerConfigBuildInfo>
-<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.617954435;cdt.managedbuild.config.gnu.exe.debug.617954435.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.343520453;cdt.managedbuild.tool.gnu.c.compiler.input.1774969376">
-<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1985955452;cdt.managedbuild.config.gnu.exe.release.1985955452.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.142865249;cdt.managedbuild.tool.gnu.cpp.compiler.input.1960649327">
+<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 <profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 <buildOutputProvider>
 <openAction enabled="true" filePath=""/>
@@ -1238,8 +1238,8 @@
 </scannerInfoProvider>
 </profile>
 </scannerConfigBuildInfo>
-<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1985955452;cdt.managedbuild.config.gnu.exe.release.1985955452.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.142865249;cdt.managedbuild.tool.gnu.cpp.compiler.input.1960649327">
-<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.617954435;cdt.managedbuild.config.gnu.exe.debug.617954435.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.343520453;cdt.managedbuild.tool.gnu.c.compiler.input.1774969376">
+<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 <profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 <buildOutputProvider>
 <openAction enabled="true" filePath=""/>
@@ -1341,8 +1341,8 @@
 </scannerInfoProvider>
 </profile>
 </scannerConfigBuildInfo>
-<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.617954435;cdt.managedbuild.config.gnu.exe.debug.617954435.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.343520453;cdt.managedbuild.tool.gnu.c.compiler.input.1774969376">
-<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1985955452;cdt.managedbuild.config.gnu.exe.release.1985955452.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.142865249;cdt.managedbuild.tool.gnu.cpp.compiler.input.1960649327">
+<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 <profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 <buildOutputProvider>
 <openAction enabled="true" filePath=""/>
