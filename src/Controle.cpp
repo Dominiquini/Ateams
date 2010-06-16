@@ -330,7 +330,7 @@ inline int Controle::exec(int randomic, int eID)
 		for(list<string>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
 			execNames = execNames + *it + " ";
 
-		printf(" | FILA: (%d : %s) --- %d\n", actThreads, execNames.c_str(), iterMelhora);
+		printf(" | FILA: (%d : %s)\n", actThreads, execNames.c_str());
 	}
 	pthread_mutex_unlock(&mut_f);
 
