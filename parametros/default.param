@@ -2,7 +2,7 @@
 
 *ATEAMS*
 [iterAteams] = 250		// Número de iterações do Ateams
-[tentAteams] = 10		// Tentativas sem melhora
+[tentAteams] = 100		// Tentativas sem melhora
 [maxTempoAteams] = 3600		// Tempo máximo de execução
 [numThreads] = 4                // Número máximo de threads ativas
 [tamPopAteams] = 1000		// Tamanho da população
