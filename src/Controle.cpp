@@ -301,16 +301,20 @@ inline int Controle::exec(int randomic, int eID)
 
 	pthread_mutex_lock(&mutex);
 	{
-		if((*prob->begin())->getFitnessMinimize() < Problema::best)
-			iterMelhora = 0;
-		else
-			iterMelhora++;
+		double oldBest = Problema::best;
 
 		ins = addSol(prob);
 		execThreads++;
 
 		prob->clear();
 		delete prob;
+
+		double newBest = Problema::best;
+
+		if(newBest < oldBest)
+			iterMelhora = 0;
+		else
+			iterMelhora++;
 	}
 	pthread_mutex_unlock(&mutex);
 
@@ -326,7 +330,7 @@ inline int Controle::exec(int randomic, int eID)
 		for(list<string>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
 			execNames = execNames + *it + " ";
 
-		printf(" | FILA: (%d : %s)\n", actThreads, execNames.c_str());
+		printf(" | FILA: (%d : %s) --- %d\n", actThreads, execNames.c_str(), iterMelhora);
 	}
 	pthread_mutex_unlock(&mut_f);
 
