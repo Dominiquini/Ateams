@@ -2,9 +2,9 @@
 
 using namespace std;
 
-pthread_mutex_t mutex;	// Mutex que protege a populacao
+pthread_mutex_t mutex;	// Mutex que protege a populacao principal
 pthread_mutex_t mut_p;	// Mutex que protege as variaveis de criacao de novas solucoes
-pthread_mutex_t mut_f;
+pthread_mutex_t mut_f;	// Mutex que protege a impressao das informacoes da execucao
 
 sem_t semaphore;		// Semaforo que controla o acesso dos algoritmos ao processador
 
@@ -229,6 +229,14 @@ Problema* Controle::start()
 	pthread_t *threads = (pthread_t*)malloc(iterAteams * sizeof(pthread_t));
 	void* temp = NULL;
 
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	pthread_attr_setstacksize(&attr, (1024*1024*16));
+
+	size_t size;
+	pthread_attr_getstacksize(&attr, &size);
+
 	srand(unsigned(time(NULL)));
 
 	geraPop();
@@ -253,7 +261,7 @@ Problema* Controle::start()
 		par->first = execAteams+1;
 		par->second = this;
 
-		pthread_create(&threads[execAteams], NULL, run, (void*)par);
+		pthread_create(&threads[execAteams], &attr, run, (void*)par);
 	}
 
 	for(int execAteams = 0; execAteams < iterAteams; execAteams++)
@@ -265,6 +273,8 @@ Problema* Controle::start()
 	cout << endl << "Soluções Permutadas: " << ins << endl;
 
 	free(threads);
+
+	pthread_attr_destroy(&attr);
 
 	return *(pop->begin());
 }

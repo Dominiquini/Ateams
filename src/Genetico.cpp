@@ -215,6 +215,14 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		}
 		sort(pop->begin(), pop->end(), fncomp2);
 
+		/* Mantem a populacao auxiliar sob controle */
+		random_shuffle(bad_pop->begin(), bad_pop->end());
+		while((int)bad_pop->size() > 10*tamPopGenetico)
+		{
+			delete bad_pop->back();
+			bad_pop->pop_back();
+		}
+
 		aux_pop->clear();
 	}
 

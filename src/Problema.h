@@ -11,10 +11,10 @@
 
 using namespace std;
 
+extern pthread_mutex_t mut_p;
+
 #ifndef _PROBLEMA_
 #define _PROBLEMA_
-
-extern pthread_mutex_t mut_p;
 
 class Problema;
 
