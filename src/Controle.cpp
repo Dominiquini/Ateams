@@ -398,6 +398,9 @@ inline int Controle::addSol(vector<Problema*> *news)
 
 				if((int)pop->size() > tamPop)
 				{
+					iterSol = pop->end();
+					iterSol--;
+
 					pop->erase(iterSol);
 					delete *iterSol;
 				}
