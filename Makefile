@@ -41,10 +41,10 @@ $(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.h
 		@$(CC) $(CFLAGS) -c $< -o $@
 		@echo "$(CC) $(CFLAGS) -c $< -o $@"
 
-run:		$(EXEC)
-		./$^ $(RUN_PARAM)
+run:		install
+		$(EXEC) $(RUN_PARAM)
 
-auto:		$(EXEC)
+auto:		install
 		$(RUN_SCRIPT)
 
 clean:
