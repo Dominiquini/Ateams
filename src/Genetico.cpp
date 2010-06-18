@@ -92,7 +92,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	pais = new vector<pair<Problema*, Problema*>* >();
 	filhos = new vector<pair<Problema*, Problema*>* >();
 
-	vector<pair<Problema*, Problema*>* >::iterator iterParProb;
+	vector<pair<Problema*, Problema*>* >::const_iterator iterParProb;
 	vector<Problema*>::iterator iterProb;
 
 	int numCrossOver;

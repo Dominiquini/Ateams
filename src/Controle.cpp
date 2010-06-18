@@ -375,8 +375,8 @@ void* Controle::run(void *obj)
 inline int Controle::addSol(vector<Problema*> *news)
 {
 	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iterSol;
 	vector<Problema*>::const_iterator iterNews;
+	Problema* pointSol = NULL;
 	int ins = 0;
 
 	for(iterNews = news->begin(); iterNews != news->end(); iterNews++)
@@ -395,11 +395,10 @@ inline int Controle::addSol(vector<Problema*> *news)
 
 				if((int)pop->size() > tamPop)
 				{
-					iterSol = pop->end();
-					iterSol--;
+					pointSol = *pop->rbegin();
 
-					pop->erase(iterSol);
-					delete *iterSol;
+					pop->erase(pointSol);
+					delete pointSol;
 				}
 			}
 			else
