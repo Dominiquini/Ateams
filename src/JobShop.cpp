@@ -627,14 +627,19 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai)
 }
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
-inline Problema* JobShop::mutacao()
+inline Problema* JobShop::mutacao(int n)
 {
-	int maq = xRand(rand(), 0, nmaq), p1 = xRand(rand(), 0, njob), p2 = xRand(rand(), 0, njob);
+	Problema* mutacao = vizinho(), *temp;
+	int mut = xRand(rand(), 1, n);
 
-	while(p2 == p1)
-		p2 = xRand(rand(), 0, njob);
+	while(--mut > 0)
+	{
+		temp = mutacao;
+		mutacao = temp->vizinho();
+		delete temp;
+	}
 
-	return new JobShop(*this, maq, p1, p2);
+	return mutacao;
 }
 
 inline double JobShop::getFitnessMaximize()

@@ -87,51 +87,51 @@ Controle::~Controle()
 	pthread_mutex_destroy(&mut_f);
 }
 
-double Controle::sumFitnessMaximize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n)
+double Controle::sumFitnessMaximize(set<Problema*, bool(*)(Problema*, Problema*)> *probs, int n)
 {
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator iter;
 	double sum = 0, i = 0;
 
-	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
+	for(i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
 		sum += (*iter)->getFitnessMaximize();
 
 	return sum;
 }
 
-double Controle::sumFitnessMaximize(vector<Problema*> *pop, int n)
+double Controle::sumFitnessMaximize(vector<Problema*> *probs, int n)
 {
-	vector<Problema*>::iterator iter;
+	vector<Problema*>::const_iterator iter;
 	double sum = 0, i = 0;
 
-	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
+	for(i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
 		sum += (*iter)->getFitnessMaximize();
 
 	return sum;
 }
 
-double Controle::sumFitnessMinimize(set<Problema*, bool(*)(Problema*, Problema*)> *pop, int n)
+double Controle::sumFitnessMinimize(set<Problema*, bool(*)(Problema*, Problema*)> *probs, int n)
 {
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator iter;
 	double sum = 0, i = 0;
 
-	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
+	for(i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
 		sum += (*iter)->getFitnessMinimize();
 
 	return sum;
 }
 
-double Controle::sumFitnessMinimize(vector<Problema*> *pop, int n)
+double Controle::sumFitnessMinimize(vector<Problema*> *probs, int n)
 {
-	vector<Problema*>::iterator iter;
+	vector<Problema*>::const_iterator iter;
 	double sum = 0, i = 0;
 
-	for(i = 0, iter = pop->begin(); i < n && iter != pop->end(); i++, iter++)
+	for(i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
 		sum += (*iter)->getFitnessMinimize();
 
 	return sum;
 }
 
-set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* pop, double fitTotal, unsigned int randWheel)
+set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* probs, double fitTotal, unsigned int randWheel)
 {
 	// Armazena o fitness total da populacao
 	unsigned int sum = fitTotal;
@@ -139,7 +139,7 @@ set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRoulette
 	randWheel = xRand(randWheel, 0, sum+1);
 
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
-	for(iter = pop->begin(); iter != pop->end(); iter++)
+	for(iter = probs->begin(); iter != probs->end(); iter++)
 	{
 		sum -= (int)(*iter)->getFitnessMaximize();
 		if(sum <= randWheel)
@@ -147,10 +147,10 @@ set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRoulette
 			return iter;
 		}
 	}
-	return (pop->begin());
+	return (probs->begin());
 }
 
-vector<Problema*>::iterator Controle::selectRouletteWheel(vector<Problema*>* pop, double fitTotal, unsigned int randWheel)
+vector<Problema*>::iterator Controle::selectRouletteWheel(vector<Problema*>* probs, double fitTotal, unsigned int randWheel)
 {
 	// Armazena o fitness total da populacao
 	unsigned int sum = fitTotal;
@@ -158,7 +158,7 @@ vector<Problema*>::iterator Controle::selectRouletteWheel(vector<Problema*>* pop
 	randWheel = xRand(randWheel, 0, sum+1);
 
 	vector<Problema*>::iterator iter;
-	for(iter = pop->begin(); iter != pop->end(); iter++)
+	for(iter = probs->begin(); iter != probs->end(); iter++)
 	{
 		sum -= (int)(*iter)->getFitnessMaximize();
 		if(sum <= randWheel)
@@ -166,7 +166,7 @@ vector<Problema*>::iterator Controle::selectRouletteWheel(vector<Problema*>* pop
 			return iter;
 		}
 	}
-	return pop->begin();
+	return probs->begin();
 }
 
 Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, unsigned int probTotal, unsigned int randWheel)
@@ -187,12 +187,12 @@ Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, unsigne
 	return heuristc->at(0);
 }
 
-vector<Problema*>::iterator Controle::selectRandom(vector<Problema*>* pop, int randWheel)
+vector<Problema*>::iterator Controle::selectRandom(vector<Problema*>* probs, int randWheel)
 {
-	randWheel = randWheel % pop->size();
+	randWheel = randWheel % probs->size();
 
-	vector<Problema*>::iterator iter = pop->begin();
-	for(int i = 0; iter != pop->end() && i < randWheel; iter++, i++);
+	vector<Problema*>::iterator iter = probs->begin();
+	for(int i = 0; iter != probs->end() && i < randWheel; iter++, i++);
 
 	return iter;
 }
@@ -207,7 +207,7 @@ void Controle::addHeuristic(Heuristica* alg)
 list<Problema*>* Controle::getPop()
 {
 	list<Problema*>* sol = new list<Problema*>();
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter;
+	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator iter;
 
 	for(iter = pop->begin(); iter != pop->end(); iter++)
 		sol->push_back(*iter);
@@ -217,7 +217,7 @@ list<Problema*>* Controle::getPop()
 
 Problema* Controle::getSol(int n)
 {
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter = pop->begin();
+	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator iter = pop->begin();
 
 	for(int i = 0; i <= n && iter != pop->end(); iter++);
 

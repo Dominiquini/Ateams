@@ -50,7 +50,7 @@ public:
 	pair<Problema*, Problema*>* crossOver(Problema*);		// Um pivo
 
 	/* Devolve uma mutacao aleatoria na solucao atual */
-	Problema* mutacao();
+	Problema* mutacao(int);
 
 	/* Devolve o valor da solucao */
 	double getFitnessMaximize();

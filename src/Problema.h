@@ -20,7 +20,7 @@ class Problema;
 
 bool fncomp1(Problema*, Problema*);		//Se P1 for menor que P2
 bool fncomp2(Problema*, Problema*); 	//Se P1 for menor que P2, considerando apenas o fitness
-bool fnequal1(Problema*, Problema*);	//Se P1 for igual a P2, considerando apenas o fitness
+bool fnequal1(Problema*, Problema*);	//Se P1 for igual a P2
 bool fnequal2(Problema*, Problema*);	//Se P1 for igual a P2, considerando apenas o fitness
 
 class Problema
@@ -78,7 +78,7 @@ public:
 	virtual pair<Problema*, Problema*>* crossOver(Problema*) = 0;		// Um pivo
 
 	/* Devolve uma mutacao aleatoria na solucao atual */
-	virtual Problema* mutacao() = 0;
+	virtual Problema* mutacao(int) = 0;
 
 	/* Devolve o valor da solucao */
 	virtual double getFitnessMaximize() = 0;	// Problemas de Maximizacao

@@ -40,20 +40,20 @@ Genetico::~Genetico()
 vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
 {
 	vector<Problema*>* popAG = new vector<Problema*>();
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iter = sol->end();
+	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator iter = sol->end();
 	int i = 0;
 
 	numExec++;
 
+	pthread_mutex_lock(&mutex);
+
 	if(polEscolha == 0)
 	{
-		pthread_mutex_lock(&mutex);
 		for(iter = sol->begin(), i = 0; iter != sol->end() && i < tamPopGenetico; iter++, i++)
 		{
 			(*iter)->exec.genetico = true;
 			popAG->push_back(Problema::alloc(**iter));
 		}
-		pthread_mutex_unlock(&mutex);
 	}
 	else
 	{
@@ -61,7 +61,6 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 
 		srand(randomic);
 
-		pthread_mutex_lock(&mutex);
 		for(i = 1; i < tamPopGenetico; i++)
 		{
 			/* Evita a escolha de individuos repetidos */
@@ -76,10 +75,11 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 		for(iter = sol->begin(); iter != sol->end(); iter++)
 			(*iter)->exec.genetico = false;
 
-		pthread_mutex_unlock(&mutex);
-
 		sort(popAG->begin(), popAG->end(), fncomp2);
 	}
+
+	pthread_mutex_unlock(&mutex);
+
 	return exec(popAG);
 }
 
@@ -161,14 +161,14 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 			if(rand() < (RAND_MAX*probMutacao/2))
 			{
-				mutante = temp->first->mutacao();
+				mutante = temp->first->mutacao(5);
 				delete temp->first;
 				temp->first = mutante;
 			}
 
 			if(rand() < (RAND_MAX*probMutacao/2))
 			{
-				mutante = temp->second->mutacao();
+				mutante = temp->second->mutacao(5);
 				delete temp->second;
 				temp->second = mutante;
 			}

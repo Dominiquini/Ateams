@@ -40,17 +40,17 @@ Annealing::~Annealing()
 /* Executa um Simulated Annealing na populacao com o devido criterio de selecao */
 vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
 {
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator select;
+	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator select;
 	Problema* solSA;
 
 	numExec++;
 
+	pthread_mutex_lock(&mutex);
+
 	if(polEscolha == 0)
 	{
-		pthread_mutex_lock(&mutex);
 		select = sol->begin();
 		solSA = Problema::alloc(**select);
-		pthread_mutex_unlock(&mutex);
 
 		return exec(solSA);
 	}
@@ -61,7 +61,6 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	srand(randomic);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
-	pthread_mutex_lock(&mutex);
 	select = Controle::selectRouletteWheel(sol, visao, rand());
 	if(polEscolha < -1)
 		while((*select)->exec.tabu == true)
@@ -73,6 +72,7 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	(*select)->exec.annealing = true;
 
 	solSA = Problema::alloc(**select);
+
 	pthread_mutex_unlock(&mutex);
 
 	return exec(solSA);

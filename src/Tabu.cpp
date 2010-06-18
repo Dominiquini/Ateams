@@ -40,17 +40,17 @@ Tabu::~Tabu()
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
 vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
 {
-	set<Problema*, bool(*)(Problema*, Problema*)>::iterator select;
+	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator select;
 	Problema* solBT;
 
 	numExec++;
 
+	pthread_mutex_lock(&mutex);
+
 	if(polEscolha == 0)
 	{
-		pthread_mutex_lock(&mutex);
 		select = sol->begin();
 		solBT = Problema::alloc(**select);
-		pthread_mutex_unlock(&mutex);
 
 		return exec(solBT);
 	}
@@ -61,7 +61,6 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	srand(randomic);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
-	pthread_mutex_lock(&mutex);
 	select = Controle::selectRouletteWheel(sol, visao, rand());
 	if(polEscolha < -1)
 		while((*select)->exec.tabu == true)
@@ -73,6 +72,7 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	(*select)->exec.tabu = true;
 
 	solBT = Problema::alloc(**select);
+
 	pthread_mutex_unlock(&mutex);
 
 	return exec(solBT);
