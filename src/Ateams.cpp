@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 	char dados[32];
 	int p = -1;
 
-	if((p = locComPar(argv, argc, (char*)"-i")) != -1)
+	if((p = findPosArgv(argv, argc, (char*)"-i")) != -1)
 	{
 		if ((fdados = fopen(argv[p], "r")) == NULL)
 		{
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 		strcpy(dados, DADOS);
 	}
 
-	if((p = locComPar(argv, argc, (char*)"-p")) != -1)
+	if((p = findPosArgv(argv, argc, (char*)"-p")) != -1)
 	{
 		if ((fparametros = fopen(argv[p], "r")) == NULL)
 		{
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 	}
 
 	char resultado[32] = {"resultados/"};
-	if((p = locComPar(argv, argc, (char*)"-r")) != -1)
+	if((p = findPosArgv(argv, argc, (char*)"-r")) != -1)
 	{
 		strcpy(resultado, argv[p]);
 

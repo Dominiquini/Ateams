@@ -376,7 +376,7 @@ inline int Controle::addSol(vector<Problema*> *news)
 {
 	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
 	set<Problema*, bool(*)(Problema*, Problema*)>::iterator iterSol;
-	vector<Problema*>::iterator iterNews;
+	vector<Problema*>::const_iterator iterNews;
 	int ins = 0;
 
 	for(iterNews = news->begin(); iterNews != news->end(); iterNews++)
@@ -419,20 +419,27 @@ inline void Controle::geraPop()
 {
 	srand(unsigned(time(NULL)));
 
+	int t = 0;
 	Problema* prob = NULL;
 	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
-	while((int)pop->size() < tamPop)
+	while((int)pop->size() < tamPop && t < tamPop)
 	{
 		prob = Problema::alloc();
 
 		if(prob->getFitnessMinimize() != -1)
 		{
+			t = 0;
+
 			ret = pop->insert(prob);
 			if(!ret.second)
 				delete prob;
 		}
 		else
+		{
+			t++;
+
 			delete prob;
+		}
 	}
 }
 

@@ -36,7 +36,7 @@ public:
 	bool operator < (Problema&);
 	bool operator > (Problema&);
 
-	void imprimir(bool esc);	// Imprime o escaloonamento atual
+	void imprimir(bool esc);		// Imprime o escalonamento atual
 
 	/* Retorna um novo vizinho aleatorio */
 	Problema* vizinho();
@@ -62,11 +62,11 @@ public:
 
 void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
 
-int locComPar(char **in, int num, char *key);
+int findPosArgv(char **in, int num, char *key);
 
-float locNumberPar(char *in, int num, char *key);
+float findPar(char *in, int num, char *key);
 
-char* locPosPar(char *in, int num, char *key);
+char* findPosPar(char *in, int num, char *key);
 
 int findOrdem(int M, int maq, short int* job);
 

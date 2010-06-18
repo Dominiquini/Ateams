@@ -48,137 +48,137 @@ void Problema::leProblema(FILE *f)
 
 void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<ParametrosHeuristicas> *pHEURISTICAS)
 {
-	char *parametros = (char*)malloc(32769 * sizeof(char)), *algs[16], *pos, *arq;
+	char *parametros = (char*)malloc(32769 * sizeof(char)), *algs[16], *ateams_p, *alg_p, *pos;
 	size_t size = fread(parametros, sizeof(char), 32768, f);
 	int numAlgs = 0;
 	float par = -1;
 
-	arq = parametros;
+	ateams_p = parametros;
 
-	par = locNumberPar(parametros, size, (char*)"[iterAteams]");
-	pATEAMS->iterAteams = (int)par;
-
-	par = locNumberPar(parametros, size, (char*)"[numThreads]");
-	pATEAMS->numThreads = (int)par;
-
-	par = locNumberPar(parametros, size, (char*)"[tentAteams]");
-	pATEAMS->tentAteams = (int)par;
-
-	par = locNumberPar(parametros, size, (char*)"[maxTempoAteams]");
-	pATEAMS->maxTempoAteams = (int)par;
-
-	par = locNumberPar(parametros, size, (char*)"[tamPopAteams]");
-	pATEAMS->tamPopAteams = (int)par;
-
-	par = locNumberPar(parametros, size, (char*)"[makespanBest]");
-	pATEAMS->makespanBest = (int)par;
-
-	pos = strstr(parametros, (char*)"##(");
-	while (pos != NULL)
+	pos = parametros;
+	while((pos = strstr(pos, (char*)"##(")) != NULL)
 	{
 		*pos = '\0';
-		algs[numAlgs++] = pos+1;
-		parametros = pos+7;
-		pos = strstr(parametros, (char*)"##(");
+		algs[numAlgs++] = ++pos;
+		pos+=6;
 	}
+
+	par = findPar(ateams_p, size, (char*)"[iterAteams]");
+	pATEAMS->iterAteams = (int)par;
+
+	par = findPar(ateams_p, size, (char*)"[numThreads]");
+	pATEAMS->numThreads = (int)par;
+
+	par = findPar(ateams_p, size, (char*)"[tentAteams]");
+	pATEAMS->tentAteams = (int)par;
+
+	par = findPar(ateams_p, size, (char*)"[maxTempoAteams]");
+	pATEAMS->maxTempoAteams = (int)par;
+
+	par = findPar(ateams_p, size, (char*)"[tamPopAteams]");
+	pATEAMS->tamPopAteams = (int)par;
+
+	par = findPar(ateams_p, size, (char*)"[makespanBest]");
+	pATEAMS->makespanBest = (int)par;
+
 
 	ParametrosHeuristicas pTEMP;
 	for(int i = 0; i < numAlgs; i++)
 	{
-		parametros = algs[i];
-		parametros[6] = '\0';
+		alg_p = algs[i];
+		alg_p[6] = '\0';
 
-		if(strcmp(parametros, (char*)"#(SA)#") == 0)
+		if(strcmp(alg_p, (char*)"#(SA)#") == 0)
 		{
 			pTEMP.alg = SA;
 
-			parametros += 7;
+			alg_p += 7;
 
-			pos = strstr(parametros, (char*)"(name) = ");
+			pos = strstr(alg_p, (char*)"(name) = ");
 			pos = pos + strlen((char*)"(name) = ");
 			sscanf(pos, "%s", pTEMP.algName);
 
-			par = locNumberPar(parametros, size, (char*)"[probSA]");
+			par = findPar(alg_p, size, (char*)"[probSA]");
 			pTEMP.probSA = (float)par;
 
-			par = locNumberPar(parametros, size, (char*)"[polEscolhaSA]");
+			par = findPar(alg_p, size, (char*)"[polEscolhaSA]");
 			pTEMP.polEscolhaSA = (int)par;
 
-			par = locNumberPar(parametros, size, (char*)"[maxIterSA]");
+			par = findPar(alg_p, size, (char*)"[maxIterSA]");
 			pTEMP.maxIterSA = (int)par;
 
-			par = locNumberPar(parametros, size, (char*)"[initTempSA]");
+			par = findPar(alg_p, size, (char*)"[initTempSA]");
 			pTEMP.initTempSA = (float)par;
 
-			par = locNumberPar(parametros, size, (char*)"[finalTempSA]");
+			par = findPar(alg_p, size, (char*)"[finalTempSA]");
 			pTEMP.finalTempSA = (float)par;
 
-			par = locNumberPar(parametros, size, (char*)"[restauraSolSA]");
+			par = findPar(alg_p, size, (char*)"[restauraSolSA]");
 			pTEMP.restauraSolSA = (int)par;
 
-			par = locNumberPar(parametros, size, (char*)"[alphaSA]");
+			par = findPar(alg_p, size, (char*)"[alphaSA]");
 			pTEMP.alphaSA = (float)par;
 		}
-		else if(strcmp(parametros, (char*)"#(AG)#") == 0)
+		else if(strcmp(alg_p, (char*)"#(AG)#") == 0)
 		{
 			pTEMP.alg = AG;
 
-			parametros += 7;
+			alg_p += 7;
 
-			pos = strstr(parametros, (char*)"(name) = ");
+			pos = strstr(alg_p, (char*)"(name) = ");
 			pos = pos + strlen((char*)"(name) = ");
 			sscanf(pos, "%s", pTEMP.algName);
 
-			par = locNumberPar(parametros, size, (char*)"[probAG]");
+			par = findPar(alg_p, size, (char*)"[probAG]");
 			pTEMP.probAG = (int)par;
 
-			par = locNumberPar(parametros, size, (char*)"[polEscolhaAG]");
+			par = findPar(alg_p, size, (char*)"[polEscolhaAG]");
 			pTEMP.polEscolhaAG = (int)par;
 
-			par = locNumberPar(parametros, size, (char*)"[iterAG]");
+			par = findPar(alg_p, size, (char*)"[iterAG]");
 			pTEMP.iterAG = (int)par;
 
-			par = locNumberPar(parametros, size, (char*)"[tamPopAG]");
+			par = findPar(alg_p, size, (char*)"[tamPopAG]");
 			pTEMP.tamPopAG = (int)par;
 
-			par = locNumberPar(parametros, size, (char*)"[tamParticaoAG]");
+			par = findPar(alg_p, size, (char*)"[tamParticaoAG]");
 			pTEMP.tamParticaoAG = (int)par;
 
-			par = locNumberPar(parametros, size, (char*)"[probCrossOverAG]");
+			par = findPar(alg_p, size, (char*)"[probCrossOverAG]");
 			pTEMP.probCrossOverAG = (float)par;
 
-			par = locNumberPar(parametros, size, (char*)"[probMutacaoAG]");
+			par = findPar(alg_p, size, (char*)"[probMutacaoAG]");
 			pTEMP.probMutacaoAG = (float)par;
 		}
-		else if(strcmp(parametros, (char*)"#(BT)#") == 0)
+		else if(strcmp(alg_p, (char*)"#(BT)#") == 0)
 		{
 			pTEMP.alg = BT;
 
-			parametros += 7;
+			alg_p += 7;
 
-			pos = strstr(parametros, (char*)"(name) = ");
+			pos = strstr(alg_p, (char*)"(name) = ");
 			pos = pos + strlen((char*)"(name) = ");
 			sscanf(pos, "%s", pTEMP.algName);
 
-			par = locNumberPar(parametros, size, (char*)"[probBT]");
+			par = findPar(alg_p, size, (char*)"[probBT]");
 			pTEMP.probBT = (int)par;
 
-			par = locNumberPar(parametros, size, (char*)"[polEscolhaBT]");
+			par = findPar(alg_p, size, (char*)"[polEscolhaBT]");
 			pTEMP.polEscolhaBT = (int)par;
 
-			par = locNumberPar(parametros, size, (char*)"[iterBT]");
+			par = findPar(alg_p, size, (char*)"[iterBT]");
 			pTEMP.iterBT = (int)par;
 
-			par = locNumberPar(parametros, size, (char*)"[tentSemMelhoraBT]");
+			par = findPar(alg_p, size, (char*)"[tentSemMelhoraBT]");
 			pTEMP.tentSemMelhoraBT = (int)par;
 
-			par = locNumberPar(parametros, size, (char*)"[tamListaBT]");
+			par = findPar(alg_p, size, (char*)"[tamListaBT]");
 			pTEMP.tamListaBT = (int)par;
 
-			par = locNumberPar(parametros, size, (char*)"[polExplorBT]");
+			par = findPar(alg_p, size, (char*)"[polExplorBT]");
 			pTEMP.polExplorBT = (float)par;
 
-			par = locNumberPar(parametros, size, (char*)"[funcAspiracaoBT]");
+			par = findPar(alg_p, size, (char*)"[funcAspiracaoBT]");
 			pTEMP.funcAspiracaoBT = (float)par;
 		}
 		else
@@ -188,6 +188,7 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<Parametro
 		}
 		pHEURISTICAS->push_back(pTEMP);
 	}
+	free(parametros);
 }
 
 /* Le argumentos adicionais passados por linha de comando */
@@ -195,22 +196,22 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS)
 {
 	int p = -1;
 
-	if((p = locComPar(argv, argc, (char*)"--iterAteams")) != -1)
+	if((p = findPosArgv(argv, argc, (char*)"--iterAteams")) != -1)
 		pATEAMS->iterAteams = atoi(argv[p]);
 
-	if((p = locComPar(argv, argc, (char*)"--numThreads")) != -1)
+	if((p = findPosArgv(argv, argc, (char*)"--numThreads")) != -1)
 		pATEAMS->numThreads = atoi(argv[p]);
 
-	if((p = locComPar(argv, argc, (char*)"--tentAteams")) != -1)
+	if((p = findPosArgv(argv, argc, (char*)"--tentAteams")) != -1)
 		pATEAMS->tentAteams = atoi(argv[p]);
 
-	if((p = locComPar(argv, argc, (char*)"--maxTempoAteams")) != -1)
+	if((p = findPosArgv(argv, argc, (char*)"--maxTempoAteams")) != -1)
 		pATEAMS->maxTempoAteams = atoi(argv[p]);
 
-	if((p = locComPar(argv, argc, (char*)"--tamPopAteams")) != -1)
+	if((p = findPosArgv(argv, argc, (char*)"--tamPopAteams")) != -1)
 		pATEAMS->tamPopAteams = atoi(argv[p]);
 
-	if((p = locComPar(argv, argc, (char*)"--makespanBest")) != -1)
+	if((p = findPosArgv(argv, argc, (char*)"--makespanBest")) != -1)
 		pATEAMS->makespanBest = atoi(argv[p]);
 }
 
@@ -302,7 +303,7 @@ JobShop::JobShop(const Problema &prob, int maq, int pos1, int pos2) : Problema::
 		for(int j = 0; j < njob; j++)
 			sol.esc[i][j] = prob.sol.esc[i][j];
 
-	int aux = sol.esc[maq][pos1];
+	short int aux = sol.esc[maq][pos1];
 	sol.esc[maq][pos1] = sol.esc[maq][pos2];
 	sol.esc[maq][pos2] = aux;
 
@@ -321,36 +322,6 @@ JobShop::~JobShop()
 
 	if(sol.escalon != NULL)
 		desalocaMatriz(3, sol.escalon, JobShop::nmaq, JobShop::njob);
-}
-
-bool JobShop::operator == (Problema& p)
-{
-	return this->getFitnessMinimize() == p.getFitnessMinimize();
-}
-
-bool JobShop::operator != (Problema& p)
-{
-	return this->getFitnessMinimize() != p.getFitnessMinimize();
-}
-
-bool JobShop::operator <= (Problema& p)
-{
-	return this->getFitnessMinimize() <= p.getFitnessMinimize();
-}
-
-bool JobShop::operator >= (Problema& p)
-{
-	return this->getFitnessMinimize() >= p.getFitnessMinimize();
-}
-
-bool JobShop::operator < (Problema& p)
-{
-	return this->getFitnessMinimize() < p.getFitnessMinimize();
-}
-
-bool JobShop::operator > (Problema& p)
-{
-	return this->getFitnessMinimize() > p.getFitnessMinimize();
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
@@ -447,6 +418,36 @@ inline int JobShop::calcMakespan(bool esc)
 		sol.makespan = -1;
 		return -1;
 	}
+}
+
+bool JobShop::operator == (Problema& p)
+{
+	return this->getFitnessMinimize() == p.getFitnessMinimize();
+}
+
+bool JobShop::operator != (Problema& p)
+{
+	return this->getFitnessMinimize() != p.getFitnessMinimize();
+}
+
+bool JobShop::operator <= (Problema& p)
+{
+	return this->getFitnessMinimize() <= p.getFitnessMinimize();
+}
+
+bool JobShop::operator >= (Problema& p)
+{
+	return this->getFitnessMinimize() >= p.getFitnessMinimize();
+}
+
+bool JobShop::operator < (Problema& p)
+{
+	return this->getFitnessMinimize() < p.getFitnessMinimize();
+}
+
+bool JobShop::operator > (Problema& p)
+{
+	return this->getFitnessMinimize() > p.getFitnessMinimize();
 }
 
 inline void JobShop::imprimir(bool esc)
@@ -628,22 +629,12 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai)
 /* Devolve uma mutacao aleatoria na solucao atual. */
 inline Problema* JobShop::mutacao()
 {
-	short int **mutacao = (short int**)alocaMatriz(2, nmaq, njob, 1);
+	int maq = xRand(rand(), 0, nmaq), p1 = xRand(rand(), 0, njob), p2 = xRand(rand(), 0, njob);
 
-	for(int i = 0; i < nmaq; i++)
-		for(int j = 0; j < njob; j++)
-			mutacao[i][j] = sol.esc[i][j];
+	while(p2 == p1)
+		p2 = xRand(rand(), 0, njob);
 
-	int maq = xRand(rand(), 0, nmaq);
-	int pos1 = xRand(rand(), 0, njob), pos2 = xRand(rand(), 0, njob);
-
-	while(pos2 == pos1)
-		pos2 = xRand(rand(), 0, njob);
-
-	mutacao[maq][pos1] = sol.esc[maq][pos2];
-	mutacao[maq][pos2] = sol.esc[maq][pos1];
-
-	return new JobShop(mutacao);
+	return new JobShop(*this, maq, p1, p2);
 }
 
 inline double JobShop::getFitnessMaximize()
@@ -687,7 +678,7 @@ inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int t
 }
 
 /* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
-int locComPar(char **in, int num, char *key)
+int findPosArgv(char **in, int num, char *key)
 {
 	for(int i = 0; i < num; i++)
 	{
@@ -697,9 +688,9 @@ int locComPar(char **in, int num, char *key)
 	return -1;
 }
 
-float locNumberPar(char *in, int num, char *key)
+float findPar(char *in, int num, char *key)
 {
-	char *str = locPosPar(in, num, key);
+	char *str = findPosPar(in, num, key);
 	float ret = -1;
 
 	if(str != NULL)
@@ -708,15 +699,15 @@ float locNumberPar(char *in, int num, char *key)
 	return ret;
 }
 
-char* locPosPar(char *in, int num, char *key)
-						{
+char* findPosPar(char *in, int num, char *key)
+{
 	char *str = strstr(in, key);
 
 	if(str != NULL)
 		return strstr(str, "=") + 1;
 	else
 		return NULL;
-						}
+}
 
 int findOrdem(int M, int maq, short int* job)
 {
@@ -727,7 +718,7 @@ int findOrdem(int M, int maq, short int* job)
 }
 
 inline void* alocaMatriz(int dim, int a, int b, int c)
-						{
+{
 	if(dim == 1)
 	{
 		short int *M = (short int*)malloc(a * sizeof(short int));
@@ -756,7 +747,7 @@ inline void* alocaMatriz(int dim, int a, int b, int c)
 	}
 	else
 		return NULL;
-						}
+}
 
 inline void desalocaMatriz(int dim, void *MMM, int a, int b)
 {
