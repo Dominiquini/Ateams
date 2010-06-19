@@ -371,7 +371,7 @@ void* Controle::run(void *obj)
 
 	sem_post(&semaphore);
 
-	pthread_exit((void*)ins);
+	return (void*)ins; 		//	pthread_exit((void*)ins);
 }
 
 inline int Controle::addSol(vector<Problema*> *news)
