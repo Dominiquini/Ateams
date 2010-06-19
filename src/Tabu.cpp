@@ -152,8 +152,8 @@ vector<Problema*>* Tabu::exec(Problema* init)
 						maxGlobal->push_back(Problema::alloc(*maxLocal));
 					}
 
-					delete local;
 					delete local->second;
+					delete local;
 
 					break;
 				}

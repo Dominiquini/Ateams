@@ -354,6 +354,8 @@ void* Controle::run(void *obj)
 	Controle *ctr = in->second;
 	int ins = 0;
 
+	delete in;
+
 	sem_wait(&semaphore);
 
 	if(PARAR != true)

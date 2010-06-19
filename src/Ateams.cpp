@@ -125,12 +125,15 @@ int main(int argc, char *argv[])
 	Problema::imprimeResultado(tv1, tv2, fresultados, best->getFitnessMinimize());
 	fclose(fresultados);
 
-	cout << endl << "Escalonamento: " << endl << endl;
+	cout << endl << "Solução: " << endl << endl;
 	best->imprimir(false);
 
 	delete ctr;
 
 	Problema::desalocaMemoria();
+
+	free(pATEAMS);
+	delete pHEURISTICAS;
 
 	cout << endl << endl << "Memória Total Alocada: " << Problema::totalNumInst;
 	cout << endl << endl << "Memória Ainda Alocada: " << Problema::numInst << endl << endl << endl;

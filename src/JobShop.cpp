@@ -224,8 +224,8 @@ void Problema::imprimeResultado (struct timeval tv1, struct timeval tv2, FILE *r
 
 void Problema::desalocaMemoria()
 {
-	desalocaMatriz(2, JobShop::maq, JobShop::njob, 0);
-	desalocaMatriz(2, JobShop::time, JobShop::njob, 0);
+	desalocaMatriz(2, JobShop::maq, JobShop::njob, 1);
+	desalocaMatriz(2, JobShop::time, JobShop::njob, 1);
 }
 
 /* Metodos */
@@ -253,6 +253,9 @@ JobShop::JobShop() : Problema::Problema()
 			aux_maq[maq[aux_vet[j]][i]] += 1;
 		}
 	}
+
+	desalocaMatriz(1, aux_vet, 1, 1);
+	desalocaMatriz(1, aux_maq, 1, 1);
 
 	sol.escalon = NULL;
 	sol.makespan = 0;
