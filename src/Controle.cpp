@@ -321,7 +321,7 @@ inline int Controle::exec(int randomic, int eID)
 
 		double newBest = Problema::best;
 
-		if(newBest < oldBest)
+		if(Problema::compare(oldBest, newBest) > 0)
 			iterMelhora = 0;
 		else
 			iterMelhora++;
@@ -365,7 +365,7 @@ void* Controle::run(void *obj)
 		struct timeval time2;
 		gettimeofday(&time2, NULL);
 
-		if(((time2.tv_sec - ctr->time1.tv_sec) > ctr->maxTempo) || ctr->iterMelhora > ctr->tentAteams || (Problema::best <= ctr->makespanBest))
+		if(((time2.tv_sec - ctr->time1.tv_sec) > ctr->maxTempo) || ctr->iterMelhora > ctr->tentAteams || Problema::compare(ctr->makespanBest, Problema::best) >= 0)
 			PARAR = true;
 	}
 

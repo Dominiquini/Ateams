@@ -50,8 +50,10 @@ public:
 	static void desalocaMemoria();
 
 	// Alocador generico
-	static Problema* alloc();						// Nova solucao aleatoria
-	static Problema* alloc(const Problema &prob);	// Copia de prob
+	static Problema* alloc();							// Nova solucao aleatoria
+	static Problema* alloc(const Problema &prob);		// Copia de prob
+
+	static double compare(double oldP, double newP);	// Calcula a melhora (Positivo) de newP em relacao a oldP
 
 	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
 	Problema() {pthread_mutex_lock(&mut_p); numInst++; totalNumInst++; pthread_mutex_unlock(&mut_p);}	// numInst++

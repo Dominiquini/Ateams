@@ -48,8 +48,8 @@ void Problema::leProblema(FILE *f)
 
 void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<ParametrosHeuristicas> *pHEURISTICAS)
 {
-	char *parametros = (char*)malloc(32769 * sizeof(char)), *algs[16], *ateams_p, *alg_p, *pos;
-	size_t size = fread(parametros, sizeof(char), 32768, f);
+	char *parametros = (char*)malloc(65537 * sizeof(char)), *algs[32], *ateams_p, *alg_p, *pos;
+	size_t size = fread((void*)parametros, sizeof(char), 65536, f);
 	int numAlgs = 0;
 	float par = -1;
 
@@ -226,6 +226,11 @@ void Problema::desalocaMemoria()
 {
 	desalocaMatriz(2, JobShop::maq, JobShop::njob, 1);
 	desalocaMatriz(2, JobShop::time, JobShop::njob, 1);
+}
+
+double Problema::compare(double oldP, double newP)
+{
+	return oldP - newP;
 }
 
 /* Metodos */
