@@ -11,9 +11,9 @@ sem_t semaphore;		// Semaforo que controla o acesso dos algoritmos ao processado
 Controle::Controle()
 {
 	tamPop = 1000;
-	iterAteams = 100;
-	tentAteams = 50;
-	maxTempo = INT_MAX;
+	iterAteams = 250;
+	tentAteams = 100;
+	maxTempo = 3600;
 	numThreads = 4;
 	makespanBest = -1;
 
@@ -316,9 +316,6 @@ inline int Controle::exec(int randomic, int eID)
 		ins = addSol(prob);
 		execThreads++;
 
-		prob->clear();
-		delete prob;
-
 		double newBest = Problema::best;
 
 		if(Problema::compare(oldBest, newBest) > 0)
@@ -328,13 +325,16 @@ inline int Controle::exec(int randomic, int eID)
 	}
 	pthread_mutex_unlock(&mutex);
 
+	prob->clear();
+	delete prob;
+
 	pthread_mutex_lock(&mut_f);
 	{
 		actThreads--;
 
 		actAlgs->erase(find(actAlgs->begin(), actAlgs->end(), id));
 
-		printf("<<< ALG: %s) | ITER: %.3d | MAKESPAN: %.4d | CONTRIB:  %.3d", id.c_str(), execThreads, Problema::best, ins);
+		printf("<<< ALG: %s) | ITER: %.3d | MAKESPAN: %.4d | CONTRIB:  %.3d", id.c_str(), execThreads, (int)Problema::best, ins);
 
 		execNames = "";
 		for(list<string>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)

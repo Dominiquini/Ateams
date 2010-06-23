@@ -31,8 +31,8 @@ protected:
 	virtual int calcMakespan(bool esc) = 0;	// Calcula o makespan
 
 public:
-	static int best;				// Melhor solucao do momento
-	static int worst;				// Pior solucao do momento
+	static double best;				// Melhor solucao do momento
+	static double worst;				// Pior solucao do momento
 	static int numInst;				// Quantidade de instancias criadas
 	static long int totalNumInst;	// Quantidade total de problemas processados
 

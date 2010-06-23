@@ -9,9 +9,9 @@ Tabu::Tabu() : Heuristica::Heuristica("DEFAULT_BT")
 	prob = 35;
 	funcAsp = 0.5;
 	polEscolha = 100;
-	iterTabu = 500;
+	iterTabu = 750;
 	tamListaTabu = 10;
-	tentSemMelhora = 250;
+	tentSemMelhora = 500;
 	polExploracao = 0.5;
 
 	Heuristica::numHeuristic += prob;

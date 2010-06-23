@@ -6,12 +6,12 @@ Genetico::Genetico() : Heuristica::Heuristica("DEFAULT_AG")
 {
 	numExec = 0;
 
-	prob = 20;
+	prob = 13;
 	polEscolha = -1;
 	iterGenetico = 500;
 	tamPopGenetico = 250;
 	probCrossOver = 0.8;
-	probMutacao = 0.02;
+	probMutacao = 0.08;
 	tamParticionamento = -1;
 
 	Heuristica::numHeuristic += prob;

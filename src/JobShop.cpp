@@ -4,8 +4,8 @@ using namespace std;
 
 /* Static Members */
 
-int Problema::best = 0;
-int Problema::worst = 0;
+double Problema::best = 0;
+double Problema::worst = 0;
 int Problema::numInst = 0;
 long int Problema::totalNumInst = 0;
 

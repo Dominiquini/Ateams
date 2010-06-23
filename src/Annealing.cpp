@@ -6,7 +6,7 @@ Annealing::Annealing() : Heuristica::Heuristica("DEFAULT_SA")
 {
 	numExec = 0;
 
-	prob = 45;
+	prob = 52;
 	polEscolha = 10;
 	maxIter = 250;
 	initTemp = 125;

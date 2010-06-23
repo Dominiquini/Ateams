@@ -1,12 +1,12 @@
-#include <semaphore.h>
 #include <sys/time.h>
-#include <pthread.h>
 #include <signal.h>
 #include <limits.h>
-#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+
+#include <pthread.h>
+#include <semaphore.h>
 
 using namespace std;
 
