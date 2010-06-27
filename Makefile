@@ -29,6 +29,10 @@ all:		$(PATH_BIN) $(EXEC)
 install:	all
 		@cp $(EXEC) $(PATH_PROJ)
 
+debug:
+		@$(CC) $(SRCS) -g3 -O0 -lpthread -o $(BIN)
+		@echo "$(CC) $(PATH_SRC)*.cpp -lpthread -g3 -O0 -o $(BIN)"
+
 $(PATH_BIN):
 		@mkdir $(PATH_BIN)
 
