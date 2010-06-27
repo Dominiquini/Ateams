@@ -39,7 +39,7 @@ public:
 	// Le arquivo de dados de entrada
 	static void leProblema(FILE*);
 
-	// Le arquivo de parametros de entrada
+	// Le parametros de entrada
 	static void leParametros(FILE*, ParametrosATEAMS*, vector<ParametrosHeuristicas>*);
 	static void leArgumentos(char**, int, ParametrosATEAMS*);
 

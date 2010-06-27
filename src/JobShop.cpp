@@ -48,137 +48,140 @@ void Problema::leProblema(FILE *f)
 
 void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<ParametrosHeuristicas> *pHEURISTICAS)
 {
-	char *parametros = (char*)malloc(65537 * sizeof(char)), *algs[32], *ateams_p, *alg_p, *pos;
-	size_t size = fread((void*)parametros, sizeof(char), 65536, f);
+	string parametros, ateams_p, alg_p;
+	vector<size_t> algs;
+	char temp = '#';
 	int numAlgs = 0;
 	float par = -1;
+	size_t found = 0;
 
-	ateams_p = parametros;
+	while((temp = fgetc(f)) != EOF)
+		parametros.push_back(temp);
 
-	pos = parametros;
-	while((pos = strstr(pos, (char*)"##(")) != NULL)
+	while((found = parametros.find((char*)"##("), found) != string::npos)
 	{
-		*pos = '\0';
-		algs[numAlgs++] = ++pos;
-		pos+=6;
+		parametros[found] = '\0';
+		algs.push_back(found+1);
 	}
+	algs.push_back(found);
 
-	par = findPar(ateams_p, size, (char*)"[iterAteams]");
+	numAlgs = algs.size()-1;
+
+	ateams_p.assign(parametros, 0, algs[0]);
+
+	par = findPar(ateams_p, (char*)"[iterAteams]");
 	pATEAMS->iterAteams = (int)par;
 
-	par = findPar(ateams_p, size, (char*)"[numThreads]");
+	par = findPar(ateams_p, (char*)"[numThreads]");
 	pATEAMS->numThreads = (int)par;
 
-	par = findPar(ateams_p, size, (char*)"[tentAteams]");
+	par = findPar(ateams_p, (char*)"[tentAteams]");
 	pATEAMS->tentAteams = (int)par;
 
-	par = findPar(ateams_p, size, (char*)"[maxTempoAteams]");
+	par = findPar(ateams_p, (char*)"[maxTempoAteams]");
 	pATEAMS->maxTempoAteams = (int)par;
 
-	par = findPar(ateams_p, size, (char*)"[tamPopAteams]");
+	par = findPar(ateams_p, (char*)"[tamPopAteams]");
 	pATEAMS->tamPopAteams = (int)par;
 
-	par = findPar(ateams_p, size, (char*)"[makespanBest]");
+	par = findPar(ateams_p, (char*)"[makespanBest]");
 	pATEAMS->makespanBest = (int)par;
 
 
 	ParametrosHeuristicas pTEMP;
 	for(int i = 0; i < numAlgs; i++)
 	{
-		alg_p = algs[i];
+		alg_p.assign(parametros, algs[i], algs[i+1]-algs[i]);
 		alg_p[6] = '\0';
 
-		if(strcmp(alg_p, (char*)"#(SA)#") == 0)
+		if(alg_p.find((char*)"#(SA)#") != string::npos)
 		{
 			pTEMP.alg = SA;
 
+			found = alg_p.find((char*)"(name) = ", 7) + strlen((char*)"(name) = ");
+			sscanf(alg_p.c_str()+found, "%s", pTEMP.algName);
+
 			alg_p += 7;
 
-			pos = strstr(alg_p, (char*)"(name) = ");
-			pos = pos + strlen((char*)"(name) = ");
-			sscanf(pos, "%s", pTEMP.algName);
-
-			par = findPar(alg_p, size, (char*)"[probSA]");
+			par = findPar(alg_p, (char*)"[probSA]");
 			pTEMP.probSA = (float)par;
 
-			par = findPar(alg_p, size, (char*)"[polEscolhaSA]");
+			par = findPar(alg_p, (char*)"[polEscolhaSA]");
 			pTEMP.polEscolhaSA = (int)par;
 
-			par = findPar(alg_p, size, (char*)"[maxIterSA]");
+			par = findPar(alg_p, (char*)"[maxIterSA]");
 			pTEMP.maxIterSA = (int)par;
 
-			par = findPar(alg_p, size, (char*)"[initTempSA]");
+			par = findPar(alg_p, (char*)"[initTempSA]");
 			pTEMP.initTempSA = (float)par;
 
-			par = findPar(alg_p, size, (char*)"[finalTempSA]");
+			par = findPar(alg_p, (char*)"[finalTempSA]");
 			pTEMP.finalTempSA = (float)par;
 
-			par = findPar(alg_p, size, (char*)"[restauraSolSA]");
+			par = findPar(alg_p, (char*)"[restauraSolSA]");
 			pTEMP.restauraSolSA = (int)par;
 
-			par = findPar(alg_p, size, (char*)"[alphaSA]");
+			par = findPar(alg_p, (char*)"[alphaSA]");
 			pTEMP.alphaSA = (float)par;
 		}
-		else if(strcmp(alg_p, (char*)"#(AG)#") == 0)
+		else if(alg_p.find((char*)"#(AG)#") != string::npos)
 		{
 			pTEMP.alg = AG;
 
+			found = alg_p.find((char*)"(name) = ", 7) + strlen((char*)"(name) = ");
+			sscanf(alg_p.c_str()+found, "%s", pTEMP.algName);
+
 			alg_p += 7;
 
-			pos = strstr(alg_p, (char*)"(name) = ");
-			pos = pos + strlen((char*)"(name) = ");
-			sscanf(pos, "%s", pTEMP.algName);
-
-			par = findPar(alg_p, size, (char*)"[probAG]");
+			par = findPar(alg_p, (char*)"[probAG]");
 			pTEMP.probAG = (int)par;
 
-			par = findPar(alg_p, size, (char*)"[polEscolhaAG]");
+			par = findPar(alg_p, (char*)"[polEscolhaAG]");
 			pTEMP.polEscolhaAG = (int)par;
 
-			par = findPar(alg_p, size, (char*)"[iterAG]");
+			par = findPar(alg_p, (char*)"[iterAG]");
 			pTEMP.iterAG = (int)par;
 
-			par = findPar(alg_p, size, (char*)"[tamPopAG]");
+			par = findPar(alg_p, (char*)"[tamPopAG]");
 			pTEMP.tamPopAG = (int)par;
 
-			par = findPar(alg_p, size, (char*)"[tamParticaoAG]");
+			par = findPar(alg_p, (char*)"[tamParticaoAG]");
 			pTEMP.tamParticaoAG = (int)par;
 
-			par = findPar(alg_p, size, (char*)"[probCrossOverAG]");
+			par = findPar(alg_p, (char*)"[probCrossOverAG]");
 			pTEMP.probCrossOverAG = (float)par;
 
-			par = findPar(alg_p, size, (char*)"[probMutacaoAG]");
+			par = findPar(alg_p, (char*)"[probMutacaoAG]");
 			pTEMP.probMutacaoAG = (float)par;
 		}
-		else if(strcmp(alg_p, (char*)"#(BT)#") == 0)
+		else if(alg_p.find((char*)"#(BT)#") != string::npos)
 		{
 			pTEMP.alg = BT;
 
+			found = alg_p.find((char*)"(name) = ", 7) + strlen((char*)"(name) = ");
+			sscanf(alg_p.c_str()+found, "%s", pTEMP.algName);
+
 			alg_p += 7;
 
-			pos = strstr(alg_p, (char*)"(name) = ");
-			pos = pos + strlen((char*)"(name) = ");
-			sscanf(pos, "%s", pTEMP.algName);
-
-			par = findPar(alg_p, size, (char*)"[probBT]");
+			par = findPar(alg_p, (char*)"[probBT]");
 			pTEMP.probBT = (int)par;
 
-			par = findPar(alg_p, size, (char*)"[polEscolhaBT]");
+			par = findPar(alg_p, (char*)"[polEscolhaBT]");
 			pTEMP.polEscolhaBT = (int)par;
 
-			par = findPar(alg_p, size, (char*)"[iterBT]");
+			par = findPar(alg_p, (char*)"[iterBT]");
 			pTEMP.iterBT = (int)par;
 
-			par = findPar(alg_p, size, (char*)"[tentSemMelhoraBT]");
+			par = findPar(alg_p, (char*)"[tentSemMelhoraBT]");
 			pTEMP.tentSemMelhoraBT = (int)par;
 
-			par = findPar(alg_p, size, (char*)"[tamListaBT]");
+			par = findPar(alg_p, (char*)"[tamListaBT]");
 			pTEMP.tamListaBT = (int)par;
 
-			par = findPar(alg_p, size, (char*)"[polExplorBT]");
+			par = findPar(alg_p, (char*)"[polExplorBT]");
 			pTEMP.polExplorBT = (float)par;
 
-			par = findPar(alg_p, size, (char*)"[funcAspiracaoBT]");
+			par = findPar(alg_p, (char*)"[funcAspiracaoBT]");
 			pTEMP.funcAspiracaoBT = (float)par;
 		}
 		else
@@ -188,7 +191,7 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<Parametro
 		}
 		pHEURISTICAS->push_back(pTEMP);
 	}
-	free(parametros);
+	return;
 }
 
 /* Le argumentos adicionais passados por linha de comando */
@@ -686,7 +689,6 @@ inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int t
 		if(find(&p1[pos], &p1[pos+tam], p2[i]) == &p1[pos+tam])
 			f[j++] = p2[i];
 	}
-
 	return;
 }
 
@@ -701,25 +703,28 @@ int findPosArgv(char **in, int num, char *key)
 	return -1;
 }
 
-float findPar(char *in, int num, char *key)
+float findPar(string& in, char *key)
 {
-	char *str = findPosPar(in, num, key);
+	size_t pos = findPosPar(in, key);
 	float ret = -1;
+	char str[16] = "###############";
 
-	if(str != NULL)
+	if((int)pos != -1)
+	{
+		in.copy(str, 15, pos);
 		sscanf(str, "%f", &ret);
-
+	}
 	return ret;
 }
 
-char* findPosPar(char *in, int num, char *key)
+size_t findPosPar(string& in, char *key)
 {
-	char *str = strstr(in, key);
+	size_t pos = in.find(key);
 
-	if(str != NULL)
-		return strstr(str, "=") + 1;
+	if(pos != string::npos)
+		return in.find("=", pos) + 1;
 	else
-		return NULL;
+		return -1;
 }
 
 int findOrdem(int M, int maq, short int* job)

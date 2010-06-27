@@ -63,9 +63,9 @@ void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
 
 int findPosArgv(char **in, int num, char *key);
 
-float findPar(char *in, int num, char *key);
+float findPar(string& in, char *key);
 
-char* findPosPar(char *in, int num, char *key);
+size_t findPosPar(string& in, char *key);
 
 int findOrdem(int M, int maq, short int* job);
 
