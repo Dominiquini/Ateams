@@ -232,7 +232,6 @@ Problema* Controle::start()
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-	pthread_attr_setstacksize(&attr, (1024*1024*16));
 
 	size_t size;
 	pthread_attr_getstacksize(&attr, &size);
@@ -352,7 +351,7 @@ void* Controle::run(void *obj)
 	pair<int, Controle*>* in = (pair<int, Controle*>*)obj;
 	int execAteams = in->first;
 	Controle *ctr = in->second;
-	int ins = 0;
+	long int ins = 0;
 
 	delete in;
 
