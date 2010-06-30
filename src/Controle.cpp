@@ -233,9 +233,6 @@ Problema* Controle::start()
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-	size_t size;
-	pthread_attr_getstacksize(&attr, &size);
-
 	srand(unsigned(time(NULL)));
 
 	geraPop();
