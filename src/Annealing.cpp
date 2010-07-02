@@ -104,15 +104,14 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 		{
 			Sn = S->vizinho();
 
-			if(Sn->getFitnessMinimize() == -1)
+			if(Sn == NULL)
 			{
 				i--;
-				delete Sn;
 				continue;
 			}
 
-			Ds = Sn->getFitnessMinimize() - S->getFitnessMinimize();
-			if(Ds <= 0 || accept((double)rand(), Ds, T))
+			Ds = Problema::compare(*S, *Sn);
+			if(Ds >= 0 || accept((double)rand(), Ds, T))
 			{
 				delete S;
 				S = Sn;
@@ -142,5 +141,5 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 
 inline bool accept(double rand, double Ds, double T)
 {
-	return ((rand/((float)RAND_MAX)) < (exp(-Ds/T)));
+	return ((rand/((float)RAND_MAX)) < (exp(Ds/T)));
 }

@@ -30,6 +30,8 @@ public:
 	/* Seleciona um individuo aleatoriamente */
 	static vector<Problema*>::iterator selectRandom(vector<Problema*>* probs, int randWheel);
 
+	static list<Problema*>::iterator findSol(list<Problema*> *vect, Problema *p);
+
 private:
 	set<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
 	vector<Heuristica*>* algs;							// Algoritmos disponiveis
@@ -61,6 +63,7 @@ public:
 	~Controle();
 
 	void addHeuristic(Heuristica* alg);
+
 	list<Problema*>* getPop();
 	Problema* getSol(int n);
 

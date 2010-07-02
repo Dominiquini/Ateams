@@ -236,6 +236,11 @@ double Problema::compare(double oldP, double newP)
 	return oldP - newP;
 }
 
+double Problema::compare(Problema& oldP, Problema& newP)
+{
+	return oldP.getFitnessMinimize() - newP.getFitnessMinimize();
+}
+
 /* Metodos */
 
 JobShop::JobShop() : Problema::Problema()
@@ -507,11 +512,21 @@ inline void JobShop::imprimir(bool esc)
 inline Problema* JobShop::vizinho()
 {
 	int maq = xRand(rand(), 0, nmaq), p1 = xRand(rand(), 0, njob), p2 = xRand(rand(), 0, njob);
+	Problema *job = NULL;
 
 	while(p2 == p1)
 		p2 = xRand(rand(), 0, njob);
 
-	return new JobShop(*this, maq, p1, p2);
+	job = new JobShop(*this, maq, p1, p2);
+	if(job->getFitnessMinimize() != -1)
+	{
+		return job;
+	}
+	else
+	{
+		delete job;
+		return NULL;
+	}
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
@@ -638,18 +653,29 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai)
 }
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
-inline Problema* JobShop::mutacao(int n)
+inline Problema* JobShop::mutacao(int mutMax)
 {
-	Problema* mutacao = vizinho(), *temp;
-	int mut = xRand(rand(), 1, n);
+	short int **mut = (short int**)alocaMatriz(2, nmaq, njob, 1);
+	Problema* vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
-	while(--mut > 0)
+	for(int i = 0; i < nmaq; i++)
+		for(int j = 0; j < njob; j++)
+			mut[i][j] = sol.esc[i][j];
+
+	temp = new JobShop(mut);
+	mutacao = temp;
+
+	while(mutMax-- > 0)
 	{
-		temp = mutacao;
-		mutacao = temp->vizinho();
-		delete temp;
-	}
+		vizinho = temp->vizinho();
 
+		if(vizinho != NULL)
+		{
+			delete temp;
+			temp = vizinho;
+			mutacao = temp;
+		}
+	}
 	return mutacao;
 }
 
@@ -692,40 +718,6 @@ inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int t
 	return;
 }
 
-/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
-int findPosArgv(char **in, int num, char *key)
-{
-	for(int i = 0; i < num; i++)
-	{
-		if(!strcmp(in[i], key))
-			return i+1;
-	}
-	return -1;
-}
-
-float findPar(string& in, char *key)
-{
-	size_t pos = findPosPar(in, key);
-	float ret = -1;
-	char str[16] = "###############";
-
-	if((int)pos != -1)
-	{
-		in.copy(str, 15, pos);
-		sscanf(str, "%f", &ret);
-	}
-	return ret;
-}
-
-size_t findPosPar(string& in, char *key)
-{
-	size_t pos = in.find(key);
-
-	if(pos != string::npos)
-		return in.find("=", pos) + 1;
-	else
-		return -1;
-}
 
 int findOrdem(int M, int maq, short int* job)
 {
@@ -844,15 +836,4 @@ bool fncomp2(Problema *prob1, Problema *prob2)
 inline bool ptcomp(pair<Problema*, movTabu*>* p1, pair<Problema*, movTabu*>* p2)
 {
 	return (p1->first->getFitnessMinimize() > p2->first->getFitnessMinimize());
-}
-
-inline bool find(vector<Problema*> *vect, Problema *p)
-{
-	vector<Problema*>::iterator iter;
-
-	for(iter = vect->begin(); iter != vect->end(); iter++)
-		if(fnequal1((*iter), p))
-			return true;
-
-	return false;
 }

@@ -117,6 +117,16 @@ int main(int argc, char *argv[])
 
 	Problema* best = ctr->start();
 
+	list<Problema*>* pop = ctr->getPop();
+	list<Problema*>::const_iterator iter1, iter2;
+
+	for(iter1 = pop->begin(); iter1 != pop->end(); iter1++)
+		for(iter2 = iter1; iter2 != pop->end(); iter2++)
+			if((iter1 != iter2) && (fnequal1(*iter1, *iter2) || fncomp1(*iter2, *iter1)))
+				cout << endl << "Memória Principal Incorreta!!!" << endl;
+
+	delete pop;
+
 	cout << endl << endl << "Pior Solução: " << Problema::worst << endl;
 	cout << endl << "Melhor Solução: " << Problema::best << endl << endl;
 
@@ -149,4 +159,39 @@ void Interrompe(int signum)
 int xRand(int rand, int a, int b)
 {
 	return a + (int)((double)(b-a)*rand/(RAND_MAX+1.0));
+}
+
+/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
+int findPosArgv(char **in, int num, char *key)
+{
+	for(int i = 0; i < num; i++)
+	{
+		if(!strcmp(in[i], key))
+			return i+1;
+	}
+	return -1;
+}
+
+float findPar(string& in, char *key)
+{
+	size_t pos = findPosPar(in, key);
+	float ret = -1;
+	char str[16] = "###############";
+
+	if((int)pos != -1)
+	{
+		in.copy(str, 15, pos);
+		sscanf(str, "%f", &ret);
+	}
+	return ret;
+}
+
+size_t findPosPar(string& in, char *key)
+{
+	size_t pos = in.find(key);
+
+	if(pos != string::npos)
+		return in.find("=", pos) + 1;
+	else
+		return -1;
 }

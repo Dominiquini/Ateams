@@ -197,6 +197,18 @@ vector<Problema*>::iterator Controle::selectRandom(vector<Problema*>* probs, int
 	return iter;
 }
 
+list<Problema*>::iterator Controle::findSol(list<Problema*> *vect, Problema *p)
+{
+	list<Problema*>::iterator iter;
+
+	for(iter = vect->begin(); iter != vect->end(); iter++)
+		if(fnequal1((*iter), p))
+			return iter;
+
+	return iter;
+}
+
+
 void Controle::addHeuristic(Heuristica* alg)
 {
 	algs->push_back(alg);

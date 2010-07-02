@@ -2,11 +2,15 @@
 #include <signal.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 
 #include <pthread.h>
 #include <semaphore.h>
+
+#include <iostream>
 
 using namespace std;
 
@@ -91,5 +95,11 @@ struct ParametrosHeuristicas {
 void Interrompe(int signum);
 
 int xRand(int rand, int a, int b);
+
+int findPosArgv(char **in, int num, char *key);
+
+float findPar(string& in, char *key);
+
+size_t findPosPar(string& in, char *key);
 
 #endif
