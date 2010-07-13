@@ -27,7 +27,7 @@ RM = rm -rf
 all:		$(PATH_BIN) $(EXEC)
 
 install:	all
-		@ln -s $(EXEC) $(PATH_PROJ)$(BIN)
+		@ln -fs $(EXEC) $(PATH_PROJ)$(BIN)
 
 debug:
 		@$(CC) $(SRCS) -g3 -O0 -lpthread -o $(BIN)
