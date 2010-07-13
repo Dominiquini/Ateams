@@ -7,4 +7,5 @@ Ateams
 *.o
 Debug/*
 Release/*
+dados/jsp_gen
 log*
