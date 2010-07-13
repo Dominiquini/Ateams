@@ -221,6 +221,7 @@ void write_problem(short p)  /* write out problem */
     fprintf(stderr,"file %s error\n", name);
     return;
   }
+  fprintf(f,"Taillard %d x %d (Problem %d)\n", S[p].num_jobs, S[p].num_mach, p);   /* write header line */
   fprintf(f,"%d %d\n", S[p].num_jobs, S[p].num_mach);   /* write header line */
 
   for(i = 0; i < S[p].num_jobs; ++i) {
