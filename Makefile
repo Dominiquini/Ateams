@@ -1,13 +1,13 @@
 CC = g++
 CFLAGS = -lpthread -Wall -pedantic -O3 -march=native
 
-PATH_SCRIPT = scripts/
-PATH_DADOS = dados/
-PATH_PARAM = parametros/
+PATH_SCRIPT = ./scripts/
+PATH_DADOS = ./dados/
+PATH_PARAM = ./parametros/
 PATH_PROJ = ./
-PATH_BIN = bin/
-PATH_SRC = src/
-PATH_RES = resultados/
+PATH_BIN = ./bin/
+PATH_SRC = ./src/
+PATH_RES = ./resultados/
 
 BIN = Ateams
 SRCS = $(PATH_SRC)Ateams.cpp $(PATH_SRC)Controle.cpp $(PATH_SRC)JobShop.cpp $(PATH_SRC)Tabu.cpp $(PATH_SRC)Genetico.cpp $(PATH_SRC)Annealing.cpp
@@ -27,7 +27,7 @@ RM = rm -rf
 all:		$(PATH_BIN) $(EXEC)
 
 install:	all
-		@cp $(EXEC) $(PATH_PROJ)
+		@ln -s $(EXEC) $(PATH_PROJ)$(BIN)
 
 debug:
 		@$(CC) $(SRCS) -g3 -O0 -lpthread -o $(BIN)
