@@ -271,7 +271,7 @@ JobShop::JobShop() : Problema::Problema()
 	desalocaMatriz(1, aux_maq, 1, 1);
 
 	sol.escalon = NULL;
-	sol.makespan = 0;
+	sol.makespan = calcMakespan(false);
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -284,7 +284,7 @@ JobShop::JobShop(short int **prob) : Problema::Problema()
 	sol.esc = prob;
 
 	sol.escalon = NULL;
-	sol.makespan = 0;
+	sol.makespan = calcMakespan(false);
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -324,7 +324,7 @@ JobShop::JobShop(const Problema &prob, int maq, int pos1, int pos2) : Problema::
 	sol.esc[maq][pos2] = aux;
 
 	sol.escalon = NULL;
-	sol.makespan = 0;
+	sol.makespan = calcMakespan(false);
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -609,7 +609,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
-inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamParticao)
+inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* parceiro, int tamParticao)
 {
 	short int **f1 = (short int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
@@ -621,8 +621,8 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamPart
 		inicioPart = xRand(rand(), 0, njob);
 		fimPart = inicioPart+particao <= njob ? inicioPart+particao : njob;
 
-		swap_vect(this->sol.esc[i], pai->sol.esc[i], f1[i], inicioPart, fimPart-inicioPart);
-		swap_vect(pai->sol.esc[i], this->sol.esc[i], f2[i], inicioPart, fimPart-inicioPart);
+		swap_vect(this->sol.esc[i], parceiro->sol.esc[i], f1[i], inicioPart, fimPart-inicioPart);
+		swap_vect(parceiro->sol.esc[i], this->sol.esc[i], f2[i], inicioPart, fimPart-inicioPart);
 	}
 
 	filhos->first = new JobShop(f1);
@@ -632,7 +632,7 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai, int tamPart
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
-inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai)
+inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* parceiro)
 {
 	short int **f1 = (short int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
@@ -642,8 +642,8 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* pai)
 	{
 		particao = xRand(rand(), 1, njob);
 
-		swap_vect(this->sol.esc[i], pai->sol.esc[i], f1[i], 0, particao);
-		swap_vect(pai->sol.esc[i], this->sol.esc[i], f2[i], 0, particao);
+		swap_vect(this->sol.esc[i], parceiro->sol.esc[i], f1[i], 0, particao);
+		swap_vect(parceiro->sol.esc[i], this->sol.esc[i], f2[i], 0, particao);
 	}
 
 	filhos->first = new JobShop(f1);
@@ -681,18 +681,12 @@ inline Problema* JobShop::mutacao(int mutMax)
 
 inline double JobShop::getFitnessMaximize()
 {
-	if(sol.makespan != 0)
-		return (double)INV_FITNESS/sol.makespan;
-	else
-		return (double)INV_FITNESS/calcMakespan(false);
+	return (double)INV_FITNESS/sol.makespan;
 }
 
 inline double JobShop::getFitnessMinimize()
 {
-	if(sol.makespan != 0)
-		return (double)sol.makespan;
-	else
-		return (double)calcMakespan(false);
+	return (double)sol.makespan;
 }
 
 inline soluction* JobShop::getSoluction()

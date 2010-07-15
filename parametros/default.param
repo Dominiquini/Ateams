@@ -11,7 +11,7 @@
 
 ##(SA)#
 (name) = SA1
-[probSA] = 45			// Probabilidade de se executar SA em cada iteração do ATEAMS
+[probSA] = 42			// Probabilidade de se executar SA em cada iteração do ATEAMS
 [polEscolhaSA] = 250		// Política de escolha
 [maxIterSA] = 250		// Número de iterações para atingir o equilíbrio
 [initTempSA] = 125		// Temperatura inicial
@@ -21,7 +21,7 @@
 
 ##(SA)#
 (name) = SA2
-[probSA] = 7			// Probabilidade de se executar SA em cada iteração do ATEAMS
+[probSA] = 10			// Probabilidade de se executar SA em cada iteração do ATEAMS
 [polEscolhaSA] = 10		// Política de escolha
 [maxIterSA] = 250		// Número de iterações para atingir o equilíbrio
 [initTempSA] = 125		// Temperatura inicial
