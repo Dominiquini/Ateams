@@ -99,7 +99,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 		if(PARAR == true)
 			break;
 
-		if(polExploracao == -1)
+		if(polExploracao >= 1)
 		{
 			// Pega uma lista de todos os "vizinhos" de maxLocal
 			vizinhanca = maxLocal->buscaLocal();

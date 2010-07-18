@@ -47,7 +47,7 @@
 [iterBT] = 750			// Iterações do BT
 [tentSemMelhoraBT] = 750	// Política de leitura do BT
 [tamListaBT] = 25		// Tamanho de lista do BT
-[polExplorBT] = -1		// Política na exploração da vizinhança
+[polExplorBT] = 1		// Política na exploração da vizinhança
 
 ##(AG)#
 (name) = AG1

@@ -1,6 +1,7 @@
 #include "Problema.h"
 
 #define INV_FITNESS 1000000
+#define MAX_PERMUTACOES 10000
 
 using namespace std;
 
@@ -16,6 +17,8 @@ public:
 	static char name[128];			// Nome do problema
 	static short int **maq, **time;	// Matriz de maquinas e de tempos
 	static int njob, nmaq;			// Quantidade de jobs e de maquinas
+
+	static int PERMUTACOES;
 
 	JobShop();													// Nova solucao aleatoria
 	JobShop(short int **prob);									// Copia de prob
