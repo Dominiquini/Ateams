@@ -15,10 +15,12 @@ protected:
 
 public:
 	static char name[128];			// Nome do problema
+
 	static short int **maq, **time;	// Matriz de maquinas e de tempos
 	static int njob, nmaq;			// Quantidade de jobs e de maquinas
 
-	static int PERMUTACOES;
+	static int permutacoes;			// Numero de permutacoes possiveis
+
 
 	JobShop();													// Nova solucao aleatoria
 	JobShop(short int **prob);									// Copia de prob

@@ -13,7 +13,7 @@ char JobShop::name[128];
 short int **JobShop::maq = NULL, **JobShop::time = NULL;
 int JobShop::njob = 0, JobShop::nmaq = 0;
 
-int JobShop::PERMUTACOES = 0;
+int JobShop::permutacoes = 0;
 
 Problema* Problema::alloc()
 {
@@ -47,8 +47,8 @@ void Problema::leProblema(FILE *f)
 	}
 
 	for(int i = JobShop::njob; i > 0; i--)
-		JobShop::PERMUTACOES += i;
-	JobShop::PERMUTACOES *= JobShop::nmaq;
+		JobShop::permutacoes += i;
+	JobShop::permutacoes *= JobShop::nmaq;
 
 	return;
 }
@@ -539,8 +539,8 @@ inline Problema* JobShop::vizinho()
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
 inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
 {
-	if(JobShop::PERMUTACOES > MAX_PERMUTACOES)
-		return buscaLocal((float)MAX_PERMUTACOES/(float)JobShop::PERMUTACOES);
+	if(JobShop::permutacoes > MAX_PERMUTACOES)
+		return buscaLocal((float)MAX_PERMUTACOES/(float)JobShop::permutacoes);
 
 	Problema *job = NULL;
 	register int maq, p1, p2;
@@ -586,7 +586,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 	vector<pair<Problema*, movTabu*>* >* local = new vector<pair<Problema*, movTabu*>* >();
 	int def, i;
 
-	def = (int)((float)JobShop::PERMUTACOES*parcela);
+	def = (int)((float)JobShop::permutacoes*parcela);
 
 	if(def > MAX_PERMUTACOES)
 		def = MAX_PERMUTACOES;
