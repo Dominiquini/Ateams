@@ -1,0 +1,45 @@
+# Project: Ateams
+# Makefile created by Dev-C++ 4.9.9.2
+
+CPP  = g++.exe
+CC   = gcc.exe
+WINDRES = windres.exe
+RES  = 
+OBJ  = bin/Annealing.o bin/Ateams.o bin/Controle.o bin/Genetico.o bin/JobShop.o bin/Tabu.o $(RES)
+LINKOBJ  = bin/Annealing.o bin/Ateams.o bin/Controle.o bin/Genetico.o bin/JobShop.o bin/Tabu.o $(RES)
+LIBS =  -L"C:/Dev-Cpp/lib" -lpthreadGC2  
+INCS =  -I"C:/Dev-Cpp/include" 
+CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include" 
+BIN  = Ateams.exe
+CXXFLAGS = $(CXXINCS)  
+CFLAGS = $(INCS)  
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before Ateams.exe all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o "Ateams.exe" $(LIBS)
+
+bin/Annealing.o: src/Annealing.cpp
+	$(CPP) -c src/Annealing.cpp -o bin/Annealing.o $(CXXFLAGS)
+
+bin/Ateams.o: src/Ateams.cpp
+	$(CPP) -c src/Ateams.cpp -o bin/Ateams.o $(CXXFLAGS)
+
+bin/Controle.o: src/Controle.cpp
+	$(CPP) -c src/Controle.cpp -o bin/Controle.o $(CXXFLAGS)
+
+bin/Genetico.o: src/Genetico.cpp
+	$(CPP) -c src/Genetico.cpp -o bin/Genetico.o $(CXXFLAGS)
+
+bin/JobShop.o: src/JobShop.cpp
+	$(CPP) -c src/JobShop.cpp -o bin/JobShop.o $(CXXFLAGS)
+
+bin/Tabu.o: src/Tabu.cpp
+	$(CPP) -c src/Tabu.cpp -o bin/Tabu.o $(CXXFLAGS)

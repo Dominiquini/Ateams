@@ -111,7 +111,7 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<Parametro
 			alg_p += 7;
 
 			par = findPar(alg_p, (char*)"[probSA]");
-			pTEMP.probSA = (float)par;
+			pTEMP.probSA = (int)par;
 
 			par = findPar(alg_p, (char*)"[polEscolhaSA]");
 			pTEMP.polEscolhaSA = (int)par;

@@ -134,7 +134,7 @@ double Controle::sumFitnessMinimize(vector<Problema*> *probs, int n)
 set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* probs, double fitTotal, unsigned int randWheel)
 {
 	// Armazena o fitness total da populacao
-	unsigned int sum = fitTotal;
+	unsigned int sum = (unsigned int)fitTotal;
 	// Um numero entre zero e "sum" e sorteado
 	randWheel = xRand(randWheel, 0, sum+1);
 
@@ -153,7 +153,7 @@ set<Problema*, bool(*)(Problema*, Problema*)>::iterator Controle::selectRoulette
 vector<Problema*>::iterator Controle::selectRouletteWheel(vector<Problema*>* probs, double fitTotal, unsigned int randWheel)
 {
 	// Armazena o fitness total da populacao
-	unsigned int sum = fitTotal;
+	unsigned int sum = (unsigned int)fitTotal;
 	// Um numero entre zero e "sum" e sorteado
 	randWheel = xRand(randWheel, 0, sum+1);
 
@@ -254,7 +254,7 @@ Problema* Controle::start()
 	Problema::best = (*pop->begin())->getFitnessMinimize();
 	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
-	cout << endl << "Pior Soulução: " << Problema::worst << endl << endl;
+	cout << endl << "Pior Solução: " << Problema::worst << endl << endl;
 	cout << "Melhor Solução: " << Problema::best << endl << endl << endl;
 
 	gettimeofday(&time1, NULL);

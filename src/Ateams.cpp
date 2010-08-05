@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 	{
 		if ((fdados = fopen(argv[p], "r")) == NULL)
 		{
-			printf("\nArquivo \"%s\" nao encontrado.\n\n", argv[p]);
+			printf("\nArquivo \"%s\" não encontrado.\n\n", argv[p]);
 			exit(1);
 		}
 		else
@@ -64,18 +64,18 @@ int main(int argc, char *argv[])
 	{
 		if ((fparametros = fopen(argv[p], "r")) == NULL)
 		{
-			printf("Arquivo \"%s\" nao encontrado.\n\n", argv[p]);
+			printf("Arquivo \"%s\" não encontrado.\n\n", argv[p]);
 			exit(1);
 		}
 		else
 		{
-			printf("Parametros: '%s'\n", argv[p]);
+			printf("Parâmetros: '%s'\n", argv[p]);
 		}
 	}
 	else
 	{
 		fparametros = fopen(PARAMETROS, "r");
-		printf("Parametros: '%s'\n", PARAMETROS);
+		printf("Parâmetros: '%s'\n", PARAMETROS);
 	}
 
 	char resultado[32] = {"resultados/"};
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 
 	gettimeofday(&tv2, NULL);
 	fresultados = fopen(resultado, "a");
-	Problema::imprimeResultado(tv1, tv2, fresultados, best->getFitnessMinimize());
+	Problema::imprimeResultado(tv1, tv2, fresultados, (int)best->getFitnessMinimize());
 	fclose(fresultados);
 
 	cout << endl << "Solução: " << endl << endl;
@@ -193,5 +193,58 @@ size_t findPosPar(string& in, char *key)
 	if(pos != string::npos)
 		return in.find("=", pos) + 1;
 	else
-		return -1;
+		return (size_t)-1;
 }
+
+#ifdef _WIN32
+
+#include <time.h>
+
+#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
+ #define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
+#else
+ #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
+#endif
+
+struct timezone
+{
+ int  tz_minuteswest; /* minutes W of Greenwich */
+ int  tz_dsttime;     /* type of dst correction */
+};
+
+int gettimeofday(struct timeval *tv, struct timezone *tz)
+{
+ FILETIME ft;
+ unsigned __int64 tmpres = 0;
+ static int tzflag;
+
+ if (NULL != tv)
+ {
+   GetSystemTimeAsFileTime(&ft);
+
+   tmpres |= ft.dwHighDateTime;
+   tmpres <<= 32;              
+   tmpres |= ft.dwLowDateTime;       
+
+   /*converting file time to unix epoch*/            
+   tmpres /= 10;  /*convert into microseconds*/              
+   tmpres -= DELTA_EPOCH_IN_MICROSECS;               
+   tv->tv_sec = (long)(tmpres / 1000000UL);
+   tv->tv_usec = (long)(tmpres % 1000000UL);
+ }
+
+ if (NULL != tz)
+ {
+   if (!tzflag)
+   {
+     _tzset();
+     tzflag++;
+   }
+   tz->tz_minuteswest = _timezone / 60;
+   tz->tz_dsttime = _daylight;
+ }
+
+ return 0;
+}
+
+#endif

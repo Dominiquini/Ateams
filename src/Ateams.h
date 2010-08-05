@@ -102,4 +102,10 @@ float findPar(string& in, char *key);
 
 size_t findPosPar(string& in, char *key);
 
+#ifdef _WIN32
+
+int gettimeofday(struct timeval *tv, struct timezone *tz);
+
+#endif
+
 #endif

@@ -161,14 +161,14 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 			if(rand() < (RAND_MAX*probMutacao/2))
 			{
-				mutante = temp->first->mutacao(xRand(rand(), 1, 100*probMutacao));
+				mutante = temp->first->mutacao(xRand(rand(), 1, (int)(((float)100)*probMutacao)));
 				delete temp->first;
 				temp->first = mutante;
 			}
 
 			if(rand() < (RAND_MAX*probMutacao/2))
 			{
-				mutante = temp->second->mutacao(xRand(rand(), 1, 100*probMutacao));
+				mutante = temp->second->mutacao(xRand(rand(), 1, (int)(((float)100)*probMutacao)));
 				delete temp->second;
 				temp->second = mutante;
 			}
