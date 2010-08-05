@@ -54,7 +54,7 @@ private:
 	int addSol(vector<Problema*> *news);
 
 	/* Gera uma populacao inicial aleatoria com 'tamPop' elementos */
-	void geraPop();
+	void geraPop(list<Problema*>* popInicial);
 
 public:
 	Controle();
@@ -68,7 +68,7 @@ public:
 	Problema* getSol(int n);
 
 	/* Comeca a execucao do Ateams utilizando os algoritmos disponiveis */
-	Problema* start();
+	Problema* start(list<Problema*>* popInicial);
 };
 
 bool cmpAlg(Heuristica *h1, Heuristica *h2);

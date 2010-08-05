@@ -42,8 +42,10 @@ public:
 	// Le parametros de entrada
 	static void leParametros(FILE*, ParametrosATEAMS*, vector<ParametrosHeuristicas>*);
 	static void leArgumentos(char**, int, ParametrosATEAMS*);
+	static list<Problema*>* lePopulacao(FILE*);
 
 	// Imprime em um arquivo os resultados da execucao
+	static void escrevePopulacao(FILE*, list<Problema*>*);
 	static void imprimeResultado(struct timeval, struct timeval, FILE*, int);
 
 	// Desaloca as estruturas do problema

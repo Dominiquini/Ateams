@@ -225,6 +225,80 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS)
 		pATEAMS->makespanBest = atoi(argv[p]);
 }
 
+list<Problema*>* Problema::lePopulacao(FILE* f)
+{
+	if(f == NULL)
+		return NULL;
+	else
+	{
+		list<Problema*>* popInicial = new list<Problema*>();
+		int njob, nmaq, nprob, makespan;
+		short int **prob;
+		Problema* p;
+
+		if(!fscanf (f, "%d %d %d", &nprob, &nmaq, &njob))
+			exit(1);
+
+		for(int i = 0; i < nprob; i++)
+		{
+			prob = (short int**)alocaMatriz(2, nmaq, njob, 1);
+
+			if(!fscanf (f, "%d", &makespan))
+				exit(1);
+
+			for(int i = 0; i < nmaq; i++)
+			{
+				for(int j = 0; j < njob; j++)
+				{
+					if(!fscanf (f, "%hd", &prob[i][j]))
+						exit(1);
+				}
+			}
+			p = new JobShop(prob);
+
+			if(makespan != p->sol.makespan)
+			{
+				printf("Arquivo de log incorreto!\n\n");
+				exit(1);
+			}
+
+			popInicial->push_back(p);
+		}
+
+		fseek(f, 0, SEEK_SET);
+		return popInicial;
+	}
+}
+
+void Problema::escrevePopulacao(FILE* f, list<Problema*>* popInicial)
+{
+	if(f == NULL)
+		return;
+
+	int sizePop = (int)popInicial->size();
+	list<Problema*>::iterator iter;
+	short int **prob;
+
+	fprintf(f, "%d %d %d\n\n", sizePop, JobShop::nmaq, JobShop::njob);
+
+	for(iter = popInicial->begin(); iter != popInicial->end(); iter++)
+	{
+		prob = (*iter)->sol.esc;
+
+		fprintf(f, "%d\n", (*iter)->sol.makespan);
+
+		for(int j = 0; j < JobShop::nmaq; j++)
+		{
+			for(int m = 0; m < JobShop::njob; m++)
+			{
+				fprintf(f, "%.2d ", prob[j][m]);
+			}
+			fprintf(f, "\n");
+		}
+		fprintf(f, "\n");
+	}
+}
+
 void Problema::imprimeResultado (struct timeval tv1, struct timeval tv2, FILE *resultados, int bestMakespan)
 {
 	int s = (((tv2.tv_sec*1000)+(tv2.tv_usec/1000)) - ((tv1.tv_sec*1000)+(tv1.tv_usec/1000)))/1000;
@@ -444,24 +518,24 @@ inline int JobShop::calcMakespan(bool esc)
 }
 
 bool JobShop::operator == (Problema& p)
-{
+		{
 	return this->getFitnessMinimize() == p.getFitnessMinimize();
-}
+		}
 
 bool JobShop::operator != (Problema& p)
-{
+		{
 	return this->getFitnessMinimize() != p.getFitnessMinimize();
-}
+		}
 
 bool JobShop::operator <= (Problema& p)
-{
+		{
 	return this->getFitnessMinimize() <= p.getFitnessMinimize();
-}
+		}
 
 bool JobShop::operator >= (Problema& p)
-{
+		{
 	return this->getFitnessMinimize() >= p.getFitnessMinimize();
-}
+		}
 
 bool JobShop::operator < (Problema& p)
 {
@@ -731,7 +805,7 @@ int findOrdem(int M, int maq, short int* job)
 }
 
 inline void* alocaMatriz(int dim, int a, int b, int c)
-{
+		{
 	if(dim == 1)
 	{
 		short int *M = (short int*)malloc(a * sizeof(short int));
@@ -760,7 +834,7 @@ inline void* alocaMatriz(int dim, int a, int b, int c)
 	}
 	else
 		return NULL;
-}
+		}
 
 inline void desalocaMatriz(int dim, void *MMM, int a, int b)
 {

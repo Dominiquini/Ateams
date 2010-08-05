@@ -236,7 +236,7 @@ Problema* Controle::getSol(int n)
 	return *(--iter);
 }
 
-Problema* Controle::start()
+Problema* Controle::start(list<Problema*>* popInicial)
 {
 	pthread_t *threads = (pthread_t*)malloc(iterAteams * sizeof(pthread_t));
 	void* temp = NULL;
@@ -247,7 +247,7 @@ Problema* Controle::start()
 
 	srand(unsigned(time(NULL)));
 
-	geraPop();
+	geraPop(popInicial);
 
 	iterMelhora = 0;
 
@@ -424,8 +424,12 @@ inline int Controle::addSol(vector<Problema*> *news)
 	return ins;
 }
 
-inline void Controle::geraPop()
+inline void Controle::geraPop(list<Problema*>* popInicial)
 {
+	if(popInicial != NULL)
+		for(list<Problema*>::iterator iter = popInicial->begin(); iter != popInicial->end(); iter++)
+			pop->insert(*iter);
+
 	srand(unsigned(time(NULL)));
 
 	int t = 0;

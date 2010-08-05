@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
 	FILE *fdados;
 	FILE *fparametros;
 	FILE *fresultados;
+	FILE *flog;
 
 	ParametrosATEAMS *pATEAMS;
 	vector<ParametrosHeuristicas> *pHEURISTICAS;
@@ -42,7 +43,7 @@ int main(int argc, char *argv[])
 
 	if((p = findPosArgv(argv, argc, (char*)"-i")) != -1)
 	{
-		if ((fdados = fopen(argv[p], "r")) == NULL)
+		if((fdados = fopen(argv[p], "r")) == NULL)
 		{
 			printf("\nArquivo \"%s\" não encontrado.\n\n", argv[p]);
 			exit(1);
@@ -62,7 +63,7 @@ int main(int argc, char *argv[])
 
 	if((p = findPosArgv(argv, argc, (char*)"-p")) != -1)
 	{
-		if ((fparametros = fopen(argv[p], "r")) == NULL)
+		if((fparametros = fopen(argv[p], "r")) == NULL)
 		{
 			printf("Arquivo \"%s\" não encontrado.\n\n", argv[p]);
 			exit(1);
@@ -94,6 +95,22 @@ int main(int argc, char *argv[])
 		printf("Resultado: '%s'\n", resultado);
 	}
 
+	if((p = findPosArgv(argv, argc, (char*)"-l")) != -1)
+	{
+		if((flog = fopen(argv[p], "r+")) == NULL)
+		{
+			flog = fopen(argv[p], "w+");
+		}
+		else
+		{
+			printf("Log: '%s'\n", argv[p]);
+		}
+	}
+	else
+	{
+		flog = NULL;
+	}
+
 	Problema::leProblema(fdados);
 	Problema::leParametros(fparametros, pATEAMS, pHEURISTICAS);
 
@@ -115,7 +132,9 @@ int main(int argc, char *argv[])
 			ctr->addHeuristic(new Tabu(pHEURISTICAS->at(i).algName, pHEURISTICAS->at(i)));
 	}
 
-	Problema* best = ctr->start();
+	list<Problema*>* popInicial = Problema::lePopulacao(flog);
+
+	Problema* best = ctr->start(popInicial);
 
 	list<Problema*>* pop = ctr->getPop();
 	list<Problema*>::const_iterator iter1, iter2;
@@ -124,6 +143,8 @@ int main(int argc, char *argv[])
 		for(iter2 = iter1; iter2 != pop->end(); iter2++)
 			if((iter1 != iter2) && (fnequal1(*iter1, *iter2) || fncomp1(*iter2, *iter1)))
 				cout << endl << "Memória Principal Incorreta!!!" << endl;
+
+	Problema::escrevePopulacao(flog, pop);
 
 	delete pop;
 
