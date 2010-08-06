@@ -26,7 +26,6 @@ int main(int argc, char *argv[])
 
 	srand(unsigned(time(NULL)));
 
-	/* Leitura dos parametros passados por linha de comando */
 	FILE *fdados;
 	FILE *fparametros;
 	FILE *fresultados;
@@ -41,6 +40,7 @@ int main(int argc, char *argv[])
 	char dados[32];
 	int p = -1;
 
+	/* Leitura dos parametros passados por linha de comando */
 	if((p = findPosArgv(argv, argc, (char*)"-i")) != -1)
 	{
 		if((fdados = fopen(argv[p], "r")) == NULL)
@@ -111,16 +111,19 @@ int main(int argc, char *argv[])
 		flog = NULL;
 	}
 
+	/* Leitura dos dados passados por arquivos */
 	Problema::leProblema(fdados);
 	Problema::leParametros(fparametros, pATEAMS, pHEURISTICAS);
 
 	fclose(fdados);
 	fclose(fparametros);
 
+	/* Le parametros adicionais passados por linha de comando */
 	Problema::leArgumentos(argv, argc, pATEAMS);
 
 	cout << endl;
 
+	/* Adiciona as heuristicas selecionadas */
 	Controle* ctr = new Controle(pATEAMS);
 	for(int i = 0; i < (int)pHEURISTICAS->size(); i++)
 	{
@@ -132,19 +135,23 @@ int main(int argc, char *argv[])
 			ctr->addHeuristic(new Tabu(pHEURISTICAS->at(i).algName, pHEURISTICAS->at(i)));
 	}
 
+	/* Le memoria prinipal do disco, se especificado */
 	list<Problema*>* popInicial = Problema::lePopulacao(flog);
 	fseek(flog, 0, SEEK_SET);
 
+	/* Inicia a execucao */
 	Problema* best = ctr->start(popInicial);
 
 	list<Problema*>* pop = ctr->getPop();
 	list<Problema*>::const_iterator iter1, iter2;
 
+	/* Testa a memoria principal por solucoes repetidas */
 	for(iter1 = pop->begin(); iter1 != pop->end(); iter1++)
 		for(iter2 = iter1; iter2 != pop->end(); iter2++)
 			if((iter1 != iter2) && (fnequal1(*iter1, *iter2) || fncomp1(*iter2, *iter1)))
 				cout << endl << "Memória Principal Incorreta!!!" << endl;
 
+	/* Esreve memoria prncipal no disco */
 	Problema::escrevePopulacao(flog, pop);
 	fclose(flog);
 
@@ -153,6 +160,7 @@ int main(int argc, char *argv[])
 	cout << endl << endl << "Pior Solução: " << Problema::worst << endl;
 	cout << endl << "Melhor Solução: " << Problema::best << endl << endl;
 
+	/* Escreve solucao em arquivo no disco */
 	gettimeofday(&tv2, NULL);
 	fresultados = fopen(resultado, "a");
 	Problema::imprimeResultado(tv1, tv2, fresultados, (int)best->getFitnessMinimize());
@@ -224,50 +232,49 @@ size_t findPosPar(string& in, char *key)
 #include <time.h>
 
 #if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
- #define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
+#define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
 #else
- #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
+#define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
 #endif
 
 struct timezone
 {
- int  tz_minuteswest; /* minutes W of Greenwich */
- int  tz_dsttime;     /* type of dst correction */
+	int  tz_minuteswest; /* minutes W of Greenwich */
+	int  tz_dsttime;     /* type of dst correction */
 };
 
 int gettimeofday(struct timeval *tv, struct timezone *tz)
 {
- FILETIME ft;
- unsigned __int64 tmpres = 0;
- static int tzflag;
+	FILETIME ft;
+	unsigned __int64 tmpres = 0;
+	static int tzflag;
 
- if (NULL != tv)
- {
-   GetSystemTimeAsFileTime(&ft);
+	if (NULL != tv)
+	{
+		GetSystemTimeAsFileTime(&ft);
 
-   tmpres |= ft.dwHighDateTime;
-   tmpres <<= 32;              
-   tmpres |= ft.dwLowDateTime;       
+		tmpres |= ft.dwHighDateTime;
+		tmpres <<= 32;
+		tmpres |= ft.dwLowDateTime;
 
-   /*converting file time to unix epoch*/            
-   tmpres /= 10;  /*convert into microseconds*/              
-   tmpres -= DELTA_EPOCH_IN_MICROSECS;               
-   tv->tv_sec = (long)(tmpres / 1000000UL);
-   tv->tv_usec = (long)(tmpres % 1000000UL);
- }
+		/*converting file time to unix epoch*/
+		tmpres /= 10;  /*convert into microseconds*/
+		tmpres -= DELTA_EPOCH_IN_MICROSECS;
+		tv->tv_sec = (long)(tmpres / 1000000UL);
+		tv->tv_usec = (long)(tmpres % 1000000UL);
+	}
 
- if (NULL != tz)
- {
-   if (!tzflag)
-   {
-     _tzset();
-     tzflag++;
-   }
-   tz->tz_minuteswest = _timezone / 60;
-   tz->tz_dsttime = _daylight;
- }
-
- return 0;
+	if (NULL != tz)
+	{
+		if (!tzflag)
+		{
+			_tzset();
+			tzflag++;
+		}
+		tz->tz_minuteswest = _timezone / 60;
+		tz->tz_dsttime = _daylight;
+	}
+	return 0;
 }
 
 #endif
