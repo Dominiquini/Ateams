@@ -133,6 +133,7 @@ int main(int argc, char *argv[])
 	}
 
 	list<Problema*>* popInicial = Problema::lePopulacao(flog);
+	fseek(flog, 0, SEEK_SET);
 
 	Problema* best = ctr->start(popInicial);
 

@@ -264,8 +264,6 @@ list<Problema*>* Problema::lePopulacao(FILE* f)
 
 			popInicial->push_back(p);
 		}
-
-		fseek(f, 0, SEEK_SET);
 		return popInicial;
 	}
 }
