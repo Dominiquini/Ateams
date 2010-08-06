@@ -3,6 +3,7 @@ syntax: glob
 .project
 .cproject
 *.res
+*.log
 Ateams
 *.o
 Debug/*

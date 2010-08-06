@@ -145,6 +145,7 @@ int main(int argc, char *argv[])
 				cout << endl << "Memória Principal Incorreta!!!" << endl;
 
 	Problema::escrevePopulacao(flog, pop);
+	fclose(flog);
 
 	delete pop;
 
