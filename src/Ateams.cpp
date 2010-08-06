@@ -137,10 +137,17 @@ int main(int argc, char *argv[])
 
 	/* Le memoria prinipal do disco, se especificado */
 	list<Problema*>* popInicial = Problema::lePopulacao(flog);
-	fseek(flog, 0, SEEK_SET);
+	if(flog != NULL)
+		fseek(flog, 0, SEEK_SET);
 
 	/* Inicia a execucao */
 	Problema* best = ctr->start(popInicial);
+
+	if(flog != NULL)
+	{
+		popInicial->clear();
+		delete popInicial;
+	}
 
 	list<Problema*>* pop = ctr->getPop();
 	list<Problema*>::const_iterator iter1, iter2;
@@ -153,7 +160,8 @@ int main(int argc, char *argv[])
 
 	/* Esreve memoria prncipal no disco */
 	Problema::escrevePopulacao(flog, pop);
-	fclose(flog);
+	if(flog != NULL)
+		fclose(flog);
 
 	delete pop;
 
