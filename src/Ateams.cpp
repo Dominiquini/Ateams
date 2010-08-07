@@ -11,8 +11,13 @@
 
 using namespace std;
 
+#ifdef _WIN32
+#define DADOS "dados\\la01.prb"
+#define PARAMETROS "parametros\\default.param"
+#else
 #define DADOS "dados/la01.prb"
 #define PARAMETROS "parametros/default.param"
+#endif
 
 volatile bool PARAR = false;
 
@@ -38,6 +43,7 @@ int main(int argc, char *argv[])
 	pHEURISTICAS = new vector<ParametrosHeuristicas>;
 
 	char dados[32];
+	char resultado[32];
 	int p = -1;
 
 	/* Leitura dos parametros passados por linha de comando */
@@ -79,7 +85,6 @@ int main(int argc, char *argv[])
 		printf("Parâmetros: '%s'\n", PARAMETROS);
 	}
 
-	char resultado[32] = {"resultados/"};
 	if((p = findPosArgv(argv, argc, (char*)"-r")) != -1)
 	{
 		strcpy(resultado, argv[p]);
@@ -88,7 +93,13 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
+#ifdef _WIN32
+		strcpy(resultado, "resultados\\");
+		strcat(resultado, strstr(dados, "dados\\") + 6);
+#else
+		strcpy(resultado, "resultados/");
 		strcat(resultado, strstr(dados, "dados/") + 6);
+#endif
 		resultado[strlen(resultado) - 3] = '\0';
 		strcat(resultado, "res");
 
