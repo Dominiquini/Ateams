@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
 			if((iter1 != iter2) && (fnequal1(*iter1, *iter2) || fncomp1(*iter2, *iter1)))
 				cout << endl << "Memória Principal Incorreta!!!" << endl;
 
-	/* Esreve memoria prncipal no disco */
+	/* Escreve memoria principal no disco */
 	Problema::escrevePopulacao(flog, pop);
 	if(flog != NULL)
 		fclose(flog);
@@ -225,8 +225,8 @@ int findPosArgv(char **in, int num, char *key)
 float findPar(string& in, char *key)
 {
 	size_t pos = findPosPar(in, key);
-	float ret = -1;
 	char str[16] = "###############";
+	float ret = -1;
 
 	if((int)pos != -1)
 	{
@@ -268,7 +268,7 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 	unsigned __int64 tmpres = 0;
 	static int tzflag;
 
-	if (NULL != tv)
+	if(NULL != tv)
 	{
 		GetSystemTimeAsFileTime(&ft);
 
@@ -283,7 +283,7 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 		tv->tv_usec = (long)(tmpres % 1000000UL);
 	}
 
-	if (NULL != tz)
+	if(NULL != tz)
 	{
 		if (!tzflag)
 		{

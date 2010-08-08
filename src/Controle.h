@@ -50,7 +50,7 @@ private:
 	/* Seleciona um dos algoritmos implementados para executar */
 	int exec(int randWheel, int eID);
 
-	/* Adiciona um novo conjunto de solucao a populacao corrente */
+	/* Adiciona um novo conjunto de solucoes a populacao corrente */
 	int addSol(vector<Problema*> *news);
 
 	/* Gera uma populacao inicial aleatoria com 'tamPop' elementos */
