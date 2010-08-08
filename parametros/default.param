@@ -51,13 +51,13 @@
 
 ##(BT)#
 (name) = BT3
-[probBT] = 10                   // Probabilidade de se executar BT em cada iteração do ATEAMS
-[polEscolhaBT] = 50             // Política de escolha
-[funcAspiracaoBT] = 0.5         // Função de Aspiração
-[iterBT] = 750                  // Iterações do BT
-[tentSemMelhoraBT] = 750        // Política de leitura do BT
-[tamListaBT] = 25               // Tamanho de lista do BT
-[polExplorBT] = 1               // Política na exploração da vizinhança
+[probBT] = 10			// Probabilidade de se executar BT em cada iteração do ATEAMS
+[polEscolhaBT] = 250		// Política de escolha
+[funcAspiracaoBT] = 0.5		// Função de Aspiração
+[iterBT] = 750			// Iterações do BT
+[tentSemMelhoraBT] = 750	// Política de leitura do BT
+[tamListaBT] = 250		// Tamanho de lista do BT
+[polExplorBT] = 0.25		// Política na exploração da vizinhança
 
 ##(AG)#
 (name) = AG1
