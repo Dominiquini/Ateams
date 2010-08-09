@@ -455,7 +455,9 @@ inline bool JobShop::calcMakespan(bool esc)
 			ainic = tmp[ajob][apos];
 		}
 		else
+		{
 			ainic = -1;
+		}
 
 		if(ainic != -1)
 		{
@@ -515,32 +517,32 @@ inline bool JobShop::calcMakespan(bool esc)
 	}
 }
 
-bool JobShop::operator == (Problema& p)
+bool JobShop::operator == (const Problema& p)
 {
 	return this->getFitnessMinimize() == p.getFitnessMinimize();
 }
 
-bool JobShop::operator != (Problema& p)
+bool JobShop::operator != (const Problema& p)
 {
 	return this->getFitnessMinimize() != p.getFitnessMinimize();
 }
 
-bool JobShop::operator <= (Problema& p)
+bool JobShop::operator <= (const Problema& p)
 {
 	return this->getFitnessMinimize() <= p.getFitnessMinimize();
 }
 
-bool JobShop::operator >= (Problema& p)
+bool JobShop::operator >= (const Problema& p)
 {
 	return this->getFitnessMinimize() >= p.getFitnessMinimize();
 }
 
-bool JobShop::operator < (Problema& p)
+bool JobShop::operator < (const Problema& p)
 {
 	return this->getFitnessMinimize() < p.getFitnessMinimize();
 }
 
-bool JobShop::operator > (Problema& p)
+bool JobShop::operator > (const Problema& p)
 {
 	return this->getFitnessMinimize() > p.getFitnessMinimize();
 }
@@ -690,7 +692,7 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
-inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* parceiro, int tamParticao)
+inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro, int tamParticao)
 {
 	short int **f1 = (short int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
@@ -713,7 +715,7 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* parceiro, int ta
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
-inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* parceiro)
+inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro)
 {
 	short int **f1 = (short int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
@@ -760,12 +762,12 @@ inline Problema* JobShop::mutacao(int mutMax)
 	return mutacao;
 }
 
-inline double JobShop::getFitnessMaximize()
+inline double JobShop::getFitnessMaximize() const
 {
 	return (double)INV_FITNESS/sol.makespan;
 }
 
-inline double JobShop::getFitnessMinimize()
+inline double JobShop::getFitnessMinimize() const
 {
 	return (double)sol.makespan;
 }

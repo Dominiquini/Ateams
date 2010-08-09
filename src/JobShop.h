@@ -29,12 +29,12 @@ public:
 
 	virtual ~JobShop();
 
-	bool operator == (Problema&);
-	bool operator != (Problema&);
-	bool operator <= (Problema&);
-	bool operator >= (Problema&);
-	bool operator < (Problema&);
-	bool operator > (Problema&);
+	bool operator == (const Problema&);
+	bool operator != (const Problema&);
+	bool operator <= (const Problema&);
+	bool operator >= (const Problema&);
+	bool operator < (const Problema&);
+	bool operator > (const Problema&);
 
 	void imprimir(bool esc);		// Imprime o escalonamento atual
 
@@ -46,15 +46,15 @@ public:
 	vector<pair<Problema*, movTabu*>* >* buscaLocal(float);	// Uma parcela aleatoria
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
-	pair<Problema*, Problema*>* crossOver(Problema*, int);	// Dois pivos
-	pair<Problema*, Problema*>* crossOver(Problema*);		// Um pivo
+	pair<Problema*, Problema*>* crossOver(const Problema*, int);	// Dois pivos
+	pair<Problema*, Problema*>* crossOver(const Problema*);		// Um pivo
 
 	/* Devolve uma mutacao aleatoria na solucao atual */
 	Problema* mutacao(int);
 
 	/* Devolve o valor da solucao */
-	double getFitnessMaximize();
-	double getFitnessMinimize();
+	double getFitnessMaximize() const;
+	double getFitnessMinimize() const;
 };
 
 void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);

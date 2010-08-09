@@ -62,12 +62,13 @@ public:
 
 	virtual ~Problema() {pthread_mutex_lock(&mut_p); numInst--; pthread_mutex_unlock(&mut_p);}			// numInst--
 
-	virtual bool operator == (Problema&) = 0;
-	virtual bool operator != (Problema&) = 0;
-	virtual bool operator <= (Problema&) = 0;
-	virtual bool operator >= (Problema&) = 0;
-	virtual bool operator < (Problema&) = 0;
-	virtual bool operator > (Problema&) = 0;
+
+	virtual bool operator == (const Problema&) = 0;
+	virtual bool operator != (const Problema&) = 0;
+	virtual bool operator <= (const Problema&) = 0;
+	virtual bool operator >= (const Problema&) = 0;
+	virtual bool operator < (const Problema&) = 0;
+	virtual bool operator > (const Problema&) = 0;
 
 	virtual void imprimir(bool esc) = 0;	// Imprime o escalonamento
 
@@ -79,15 +80,15 @@ public:
 	virtual vector<pair<Problema*, movTabu*>* >* buscaLocal(float) = 0;	// Uma parcela aleatoria
 
 	/* Realiza um crossover com uma outra solucao */
-	virtual pair<Problema*, Problema*>* crossOver(Problema*, int) = 0;	// Dois pivos
-	virtual pair<Problema*, Problema*>* crossOver(Problema*) = 0;		// Um pivo
+	virtual pair<Problema*, Problema*>* crossOver(const Problema*, int) = 0;	// Dois pivos
+	virtual pair<Problema*, Problema*>* crossOver(const Problema*) = 0;			// Um pivo
 
 	/* Devolve uma mutacao aleatoria na solucao atual */
 	virtual Problema* mutacao(int) = 0;
 
 	/* Devolve o valor da solucao */
-	virtual double getFitnessMaximize() = 0;	// Problemas de Maximizacao
-	virtual double getFitnessMinimize() = 0;	// Problemas de Minimizacao
+	virtual double getFitnessMaximize() const = 0;	// Problemas de Maximizacao
+	virtual double getFitnessMinimize() const = 0;	// Problemas de Minimizacao
 
 	/* Devolve a representacao interna da solucao */
 	const soluction& getSoluction() const
@@ -99,7 +100,7 @@ protected:
 	soluction sol;								// Representacao interna da solucao
 
 private:
-	virtual bool calcMakespan(bool esc) = 0;		// Calcula o makespan
+	virtual bool calcMakespan(bool esc) = 0;	// Calcula o makespan
 
 
 	friend bool fnequal1(Problema*, Problema*);	// Comparacao profunda
