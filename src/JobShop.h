@@ -10,7 +10,7 @@ using namespace std;
 
 class JobShop : public Problema
 {
-protected:
+private:
 	int calcMakespan(bool esc);		// Calcula o makespan
 
 public:
@@ -57,7 +57,7 @@ public:
 	double getFitnessMinimize();
 
 	/* Devolve a representacao interna da solucao */
-	soluction* getSoluction();
+	soluction getSoluction() const;
 };
 
 void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);

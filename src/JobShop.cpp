@@ -375,18 +375,20 @@ JobShop::JobShop(const Problema &prob) : Problema::Problema()
 	sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	for(int i = 0; i < nmaq; i++)
 		for(int j = 0; j < njob; j++)
-			sol.esc[i][j] = prob.sol.esc[i][j];
+			sol.esc[i][j] = (prob.getSoluction()).esc[i][j];
+
+	const soluction s = prob.getSoluction();
 
 	sol.escalon = NULL;
-	sol.makespan = prob.sol.makespan;
+	sol.makespan = (prob.getSoluction()).makespan;
 
-	if(prob.sol.escalon != NULL)
+	if((prob.getSoluction()).escalon != NULL)
 	{
 		sol.escalon = (short int***)alocaMatriz(3, nmaq, njob, 3);
 		for(int i = 0; i < nmaq; i++)
 			for(int j = 0; j < njob; j++)
 				for(int k = 0; k < 3; k++)
-					sol.escalon[i][j][k] = prob.sol.escalon[i][j][k];
+					sol.escalon[i][j][k] = (prob.getSoluction()).escalon[i][j][k];
 	}
 	exec = prob.exec;
 }
@@ -396,7 +398,7 @@ JobShop::JobShop(const Problema &prob, int maq, int pos1, int pos2) : Problema::
 	sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	for(int i = 0; i < nmaq; i++)
 		for(int j = 0; j < njob; j++)
-			sol.esc[i][j] = prob.sol.esc[i][j];
+			sol.esc[i][j] = (prob.getSoluction()).esc[i][j];
 
 	short int aux = sol.esc[maq][pos1];
 	sol.esc[maq][pos1] = sol.esc[maq][pos2];
@@ -702,8 +704,8 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* parceiro, int ta
 		inicioPart = xRand(rand(), 0, njob);
 		fimPart = inicioPart+particao <= njob ? inicioPart+particao : njob;
 
-		swap_vect(this->sol.esc[i], parceiro->sol.esc[i], f1[i], inicioPart, fimPart-inicioPart);
-		swap_vect(parceiro->sol.esc[i], this->sol.esc[i], f2[i], inicioPart, fimPart-inicioPart);
+		swap_vect(this->sol.esc[i], (parceiro->getSoluction()).esc[i], f1[i], inicioPart, fimPart-inicioPart);
+		swap_vect((parceiro->getSoluction()).esc[i], this->sol.esc[i], f2[i], inicioPart, fimPart-inicioPart);
 	}
 
 	filhos->first = new JobShop(f1);
@@ -723,8 +725,8 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(Problema* parceiro)
 	{
 		particao = xRand(rand(), 1, njob);
 
-		swap_vect(this->sol.esc[i], parceiro->sol.esc[i], f1[i], 0, particao);
-		swap_vect(parceiro->sol.esc[i], this->sol.esc[i], f2[i], 0, particao);
+		swap_vect(this->sol.esc[i], (parceiro->getSoluction()).esc[i], f1[i], 0, particao);
+		swap_vect((parceiro->getSoluction()).esc[i], this->sol.esc[i], f2[i], 0, particao);
 	}
 
 	filhos->first = new JobShop(f1);
@@ -770,9 +772,9 @@ inline double JobShop::getFitnessMinimize()
 	return (double)sol.makespan;
 }
 
-inline soluction* JobShop::getSoluction()
+inline soluction JobShop::getSoluction() const
 {
-	return &sol;
+	return sol;
 }
 
 /* Auxiliares */

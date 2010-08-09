@@ -25,11 +25,6 @@ bool fnequal2(Problema*, Problema*);	//Se P1 for igual a P2, considerando apenas
 
 class Problema
 {
-protected:
-	soluction sol;							// Representacao interna da solucao
-
-	virtual int calcMakespan(bool esc) = 0;	// Calcula o makespan
-
 public:
 	static double best;				// Melhor solucao do momento
 	static double worst;				// Pior solucao do momento
@@ -63,6 +58,8 @@ public:
 	Problema() {pthread_mutex_lock(&mut_p); numInst++; totalNumInst++; pthread_mutex_unlock(&mut_p);}	// numInst++
 	virtual ~Problema() {pthread_mutex_lock(&mut_p); numInst--; pthread_mutex_unlock(&mut_p);}			// numInst--
 
+	executado exec;							// Algoritmos executados na solucao
+
 	virtual bool operator == (Problema&) = 0;
 	virtual bool operator != (Problema&) = 0;
 	virtual bool operator <= (Problema&) = 0;
@@ -91,11 +88,15 @@ public:
 	virtual double getFitnessMinimize() = 0;	// Problemas de Minimizacao
 
 	/* Devolve a representacao interna da solucao */
-	virtual soluction* getSoluction() = 0;
+	virtual soluction getSoluction() const = 0;
 
-	executado exec;								// Algoritmos executados na solucao
+protected:
+	soluction sol;								// Representacao interna da solucao
 
-	friend class JobShop;
+private:
+	virtual int calcMakespan(bool esc) = 0;		// Calcula o makespan
+
+
 	friend bool fnequal1(Problema*, Problema*);	// Comparacao profunda
 	friend bool fnequal2(Problema*, Problema*);	// Comparacao superficial
 	friend bool fncomp1(Problema*, Problema*);	// Comparacao profunda
