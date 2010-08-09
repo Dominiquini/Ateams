@@ -27,7 +27,7 @@ class Problema
 {
 public:
 	static double best;				// Melhor solucao do momento
-	static double worst;				// Pior solucao do momento
+	static double worst;			// Pior solucao do momento
 	static int numInst;				// Quantidade de instancias criadas
 	static long int totalNumInst;	// Quantidade total de problemas processados
 
@@ -54,11 +54,13 @@ public:
 	static double compare(double oldP, double newP);
 	static double compare(Problema& oldP, Problema& newP);
 
-	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
-	Problema() {pthread_mutex_lock(&mut_p); numInst++; totalNumInst++; pthread_mutex_unlock(&mut_p);}	// numInst++
-	virtual ~Problema() {pthread_mutex_lock(&mut_p); numInst--; pthread_mutex_unlock(&mut_p);}			// numInst--
 
 	executado exec;							// Algoritmos executados na solucao
+
+	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
+	Problema() {pthread_mutex_lock(&mut_p); numInst++; totalNumInst++; pthread_mutex_unlock(&mut_p);}	// numInst++
+
+	virtual ~Problema() {pthread_mutex_lock(&mut_p); numInst--; pthread_mutex_unlock(&mut_p);}			// numInst--
 
 	virtual bool operator == (Problema&) = 0;
 	virtual bool operator != (Problema&) = 0;
@@ -88,13 +90,16 @@ public:
 	virtual double getFitnessMinimize() = 0;	// Problemas de Minimizacao
 
 	/* Devolve a representacao interna da solucao */
-	virtual soluction getSoluction() const = 0;
+	const soluction& getSoluction() const
+	{
+		return sol;
+	}
 
 protected:
 	soluction sol;								// Representacao interna da solucao
 
 private:
-	virtual int calcMakespan(bool esc) = 0;		// Calcula o makespan
+	virtual bool calcMakespan(bool esc) = 0;		// Calcula o makespan
 
 
 	friend bool fnequal1(Problema*, Problema*);	// Comparacao profunda

@@ -350,7 +350,7 @@ JobShop::JobShop() : Problema::Problema()
 	desalocaMatriz(1, aux_maq, 1, 1);
 
 	sol.escalon = NULL;
-	sol.makespan = calcMakespan(false);
+	calcMakespan(false);
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -363,7 +363,7 @@ JobShop::JobShop(short int **prob) : Problema::Problema()
 	sol.esc = prob;
 
 	sol.escalon = NULL;
-	sol.makespan = calcMakespan(false);
+	calcMakespan(false);
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -376,8 +376,6 @@ JobShop::JobShop(const Problema &prob) : Problema::Problema()
 	for(int i = 0; i < nmaq; i++)
 		for(int j = 0; j < njob; j++)
 			sol.esc[i][j] = (prob.getSoluction()).esc[i][j];
-
-	const soluction s = prob.getSoluction();
 
 	sol.escalon = NULL;
 	sol.makespan = (prob.getSoluction()).makespan;
@@ -405,7 +403,7 @@ JobShop::JobShop(const Problema &prob, int maq, int pos1, int pos2) : Problema::
 	sol.esc[maq][pos2] = aux;
 
 	sol.escalon = NULL;
-	sol.makespan = calcMakespan(false);
+	calcMakespan(false);
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -422,7 +420,7 @@ JobShop::~JobShop()
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
-inline int JobShop::calcMakespan(bool esc)
+inline bool JobShop::calcMakespan(bool esc)
 {
 	register int max, cont = 0;
 	short int ***aux_esc, **tmp, *pos;
@@ -504,7 +502,7 @@ inline int JobShop::calcMakespan(bool esc)
 			sol.escalon = aux_esc;
 
 		sol.makespan = sum_time;
-		return sum_time;
+		return true;
 	}
 	else
 	{
@@ -513,29 +511,29 @@ inline int JobShop::calcMakespan(bool esc)
 		desalocaMatriz(1, pos, 0, 0);
 
 		sol.makespan = -1;
-		return -1;
+		return false;
 	}
 }
 
 bool JobShop::operator == (Problema& p)
-		{
+{
 	return this->getFitnessMinimize() == p.getFitnessMinimize();
-		}
+}
 
 bool JobShop::operator != (Problema& p)
-		{
+{
 	return this->getFitnessMinimize() != p.getFitnessMinimize();
-		}
+}
 
 bool JobShop::operator <= (Problema& p)
-		{
+{
 	return this->getFitnessMinimize() <= p.getFitnessMinimize();
-		}
+}
 
 bool JobShop::operator >= (Problema& p)
-		{
+{
 	return this->getFitnessMinimize() >= p.getFitnessMinimize();
-		}
+}
 
 bool JobShop::operator < (Problema& p)
 {
@@ -772,11 +770,6 @@ inline double JobShop::getFitnessMinimize()
 	return (double)sol.makespan;
 }
 
-inline soluction JobShop::getSoluction() const
-{
-	return sol;
-}
-
 /* Auxiliares */
 
 inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam)
@@ -805,7 +798,7 @@ int findOrdem(int M, int maq, short int* job)
 }
 
 inline void* alocaMatriz(int dim, int a, int b, int c)
-		{
+						{
 	if(dim == 1)
 	{
 		short int *M = (short int*)malloc(a * sizeof(short int));
@@ -834,7 +827,7 @@ inline void* alocaMatriz(int dim, int a, int b, int c)
 	}
 	else
 		return NULL;
-		}
+						}
 
 inline void desalocaMatriz(int dim, void *MMM, int a, int b)
 {

@@ -11,7 +11,7 @@ using namespace std;
 class JobShop : public Problema
 {
 private:
-	int calcMakespan(bool esc);		// Calcula o makespan
+	bool calcMakespan(bool esc);	// Calcula o makespan
 
 public:
 	static char name[128];			// Nome do problema
@@ -55,9 +55,6 @@ public:
 	/* Devolve o valor da solucao */
 	double getFitnessMaximize();
 	double getFitnessMinimize();
-
-	/* Devolve a representacao interna da solucao */
-	soluction getSoluction() const;
 };
 
 void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
