@@ -43,7 +43,9 @@ int main(int argc, char *argv[])
 	pHEURISTICAS = new vector<ParametrosHeuristicas>;
 
 	char dados[32];
+	char parametros[32];
 	char resultado[32];
+	char log[32];
 	int p = -1;
 
 	/* Leitura dos parametros passados por linha de comando */
@@ -77,12 +79,14 @@ int main(int argc, char *argv[])
 		else
 		{
 			printf("Parâmetros: '%s'\n", argv[p]);
+			strcpy(parametros, argv[p]);
 		}
 	}
 	else
 	{
 		fparametros = fopen(PARAMETROS, "r");
 		printf("Parâmetros: '%s'\n", PARAMETROS);
+		strcpy(parametros, PARAMETROS);
 	}
 
 	if((p = findPosArgv(argv, argc, (char*)"-r")) != -1)
@@ -108,18 +112,20 @@ int main(int argc, char *argv[])
 
 	if((p = findPosArgv(argv, argc, (char*)"-l")) != -1)
 	{
-		if((flog = fopen(argv[p], "r+")) == NULL)
+		strcpy(log, argv[p]);
+		if((flog = fopen(log, "r")) != NULL)
 		{
-			flog = fopen(argv[p], "w+");
+			printf("Log: '%s'\n", argv[p]);
 		}
 		else
 		{
-			printf("Log: '%s'\n", argv[p]);
+			printf("~Log: '%s'\n", argv[p]);
 		}
 	}
 	else
 	{
 		flog = NULL;
+		*log = '\0';
 	}
 
 	/* Leitura dos dados passados por arquivos */
@@ -149,7 +155,7 @@ int main(int argc, char *argv[])
 	/* Le memoria prinipal do disco, se especificado */
 	list<Problema*>* popInicial = Problema::lePopulacao(flog);
 	if(flog != NULL)
-		fseek(flog, 0, SEEK_SET);
+		fclose(flog);
 
 	/* Inicia a execucao */
 	Problema* best = ctr->start(popInicial);
@@ -170,9 +176,12 @@ int main(int argc, char *argv[])
 				cout << endl << "Memória Principal Incorreta!!!" << endl;
 
 	/* Escreve memoria principal no disco */
-	Problema::escrevePopulacao(flog, pop);
-	if(flog != NULL)
+	if(*log != '\0')
+	{
+		flog = fopen(log, "w");
+		Problema::escrevePopulacao(flog, pop);
 		fclose(flog);
+	}
 
 	delete pop;
 
