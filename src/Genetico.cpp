@@ -41,7 +41,7 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 {
 	vector<Problema*>* popAG = new vector<Problema*>();
 	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator iter = sol->end();
-	int i = 0;
+	int i = 0, j = 0;
 
 	numExec++;
 
@@ -64,9 +64,10 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 		for(i = 1; i < tamPopGenetico; i++)
 		{
 			/* Evita a escolha de individuos repetidos */
-			while(iter == sol->end() || (*iter)->exec.genetico == true)
+			while((iter == sol->end() || (*iter)->exec.genetico == true) && (j++ < tamPopGenetico))
 				iter = Controle::selectRouletteWheel(sol, visao, rand());
 
+			j= 0;
 			(*iter)->exec.genetico = true;
 			popAG->push_back(Problema::alloc(**iter));
 		}

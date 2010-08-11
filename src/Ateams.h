@@ -54,6 +54,7 @@ struct movTabu
 
 struct ParametrosATEAMS {
 	int tamPopAteams;
+	int critUnicidade;
 	int iterAteams;
 	int numThreads;
 	int tentAteams;

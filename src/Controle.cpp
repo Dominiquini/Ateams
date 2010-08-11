@@ -11,6 +11,7 @@ sem_t semaphore;		// Semaforo que controla o acesso dos algoritmos ao processado
 Controle::Controle()
 {
 	tamPop = 1000;
+	critUnicidade = 1;
 	iterAteams = 250;
 	tentAteams = 100;
 	maxTempo = 3600;
@@ -19,7 +20,7 @@ Controle::Controle()
 
 	srand(unsigned(time(NULL)));
 
-	bool(*fn_pt)(Problema*, Problema*) = fncomp1;
+	bool(*fn_pt)(Problema*, Problema*) = critUnicidade == 1 ? fncomp1 : fncomp2;
 	pop = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
 
 	algs = new vector<Heuristica*>;
@@ -37,6 +38,7 @@ Controle::Controle()
 Controle::Controle(ParametrosATEAMS* pATEAMS)
 {
 	tamPop = pATEAMS->tamPopAteams != -1 ? pATEAMS->tamPopAteams : 1000;
+	critUnicidade = pATEAMS->critUnicidade != -1 ? pATEAMS->critUnicidade : 1;
 	iterAteams = pATEAMS->iterAteams != -1 ? pATEAMS->iterAteams: 100;
 	tentAteams = pATEAMS->tentAteams != -1 ? pATEAMS->tentAteams: 50;
 	maxTempo = pATEAMS->maxTempoAteams != -1 ? pATEAMS->maxTempoAteams : INT_MAX;
@@ -45,7 +47,7 @@ Controle::Controle(ParametrosATEAMS* pATEAMS)
 
 	srand(unsigned(time(NULL)));
 
-	bool(*fn_pt)(Problema*, Problema*) = fncomp1;
+	bool(*fn_pt)(Problema*, Problema*) = critUnicidade == 1 ? fncomp1 : fncomp2;
 	pop = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
 
 	algs = new vector<Heuristica*>;

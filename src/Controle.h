@@ -39,6 +39,7 @@ private:
 	int numThreads;									// Número de threads que podem rodar ao mesmo tempo
 	int makespanBest;								// Melhor makespan conhecido
 	int tamPop, iterAteams, tentAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes, tentativas sem melhora e tempo maximo de execucao
+	int critUnicidade;								// Criterio de unicidade da populacao adotado
 
 	list<string>* actAlgs;				// Algoritmos em execucao no momento
 	int actThreads;						// Threads em execucao no momento

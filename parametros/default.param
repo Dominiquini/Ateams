@@ -5,7 +5,8 @@
 [tentAteams] = 100		// Tentativas sem melhora
 [maxTempoAteams] = 10000	// Tempo máximo de execução
 [numThreads] = 4                // Número máximo de threads ativas
-[tamPopAteams] = 1000		// Tamanho da população
+[tamPopAteams] = 500		// Tamanho da população
+[critUnicidade] = 1		// Critério para se definir a unicidade da população
 [makespanBest] = -1		// Melhor makespan conhecido
 
 

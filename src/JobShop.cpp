@@ -91,6 +91,9 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<Parametro
 	par = findPar(ateams_p, (char*)"[tamPopAteams]");
 	pATEAMS->tamPopAteams = (int)par;
 
+	par = findPar(ateams_p, (char*)"[critUnicidade]");
+	pATEAMS->critUnicidade = (int)par;
+
 	par = findPar(ateams_p, (char*)"[makespanBest]");
 	pATEAMS->makespanBest = (int)par;
 
@@ -130,6 +133,9 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<Parametro
 
 			par = findPar(alg_p, (char*)"[alphaSA]");
 			pTEMP.alphaSA = (float)par;
+
+			if(pTEMP.polEscolhaSA > pATEAMS->tamPopAteams)
+				pTEMP.polEscolhaSA = pATEAMS->tamPopAteams;
 		}
 		else if(alg_p.find((char*)"#(AG)#") != string::npos)
 		{
@@ -160,6 +166,9 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<Parametro
 
 			par = findPar(alg_p, (char*)"[probMutacaoAG]");
 			pTEMP.probMutacaoAG = (float)par;
+
+			if(pTEMP.polEscolhaAG > pATEAMS->tamPopAteams)
+				pTEMP.polEscolhaAG = pATEAMS->tamPopAteams;
 		}
 		else if(alg_p.find((char*)"#(BT)#") != string::npos)
 		{
@@ -190,6 +199,9 @@ void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<Parametro
 
 			par = findPar(alg_p, (char*)"[funcAspiracaoBT]");
 			pTEMP.funcAspiracaoBT = (float)par;
+
+			if(pTEMP.polEscolhaBT > pATEAMS->tamPopAteams)
+				pTEMP.polEscolhaBT = pATEAMS->tamPopAteams;
 		}
 		else
 		{
@@ -221,6 +233,9 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS)
 	if((p = findPosArgv(argv, argc, (char*)"--tamPopAteams")) != -1)
 		pATEAMS->tamPopAteams = atoi(argv[p]);
 
+	if((p = findPosArgv(argv, argc, (char*)"--critUnicidade")) != -1)
+		pATEAMS->critUnicidade = atoi(argv[p]);
+
 	if((p = findPosArgv(argv, argc, (char*)"--makespanBest")) != -1)
 		pATEAMS->makespanBest = atoi(argv[p]);
 }
@@ -237,21 +252,36 @@ list<Problema*>* Problema::lePopulacao(FILE* f)
 		Problema* p;
 
 		if(!fscanf (f, "%d %d %d", &nprob, &nmaq, &njob))
+		{
+			printf("Arquivo de log incorreto!\n\n");
 			exit(1);
+		}
+
+		if(nmaq != JobShop::nmaq || njob != JobShop::njob)
+		{
+			printf("Arquivo de log incorreto!\n\n");
+			exit(1);
+		}
 
 		for(int i = 0; i < nprob; i++)
 		{
 			prob = (short int**)alocaMatriz(2, nmaq, njob, 1);
 
 			if(!fscanf (f, "%d", &makespan))
+			{
+				printf("Arquivo de log incorreto!\n\n");
 				exit(1);
+			}
 
 			for(int i = 0; i < nmaq; i++)
 			{
 				for(int j = 0; j < njob; j++)
 				{
 					if(!fscanf (f, "%hd", &prob[i][j]))
+					{
+						printf("Arquivo de log incorreto!\n\n");
 						exit(1);
+					}
 				}
 			}
 			p = new JobShop(prob);
