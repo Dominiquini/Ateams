@@ -313,7 +313,7 @@ inline int Controle::exec(int randomic, int eID)
 		for(list<string>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
 			execNames = execNames + *it + " ";
 
-		printf(">>> ALG: %s) | .......................................... | FILA: (%d : %s)\n", id.c_str(), actThreads, execNames.c_str());
+		printf(">>> ALG: %s) | .............................................. | FILA: (%d : %s)\n", id.c_str(), actThreads, execNames.c_str());
 	}
 	pthread_mutex_unlock(&mut_f);
 
@@ -344,7 +344,7 @@ inline int Controle::exec(int randomic, int eID)
 
 		actAlgs->erase(find(actAlgs->begin(), actAlgs->end(), id));
 
-		printf("<<< ALG: %s) | ITER: %.3d | MAKESPAN: %.4d | CONTRIB:  %.3d", id.c_str(), execThreads, (int)Problema::best, ins);
+		printf("<<< ALG: %s) | ITER: %.3d | FITNESS: %.4d:%.4d | CONTRIB:  %.3d", id.c_str(), execThreads, (int)Problema::best, (int)Problema::worst, ins);
 
 		execNames = "";
 		for(list<string>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
