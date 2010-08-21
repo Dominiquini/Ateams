@@ -72,10 +72,10 @@ Controle::~Controle()
 	pop->clear();
 	delete pop;
 
-	vector<Heuristica*>::iterator it;
+	vector<Heuristica*>::reverse_iterator it;
 
 	cout << endl << endl << "Execuções: " << execThreads << endl << endl;
-	for(it = algs->begin(); it != algs->end(); it++)
+	for(it = algs->rbegin(); it != algs->rend(); it++)
 		delete *it;
 
 	algs->clear();
@@ -259,7 +259,7 @@ Problema* Controle::start(list<Problema*>* popInicial)
 	cout << endl << "Pior Solução: " << Problema::worst << endl << endl;
 	cout << "Melhor Solução: " << Problema::best << endl << endl << endl;
 
-	gettimeofday(&time1, NULL);
+	time(&time1);
 
 	pair<int, Controle*>* par = NULL;
 	long int ins = 0;
@@ -372,10 +372,12 @@ void* Controle::run(void *obj)
 	{
 		ins = ctr->exec(rand(), execAteams);
 
-		struct timeval time2;
-		gettimeofday(&time2, NULL);
+		time_t rawtime;
+		time(&rawtime);
 
-		if(((time2.tv_sec - ctr->time1.tv_sec) > ctr->maxTempo) || ctr->iterMelhora > ctr->tentAteams || Problema::compare(ctr->makespanBest, Problema::best) >= 0)
+		double diff = difftime(rawtime, ctr->time1);
+
+		if(((int)diff > ctr->maxTempo) || ctr->iterMelhora > ctr->tentAteams || Problema::compare(ctr->makespanBest, Problema::best) >= 0)
 			PARAR = true;
 	}
 

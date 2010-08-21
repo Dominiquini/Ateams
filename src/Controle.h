@@ -44,7 +44,7 @@ private:
 	list<string>* actAlgs;				// Algoritmos em execucao no momento
 	int actThreads;						// Threads em execucao no momento
 
-	struct timeval time1;				// Medidor do tempo inicial
+	time_t time1;						// Medidor do tempo inicial
 	int iterMelhora;					// Ultima iteracao em que houve melhora
 	int execThreads;					// Threads executadas
 

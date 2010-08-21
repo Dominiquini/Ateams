@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
 	/* Interrompe o programa ao se pessionar 'ctrl-c' */
 	signal(SIGINT, Interrompe);
 
-	struct timeval tv1, tv2;
-	gettimeofday(&tv1, NULL);
+	time_t tv1, tv2;
+	time(&tv1);
 
 	srand(unsigned(time(NULL)));
 
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 	cout << endl << "Melhor Solução: " << Problema::best << endl << endl;
 
 	/* Escreve solucao em arquivo no disco */
-	gettimeofday(&tv2, NULL);
+	time(&tv2);
 	fresultados = fopen(resultado, "a");
 	Problema::imprimeResultado(tv1, tv2, fresultados, (int)best->getFitnessMinimize());
 	fclose(fresultados);
@@ -254,55 +254,3 @@ size_t findPosPar(string& in, char *key)
 	else
 		return (size_t)-1;
 }
-
-#ifdef _WIN32
-
-#include <time.h>
-
-#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
-#define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
-#else
-#define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
-#endif
-
-struct timezone
-{
-	int  tz_minuteswest; /* minutes W of Greenwich */
-	int  tz_dsttime;     /* type of dst correction */
-};
-
-int gettimeofday(struct timeval *tv, struct timezone *tz)
-{
-	FILETIME ft;
-	unsigned __int64 tmpres = 0;
-	static int tzflag;
-
-	if(NULL != tv)
-	{
-		GetSystemTimeAsFileTime(&ft);
-
-		tmpres |= ft.dwHighDateTime;
-		tmpres <<= 32;
-		tmpres |= ft.dwLowDateTime;
-
-		/*converting file time to unix epoch*/
-		tmpres /= 10;  /*convert into microseconds*/
-		tmpres -= DELTA_EPOCH_IN_MICROSECS;
-		tv->tv_sec = (long)(tmpres / 1000000UL);
-		tv->tv_usec = (long)(tmpres % 1000000UL);
-	}
-
-	if(NULL != tz)
-	{
-		if (!tzflag)
-		{
-			_tzset();
-			tzflag++;
-		}
-		tz->tz_minuteswest = _timezone / 60;
-		tz->tz_dsttime = _daylight;
-	}
-	return 0;
-}
-
-#endif

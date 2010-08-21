@@ -1,16 +1,21 @@
-#include <sys/time.h>
 #include <signal.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include <time.h>
 
 #include <pthread.h>
 #include <semaphore.h>
 
+#include <functional>
+#include <algorithm>
 #include <iostream>
+#include <cstdlib>
+#include <vector>
+#include <ctime>
+#include <list>
+#include <set>
 
 using namespace std;
 
@@ -102,11 +107,5 @@ int findPosArgv(char **in, int num, char *key);
 float findPar(string& in, char *key);
 
 size_t findPosPar(string& in, char *key);
-
-#ifdef _WIN32
-
-int gettimeofday(struct timeval *tv, struct timezone *tz);
-
-#endif
 
 #endif

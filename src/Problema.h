@@ -1,12 +1,3 @@
-#include <functional>
-#include <algorithm>
-#include <iostream>
-#include <cstdlib>
-#include <vector>
-#include <ctime>
-#include <list>
-#include <set>
-
 #include "Ateams.h"
 
 using namespace std;
@@ -41,7 +32,7 @@ public:
 
 	// Imprime em um arquivo os resultados da execucao
 	static void escrevePopulacao(FILE*, list<Problema*>*);
-	static void imprimeResultado(struct timeval, struct timeval, FILE*, int);
+	static void imprimeResultado(time_t, time_t, FILE*, int);
 
 	// Desaloca as estruturas do problema
 	static void desalocaMemoria();

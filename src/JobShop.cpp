@@ -327,11 +327,11 @@ void Problema::escrevePopulacao(FILE* f, list<Problema*>* popInicial)
 	}
 }
 
-void Problema::imprimeResultado (struct timeval tv1, struct timeval tv2, FILE *resultados, int bestMakespan)
+void Problema::imprimeResultado (time_t tv1, time_t tv2, FILE *resultados, int bestMakespan)
 {
-	int s = (((tv2.tv_sec*1000)+(tv2.tv_usec/1000)) - ((tv1.tv_sec*1000)+(tv1.tv_usec/1000)))/1000;
+	double diff = difftime (tv2, tv1);
 
-	fprintf(resultados, "%d\t%d\n", bestMakespan, s);
+	fprintf(resultados, "%d\t%d\n", bestMakespan, (int)diff);
 }
 
 void Problema::desalocaMemoria()
