@@ -28,10 +28,13 @@ int main(int argc, char *argv[])
 
 	srand(unsigned(time(NULL)));
 
+	char dados[32];
+	char parametros[32];
+	char resultado[32];
+	char log[32];
+
 	FILE *fdados;
 	FILE *fparametros;
-	FILE *fresultados;
-	FILE *flog;
 
 	ParametrosATEAMS *pATEAMS;
 	vector<ParametrosHeuristicas> *pHEURISTICAS;
@@ -39,10 +42,6 @@ int main(int argc, char *argv[])
 	pATEAMS = (ParametrosATEAMS*)malloc(sizeof(ParametrosATEAMS));
 	pHEURISTICAS = new vector<ParametrosHeuristicas>;
 
-	char dados[32];
-	char parametros[32];
-	char resultado[32];
-	char log[32];
 	int p = -1;
 
 	/* Leitura dos parametros passados por linha de comando */
@@ -94,13 +93,22 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
+		char *c = NULL;
+
 #ifdef _WIN32
 		strcpy(resultado, "resultados\\");
-		strcat(resultado, strstr(dados, "dados\\") + 6);
+
+		for(c = dados+(int)strlen(dados); (*c != *dados) && (*(c-1) != '\\'); c--);
+
+		strcat(resultado, c);
 #else
 		strcpy(resultado, "resultados/");
-		strcat(resultado, strstr(dados, "dados/") + 6);
+
+		for(c = dados+(int)strlen(dados); (*c != *dados) && (*(c-1) != '/'); c--);
+
+		strcat(resultado, c);
 #endif
+
 		resultado[strlen(resultado) - 3] = '\0';
 		strcat(resultado, "res");
 
@@ -110,19 +118,14 @@ int main(int argc, char *argv[])
 	if((p = findPosArgv(argv, argc, (char*)"-l")) != -1)
 	{
 		strcpy(log, argv[p]);
-		if((flog = fopen(log, "r")) != NULL)
-		{
-			printf("Log: '%s'\n", argv[p]);
-		}
-		else
-		{
-			printf("~Log: '%s'\n", argv[p]);
-		}
+
+		printf("Log: '%s'\n", argv[p]);
 	}
 	else
 	{
-		flog = NULL;
-		*log = '\0';
+		log[0] = '\0';
+
+		printf("~Log: ---");
 	}
 
 	/* Leitura dos dados passados por arquivos */
@@ -150,9 +153,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Le memoria prinipal do disco, se especificado */
-	list<Problema*>* popInicial = Problema::lePopulacao(flog);
-	if(flog != NULL)
-		fclose(flog);
+	list<Problema*>* popInicial = *log == '\0' ? NULL : Problema::lePopulacao(log);
 
 	/* Inicia a execucao */
 	Problema* best = ctr->start(popInicial);
@@ -174,11 +175,7 @@ int main(int argc, char *argv[])
 
 	/* Escreve memoria principal no disco */
 	if(*log != '\0')
-	{
-		flog = fopen(log, "w");
-		Problema::escrevePopulacao(flog, pop);
-		fclose(flog);
-	}
+		Problema::escrevePopulacao(log, pop);
 
 	delete pop;
 
@@ -189,9 +186,7 @@ int main(int argc, char *argv[])
 	ctr->getInfo(&info);
 
 	/* Escreve solucao em arquivo no disco */
-	fresultados = fopen(resultado, "a");
-	Problema::imprimeResultado(dados, parametros, &info, fresultados);
-	fclose(fresultados);
+	Problema::imprimeResultado(dados, parametros, &info, resultado);
 
 	cout << endl << "Solução: " << endl << endl;
 	best->imprimir(false);

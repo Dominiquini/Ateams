@@ -240,11 +240,11 @@ void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS)
 		pATEAMS->makespanBest = atoi(argv[p]);
 }
 
-list<Problema*>* Problema::lePopulacao(FILE* f)
+list<Problema*>* Problema::lePopulacao(char *log)
 {
-	if(f == NULL)
-		return NULL;
-	else
+	FILE *f = fopen(log, "r");
+
+	if(f != NULL)
 	{
 		list<Problema*>* popInicial = new list<Problema*>();
 		int njob, nmaq, nprob, makespan;
@@ -294,14 +294,19 @@ list<Problema*>* Problema::lePopulacao(FILE* f)
 
 			popInicial->push_back(p);
 		}
+		fclose(f);
+
 		return popInicial;
+	}
+	else
+	{
+		return NULL;
 	}
 }
 
-void Problema::escrevePopulacao(FILE* f, list<Problema*>* popInicial)
+void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 {
-	if(f == NULL)
-		return;
+	FILE *f = fopen(log, "w");
 
 	int sizePop = (int)popInicial->size();
 	list<Problema*>::iterator iter;
@@ -325,13 +330,31 @@ void Problema::escrevePopulacao(FILE* f, list<Problema*>* popInicial)
 		}
 		fprintf(f, "\n");
 	}
+	fclose(f);
 }
 
-void Problema::imprimeResultado (char *dados, char *parametros, execInfo *info, FILE *resultados)
+void Problema::imprimeResultado(char *dados, char *parametros, execInfo *info, char *resultado)
 {
-	fprintf(resultados, "%d\t%d\t", (int)info->bestFitness, (int)info->worstFitness);
-	fprintf(resultados, "%d\t%d\t%d\t", info->numExecs, (int)info->diffTime, (int)info->expSol);
-	fprintf(resultados, "\t%s\t\t%s\n", dados, parametros);
+	FILE *f;
+
+	if((f = fopen(resultado, "r+")) != NULL)
+	{
+		fseek(f, 0, SEEK_END);
+	}
+	else
+	{
+		f = fopen(resultado, "w");
+
+		fprintf(f, "%s\t%s\t", "bestFitness", "worstFitness");
+		fprintf(f, "%s\t%s\t%s\t", "numExecs", "diffTime", "expSol");
+		fprintf(f, "\t%s\t\t\t%s\n", "dados", "parametros");
+	}
+
+	fprintf(f, "%d\t\t%d\t\t", (int)info->bestFitness, (int)info->worstFitness);
+	fprintf(f, "%d\t\t%d\t\t%d\t", info->numExecs, (int)info->diffTime, (int)info->expSol);
+	fprintf(f, "\t%s\t\t%s\n", dados, parametros);
+
+	fclose(f);
 }
 
 void Problema::desalocaMemoria()

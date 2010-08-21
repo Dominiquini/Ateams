@@ -28,11 +28,11 @@ public:
 	// Le parametros de entrada
 	static void leParametros(FILE*, ParametrosATEAMS*, vector<ParametrosHeuristicas>*);
 	static void leArgumentos(char**, int, ParametrosATEAMS*);
-	static list<Problema*>* lePopulacao(FILE*);
+	static list<Problema*>* lePopulacao(char*);
 
 	// Imprime em um arquivo os resultados da execucao
-	static void escrevePopulacao(FILE*, list<Problema*>*);
-	static void imprimeResultado(char*, char*, execInfo*, FILE*);
+	static void escrevePopulacao(char*, list<Problema*>*);
+	static void imprimeResultado(char*, char*, execInfo*, char*);
 
 	// Desaloca as estruturas do problema
 	static void desalocaMemoria();
