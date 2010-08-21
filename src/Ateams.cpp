@@ -26,9 +26,6 @@ int main(int argc, char *argv[])
 	/* Interrompe o programa ao se pessionar 'ctrl-c' */
 	signal(SIGINT, Interrompe);
 
-	time_t tv1, tv2;
-	time(&tv1);
-
 	srand(unsigned(time(NULL)));
 
 	FILE *fdados;
@@ -160,7 +157,7 @@ int main(int argc, char *argv[])
 	/* Inicia a execucao */
 	Problema* best = ctr->start(popInicial);
 
-	if(flog != NULL)
+	if(popInicial != NULL)
 	{
 		popInicial->clear();
 		delete popInicial;
@@ -188,10 +185,12 @@ int main(int argc, char *argv[])
 	cout << endl << endl << "Pior Solução: " << Problema::worst << endl;
 	cout << endl << "Melhor Solução: " << Problema::best << endl << endl;
 
+	execInfo info;
+	ctr->getInfo(&info);
+
 	/* Escreve solucao em arquivo no disco */
-	time(&tv2);
 	fresultados = fopen(resultado, "a");
-	Problema::imprimeResultado(tv1, tv2, fresultados, (int)best->getFitnessMinimize());
+	Problema::imprimeResultado(dados, parametros, &info, fresultados);
 	fclose(fresultados);
 
 	cout << endl << "Solução: " << endl << endl;
@@ -204,8 +203,12 @@ int main(int argc, char *argv[])
 	free(pATEAMS);
 	delete pHEURISTICAS;
 
-	cout << endl << endl << "Memória Total Alocada: " << Problema::totalNumInst;
-	cout << endl << endl << "Memória Ainda Alocada: " << Problema::numInst << endl << endl << endl;
+	cout << endl << endl << "Soluções Exploradas: " << Problema::totalNumInst << endl << endl;
+
+	if(Problema::numInst != 0)
+		cout << "Vazamento De Memória! ( " << Problema::numInst << " )" << endl << endl;
+
+	cout << endl;
 
 	return 0;
 }

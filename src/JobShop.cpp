@@ -327,11 +327,11 @@ void Problema::escrevePopulacao(FILE* f, list<Problema*>* popInicial)
 	}
 }
 
-void Problema::imprimeResultado (time_t tv1, time_t tv2, FILE *resultados, int bestMakespan)
+void Problema::imprimeResultado (char *dados, char *parametros, execInfo *info, FILE *resultados)
 {
-	double diff = difftime (tv2, tv1);
-
-	fprintf(resultados, "%d\t%d\n", bestMakespan, (int)diff);
+	fprintf(resultados, "%d\t%d\t", (int)info->bestFitness, (int)info->worstFitness);
+	fprintf(resultados, "%d\t%d\t%d\t", info->numExecs, (int)info->diffTime, (int)info->expSol);
+	fprintf(resultados, "\t%s\t\t%s\n", dados, parametros);
 }
 
 void Problema::desalocaMemoria()

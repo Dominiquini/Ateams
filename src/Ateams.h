@@ -36,6 +36,15 @@ typedef struct executado
 	bool annealing;
 } executado;
 
+typedef struct execInfo
+{
+	double diffTime;
+	int numExecs;
+	long int expSol;
+	double worstFitness;
+	double bestFitness;
+} execInfo;
+
 struct movTabu
 {
 	short int maq, A, B;

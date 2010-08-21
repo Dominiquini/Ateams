@@ -44,7 +44,7 @@ private:
 	list<string>* actAlgs;				// Algoritmos em execucao no momento
 	int actThreads;						// Threads em execucao no momento
 
-	time_t time1;						// Medidor do tempo inicial
+	time_t time1, time2;				// Medidor do tempo inicial e final
 	int iterMelhora;					// Ultima iteracao em que houve melhora
 	int execThreads;					// Threads executadas
 
@@ -66,8 +66,9 @@ public:
 	/* Adiciona uma heuristica ao conjunto de algoritmos disponiveis */
 	void addHeuristic(Heuristica* alg);
 
-	list<Problema*>* getPop();	// Retorna a populacao da memoria principal
-	Problema* getSol(int n);	// Retorna a melhor solucao da memoria principal
+	list<Problema*>* getPop();		// Retorna a populacao da memoria principal
+	Problema* getSol(int n);		// Retorna a melhor solucao da memoria principal
+	void getInfo(execInfo *info);	// Retorna algumas informacoes da ultima execucao
 
 	/* Comeca a execucao do Ateams utilizando os algoritmos disponiveis */
 	Problema* start(list<Problema*>* popInicial);

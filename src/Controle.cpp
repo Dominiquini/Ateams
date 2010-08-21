@@ -238,8 +238,20 @@ Problema* Controle::getSol(int n)
 	return *(--iter);
 }
 
+void Controle::getInfo(execInfo *info)
+{
+	info->diffTime = difftime(time2, time1);
+	info->numExecs = execThreads;
+
+	info->worstFitness = Problema::worst;
+	info->bestFitness = Problema::best;
+	info->expSol = Problema::totalNumInst;
+}
+
 Problema* Controle::start(list<Problema*>* popInicial)
 {
+	time(&time1);
+
 	pthread_t *threads = (pthread_t*)malloc(iterAteams * sizeof(pthread_t));
 	void* temp = NULL;
 
@@ -258,8 +270,6 @@ Problema* Controle::start(list<Problema*>* popInicial)
 
 	cout << endl << "Pior Solução: " << Problema::worst << endl << endl;
 	cout << "Melhor Solução: " << Problema::best << endl << endl << endl;
-
-	time(&time1);
 
 	pair<int, Controle*>* par = NULL;
 	long int ins = 0;
@@ -285,6 +295,8 @@ Problema* Controle::start(list<Problema*>* popInicial)
 	free(threads);
 
 	pthread_attr_destroy(&attr);
+
+	time(&time2);
 
 	return *(pop->begin());
 }
@@ -445,11 +457,17 @@ inline void Controle::geraPop(list<Problema*>* popInicial)
 
 		if(prob->getFitnessMinimize() != -1)
 		{
-			t = 0;
-
 			ret = pop->insert(prob);
 			if(!ret.second)
+			{
+				t++;
+
 				delete prob;
+			}
+			else
+			{
+				t = 0;
+			}
 		}
 		else
 		{
