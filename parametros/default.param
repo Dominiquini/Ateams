@@ -12,7 +12,7 @@
 
 ##(SA)#
 (name) = SA1
-[probSA] = 37			// Probabilidade de se executar SA em cada iteração do ATEAMS
+[probSA] = 35			// Probabilidade de se executar SA em cada iteração do ATEAMS
 [polEscolhaSA] = 250		// Política de escolha
 [maxIterSA] = 250		// Número de iterações para atingir o equilíbrio
 [initTempSA] = 125		// Temperatura inicial
@@ -22,13 +22,23 @@
 
 ##(SA)#
 (name) = SA2
-[probSA] = 10			// Probabilidade de se executar SA em cada iteração do ATEAMS
+[probSA] = 6			// Probabilidade de se executar SA em cada iteração do ATEAMS
 [polEscolhaSA] = 10		// Política de escolha
 [maxIterSA] = 250		// Número de iterações para atingir o equilíbrio
 [initTempSA] = 125		// Temperatura inicial
 [finalTempSA] = 0.75		// Temperatura final
 [restauraSolSA] = 0		// Restaura a solução para o mínimo de cada iteração
 [alphaSA] = 0.999		// Índice de redução da temperatura
+
+##(SA)#
+(name) = SA3
+[probSA] = 6			// Probabilidade de se executar SA em cada iteração do ATEAMS
+[polEscolhaSA] = 10		// Política de escolha
+[maxIterSA] = 25000		// Número de iterações para atingir o equilíbrio
+[initTempSA] = 125		// Temperatura inicial
+[finalTempSA] = 0.75		// Temperatura final
+[restauraSolSA] = 0		// Restaura a solução para o mínimo de cada iteração
+[alphaSA] = 0.9			// Índice de redução da temperatura
 
 ##(BT)#
 (name) = BT1
