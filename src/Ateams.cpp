@@ -1,7 +1,6 @@
 #include "Ateams.h"
 
 #include "Problema.h"
-#include "JobShop.h"
 
 #include "Controle.h"
 
@@ -180,7 +179,7 @@ int main(int argc, char *argv[])
 	delete pop;
 
 	cout << endl << endl << "Pior Solução: " << Problema::worst << endl;
-	cout << endl << "Melhor Solução: " << Problema::best << endl << endl;
+	cout << endl << "Melhor Solução: " << Problema::best << endl;
 
 	execInfo info;
 	ctr->getInfo(&info);
@@ -188,8 +187,9 @@ int main(int argc, char *argv[])
 	/* Escreve solucao em arquivo no disco */
 	Problema::imprimeResultado(dados, parametros, &info, resultado);
 
-	cout << endl << "Solução: " << endl << endl;
+	cout << endl << endl << "Solução:" << endl << endl;
 	best->imprimir(false);
+	delete best;
 
 	delete ctr;
 

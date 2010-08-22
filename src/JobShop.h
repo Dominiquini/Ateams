@@ -11,7 +11,7 @@ using namespace std;
 class JobShop : public Problema
 {
 private:
-	bool calcMakespan(bool esc);	// Calcula o makespan
+	bool calcFitness(bool esc);	// Calcula o makespan
 
 public:
 	static char name[128];			// Nome do problema

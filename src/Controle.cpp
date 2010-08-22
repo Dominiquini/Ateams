@@ -298,7 +298,7 @@ Problema* Controle::start(list<Problema*>* popInicial)
 
 	time(&time2);
 
-	return *(pop->begin());
+	return Problema::copySoluction(**(pop->begin()));
 }
 
 inline int Controle::exec(int randomic, int eID)
@@ -453,7 +453,7 @@ inline void Controle::geraPop(list<Problema*>* popInicial)
 	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
 	while((int)pop->size() < tamPop && t < tamPop)
 	{
-		prob = Problema::alloc();
+		prob = Problema::randSoluction();
 
 		if(prob->getFitnessMinimize() != -1)
 		{

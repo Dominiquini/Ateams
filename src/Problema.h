@@ -38,10 +38,10 @@ public:
 	static void desalocaMemoria();
 
 	// Alocador generico
-	static Problema* alloc();							// Nova solucao aleatoria
-	static Problema* alloc(const Problema& prob);		// Copia de prob
+	static Problema* randSoluction();							// Nova solucao aleatoria
+	static Problema* copySoluction(const Problema& prob);		// Copia de prob
 
-	// Calcula a melhora (Positivo) de newP em relacao a oldP
+	// Calcula a melhora (Resultado Positivo !!!) de newP em relacao a oldP
 	static double compare(double oldP, double newP);
 	static double compare(Problema& oldP, Problema& newP);
 
@@ -91,7 +91,7 @@ protected:
 	soluction sol;								// Representacao interna da solucao
 
 private:
-	virtual bool calcMakespan(bool esc) = 0;	// Calcula o makespan
+	virtual bool calcFitness(bool esc) = 0;		// Calcula o makespan
 
 
 	friend bool fnequal1(Problema*, Problema*);	// Comparacao profunda

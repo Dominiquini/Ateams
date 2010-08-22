@@ -52,7 +52,7 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 		for(iter = sol->begin(), i = 0; iter != sol->end() && i < tamPopGenetico; iter++, i++)
 		{
 			(*iter)->exec.genetico = true;
-			popAG->push_back(Problema::alloc(**iter));
+			popAG->push_back(Problema::copySoluction(**iter));
 		}
 	}
 	else
@@ -69,9 +69,9 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 
 			j= 0;
 			(*iter)->exec.genetico = true;
-			popAG->push_back(Problema::alloc(**iter));
+			popAG->push_back(Problema::copySoluction(**iter));
 		}
-		popAG->push_back(Problema::alloc(**sol->begin()));
+		popAG->push_back(Problema::copySoluction(**sol->begin()));
 
 		for(iter = sol->begin(); iter != sol->end(); iter++)
 			(*iter)->exec.genetico = false;

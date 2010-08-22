@@ -15,12 +15,12 @@ int JobShop::njob = 0, JobShop::nmaq = 0;
 
 int JobShop::permutacoes = 0;
 
-Problema* Problema::alloc()
+Problema* Problema::randSoluction()
 {
 	return new JobShop();
 }
 
-Problema* Problema::alloc(const Problema& prob)
+Problema* Problema::copySoluction(const Problema& prob)
 {
 	return new JobShop(prob);
 }
@@ -403,7 +403,7 @@ JobShop::JobShop() : Problema::Problema()
 	desalocaMatriz(1, aux_maq, 1, 1);
 
 	sol.escalon = NULL;
-	calcMakespan(false);
+	calcFitness(false);
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -416,7 +416,7 @@ JobShop::JobShop(short int **prob) : Problema::Problema()
 	sol.esc = prob;
 
 	sol.escalon = NULL;
-	calcMakespan(false);
+	calcFitness(false);
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -456,7 +456,7 @@ JobShop::JobShop(const Problema &prob, int maq, int pos1, int pos2) : Problema::
 	sol.esc[maq][pos2] = aux;
 
 	sol.escalon = NULL;
-	calcMakespan(false);
+	calcFitness(false);
 
 	exec.tabu = false;
 	exec.genetico = false;
@@ -473,7 +473,7 @@ JobShop::~JobShop()
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
-inline bool JobShop::calcMakespan(bool esc)
+inline bool JobShop::calcFitness(bool esc)
 {
 	register int max, cont = 0;
 	short int ***aux_esc, **tmp, *pos;
@@ -604,7 +604,7 @@ inline void JobShop::imprimir(bool esc)
 {
 	if(esc == true)
 	{
-		calcMakespan(esc);
+		calcFitness(esc);
 
 		printf("\n");
 

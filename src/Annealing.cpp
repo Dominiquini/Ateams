@@ -50,7 +50,7 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	if(polEscolha == 0)
 	{
 		select = sol->begin();
-		solSA = Problema::alloc(**select);
+		solSA = Problema::copySoluction(**select);
 
 		return exec(solSA);
 	}
@@ -71,7 +71,7 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 
 	(*select)->exec.annealing = true;
 
-	solSA = Problema::alloc(**select);
+	solSA = Problema::copySoluction(**select);
 
 	pthread_mutex_unlock(&mutex);
 
@@ -93,7 +93,7 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 	T = Ti;
 	S = Si;
 
-	Sf->push_back(Problema::alloc(*Si));
+	Sf->push_back(Problema::copySoluction(*Si));
 
 	while(T > Tf)
 	{
@@ -118,7 +118,7 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 
 				if(*S < *Sf->back())
 				{
-					Sf->push_back(Problema::alloc(*S));
+					Sf->push_back(Problema::copySoluction(*S));
 				}
 			}
 			else
@@ -131,7 +131,7 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 		if(restauraSol)
 		{
 			delete S;
-			S = Problema::alloc(*Sf->back());
+			S = Problema::copySoluction(*Sf->back());
 		}
 	}
 	delete S;

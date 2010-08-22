@@ -50,7 +50,7 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	if(polEscolha == 0)
 	{
 		select = sol->begin();
-		solBT = Problema::alloc(**select);
+		solBT = Problema::copySoluction(**select);
 
 		return exec(solBT);
 	}
@@ -71,7 +71,7 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 
 	(*select)->exec.tabu = true;
 
-	solBT = Problema::alloc(**select);
+	solBT = Problema::copySoluction(**select);
 
 	pthread_mutex_unlock(&mutex);
 
@@ -91,7 +91,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 	vector<Problema*>* maxGlobal = new vector<Problema*>();
 	Problema *maxLocal = init;
 
-	maxGlobal->push_back(Problema::alloc(*maxLocal));
+	maxGlobal->push_back(Problema::copySoluction(*maxLocal));
 
 	// Loop principal
 	for(int i = 0, j = 0; i < iterTabu && j < tentSemMelhora; i++, j++)
@@ -127,7 +127,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 
 				if(*local->first < *maxGlobal->back())
 				{
-					maxGlobal->push_back(Problema::alloc(*maxLocal));
+					maxGlobal->push_back(Problema::copySoluction(*maxLocal));
 				}
 
 				addTabu(listaTabu, local->second, tamListaTabu);
@@ -149,7 +149,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 
 					if(*local->first < *maxGlobal->back())
 					{
-						maxGlobal->push_back(Problema::alloc(*maxLocal));
+						maxGlobal->push_back(Problema::copySoluction(*maxLocal));
 					}
 
 					delete local->second;
