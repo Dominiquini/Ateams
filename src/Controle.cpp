@@ -235,7 +235,7 @@ Problema* Controle::getSol(int n)
 
 	for(int i = 0; i <= n && iter != pop->end(); iter++);
 
-	return *(--iter);
+	return Problema::copySoluction(**(--iter));
 }
 
 void Controle::getInfo(execInfo *info)

@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 	Problema::imprimeResultado(dados, parametros, &info, resultado);
 
 	cout << endl << endl << "Solução:" << endl << endl;
-	best->imprimir(false);
+	best->imprimir(true);
 	delete best;
 
 	delete ctr;

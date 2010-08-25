@@ -606,8 +606,6 @@ inline void JobShop::imprimir(bool esc)
 	{
 		calcFitness(esc);
 
-		printf("\n");
-
 		for(int i = 0; i < nmaq; i++)
 		{
 			printf("maq %d: ", i+1);
@@ -623,7 +621,7 @@ inline void JobShop::imprimir(bool esc)
 			}
 			printf("\n");
 		}
-		printf("\nLegenda:\n\n");
+		printf("\n\nLegenda:\n\n");
 
 		for(int i = 0; i < njob; i++)
 			printf("%c: %d\n", ((char)i) + 'a', i);
