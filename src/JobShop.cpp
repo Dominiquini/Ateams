@@ -608,7 +608,7 @@ inline void JobShop::imprimir(bool esc)
 
 		for(int i = 0; i < nmaq; i++)
 		{
-			printf("maq %d: ", i+1);
+			printf("maq %d: ", i);
 			for(int j = 0; j < njob; j++)
 			{
 				int k = sol.escalon[i][j][2] - sol.escalon[i][j][1];
@@ -624,7 +624,7 @@ inline void JobShop::imprimir(bool esc)
 		printf("\n\nLegenda:\n\n");
 
 		for(int i = 0; i < njob; i++)
-			printf("%c: %d\n", ((char)i) + 'a', i);
+			printf("%c: job %d\n", ((char)i) + 'a', i);
 	}
 	else
 	{

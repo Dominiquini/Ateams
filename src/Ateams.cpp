@@ -188,7 +188,12 @@ int main(int argc, char *argv[])
 	Problema::imprimeResultado(dados, parametros, &info, resultado);
 
 	cout << endl << endl << "Solução:" << endl << endl;
-	best->imprimir(true);
+
+	if(findPosArgv(argv, argc, (char*)"-g") != -1)
+		best->imprimir(true);
+	else
+		best->imprimir(false);
+
 	delete best;
 
 	delete ctr;
