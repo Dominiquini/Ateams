@@ -345,14 +345,14 @@ void Problema::imprimeResultado(char *dados, char *parametros, execInfo *info, c
 	{
 		f = fopen(resultado, "w");
 
-		fprintf(f, "%s\t%s\t", "bestFitness", "worstFitness");
-		fprintf(f, "%s\t%s\t%s\t", "numExecs", "diffTime", "expSol");
-		fprintf(f, "\t%s\t\t\t%s\n", "dados", "parametros");
+		fprintf(f, "%*s%*s", -16,"bestFitness", -16,"worstFitness");
+		fprintf(f, "%*s%*s%*s", -16, "numExecs", -16, "diffTime", -24, "expSol");
+		fprintf(f, "%*s%s\n", -24, "dados", "parametros");
 	}
 
-	fprintf(f, "%d\t\t%d\t\t", (int)info->bestFitness, (int)info->worstFitness);
-	fprintf(f, "%d\t\t%d\t\t%d\t", info->numExecs, (int)info->diffTime, (int)info->expSol);
-	fprintf(f, "\t%s\t\t%s\n", dados, parametros);
+	fprintf(f, "%*d%*d", -16,(int)info->bestFitness, -16,(int)info->worstFitness);
+	fprintf(f, "%*d%*d%*d", -16,info->numExecs, -16,(int)info->diffTime, -24,(int)info->expSol);
+	fprintf(f, "%*s%s\n", -24, dados, parametros);
 
 	fclose(f);
 }
