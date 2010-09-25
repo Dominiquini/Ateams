@@ -13,7 +13,10 @@ class Controle
 {
 private:
 	/* Funcao que executa em multiplas threads e retorna o numero de solucoes inseridas */
-	static void* run(void *obj);
+	static void* pthrExec(void *obj);
+
+	/* Funcao que cotrola o tempo de execucao */
+	static void* pthrTime(void *obj);
 
 public:
 	// Retorna a soma de fitness de uma populacao

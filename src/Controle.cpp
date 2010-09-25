@@ -253,6 +253,7 @@ Problema* Controle::start(list<Problema*>* popInicial)
 	time(&time1);
 
 	pthread_t *threads = (pthread_t*)malloc(iterAteams * sizeof(pthread_t));
+	pthread_t threadTime;
 	void* temp = NULL;
 
 	pthread_attr_t attr;
@@ -275,13 +276,15 @@ Problema* Controle::start(list<Problema*>* popInicial)
 	long int ins = 0;
 	execThreads = 0;
 
+	pthread_create(&threadTime, &attr, pthrTime, (void*)this);
+
 	for(int execAteams = 0; execAteams < iterAteams; execAteams++)
 	{
 		par = new pair<int, Controle*>();
 		par->first = execAteams+1;
 		par->second = this;
 
-		pthread_create(&threads[execAteams], &attr, run, (void*)par);
+		pthread_create(&threads[execAteams], &attr, pthrExec, (void*)par);
 	}
 
 	for(int execAteams = 0; execAteams < iterAteams; execAteams++)
@@ -289,6 +292,8 @@ Problema* Controle::start(list<Problema*>* popInicial)
 		pthread_join(threads[execAteams], &temp);
 		ins += (long int)temp;
 	}
+
+	pthread_join(threadTime, NULL);
 
 	cout << endl << "Soluções Permutadas: " << ins << endl;
 
@@ -374,7 +379,7 @@ inline int Controle::exec(int randomic, int eID)
 	return contrib;
 }
 
-void* Controle::run(void *obj)
+void* Controle::pthrExec(void *obj)
 {
 	pair<int, Controle*>* in = (pair<int, Controle*>*)obj;
 	int execAteams = in->first;
@@ -389,18 +394,31 @@ void* Controle::run(void *obj)
 	{
 		ins = ctr->exec(rand(), execAteams);
 
-		time_t rawtime;
-		time(&rawtime);
-
-		double diff = difftime(rawtime, ctr->time1);
-
-		if(((int)diff > ctr->maxTempo) || ctr->iterMelhora > ctr->tentAteams || Problema::compare(ctr->makespanBest, Problema::best) >= 0)
+		if(ctr->iterMelhora > ctr->tentAteams || Problema::compare(ctr->makespanBest, Problema::best) >= 0)
 			PARAR = true;
 	}
 
 	sem_post(&semaphore);
 
 	return (void*)ins; 		//	pthread_exit((void*)ins);
+}
+
+void* Controle::pthrTime(void *obj)
+{
+	Controle *ctr = (Controle*)obj;
+	time_t rawtime;
+
+	while(PARAR == false)
+	{
+		time(&rawtime);
+
+		if((int)difftime(rawtime, ctr->time1) > ctr->maxTempo)
+			PARAR = true;
+
+		sleep(1);
+	}
+
+	return NULL;			//	pthread_exit(NULL);
 }
 
 inline pair<int, int>* Controle::addSol(vector<Problema*> *news)
