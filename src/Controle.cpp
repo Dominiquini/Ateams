@@ -307,7 +307,8 @@ inline int Controle::exec(int randomic, int eID)
 
 	Heuristica* alg = selectRouletteWheel(algs, Heuristica::numHeuristic, rand());
 	vector<Problema*> *prob = NULL;
-	int ins = 0;
+	pair<int, int>* ins;
+	int contrib = 0;
 
 	char cID[16];
 	sprintf(cID, "%s(%.3d)", alg->name.c_str(), eID);
@@ -325,7 +326,7 @@ inline int Controle::exec(int randomic, int eID)
 		for(list<string>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
 			execNames = execNames + *it + " ";
 
-		printf(">>> ALG: %s) | .............................................. | FILA: (%d : %s)\n", id.c_str(), actThreads, execNames.c_str());
+		printf(">>> ALG: %s | ................................................. | FILA: (%d : %s)\n", id.c_str(), actThreads, execNames.c_str());
 	}
 	pthread_mutex_unlock(&mut_f);
 
@@ -356,7 +357,7 @@ inline int Controle::exec(int randomic, int eID)
 
 		actAlgs->erase(find(actAlgs->begin(), actAlgs->end(), id));
 
-		printf("<<< ALG: %s) | ITER: %.3d | FITNESS: %.4d:%.4d | CONTRIB:  %.3d", id.c_str(), execThreads, (int)Problema::best, (int)Problema::worst, ins);
+		printf("<<< ALG: %s | ITER: %.3d | FITNESS: %.4d:%.4d | CONTRIB: %.3d:%.3d", id.c_str(), execThreads, (int)Problema::best, (int)Problema::worst, ins->first, ins->second);
 
 		execNames = "";
 		for(list<string>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
@@ -366,7 +367,11 @@ inline int Controle::exec(int randomic, int eID)
 	}
 	pthread_mutex_unlock(&mut_f);
 
-	return ins;
+	contrib = ins->second;
+
+	delete ins;
+
+	return contrib;
 }
 
 void* Controle::run(void *obj)
@@ -398,12 +403,12 @@ void* Controle::run(void *obj)
 	return (void*)ins; 		//	pthread_exit((void*)ins);
 }
 
-inline int Controle::addSol(vector<Problema*> *news)
+inline pair<int, int>* Controle::addSol(vector<Problema*> *news)
 {
 	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
 	vector<Problema*>::const_iterator iterNews;
+	int nins = 0, nret = news->size();
 	Problema* pointSol = NULL;
-	int ins = 0;
 
 	for(iterNews = news->begin(); iterNews != news->end(); iterNews++)
 	{
@@ -417,7 +422,7 @@ inline int Controle::addSol(vector<Problema*> *news)
 
 			if(ret.second == true)
 			{
-				ins++;
+				nins++;
 
 				if((int)pop->size() > tamPop)
 				{
@@ -437,7 +442,7 @@ inline int Controle::addSol(vector<Problema*> *news)
 	Problema::best = (*pop->begin())->getFitnessMinimize();
 	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
 
-	return ins;
+	return new pair<int, int>(nret, nins);
 }
 
 inline void Controle::geraPop(list<Problema*>* popInicial)

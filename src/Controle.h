@@ -52,7 +52,7 @@ private:
 	int exec(int randWheel, int eID);
 
 	/* Adiciona um novo conjunto de solucoes a populacao corrente */
-	int addSol(vector<Problema*> *news);
+	pair<int, int>* addSol(vector<Problema*> *news);
 
 	/* Gera uma populacao inicial aleatoria com 'tamPop' elementos */
 	void geraPop(list<Problema*>* popInicial);
