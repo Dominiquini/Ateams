@@ -471,34 +471,37 @@ inline void Controle::geraPop(list<Problema*>* popInicial)
 
 	srand(unsigned(time(NULL)));
 
-	int t = 0;
-	Problema* prob = NULL;
+	int iter = 0;
+	int limit = pow(tamPop, 2);
+	Problema* soluction = NULL;
 	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
-	while((int)pop->size() < tamPop && t < tamPop)
-	{
-		prob = Problema::randSoluction();
 
-		if(prob->getFitnessMinimize() != -1)
+	while((int)pop->size() < tamPop && iter < limit)
+	{
+		soluction = Problema::randSoluction();
+
+		if(soluction->getFitnessMinimize() != -1)
 		{
-			ret = pop->insert(prob);
+			ret = pop->insert(soluction);
 			if(!ret.second)
 			{
-				t++;
+				iter++;
 
-				delete prob;
+				delete soluction;
 			}
 			else
 			{
-				t = 0;
+				iter--;
 			}
 		}
 		else
 		{
-			t++;
+			iter++;
 
-			delete prob;
+			delete soluction;
 		}
 	}
+	return;
 }
 
 inline bool cmpAlg(Heuristica *h1, Heuristica *h2)

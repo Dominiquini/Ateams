@@ -377,30 +377,43 @@ double Problema::compare(Problema& oldP, Problema& newP)
 
 JobShop::JobShop() : Problema::Problema()
 {
-	short int *aux_vet, *aux_maq;
-
 	sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
-	aux_vet = (short int*)alocaMatriz(1, njob, 1, 1);
-	aux_maq = (short int*)alocaMatriz(1, nmaq, 1, 1); 	// Indica proxima operacao da maquina
 
-	for (int i = 0; i < nmaq; i++)
-		aux_maq[i] = 0;
-
-	for (int i = 0; i < njob; i++)
-		aux_vet[i] = i;
-
-	for (int i = 0; i < nmaq; i++)
+	if(rand() % 2 == 0)
 	{
-		random_shuffle(&aux_vet[0], &aux_vet[njob]);
-		for (int j = 0; j < njob; j++)
+		short int *aux_vet = (short int*)alocaMatriz(1, njob, 1, 1);
+		short int *aux_maq = (short int*)alocaMatriz(1, nmaq, 1, 1);
+
+		for(int i = 0; i < nmaq; i++)
+			aux_maq[i] = 0;
+
+		for(int i = 0; i < njob; i++)
+			aux_vet[i] = i;
+
+		for(int i = 0; i < nmaq; i++)
 		{
-			sol.esc[maq[aux_vet[j]][i]][aux_maq[maq[aux_vet[j]][i]]] = aux_vet[j];
-			aux_maq[maq[aux_vet[j]][i]] += 1;
+			random_shuffle(&aux_vet[0], &aux_vet[njob]);
+			for(int j = 0; j < njob; j++)
+			{
+				sol.esc[maq[aux_vet[j]][i]][aux_maq[maq[aux_vet[j]][i]]] = aux_vet[j];
+				aux_maq[maq[aux_vet[j]][i]] += 1;
+			}
+		}
+
+		desalocaMatriz(1, aux_vet, 1, 1);
+		desalocaMatriz(1, aux_maq, 1, 1);
+	}
+	else
+	{
+		for(int i = 0; i < nmaq; i++)
+		{
+			for(int j = 0; j < njob; j++)
+			{
+				sol.esc[i][j] = j;
+			}
+			random_shuffle(&sol.esc[i][0], &sol.esc[i][njob]);
 		}
 	}
-
-	desalocaMatriz(1, aux_vet, 1, 1);
-	desalocaMatriz(1, aux_maq, 1, 1);
 
 	sol.escalon = NULL;
 	calcFitness(false);
