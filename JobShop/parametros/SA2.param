@@ -1,0 +1,18 @@
+*ATEAMS*
+[iterAteams] = 250		// Número de iterações do Ateams
+[tentAteams] = 100		// Tentativas sem melhora
+[maxTempoAteams] = 3600		// Tempo máximo de execução
+[numThreads] = 4                // Número máximo de threads ativas
+[tamPopAteams] = 500		// Tamanho da população
+[critUnicidade] = 1		// Critério para se definir a unicidade da população
+[makespanBest] = -1		// Melhor makespan conhecido
+
+##(SA)#
+(name) = SA2
+[probSA] = 6			// Probabilidade de se executar SA em cada iteração do ATEAMS
+[polEscolhaSA] = 10		// Política de escolha
+[maxIterSA] = 250		// Número de iterações para atingir o equilíbrio
+[initTempSA] = 125		// Temperatura inicial
+[finalTempSA] = 0.75		// Temperatura final
+[restauraSolSA] = 0		// Restaura a solução para o mínimo de cada iteração
+[alphaSA] = 0.999		// Índice de redução da temperatura

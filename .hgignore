@@ -9,4 +9,5 @@ Ateams
 Debug/*
 Release/*
 dados/jsp_gen
+dados/fsp_gen
 log*
