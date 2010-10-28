@@ -323,7 +323,7 @@ void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 			fprintf(f, "%.2d ", prob[j]);
 		}
 
-		fprintf(f, "\n");
+		fprintf(f, "\n\n");
 	}
 	fclose(f);
 }
@@ -451,9 +451,45 @@ FlowShop::~FlowShop()
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 inline bool FlowShop::calcFitness(bool esc)
 {
-	// TODO
+	short int ***aux_esc = (short int***)alocaMatriz(3, nmaq, njob, 3);
+	short int *pos = (short int*)alocaMatriz(1, nmaq, 1, 1);
+	int sum_time = 0;
 
-	sol.makespan = xRand(rand(), 1, 100);
+	for(register int m = 0; m < nmaq; m++)
+		pos[m] = 0;
+
+	for(register int j = 0; j < njob; j++)
+	{
+		for(register int m = 0; m < nmaq; m++)
+		{
+			aux_esc[m][j][0] = sol.esc[j];
+
+			if(m == 0)
+			{
+				aux_esc[m][j][1] = pos[m];
+				aux_esc[m][j][2] = aux_esc[m][j][1] + time[sol.esc[j]][m];
+				pos[m] = aux_esc[m][j][2];
+			}
+			else
+			{
+				aux_esc[m][j][1] = aux_esc[m - 1][j][2] > pos[m] ? aux_esc[m - 1][j][2] : pos[m];
+				aux_esc[m][j][2] = aux_esc[m][j][1] + time[sol.esc[j]][m];
+				pos[m] = aux_esc[m][j][2];
+			}
+
+			if(sum_time < aux_esc[m][j][2])
+				sum_time = aux_esc[m][j][2];
+		}
+	}
+
+	if(esc == false)
+		desalocaMatriz(3, aux_esc, nmaq, njob);
+	else
+		sol.escalon = aux_esc;
+
+	desalocaMatriz(1, pos, 1, 1);
+
+	sol.makespan = sum_time;
 
 	return true;
 }

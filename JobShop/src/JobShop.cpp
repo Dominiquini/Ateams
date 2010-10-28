@@ -561,8 +561,8 @@ inline bool JobShop::calcFitness(bool esc)
 			if(tmp[i][nmaq] > sum_time)
 				sum_time = tmp[i][nmaq];
 		}
-		desalocaMatriz(2, tmp, njob, 0);
-		desalocaMatriz(1, pos, 0, 0);
+		desalocaMatriz(2, tmp, njob, 1);
+		desalocaMatriz(1, pos, 1, 1);
 
 		if(esc == false)
 			desalocaMatriz(3, aux_esc, nmaq, njob);
