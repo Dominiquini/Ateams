@@ -293,6 +293,8 @@ Problema* Controle::start(list<Problema*>* popInicial)
 		ins += (long int)temp;
 	}
 
+	PARAR = true;
+
 	pthread_join(threadTime, NULL);
 
 	cout << endl << "Soluções Permutadas: " << ins << endl;

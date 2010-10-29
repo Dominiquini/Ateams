@@ -5,8 +5,8 @@
 
 using namespace std;
 
-#ifndef _JobShop_
-#define _JobShop_
+#ifndef _FlowShop_
+#define _FlowShop_
 
 class FlowShop : public Problema
 {
