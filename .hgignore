@@ -1,13 +1,13 @@
 syntax: glob
 
-.project
-.cproject
 *.res
 *.log
-Ateams
 *.o
 Debug/*
 Release/*
+bin
 dados/jsp_gen
 dados/fsp_gen
 log*
+FlowShop/FlowShop
+JobShop/JobShop
