@@ -11,6 +11,7 @@ Genetico::Genetico() : Heuristica::Heuristica("DEFAULT_AG")
 	iterGenetico = 500;
 	tamPopGenetico = 250;
 	probCrossOver = 0.8;
+	powerCrossOver = 0.5;
 	probMutacao = 0.08;
 	tamParticionamento = -1;
 
@@ -26,6 +27,7 @@ Genetico::Genetico(string nome, ParametrosHeuristicas& pAG) : Heuristica::Heuris
 	iterGenetico = pAG.iterAG != -1 ? pAG.iterAG : 500;
 	tamPopGenetico = pAG.tamPopAG != -1 ? pAG.tamPopAG : 250;
 	probCrossOver = pAG.probCrossOverAG != -1 ? pAG.probCrossOverAG : 0.8;
+	powerCrossOver = pAG.powerCrossOverAG != -1 ? pAG.powerCrossOverAG : 0.5;
 	probMutacao = pAG.probMutacaoAG != -1 ? pAG.probMutacaoAG : 0.02;
 	tamParticionamento = pAG.tamParticaoAG != -1 ? pAG.tamParticaoAG : -1;
 
@@ -96,6 +98,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 	vector<pair<Problema*, Problema*>* >::const_iterator iterParProb;
 	vector<Problema*>::iterator iterProb;
 
+	int strengthCrossOver = (int)(powerCrossOver * 100);
 	int numCrossOver;
 	double sumP;
 
@@ -152,12 +155,12 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 			if(i % 2 == 0)
 			{
 				/* Crossover com dois pontos de particionamento escolhidos aleatoriamente e tamanho 'tamParticionmento' */
-				temp = (*iterParProb)->first->crossOver((*iterParProb)->second, tamParticionamento);
+				temp = (*iterParProb)->first->crossOver((*iterParProb)->second, tamParticionamento, strengthCrossOver);
 			}
 			else
 			{
 				/* Crossover com um ponto de particionamento escolhido aleatoriamente */
-				temp = (*iterParProb)->first->crossOver((*iterParProb)->second);
+				temp = (*iterParProb)->first->crossOver((*iterParProb)->second, strengthCrossOver);
 			}
 
 			if(rand() < (RAND_MAX*probMutacao/2))

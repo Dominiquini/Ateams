@@ -88,6 +88,7 @@ struct ParametrosHeuristicas {
 	int tamPopAG;
 	int tamParticaoAG;
 	float probCrossOverAG;
+	float powerCrossOverAG;
 	float probMutacaoAG;
 
 	int probBT;

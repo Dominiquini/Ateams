@@ -53,193 +53,6 @@ void Problema::leProblema(FILE *f)
 	return;
 }
 
-void Problema::leParametros(FILE *f, ParametrosATEAMS *pATEAMS, vector<ParametrosHeuristicas> *pHEURISTICAS)
-{
-	string parametros, ateams_p, alg_p;
-	vector<size_t> algs;
-	char temp = '#';
-	int numAlgs = 0;
-	float par = -1;
-	size_t found = 0;
-
-	while((temp = fgetc(f)) != EOF)
-		parametros.push_back(temp);
-
-	while((found = parametros.find((char*)"##("), found) != string::npos)
-	{
-		parametros[found] = '\0';
-		algs.push_back(found+1);
-	}
-	algs.push_back(found);
-
-	numAlgs = algs.size()-1;
-
-	ateams_p.assign(parametros, 0, algs[0]);
-
-	par = findPar(ateams_p, (char*)"[iterAteams]");
-	pATEAMS->iterAteams = (int)par;
-
-	par = findPar(ateams_p, (char*)"[numThreads]");
-	pATEAMS->numThreads = (int)par;
-
-	par = findPar(ateams_p, (char*)"[tentAteams]");
-	pATEAMS->tentAteams = (int)par;
-
-	par = findPar(ateams_p, (char*)"[maxTempoAteams]");
-	pATEAMS->maxTempoAteams = (int)par;
-
-	par = findPar(ateams_p, (char*)"[tamPopAteams]");
-	pATEAMS->tamPopAteams = (int)par;
-
-	par = findPar(ateams_p, (char*)"[critUnicidade]");
-	pATEAMS->critUnicidade = (int)par;
-
-	par = findPar(ateams_p, (char*)"[makespanBest]");
-	pATEAMS->makespanBest = (int)par;
-
-
-	ParametrosHeuristicas pTEMP;
-	for(int i = 0; i < numAlgs; i++)
-	{
-		alg_p.assign(parametros, algs[i], algs[i+1]-algs[i]);
-		alg_p[6] = '\0';
-
-		if(alg_p.find((char*)"#(SA)#") != string::npos)
-		{
-			pTEMP.alg = SA;
-
-			found = alg_p.find((char*)"(name) = ", 7) + strlen((char*)"(name) = ");
-			sscanf(alg_p.c_str()+found, "%s", pTEMP.algName);
-
-			alg_p += 7;
-
-			par = findPar(alg_p, (char*)"[probSA]");
-			pTEMP.probSA = (int)par;
-
-			par = findPar(alg_p, (char*)"[polEscolhaSA]");
-			pTEMP.polEscolhaSA = (int)par;
-
-			par = findPar(alg_p, (char*)"[maxIterSA]");
-			pTEMP.maxIterSA = (int)par;
-
-			par = findPar(alg_p, (char*)"[initTempSA]");
-			pTEMP.initTempSA = (float)par;
-
-			par = findPar(alg_p, (char*)"[finalTempSA]");
-			pTEMP.finalTempSA = (float)par;
-
-			par = findPar(alg_p, (char*)"[restauraSolSA]");
-			pTEMP.restauraSolSA = (int)par;
-
-			par = findPar(alg_p, (char*)"[alphaSA]");
-			pTEMP.alphaSA = (float)par;
-
-			if(pTEMP.polEscolhaSA > pATEAMS->tamPopAteams)
-				pTEMP.polEscolhaSA = pATEAMS->tamPopAteams;
-		}
-		else if(alg_p.find((char*)"#(AG)#") != string::npos)
-		{
-			pTEMP.alg = AG;
-
-			found = alg_p.find((char*)"(name) = ", 7) + strlen((char*)"(name) = ");
-			sscanf(alg_p.c_str()+found, "%s", pTEMP.algName);
-
-			alg_p += 7;
-
-			par = findPar(alg_p, (char*)"[probAG]");
-			pTEMP.probAG = (int)par;
-
-			par = findPar(alg_p, (char*)"[polEscolhaAG]");
-			pTEMP.polEscolhaAG = (int)par;
-
-			par = findPar(alg_p, (char*)"[iterAG]");
-			pTEMP.iterAG = (int)par;
-
-			par = findPar(alg_p, (char*)"[tamPopAG]");
-			pTEMP.tamPopAG = (int)par;
-
-			par = findPar(alg_p, (char*)"[tamParticaoAG]");
-			pTEMP.tamParticaoAG = (int)par;
-
-			par = findPar(alg_p, (char*)"[probCrossOverAG]");
-			pTEMP.probCrossOverAG = (float)par;
-
-			par = findPar(alg_p, (char*)"[probMutacaoAG]");
-			pTEMP.probMutacaoAG = (float)par;
-
-			if(pTEMP.polEscolhaAG > pATEAMS->tamPopAteams)
-				pTEMP.polEscolhaAG = pATEAMS->tamPopAteams;
-		}
-		else if(alg_p.find((char*)"#(BT)#") != string::npos)
-		{
-			pTEMP.alg = BT;
-
-			found = alg_p.find((char*)"(name) = ", 7) + strlen((char*)"(name) = ");
-			sscanf(alg_p.c_str()+found, "%s", pTEMP.algName);
-
-			alg_p += 7;
-
-			par = findPar(alg_p, (char*)"[probBT]");
-			pTEMP.probBT = (int)par;
-
-			par = findPar(alg_p, (char*)"[polEscolhaBT]");
-			pTEMP.polEscolhaBT = (int)par;
-
-			par = findPar(alg_p, (char*)"[iterBT]");
-			pTEMP.iterBT = (int)par;
-
-			par = findPar(alg_p, (char*)"[tentSemMelhoraBT]");
-			pTEMP.tentSemMelhoraBT = (int)par;
-
-			par = findPar(alg_p, (char*)"[tamListaBT]");
-			pTEMP.tamListaBT = (int)par;
-
-			par = findPar(alg_p, (char*)"[polExplorBT]");
-			pTEMP.polExplorBT = (float)par;
-
-			par = findPar(alg_p, (char*)"[funcAspiracaoBT]");
-			pTEMP.funcAspiracaoBT = (float)par;
-
-			if(pTEMP.polEscolhaBT > pATEAMS->tamPopAteams)
-				pTEMP.polEscolhaBT = pATEAMS->tamPopAteams;
-		}
-		else
-		{
-			printf("\n\nERRO NO ARQUIVO DE PARÂMETROS!!!\n\n");
-			exit(0);
-		}
-		pHEURISTICAS->push_back(pTEMP);
-	}
-	return;
-}
-
-/* Le argumentos adicionais passados por linha de comando */
-void Problema::leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS)
-{
-	int p = -1;
-
-	if((p = findPosArgv(argv, argc, (char*)"--iterAteams")) != -1)
-		pATEAMS->iterAteams = atoi(argv[p]);
-
-	if((p = findPosArgv(argv, argc, (char*)"--numThreads")) != -1)
-		pATEAMS->numThreads = atoi(argv[p]);
-
-	if((p = findPosArgv(argv, argc, (char*)"--tentAteams")) != -1)
-		pATEAMS->tentAteams = atoi(argv[p]);
-
-	if((p = findPosArgv(argv, argc, (char*)"--maxTempoAteams")) != -1)
-		pATEAMS->maxTempoAteams = atoi(argv[p]);
-
-	if((p = findPosArgv(argv, argc, (char*)"--tamPopAteams")) != -1)
-		pATEAMS->tamPopAteams = atoi(argv[p]);
-
-	if((p = findPosArgv(argv, argc, (char*)"--critUnicidade")) != -1)
-		pATEAMS->critUnicidade = atoi(argv[p]);
-
-	if((p = findPosArgv(argv, argc, (char*)"--makespanBest")) != -1)
-		pATEAMS->makespanBest = atoi(argv[p]);
-}
-
 list<Problema*>* Problema::lePopulacao(char *log)
 {
 	FILE *f = fopen(log, "r");
@@ -660,7 +473,7 @@ inline vector<pair<Problema*, movTabu*>* >* FlowShop::buscaLocal(float parcela)
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
-inline pair<Problema*, Problema*>* FlowShop::crossOver(const Problema* parceiro, int tamParticao)
+inline pair<Problema*, Problema*>* FlowShop::crossOver(const Problema* parceiro, int tamParticao, int strength)
 {
 	short int *f1 = (short int*)alocaMatriz(1, njob, 1, 1), *f2 = (short int*)alocaMatriz(1, njob, 1, 1);
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
@@ -680,7 +493,7 @@ inline pair<Problema*, Problema*>* FlowShop::crossOver(const Problema* parceiro,
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
-inline pair<Problema*, Problema*>* FlowShop::crossOver(const Problema* parceiro)
+inline pair<Problema*, Problema*>* FlowShop::crossOver(const Problema* parceiro, int strength)
 {
 	short int *f1 = (short int*)alocaMatriz(1, njob, 1, 1), *f2 = (short int*)alocaMatriz(1, njob, 1, 1);
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();

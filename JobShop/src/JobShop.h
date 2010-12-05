@@ -42,12 +42,12 @@ public:
 	Problema* vizinho();
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
-	vector<pair<Problema*, movTabu*>* >* buscaLocal();	// Todos os vizinhos
+	vector<pair<Problema*, movTabu*>* >* buscaLocal();		// Todos os vizinhos
 	vector<pair<Problema*, movTabu*>* >* buscaLocal(float);	// Uma parcela aleatoria
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
-	pair<Problema*, Problema*>* crossOver(const Problema*, int);	// Dois pivos
-	pair<Problema*, Problema*>* crossOver(const Problema*);		// Um pivo
+	pair<Problema*, Problema*>* crossOver(const Problema*, int, int);	// Dois pivos
+	pair<Problema*, Problema*>* crossOver(const Problema*, int);		// Um pivo
 
 	/* Devolve uma mutacao aleatoria na solucao atual */
 	Problema* mutacao(int);

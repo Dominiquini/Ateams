@@ -12,7 +12,7 @@ class Genetico : public Heuristica
 public:
 
 	int iterGenetico, tamPopGenetico, tamParticionamento;
-	float probCrossOver, probMutacao;
+	float probCrossOver, powerCrossOver, probMutacao;
 
 #ifndef THREADS
 	vector<Problema*> *bad_pop;

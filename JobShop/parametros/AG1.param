@@ -15,4 +15,5 @@
 [tamPopAG] = 250		// Tamanho da população intermediária do AG
 [tamParticaoAG] = -1		// Tamanho de uma divisão durante o Crossover
 [probCrossOverAG] = 0.8		// Probabilidade de cruzamento
+[powerCrossOverAG] = 0.25		// Força do CrossOver
 [probMutacaoAG] = 0.08		// Probabilidade de haver mutação
