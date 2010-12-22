@@ -37,11 +37,11 @@ $(PATH_BIN):
 
 
 $(EXEC):	$(OBJS)
-		@cd $(PATH_CORE) && $(MAKE)
 		@$(CC) $(CFLAGS) $(PATH_CORE_BIN)*.o $^ -o $@
 		@echo "$(CC) $(CFLAGS) $(PATH_BIN)*.o -o $@"
 
 $(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.h
+		@cd $(PATH_CORE) && $(MAKE)
 		@$(CC) $(CFLAGS) -c $< -o $@
 		@echo "$(CC) $(CFLAGS) -c $< -o $@"
 
