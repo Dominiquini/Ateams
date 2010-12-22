@@ -11,10 +11,8 @@
 using namespace std;
 
 #ifdef _WIN32
-#define DADOS "dados\\car1.prb"
 #define PARAMETROS "parametros\\default.param"
 #else
-#define DADOS "dados/car1.prb"
 #define PARAMETROS "parametros/default.param"
 #endif
 
@@ -59,9 +57,9 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		fdados = fopen(DADOS, "r");
-		printf("\nDados: '%s'\n", DADOS);
-		strcpy(dados, DADOS);
+		printf("\n./Ateams -i <ARQUIVO_ENTRADA -p <ARQUIVO_PARÂMETROS -r <ARQUIVO_RESULTADOS> -l <ARQUIVO_LOG>\n\n");
+
+		return -1;
 	}
 
 	if((p = findPosArgv(argv, argc, (char*)"-p")) != -1)

@@ -8,15 +8,31 @@ extern pthread_mutex_t mut_p;
 #define _PROBLEMA_
 
 class Problema;
+class Solucao;
 
 bool fncomp1(Problema*, Problema*);		//Se P1 for menor que P2
 bool fncomp2(Problema*, Problema*); 	//Se P1 for menor que P2, considerando apenas o fitness
 bool fnequal1(Problema*, Problema*);	//Se P1 for igual a P2
 bool fnequal2(Problema*, Problema*);	//Se P1 for igual a P2, considerando apenas o fitness
 
+class Solucao
+{
+protected:
+
+	double fitness;		// Fitness da solucao
+};
+
+class InfoTabu
+{
+public:
+
+	virtual bool operator == (InfoTabu&) = 0;
+};
+
 class Problema
 {
 public:
+
 	static double best;				// Melhor solucao do momento
 	static double worst;			// Pior solucao do momento
 	static int numInst;				// Quantidade de instancias criadas
@@ -65,8 +81,8 @@ public:
 	virtual Problema* vizinho() = 0;
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual */
-	virtual vector<pair<Problema*, movTabu*>* >* buscaLocal() = 0;		// Todos os vizinhos
-	virtual vector<pair<Problema*, movTabu*>* >* buscaLocal(float) = 0;	// Uma parcela aleatoria
+	virtual vector<pair<Problema*, InfoTabu*>* >* buscaLocal() = 0;			// Todos os vizinhos
+	virtual vector<pair<Problema*, InfoTabu*>* >* buscaLocal(float) = 0;	// Uma parcela aleatoria
 
 	/* Realiza um crossover com uma outra solucao */
 	virtual pair<Problema*, Problema*>* crossOver(const Problema*, int, int) = 0;	// Dois pivos
@@ -79,16 +95,8 @@ public:
 	virtual double getFitnessMaximize() const = 0;	// Problemas de Maximizacao
 	virtual double getFitnessMinimize() const = 0;	// Problemas de Minimizacao
 
-	/* Devolve a representacao interna da solucao */
-	const soluction& getSoluction() const
-	{
-		return sol;
-	}
-
-protected:
-	soluction sol;								// Representacao interna da solucao
-
 private:
+
 	virtual bool calcFitness(bool esc) = 0;		// Calcula o makespan
 
 
@@ -96,7 +104,6 @@ private:
 	friend bool fnequal2(Problema*, Problema*);	// Comparacao superficial
 	friend bool fncomp1(Problema*, Problema*);	// Comparacao profunda
 	friend bool fncomp2(Problema*, Problema*);	// Comparacao superficial
-
 
 public:
 

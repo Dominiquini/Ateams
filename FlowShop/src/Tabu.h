@@ -25,9 +25,9 @@ private:
 	vector<Problema*>* exec(Problema*);
 };
 
-bool isTabu(list<movTabu*> *listaTabu, movTabu *m);
+bool isTabu(list<InfoTabu*> *listaTabu, InfoTabu *m);
 
-void addTabu(list<movTabu*>* listaTabu, movTabu *m, int max);
+void addTabu(list<InfoTabu*>* listaTabu, InfoTabu *m, int max);
 
 bool aspiracao(double paramAsp, Problema *atual, Problema *local, Problema *global);
 

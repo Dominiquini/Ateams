@@ -22,13 +22,6 @@ using namespace std;
 #ifndef _ATEAMS_
 #define _ATEAMS_
 
-typedef struct soluction
-{
-	int makespan;			// Makespan da solucao
-	short int *esc;			// Solucao
-	short int ***escalon;	// Escalonamento nas maquinas - Grafico de Gant
-} soluction;
-
 typedef struct executado
 {
 	bool tabu;
@@ -44,26 +37,6 @@ typedef struct execInfo
 	double worstFitness;
 	double bestFitness;
 } execInfo;
-
-struct movTabu
-{
-	short int A, B;
-
-	movTabu(int xA, int xB)
-	{
-		A = xA;
-		B = xB;
-	}
-
-	// Verifica se 't1' eh igual a 't2'
-	bool operator == (movTabu& t)
-	{
-		if((A == t.A && B == t.B) || (A == t.B && B == t.A))
-			return true;
-		else
-			return false;
-	}
-};
 
 struct ParametrosATEAMS {
 	int tamPopAteams;

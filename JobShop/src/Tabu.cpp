@@ -81,11 +81,11 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 /* Executa uma busca por solucoes a partir de 'init' por 'iterTabu' vezes */
 vector<Problema*>* Tabu::exec(Problema* init)
 {
-	vector<pair<Problema*, movTabu*>* >* vizinhanca;
-	pair<Problema*, movTabu*>* local;
+	vector<pair<Problema*, InfoTabu*>* >* vizinhanca;
+	pair<Problema*, InfoTabu*>* local;
 
 	// Lista Tabu de movimentos repetidos
-	list<movTabu*>* listaTabu = new list<movTabu*>;
+	list<InfoTabu*>* listaTabu = new list<InfoTabu*>;
 
 	// Maximos globais e locais na execucao da Busca Tabu
 	vector<Problema*>* maxGlobal = new vector<Problema*>();
@@ -191,9 +191,9 @@ vector<Problema*>* Tabu::exec(Problema* init)
 }
 
 /* Verdadeiro se movimento avaliado for Tabu */
-inline bool isTabu(list<movTabu*> *listaTabu, movTabu *m)
+inline bool isTabu(list<InfoTabu*> *listaTabu, InfoTabu *m)
 {
-	list<movTabu*>::iterator iter;
+	list<InfoTabu*>::iterator iter;
 
 	for(iter = listaTabu->begin(); iter != listaTabu->end(); iter++)
 		if(*m == **iter)
@@ -202,7 +202,7 @@ inline bool isTabu(list<movTabu*> *listaTabu, movTabu *m)
 	return false;
 }
 
-inline void addTabu(list<movTabu*>* listaTabu, movTabu *m, int max)
+inline void addTabu(list<InfoTabu*>* listaTabu, InfoTabu *m, int max)
 {
 	listaTabu->push_front(m);
 

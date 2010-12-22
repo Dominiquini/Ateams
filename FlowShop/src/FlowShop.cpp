@@ -97,7 +97,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 
 			p = new FlowShop(prob);
 
-			if(makespan != p->sol.makespan)
+			if(makespan != p->getFitnessMinimize())
 			{
 				printf("Arquivo de log incorreto!\n\n");
 				exit(1);
@@ -127,9 +127,9 @@ void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 
 	for(iter = popInicial->begin(); iter != popInicial->end(); iter++)
 	{
-		prob = (*iter)->sol.esc;
+		prob = dynamic_cast<FlowShop *>(*iter)->getSoluction().esc;
 
-		fprintf(f, "%d\n", (*iter)->sol.makespan);
+		fprintf(f, "%d\n", (int)dynamic_cast<FlowShop *>(*iter)->getSoluction().fitness);
 
 		for(int j = 0; j < FlowShop::njob; j++)
 		{
@@ -216,35 +216,39 @@ FlowShop::FlowShop(short int *prob) : Problema::Problema()
 
 FlowShop::FlowShop(const Problema &prob) : Problema::Problema()
 {
-	sol.esc = (short int*)alocaMatriz(1, njob, 1, 1);
+	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problema *>(&prob));
+
+	this->sol.esc = (short int*)alocaMatriz(1, njob, 1, 1);
 	for(int j = 0; j < njob; j++)
-		sol.esc[j] = (prob.getSoluction()).esc[j];
+		this->sol.esc[j] = other->sol.esc[j];
 
-	sol.escalon = NULL;
-	sol.makespan = (prob.getSoluction()).makespan;
+	this->sol.escalon = NULL;
+	this->sol.fitness = other->sol.fitness;
 
-	if((prob.getSoluction()).escalon != NULL)
+	if(other->sol.escalon != NULL)
 	{
-		sol.escalon = (short int***)alocaMatriz(3, nmaq, njob, 3);
+		this->sol.escalon = (short int***)alocaMatriz(3, nmaq, njob, 3);
 		for(int i = 0; i < nmaq; i++)
 			for(int j = 0; j < njob; j++)
 				for(int k = 0; k < 3; k++)
-					sol.escalon[i][j][k] = (prob.getSoluction()).escalon[i][j][k];
+					this->sol.escalon[i][j][k] = other->sol.escalon[i][j][k];
 	}
 	exec = prob.exec;
 }
 
 FlowShop::FlowShop(const Problema &prob, int pos1, int pos2) : Problema::Problema()
 {
-	sol.esc = (short int*)alocaMatriz(1, njob, 1, 1);
+	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problema *>(&prob));
+
+	this->sol.esc = (short int*)alocaMatriz(1, njob, 1, 1);
 	for(int j = 0; j < njob; j++)
-		sol.esc[j] = (prob.getSoluction()).esc[j];
+		this->sol.esc[j] = other->sol.esc[j];
 
-	short int aux = sol.esc[pos1];
-	sol.esc[pos1] = sol.esc[pos2];
-	sol.esc[pos2] = aux;
+	short int aux = this->sol.esc[pos1];
+	this->sol.esc[pos1] = this->sol.esc[pos2];
+	this->sol.esc[pos2] = aux;
 
-	sol.escalon = NULL;
+	this->sol.escalon = NULL;
 	calcFitness(false);
 
 	exec.tabu = false;
@@ -302,7 +306,7 @@ inline bool FlowShop::calcFitness(bool esc)
 
 	desalocaMatriz(1, pos, 1, 1);
 
-	sol.makespan = sum_time;
+	sol.fitness = sum_time;
 
 	return true;
 }
@@ -396,15 +400,15 @@ inline Problema* FlowShop::vizinho()
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problema*, movTabu*>* >* FlowShop::buscaLocal()
+inline vector<pair<Problema*, InfoTabu*>* >* FlowShop::buscaLocal()
 {
 	if(FlowShop::permutacoes > MAX_PERMUTACOES)
 		return buscaLocal((float)MAX_PERMUTACOES/(float)FlowShop::permutacoes);
 
 	Problema *job = NULL;
 	register int p1, p2;
-	pair<Problema*, movTabu*>* temp;
-	vector<pair<Problema*, movTabu*>* >* local = new vector<pair<Problema*, movTabu*>* >();
+	pair<Problema*, InfoTabu*>* temp;
+	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
 
 	for(p1 = 0; p1 < njob-1; p1++)
 	{
@@ -413,9 +417,9 @@ inline vector<pair<Problema*, movTabu*>* >* FlowShop::buscaLocal()
 			job = new FlowShop(*this, p1, p2);
 			if(job->getFitnessMinimize() != -1)
 			{
-				temp = new pair<Problema*, movTabu*>();
+				temp = new pair<Problema*, InfoTabu*>();
 				temp->first = job;
-				temp->second = new movTabu(p1, p2);
+				temp->second = new InfoTabu_FlowShop(p1, p2);
 
 				local->push_back(temp);
 			}
@@ -433,12 +437,12 @@ inline vector<pair<Problema*, movTabu*>* >* FlowShop::buscaLocal()
 }
 
 /* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problema*, movTabu*>* >* FlowShop::buscaLocal(float parcela)
+inline vector<pair<Problema*, InfoTabu*>* >* FlowShop::buscaLocal(float parcela)
 {
 	Problema *job = NULL;
 	int p1, p2;
-	pair<Problema*, movTabu*>* temp;
-	vector<pair<Problema*, movTabu*>* >* local = new vector<pair<Problema*, movTabu*>* >();
+	pair<Problema*, InfoTabu*>* temp;
+	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
 	int def, i;
 
 	def = (int)((float)FlowShop::permutacoes*parcela);
@@ -456,9 +460,9 @@ inline vector<pair<Problema*, movTabu*>* >* FlowShop::buscaLocal(float parcela)
 		job = new FlowShop(*this, p1, p2);
 		if(job->getFitnessMinimize() != -1)
 		{
-			temp = new pair<Problema*, movTabu*>();
+			temp = new pair<Problema*, InfoTabu*>();
 			temp->first = job;
-			temp->second = new movTabu(p1, p2);
+			temp->second = new InfoTabu_FlowShop(p1, p2);
 
 			local->push_back(temp);
 		}
@@ -480,11 +484,13 @@ inline pair<Problema*, Problema*>* FlowShop::crossOver(const Problema* parceiro,
 	int particao = tamParticao == -1 ? (FlowShop::njob)/2 : tamParticao;
 	int inicioPart = 0, fimPart = 0;
 
+	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problema *>(parceiro));
+
 	inicioPart = xRand(rand(), 0, njob);
 	fimPart = inicioPart+particao <= njob ? inicioPart+particao : njob;
 
-	swap_vect(this->sol.esc, (parceiro->getSoluction()).esc, f1, inicioPart, fimPart-inicioPart);
-	swap_vect((parceiro->getSoluction()).esc, this->sol.esc, f2, inicioPart, fimPart-inicioPart);
+	swap_vect(this->sol.esc, other->sol.esc, f1, inicioPart, fimPart-inicioPart);
+	swap_vect(other->sol.esc, this->sol.esc, f2, inicioPart, fimPart-inicioPart);
 
 	filhos->first = new FlowShop(f1);
 	filhos->second = new FlowShop(f2);
@@ -499,10 +505,12 @@ inline pair<Problema*, Problema*>* FlowShop::crossOver(const Problema* parceiro,
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
 	int particao = 0;
 
+	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problema *>(parceiro));
+
 	particao = xRand(rand(), 1, njob);
 
-	swap_vect(this->sol.esc, (parceiro->getSoluction()).esc, f1, 0, particao);
-	swap_vect((parceiro->getSoluction()).esc, this->sol.esc, f2, 0, particao);
+	swap_vect(this->sol.esc, other->sol.esc, f1, 0, particao);
+	swap_vect(other->sol.esc, this->sol.esc, f2, 0, particao);
 
 	filhos->first = new FlowShop(f1);
 	filhos->second = new FlowShop(f2);
@@ -538,12 +546,12 @@ inline Problema* FlowShop::mutacao(int mutMax)
 
 inline double FlowShop::getFitnessMaximize() const
 {
-	return (double)INV_FITNESS/sol.makespan;
+	return (double)INV_FITNESS/sol.fitness;
 }
 
 inline double FlowShop::getFitnessMinimize() const
 {
-	return (double)sol.makespan;
+	return (double)sol.fitness;
 }
 
 /* Auxiliares */
@@ -637,9 +645,12 @@ inline void desalocaMatriz(int dim, void *MMM, int a, int b)
 }
 
 // comparator function:
-bool fnequal1(Problema* p1, Problema* p2)
+bool fnequal1(Problema* prob1, Problema* prob2)
 {
-	if(p1->getFitnessMinimize() == p2->getFitnessMinimize())
+	FlowShop *p1 = dynamic_cast<FlowShop *>(prob1);
+	FlowShop *p2 = dynamic_cast<FlowShop *>(prob2);
+
+	if(p1->sol.fitness == p2->sol.fitness)
 	{
 		for(int j = 0; j < FlowShop::njob; j++)
 			if(p1->sol.esc[j] != p2->sol.esc[j])
@@ -652,34 +663,43 @@ bool fnequal1(Problema* p1, Problema* p2)
 }
 
 // comparator function:
-bool fnequal2(Problema* p1, Problema* p2)
+bool fnequal2(Problema* prob1, Problema* prob2)
 {
-	return p1->getFitnessMinimize() == p2->getFitnessMinimize();
+	FlowShop *p1 = dynamic_cast<FlowShop *>(prob1);
+	FlowShop *p2 = dynamic_cast<FlowShop *>(prob2);
+
+	return p1->sol.fitness == p2->sol.fitness;
 }
 
 // comparator function:
 bool fncomp1(Problema *prob1, Problema *prob2)
 {
-	if(prob1->getFitnessMinimize() == prob2->getFitnessMinimize())
+	FlowShop *p1 = dynamic_cast<FlowShop *>(prob1);
+	FlowShop *p2 = dynamic_cast<FlowShop *>(prob2);
+
+	if(p1->sol.fitness == p2->sol.fitness)
 	{
 		for(int j = 0; j < FlowShop::njob; j++)
-			if(prob1->sol.esc[j] != prob2->sol.esc[j])
-				return prob1->sol.esc[j] < prob2->sol.esc[j];
+			if(p1->sol.esc[j] != p2->sol.esc[j])
+				return p1->sol.esc[j] < p2->sol.esc[j];
 
 		return false;
 	}
 	else
-		return prob1->getFitnessMinimize() < prob2->getFitnessMinimize();
+		return p1->sol.fitness < p2->sol.fitness;
 }
 
 // comparator function:
 bool fncomp2(Problema *prob1, Problema *prob2)
 {
-	return prob1->getFitnessMinimize() < prob2->getFitnessMinimize();
+	FlowShop *p1 = dynamic_cast<FlowShop *>(prob1);
+	FlowShop *p2 = dynamic_cast<FlowShop *>(prob2);
+
+	return p1->sol.fitness < p2->sol.fitness;
 }
 
 
-inline bool ptcomp(pair<Problema*, movTabu*>* p1, pair<Problema*, movTabu*>* p2)
+inline bool ptcomp(pair<Problema*, InfoTabu*>* p1, pair<Problema*, InfoTabu*>* p2)
 {
 	return (p1->first->getFitnessMinimize() > p2->first->getFitnessMinimize());
 }

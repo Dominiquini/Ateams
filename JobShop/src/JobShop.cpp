@@ -99,7 +99,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 			}
 			p = new JobShop(prob);
 
-			if(makespan != p->sol.makespan)
+			if(makespan != p->getFitnessMinimize())
 			{
 				printf("Arquivo de log incorreto!\n\n");
 				exit(1);
@@ -129,9 +129,9 @@ void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 
 	for(iter = popInicial->begin(); iter != popInicial->end(); iter++)
 	{
-		prob = (*iter)->sol.esc;
+		prob = dynamic_cast<JobShop *>(*iter)->getSoluction().esc;
 
-		fprintf(f, "%d\n", (*iter)->sol.makespan);
+		fprintf(f, "%d\n", (int)dynamic_cast<JobShop *>(*iter)->getSoluction().fitness);
 
 		for(int j = 0; j < JobShop::nmaq; j++)
 		{
@@ -251,37 +251,41 @@ JobShop::JobShop(short int **prob) : Problema::Problema()
 
 JobShop::JobShop(const Problema &prob) : Problema::Problema()
 {
-	sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
+	JobShop *other = dynamic_cast<JobShop *>(const_cast<Problema *>(&prob));
+
+	this->sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	for(int i = 0; i < nmaq; i++)
 		for(int j = 0; j < njob; j++)
-			sol.esc[i][j] = (prob.getSoluction()).esc[i][j];
+			this->sol.esc[i][j] = other->sol.esc[i][j];
 
-	sol.escalon = NULL;
-	sol.makespan = (prob.getSoluction()).makespan;
+	this->sol.escalon = NULL;
+	this->sol.fitness = other->sol.fitness;
 
-	if((prob.getSoluction()).escalon != NULL)
+	if(other->sol.escalon != NULL)
 	{
-		sol.escalon = (short int***)alocaMatriz(3, nmaq, njob, 3);
+		this->sol.escalon = (short int***)alocaMatriz(3, nmaq, njob, 3);
 		for(int i = 0; i < nmaq; i++)
 			for(int j = 0; j < njob; j++)
 				for(int k = 0; k < 3; k++)
-					sol.escalon[i][j][k] = (prob.getSoluction()).escalon[i][j][k];
+					this->sol.escalon[i][j][k] = other->sol.escalon[i][j][k];
 	}
 	exec = prob.exec;
 }
 
 JobShop::JobShop(const Problema &prob, int maq, int pos1, int pos2) : Problema::Problema()
 {
-	sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
+	JobShop *other = dynamic_cast<JobShop *>(const_cast<Problema *>(&prob));
+
+	this->sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	for(int i = 0; i < nmaq; i++)
 		for(int j = 0; j < njob; j++)
-			sol.esc[i][j] = (prob.getSoluction()).esc[i][j];
+			this->sol.esc[i][j] = other->sol.esc[i][j];
 
-	short int aux = sol.esc[maq][pos1];
-	sol.esc[maq][pos1] = sol.esc[maq][pos2];
-	sol.esc[maq][pos2] = aux;
+	short int aux = this->sol.esc[maq][pos1];
+	this->sol.esc[maq][pos1] = this->sol.esc[maq][pos2];
+	this->sol.esc[maq][pos2] = aux;
 
-	sol.escalon = NULL;
+	this->sol.escalon = NULL;
 	calcFitness(false);
 
 	exec.tabu = false;
@@ -291,11 +295,11 @@ JobShop::JobShop(const Problema &prob, int maq, int pos1, int pos2) : Problema::
 
 JobShop::~JobShop()
 {
-	if(sol.esc != NULL)
-		desalocaMatriz(2, sol.esc, JobShop::nmaq, 1);
+	if(this->sol.esc != NULL)
+		desalocaMatriz(2, this->sol.esc, JobShop::nmaq, 1);
 
-	if(sol.escalon != NULL)
-		desalocaMatriz(3, sol.escalon, JobShop::nmaq, JobShop::njob);
+	if(this->sol.escalon != NULL)
+		desalocaMatriz(3, this->sol.escalon, JobShop::nmaq, JobShop::njob);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
@@ -382,7 +386,7 @@ inline bool JobShop::calcFitness(bool esc)
 		else
 			sol.escalon = aux_esc;
 
-		sol.makespan = sum_time;
+		sol.fitness = sum_time;
 		return true;
 	}
 	else
@@ -391,7 +395,7 @@ inline bool JobShop::calcFitness(bool esc)
 		desalocaMatriz(2, tmp, njob, 0);
 		desalocaMatriz(1, pos, 0, 0);
 
-		sol.makespan = -1;
+		sol.fitness = -1;
 		return false;
 	}
 }
@@ -488,7 +492,7 @@ inline Problema* JobShop::vizinho()
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
+inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal()
 {
 	if(JobShop::permutacoes > MAX_PERMUTACOES)
 		return buscaLocal((float)MAX_PERMUTACOES/(float)JobShop::permutacoes);
@@ -496,8 +500,8 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
 	Problema *job = NULL;
 	register int maq, p1, p2;
 	int numMaqs = nmaq, numJobs = njob;
-	pair<Problema*, movTabu*>* temp;
-	vector<pair<Problema*, movTabu*>* >* local = new vector<pair<Problema*, movTabu*>* >();
+	pair<Problema*, InfoTabu*>* temp;
+	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
 
 	for(maq = 0; maq < numMaqs; maq++)
 	{
@@ -508,9 +512,9 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
 				job = new JobShop(*this, maq, p1, p2);
 				if(job->getFitnessMinimize() != -1)
 				{
-					temp = new pair<Problema*, movTabu*>();
+					temp = new pair<Problema*, InfoTabu*>();
 					temp->first = job;
-					temp->second = new movTabu(maq, p1, p2);
+					temp->second = new InfoTabu_JobShop(maq, p1, p2);
 
 					local->push_back(temp);
 				}
@@ -528,13 +532,13 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal()
 }
 
 /* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
+inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal(float parcela)
 {
 	Problema *job = NULL;
 	int maq, p1, p2;
 	int numMaqs = nmaq, numJobs = njob;
-	pair<Problema*, movTabu*>* temp;
-	vector<pair<Problema*, movTabu*>* >* local = new vector<pair<Problema*, movTabu*>* >();
+	pair<Problema*, InfoTabu*>* temp;
+	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
 	int def, i;
 
 	def = (int)((float)JobShop::permutacoes*parcela);
@@ -552,9 +556,9 @@ inline vector<pair<Problema*, movTabu*>* >* JobShop::buscaLocal(float parcela)
 		job = new JobShop(*this, maq, p1, p2);
 		if(job->getFitnessMinimize() != -1)
 		{
-			temp = new pair<Problema*, movTabu*>();
+			temp = new pair<Problema*, InfoTabu*>();
 			temp->first = job;
-			temp->second = new movTabu(maq, p1, p2);
+			temp->second = new InfoTabu_JobShop(maq, p1, p2);
 
 			local->push_back(temp);
 		}
@@ -578,6 +582,8 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro, 
 	int inicioPart = 0, fimPart = 0;
 	short int *maqs = (short int*)alocaMatriz(1, nmaq, 1, 1);
 
+	JobShop *other = dynamic_cast<JobShop *>(const_cast<Problema *>(parceiro));
+
 	for(register int i = 0; i < nmaq; i++)
 		maqs[i] = i;
 
@@ -592,13 +598,13 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro, 
 			inicioPart = xRand(rand(), 0, njob);
 			fimPart = inicioPart+particao <= njob ? inicioPart+particao : njob;
 
-			swap_vect(this->sol.esc[j], (parceiro->getSoluction()).esc[j], f1[j], inicioPart, fimPart-inicioPart);
-			swap_vect((parceiro->getSoluction()).esc[j], this->sol.esc[j], f2[j], inicioPart, fimPart-inicioPart);
+			swap_vect(this->sol.esc[j], other->sol.esc[j], f1[j], inicioPart, fimPart-inicioPart);
+			swap_vect(other->sol.esc[j], this->sol.esc[j], f2[j], inicioPart, fimPart-inicioPart);
 		}
 		else
 		{
 			copy(&(this->sol.esc[j][0]), &(this->sol.esc[j][njob]), &(f1[j][0]));
-			copy(&((parceiro->getSoluction()).esc[j][0]), &((parceiro->getSoluction()).esc[j][njob]), &(f2[j][0]));
+			copy(&(other->sol.esc[j][0]), &(other->sol.esc[j][njob]), &(f2[j][0]));
 		}
 	}
 
@@ -619,6 +625,8 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro, 
 	short int *maqs = (short int*)alocaMatriz(1, nmaq, 1, 1);
 	int particao = 0;
 
+	JobShop *other = dynamic_cast<JobShop *>(const_cast<Problema *>(parceiro));
+
 	for(register int i = 0; i < nmaq; i++)
 		maqs[i] = i;
 
@@ -632,13 +640,13 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro, 
 		{
 			particao = xRand(rand(), 1, njob);
 
-			swap_vect(this->sol.esc[j], (parceiro->getSoluction()).esc[j], f1[j], 0, particao);
-			swap_vect((parceiro->getSoluction()).esc[j], this->sol.esc[j], f2[j], 0, particao);
+			swap_vect(this->sol.esc[j], other->sol.esc[j], f1[j], 0, particao);
+			swap_vect(other->sol.esc[j], this->sol.esc[j], f2[j], 0, particao);
 		}
 		else
 		{
 			copy(&(this->sol.esc[j][0]), &(this->sol.esc[j][njob]), &(f1[j][0]));
-			copy(&((parceiro->getSoluction()).esc[j][0]), &((parceiro->getSoluction()).esc[j][njob]), &(f2[j][0]));
+			copy(&(other->sol.esc[j][0]), &(other->sol.esc[j][njob]), &(f2[j][0]));
 		}
 	}
 
@@ -679,12 +687,12 @@ inline Problema* JobShop::mutacao(int mutMax)
 
 inline double JobShop::getFitnessMaximize() const
 {
-	return (double)INV_FITNESS/sol.makespan;
+	return (double)INV_FITNESS/sol.fitness;
 }
 
 inline double JobShop::getFitnessMinimize() const
 {
-	return (double)sol.makespan;
+	return (double)sol.fitness;
 }
 
 /* Auxiliares */
@@ -778,9 +786,12 @@ inline void desalocaMatriz(int dim, void *MMM, int a, int b)
 }
 
 // comparator function:
-bool fnequal1(Problema* p1, Problema* p2)
+bool fnequal1(Problema* prob1, Problema* prob2)
 {
-	if(p1->getFitnessMinimize() == p2->getFitnessMinimize())
+	JobShop *p1 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob1));
+	JobShop *p2 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob2));
+
+	if(p1->sol.fitness == p2->sol.fitness)
 	{
 		for(int i = 0; i < JobShop::nmaq; i++)
 			for(int j = 0; j < JobShop::njob; j++)
@@ -793,34 +804,43 @@ bool fnequal1(Problema* p1, Problema* p2)
 }
 
 // comparator function:
-bool fnequal2(Problema* p1, Problema* p2)
+bool fnequal2(Problema* prob1, Problema* prob2)
 {
-	return p1->getFitnessMinimize() == p2->getFitnessMinimize();
+	JobShop *p1 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob1));
+	JobShop *p2 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob2));
+
+	return p1->sol.fitness == p2->sol.fitness;
 }
 
 // comparator function:
 bool fncomp1(Problema *prob1, Problema *prob2)
 {
-	if(prob1->getFitnessMinimize() == prob2->getFitnessMinimize())
+	JobShop *p1 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob1));
+	JobShop *p2 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob2));
+
+	if(p1->sol.fitness == p2->sol.fitness)
 	{
 		for(int i = 0; i < JobShop::nmaq; i++)
 			for(int j = 0; j < JobShop::njob; j++)
-				if(prob1->sol.esc[i][j] != prob2->sol.esc[i][j])
-					return prob1->sol.esc[i][j] < prob2->sol.esc[i][j];
+				if(p1->sol.esc[i][j] != p2->sol.esc[i][j])
+					return p1->sol.esc[i][j] < p2->sol.esc[i][j];
 		return false;
 	}
 	else
-		return prob1->getFitnessMinimize() < prob2->getFitnessMinimize();
+		return p1->sol.fitness < p2->sol.fitness;
 }
 
 // comparator function:
 bool fncomp2(Problema *prob1, Problema *prob2)
 {
-	return prob1->getFitnessMinimize() < prob2->getFitnessMinimize();
+	JobShop *p1 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob1));
+	JobShop *p2 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob2));
+
+	return p1->sol.fitness < p2->sol.fitness;
 }
 
 
-inline bool ptcomp(pair<Problema*, movTabu*>* p1, pair<Problema*, movTabu*>* p2)
+inline bool ptcomp(pair<Problema*, InfoTabu*>* p1, pair<Problema*, InfoTabu*>* p2)
 {
 	return (p1->first->getFitnessMinimize() > p2->first->getFitnessMinimize());
 }
