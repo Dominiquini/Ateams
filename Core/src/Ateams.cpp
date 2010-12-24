@@ -11,9 +11,9 @@
 using namespace std;
 
 #ifdef _WIN32
-#define PARAMETROS "parametros\\default.param"
+#define PARAMETROS "parametros\\DEFAULT.param"
 #else
-#define PARAMETROS "parametros/default.param"
+#define PARAMETROS "parametros/DEFAULT.param"
 #endif
 
 volatile bool PARAR = false;
@@ -91,6 +91,8 @@ int main(int argc, char *argv[])
 	else
 	{
 		char *c = NULL;
+
+		mkdir("resultados", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
 #ifdef _WIN32
 		strcpy(resultado, "resultados\\");

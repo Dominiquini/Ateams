@@ -13,7 +13,7 @@ Genetico::Genetico() : Heuristica::Heuristica("DEFAULT_AG")
 	probCrossOver = 0.8;
 	powerCrossOver = 0.5;
 	probMutacao = 0.08;
-	tamParticionamento = -1;
+	tamParticionamento = 0;
 
 	Heuristica::numHeuristic += prob;
 }
@@ -29,7 +29,7 @@ Genetico::Genetico(string nome, ParametrosHeuristicas& pAG) : Heuristica::Heuris
 	probCrossOver = pAG.probCrossOverAG != -1 ? pAG.probCrossOverAG : 0.8;
 	powerCrossOver = pAG.powerCrossOverAG != -1 ? pAG.powerCrossOverAG : 0.5;
 	probMutacao = pAG.probMutacaoAG != -1 ? pAG.probMutacaoAG : 0.02;
-	tamParticionamento = pAG.tamParticaoAG != -1 ? pAG.tamParticaoAG : -1;
+	tamParticionamento = pAG.tamParticaoAG;
 
 	Heuristica::numHeuristic += prob;
 }
@@ -152,9 +152,9 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		/* Faz o cruzamento entre os individuos anteriormente escolhidos */
 		for(iterParProb = pais->begin(); iterParProb != pais->end(); iterParProb++)
 		{
-			if(i % 2 == 0)
+			if(tamParticionamento != -1)
 			{
-				/* Crossover com dois pontos de particionamento escolhidos aleatoriamente e tamanho 'tamParticionmento' */
+				/* Crossover com dois pontos de particionamento escolhidos aleatoriamente e um deles com tamanho 'tamParticionmento' */
 				temp = (*iterParProb)->first->crossOver((*iterParProb)->second, tamParticionamento, strengthCrossOver);
 			}
 			else

@@ -13,7 +13,7 @@ char FlowShop::name[128];
 short int **FlowShop::maq = NULL, **FlowShop::time = NULL;
 int FlowShop::njob = 0, FlowShop::nmaq = 0;
 
-int FlowShop::permutacoes = 0;
+int FlowShop::num_vizinhos = 0;
 
 Problema* Problema::randSoluction()
 {
@@ -46,9 +46,8 @@ void Problema::leProblema(FILE *f)
 		}
 	}
 
-	for(int i = FlowShop::njob; i > 0; i--)
-		FlowShop::permutacoes += i;
-	FlowShop::permutacoes *= FlowShop::nmaq;
+	for(int i = 1; i < FlowShop::njob; i++)
+		FlowShop::num_vizinhos += i;
 
 	return;
 }
@@ -402,8 +401,8 @@ inline Problema* FlowShop::vizinho()
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
 inline vector<pair<Problema*, InfoTabu*>* >* FlowShop::buscaLocal()
 {
-	if(FlowShop::permutacoes > MAX_PERMUTACOES)
-		return buscaLocal((float)MAX_PERMUTACOES/(float)FlowShop::permutacoes);
+	if(FlowShop::num_vizinhos > MAX_PERMUTACOES)
+		return buscaLocal((float)MAX_PERMUTACOES/(float)FlowShop::num_vizinhos);
 
 	Problema *job = NULL;
 	register int p1, p2;
@@ -445,7 +444,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* FlowShop::buscaLocal(float parcela)
 	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
 	int def, i;
 
-	def = (int)((float)FlowShop::permutacoes*parcela);
+	def = (int)((float)FlowShop::num_vizinhos*parcela);
 
 	if(def > MAX_PERMUTACOES)
 		def = MAX_PERMUTACOES;
@@ -481,7 +480,7 @@ inline pair<Problema*, Problema*>* FlowShop::crossOver(const Problema* parceiro,
 {
 	short int *f1 = (short int*)alocaMatriz(1, njob, 1, 1), *f2 = (short int*)alocaMatriz(1, njob, 1, 1);
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
-	int particao = tamParticao == -1 ? (FlowShop::njob)/2 : tamParticao;
+	int particao = tamParticao == 0 ? (FlowShop::njob)/2 : tamParticao;
 	int inicioPart = 0, fimPart = 0;
 
 	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problema *>(parceiro));

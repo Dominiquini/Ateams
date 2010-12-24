@@ -13,7 +13,7 @@ char JobShop::name[128];
 short int **JobShop::maq = NULL, **JobShop::time = NULL;
 int JobShop::njob = 0, JobShop::nmaq = 0;
 
-int JobShop::permutacoes = 0;
+int JobShop::num_vizinhos = 0;
 
 Problema* Problema::randSoluction()
 {
@@ -46,9 +46,9 @@ void Problema::leProblema(FILE *f)
 		}
 	}
 
-	for(int i = JobShop::njob; i > 0; i--)
-		JobShop::permutacoes += i;
-	JobShop::permutacoes *= JobShop::nmaq;
+	for(int i = 1; i < JobShop::njob; i++)
+		JobShop::num_vizinhos += i;
+	JobShop::num_vizinhos *= JobShop::nmaq;
 
 	return;
 }
@@ -494,8 +494,8 @@ inline Problema* JobShop::vizinho()
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
 inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal()
 {
-	if(JobShop::permutacoes > MAX_PERMUTACOES)
-		return buscaLocal((float)MAX_PERMUTACOES/(float)JobShop::permutacoes);
+	if(JobShop::num_vizinhos > MAX_PERMUTACOES)
+		return buscaLocal((float)MAX_PERMUTACOES/(float)JobShop::num_vizinhos);
 
 	Problema *job = NULL;
 	register int maq, p1, p2;
@@ -541,7 +541,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal(float parcela)
 	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
 	int def, i;
 
-	def = (int)((float)JobShop::permutacoes*parcela);
+	def = (int)((float)JobShop::num_vizinhos*parcela);
 
 	if(def > MAX_PERMUTACOES)
 		def = MAX_PERMUTACOES;
@@ -577,7 +577,7 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro, 
 {
 	short int **f1 = (short int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
-	int particao = tamParticao == -1 ? (JobShop::njob)/2 : tamParticao;
+	int particao = tamParticao == 0 ? (JobShop::njob)/2 : tamParticao;
 	int numberCrossOver = (int)ceil((float)(strength * nmaq) / 100);
 	int inicioPart = 0, fimPart = 0;
 	short int *maqs = (short int*)alocaMatriz(1, nmaq, 1, 1);

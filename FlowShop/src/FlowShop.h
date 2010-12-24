@@ -62,7 +62,7 @@ public:
 	static short int **maq, **time;	// Matriz de maquinas e de tempos
 	static int njob, nmaq;			// Quantidade de jobs e de maquinas
 
-	static int permutacoes;			// Numero de permutacoes possiveis
+	static int num_vizinhos;		// Numero de permutacoes possiveis
 
 
 	FlowShop();											// Nova solucao aleatoria

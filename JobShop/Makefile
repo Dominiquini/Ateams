@@ -12,7 +12,7 @@ PATH_CORE_SRC = ../Core/src/
 PATH_CORE_BIN = ../Core/bin/
 
 BIN = JobShop
-SRCS =  $(PATH_SRC)JobShop.cpp $(PATH_CORE_SRC)Ateams.cpp $(PATH_CORE_SRC)Controle.cpp$ (PATH_CORE_SRC)Tabu.cpp $(PATH_CORE_SRC)Genetico.cpp $(PATH_CORE_SRC)Annealing.cpp
+SRCS =  $(PATH_SRC)JobShop.cpp $(PATH_CORE_SRC)Ateams.cpp $(PATH_CORE_SRC)Controle.cpp $(PATH_CORE_SRC)Tabu.cpp $(PATH_CORE_SRC)Genetico.cpp $(PATH_CORE_SRC)Annealing.cpp
 OBJS = $(PATH_BIN)JobShop.o
 INCL = $(SRCS:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heuristica.h
 EXEC = $(PATH_BIN)$(BIN)
@@ -30,7 +30,7 @@ install:	all
 
 debug:
 		@$(CC) $(SRCS) -g3 -O0 -lpthread -o $(BIN)
-		@echo "$(CC) $(PATH_SRC)*.cpp -lpthread -g3 -O0 -o $(BIN)"
+		@echo "$(CC) $(PATH_CORE_SRC)*.cpp $(PATH_SRC)*.cpp -lpthread -g3 -O0 -o $(BIN)"
 
 $(PATH_BIN):
 		@mkdir $(PATH_BIN)
@@ -49,10 +49,10 @@ run:		install
 		$(EXEC) $(RUN_PARAM)
 
 clean:
-		@$(RM) $(OBJS) $(EXEC) $(PATH_PROJ)$(BIN)
-		@echo "$(RM) $(PATH_BIN)* $(PATH_PROJ)$(BIN)"
+		@$(RM) $(OBJS) $(BIN) $(EXEC) $(PATH_BIN)
+		@echo "$(RM) $(BIN) $(OBJS) $(EXEC) $(PATH_BIN)"
 
 purge:		clean
-		@$(RM) $(PATH_RES)*.res $(PATH_BIN)
+		@$(RM) $(PATH_RES) $(PATH_BIN)
 		@cd $(PATH_CORE) && $(MAKE) $@
 		@echo "$(RM) $(PATH_RES)*.res $(PATH_BIN)"
