@@ -467,16 +467,23 @@ inline pair<int, int>* Controle::addSol(vector<Problema*> *news)
 
 inline void Controle::geraPop(list<Problema*>* popInicial)
 {
+	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
+
 	if(popInicial != NULL)
+	{
 		for(list<Problema*>::iterator iter = popInicial->begin(); iter != popInicial->end(); iter++)
-			pop->insert(*iter);
+		{
+			ret = pop->insert(*iter);
+			if(!ret.second)
+				delete *iter;
+		}
+	}
 
 	srand(unsigned(time(NULL)));
 
 	int iter = 0;
 	int limit = pow(tamPop, 2);
 	Problema* soluction = NULL;
-	pair<set<Problema*, bool(*)(Problema*, Problema*)>::iterator, bool> ret;
 
 	while((int)pop->size() < tamPop && iter < limit)
 	{

@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
 	list<Problema*>* pop = ctr->getPop();
 	list<Problema*>::const_iterator iter1, iter2;
 
-	/* Testa a memoria principal por solucoes repetidas */
+	/* Testa a memoria principal por solucoes repetidas ou fora de ordem */
 	for(iter1 = pop->begin(); iter1 != pop->end(); iter1++)
 		for(iter2 = iter1; iter2 != pop->end(); iter2++)
 			if((iter1 != iter2) && (fnequal1(*iter1, *iter2) || fncomp1(*iter2, *iter1)))
