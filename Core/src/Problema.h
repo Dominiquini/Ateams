@@ -46,7 +46,7 @@ public:
 
 	// Imprime em um arquivo os resultados da execucao
 	static void escrevePopulacao(char*, list<Problema*>*);
-	static void imprimeResultado(char*, char*, execInfo*, char*);
+	static void escreveResultado(char*, char*, execInfo*, char*);
 
 	// Desaloca as estruturas do problema
 	static void desalocaMemoria();

@@ -10,7 +10,7 @@ int Problema::numInst = 0;
 long int Problema::totalNumInst = 0;
 
 char FlowShop::name[128];
-short int **FlowShop::maq = NULL, **FlowShop::time = NULL;
+short int **FlowShop::time = NULL;
 int FlowShop::njob = 0, FlowShop::nmaq = 0;
 
 int FlowShop::num_vizinhos = 0;
@@ -34,14 +34,13 @@ void Problema::leProblema(FILE *f)
 	if(!fscanf (f, "%d %d", &FlowShop::njob, &FlowShop::nmaq))
 		exit(1);
 
-	FlowShop::maq = (short int**)alocaMatriz(2, FlowShop::njob, FlowShop::nmaq, 1);
 	FlowShop::time = (short int**)alocaMatriz(2, FlowShop::njob, FlowShop::nmaq, 1);
 
 	for (int i = 0; i < FlowShop::njob; i++)
 	{
 		for (int j = 0; j < FlowShop::nmaq; j++)
 		{
-			if (!fscanf (f, "%hd %hd", &FlowShop::maq[i][j], &FlowShop::time[i][j]))
+			if (!fscanf (f, "%*d %hd", &FlowShop::time[i][j]))
 				exit(1);
 		}
 	}
@@ -140,7 +139,7 @@ void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 	fclose(f);
 }
 
-void Problema::imprimeResultado(char *dados, char *parametros, execInfo *info, char *resultado)
+void Problema::escreveResultado(char *dados, char *parametros, execInfo *info, char *resultado)
 {
 	FILE *f;
 
@@ -166,7 +165,6 @@ void Problema::imprimeResultado(char *dados, char *parametros, execInfo *info, c
 
 void Problema::desalocaMemoria()
 {
-	desalocaMatriz(2, FlowShop::maq, FlowShop::njob, 1);
 	desalocaMatriz(2, FlowShop::time, FlowShop::njob, 1);
 }
 
@@ -353,6 +351,7 @@ inline void FlowShop::imprimir(bool esc)
 			{
 				int k = sol.escalon[i][j][2] - sol.escalon[i][j][1];
 				int spc = j == 0 ? sol.escalon[i][j][1] : sol.escalon[i][j][1] - sol.escalon[i][j-1][2];
+
 				while(spc--)
 					printf(" ");
 

@@ -146,7 +146,7 @@ void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 	fclose(f);
 }
 
-void Problema::imprimeResultado(char *dados, char *parametros, execInfo *info, char *resultado)
+void Problema::escreveResultado(char *dados, char *parametros, execInfo *info, char *resultado)
 {
 	FILE *f;
 
@@ -443,6 +443,7 @@ inline void JobShop::imprimir(bool esc)
 			{
 				int k = sol.escalon[i][j][2] - sol.escalon[i][j][1];
 				int spc = j == 0 ? sol.escalon[i][j][1] : sol.escalon[i][j][1] - sol.escalon[i][j-1][2];
+
 				while(spc--)
 					printf(" ");
 

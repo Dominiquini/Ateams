@@ -90,23 +90,32 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		char *c = NULL;
-
 		mkdir("resultados", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+		string arq(dados);
+		char *c = NULL;
 
 #ifdef _WIN32
 		strcpy(resultado, "resultados\\");
 
-		for(c = dados+(int)strlen(dados); (*c != *dados) && (*(c-1) != '\\'); c--);
+		size_t pos = arq.rfind("\\");
+		if(pos != string::npos)
+			c = &dados[pos+2];
+		else
+			c = dados;
 
-		strcat(resultado, c);
 #else
 		strcpy(resultado, "resultados/");
 
-		for(c = dados+(int)strlen(dados); (*c != *dados) && (*(c-1) != '/'); c--);
+		size_t pos = arq.rfind("/");
+		if(pos != string::npos)
+			c = &dados[pos+1];
+		else
+			c = dados;
+
+#endif
 
 		strcat(resultado, c);
-#endif
 
 		resultado[strlen(resultado) - 3] = '\0';
 		strcat(resultado, "res");
@@ -185,7 +194,7 @@ int main(int argc, char *argv[])
 	ctr->getInfo(&info);
 
 	/* Escreve solucao em arquivo no disco */
-	Problema::imprimeResultado(dados, parametros, &info, resultado);
+	Problema::escreveResultado(dados, parametros, &info, resultado);
 
 	cout << endl << endl << "Solução:" << endl << endl;
 

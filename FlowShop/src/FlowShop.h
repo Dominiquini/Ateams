@@ -59,7 +59,7 @@ public:
 
 	static char name[128];			// Nome do problema
 
-	static short int **maq, **time;	// Matriz de maquinas e de tempos
+	static short int **time;		// Matriz de maquinas e de tempos
 	static int njob, nmaq;			// Quantidade de jobs e de maquinas
 
 	static int num_vizinhos;		// Numero de permutacoes possiveis
