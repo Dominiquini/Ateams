@@ -116,7 +116,7 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 				delete S;
 				S = Sn;
 
-				if(*S < *Sf->back())
+				if(Problema::compare(*Sf->back(), *S) > 0)
 				{
 					Sf->push_back(Problema::copySoluction(*S));
 				}

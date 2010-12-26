@@ -15,6 +15,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <vector>
+#include <bitset>
 #include <ctime>
 #include <list>
 #include <set>
@@ -23,6 +24,8 @@ using namespace std;
 
 #ifndef _ATEAMS_
 #define _ATEAMS_
+
+typedef enum ProblemType {MINIMIZACAO, MAXIMIZACAO} ProblemType;
 
 typedef struct executado
 {

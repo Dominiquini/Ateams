@@ -191,12 +191,12 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 		/* Adiciona a populacao dos filhos */
 		for(iterParProb = filhos->begin(); iterParProb != filhos->end(); iterParProb++)
 		{
-			if((*iterParProb)->first->getFitnessMinimize() != -1)
+			if((*iterParProb)->first->getFitness() != -1)
 				pop->push_back((*iterParProb)->first);
 			else
 				bad_pop->push_back((*iterParProb)->first);	// Armazenado para possivel reaproveitamento
 
-			if((*iterParProb)->second->getFitnessMinimize() != -1)
+			if((*iterParProb)->second->getFitness() != -1)
 				pop->push_back((*iterParProb)->second);
 			else
 				bad_pop->push_back((*iterParProb)->second);	// Armazenado para possivel reaproveitamento

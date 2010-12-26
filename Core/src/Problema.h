@@ -33,6 +33,8 @@ class Problema
 {
 public:
 
+	static ProblemType TIPO;
+
 	static double best;				// Melhor solucao do momento
 	static double worst;			// Pior solucao do momento
 	static int numInst;				// Quantidade de instancias criadas
@@ -48,7 +50,8 @@ public:
 	static void escrevePopulacao(char*, list<Problema*>*);
 	static void escreveResultado(char*, char*, execInfo*, char*);
 
-	// Desaloca as estruturas do problema
+	// Aloca e Desaloca as estruturas do problema
+	static void alocaMemoria();
 	static void desalocaMemoria();
 
 	// Alocador generico
@@ -66,7 +69,6 @@ public:
 	Problema() {pthread_mutex_lock(&mut_p); numInst++; totalNumInst++; pthread_mutex_unlock(&mut_p);}	// numInst++
 
 	virtual ~Problema() {pthread_mutex_lock(&mut_p); numInst--; pthread_mutex_unlock(&mut_p);}			// numInst--
-
 
 	virtual bool operator == (const Problema&) = 0;
 	virtual bool operator != (const Problema&) = 0;
@@ -92,6 +94,7 @@ public:
 	virtual Problema* mutacao(int) = 0;
 
 	/* Devolve o valor da solucao */
+	virtual double getFitness() const = 0;
 	virtual double getFitnessMaximize() const = 0;	// Problemas de Maximizacao
 	virtual double getFitnessMinimize() const = 0;	// Problemas de Minimizacao
 

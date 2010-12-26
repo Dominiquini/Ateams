@@ -6,7 +6,6 @@
 using namespace std;
 
 #ifndef _JobShop_
-#define _JobShop_
 
 class Solucao_JobShop : public Solucao
 {
@@ -63,7 +62,7 @@ public:
 
 	static char name[128];			// Nome do problema
 
-	static short int **maq, **time;	// Matriz de maquinas e de tempos
+	static int **maq, **time;		// Matriz de maquinas e de tempos
 	static int njob, nmaq;			// Quantidade de jobs e de maquinas
 
 	static int num_vizinhos;		// Numero de permutacoes possiveis
@@ -100,6 +99,7 @@ public:
 	Problema* mutacao(int);
 
 	/* Devolve o valor da solucao */
+	double getFitness() const;
 	double getFitnessMaximize() const;
 	double getFitnessMinimize() const;
 
@@ -116,7 +116,7 @@ public:
 
 void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
 
-int findOrdem(int M, int maq, short int* job);
+int findOrdem(int M, int maq, int* job);
 
 void* alocaMatriz(int, int, int, int);
 

@@ -264,10 +264,17 @@ Problema* Controle::start(list<Problema*>* popInicial)
 
 	geraPop(popInicial);
 
+	if(pop->size() == 0)
+	{
+		cout << endl << "Memória Principal Inválida!" << endl << endl;
+
+		exit(1);
+	}
+
 	iterMelhora = 0;
 
-	Problema::best = (*pop->begin())->getFitnessMinimize();
-	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
+	Problema::best = (*pop->begin())->getFitness();
+	Problema::worst = (*pop->rbegin())->getFitness();
 
 	cout << endl << "Pior Solução: " << Problema::worst << endl << endl;
 	cout << "Melhor Solução: " << Problema::best << endl << endl << endl;
@@ -333,7 +340,7 @@ inline int Controle::exec(int randomic, int eID)
 		for(list<string>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
 			execNames = execNames + *it + " ";
 
-		printf(">>> ALG: %s | ................................................... | FILA: (%d : %s)\n", id.c_str(), actThreads, execNames.c_str());
+		printf(">>> ALG: %s | ..................................................... | FILA: (%d : %s)\n", id.c_str(), actThreads, execNames.c_str());
 	}
 	pthread_mutex_unlock(&mut_f);
 
@@ -364,7 +371,7 @@ inline int Controle::exec(int randomic, int eID)
 
 		actAlgs->erase(find(actAlgs->begin(), actAlgs->end(), id));
 
-		printf("<<< ALG: %s | ITER: %.3d | FITNESS: %.5d:%.5d | CONTRIB: %.3d:%.3d", id.c_str(), execThreads, (int)Problema::best, (int)Problema::worst, ins->first, ins->second);
+		printf("<<< ALG: %s | ITER: %.3d | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d", id.c_str(), execThreads, (int)Problema::best, (int)Problema::worst, ins->first, ins->second);
 
 		execNames = "";
 		for(list<string>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
@@ -396,7 +403,7 @@ void* Controle::pthrExec(void *obj)
 	{
 		ins = ctr->exec(rand(), execAteams);
 
-		if(ctr->iterMelhora > ctr->tentAteams || Problema::compare(ctr->makespanBest, Problema::best) >= 0)
+		if(ctr->iterMelhora > ctr->tentAteams || (ctr->makespanBest != -1 && Problema::compare(ctr->makespanBest, Problema::best) >= 0))
 			PARAR = true;
 	}
 
@@ -432,7 +439,7 @@ inline pair<int, int>* Controle::addSol(vector<Problema*> *news)
 
 	for(iterNews = news->begin(); iterNews != news->end(); iterNews++)
 	{
-		if(**iterNews > **pop->rbegin())
+		if(Problema::compare(**pop->rbegin(), **iterNews) < 0)
 		{
 			delete *iterNews;
 		}
@@ -459,8 +466,8 @@ inline pair<int, int>* Controle::addSol(vector<Problema*> *news)
 		}
 	}
 
-	Problema::best = (*pop->begin())->getFitnessMinimize();
-	Problema::worst = (*pop->rbegin())->getFitnessMinimize();
+	Problema::best = (*pop->begin())->getFitness();
+	Problema::worst = (*pop->rbegin())->getFitness();
 
 	return new pair<int, int>(nret, nins);
 }
@@ -485,11 +492,20 @@ inline void Controle::geraPop(list<Problema*>* popInicial)
 	int limit = pow(tamPop, 2);
 	Problema* soluction = NULL;
 
-	while((int)pop->size() < tamPop && iter < limit)
+	cout << endl << "LOADING: " << flush;
+
+	int loading = (int)pop->size()*100/tamPop;
+
+	for(int i = 0; i < loading; i++)
+		cout << '#' << flush;
+
+	loading = tamPop/100;
+
+	while((int)pop->size() < tamPop && iter < limit && PARAR == false)
 	{
 		soluction = Problema::randSoluction();
 
-		if(soluction->getFitnessMinimize() != -1)
+		if(soluction->getFitness() != -1)
 		{
 			ret = pop->insert(soluction);
 			if(!ret.second)
@@ -500,6 +516,9 @@ inline void Controle::geraPop(list<Problema*>* popInicial)
 			}
 			else
 			{
+				if(((int)pop->size() % loading) == 0)
+					cout << '#' << flush;
+
 				iter--;
 			}
 		}
@@ -510,6 +529,11 @@ inline void Controle::geraPop(list<Problema*>* popInicial)
 			delete soluction;
 		}
 	}
+
+	cout << endl << endl;
+
+	PARAR = false;
+
 	return;
 }
 

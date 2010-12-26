@@ -4,13 +4,15 @@ using namespace std;
 
 /* Static Members */
 
+ProblemType Problema::TIPO = MINIMIZACAO;
+
 double Problema::best = 0;
 double Problema::worst = 0;
 int Problema::numInst = 0;
 long int Problema::totalNumInst = 0;
 
 char FlowShop::name[128];
-short int **FlowShop::time = NULL;
+int **FlowShop::time = NULL;
 int FlowShop::njob = 0, FlowShop::nmaq = 0;
 
 int FlowShop::num_vizinhos = 0;
@@ -34,13 +36,13 @@ void Problema::leProblema(FILE *f)
 	if(!fscanf (f, "%d %d", &FlowShop::njob, &FlowShop::nmaq))
 		exit(1);
 
-	FlowShop::time = (short int**)alocaMatriz(2, FlowShop::njob, FlowShop::nmaq, 1);
+	Problema::alocaMemoria();
 
-	for (int i = 0; i < FlowShop::njob; i++)
+	for(int i = 0; i < FlowShop::njob; i++)
 	{
-		for (int j = 0; j < FlowShop::nmaq; j++)
+		for(int j = 0; j < FlowShop::nmaq; j++)
 		{
-			if (!fscanf (f, "%*d %hd", &FlowShop::time[i][j]))
+			if (!fscanf (f, "%*d %d", &FlowShop::time[i][j]))
 				exit(1);
 		}
 	}
@@ -95,7 +97,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 
 			p = new FlowShop(prob);
 
-			if(makespan != p->getFitnessMinimize())
+			if(makespan != p->getFitness())
 			{
 				printf("Arquivo de log incorreto!\n\n");
 				exit(1);
@@ -163,9 +165,18 @@ void Problema::escreveResultado(char *dados, char *parametros, execInfo *info, c
 	fclose(f);
 }
 
+void Problema::alocaMemoria()
+{
+	FlowShop::time = (int**)malloc(FlowShop::njob * sizeof(int*));
+	for(int i = 0; i < FlowShop::njob; i++)
+		FlowShop::time[i] = (int*)malloc(FlowShop::nmaq * sizeof(int));
+}
+
 void Problema::desalocaMemoria()
 {
-	desalocaMatriz(2, FlowShop::time, FlowShop::njob, 1);
+	for(int i = 0; i < FlowShop::njob; i++)
+		free(FlowShop::time[i]);
+	free(FlowShop::time);
 }
 
 double Problema::compare(double oldP, double newP)
@@ -175,7 +186,7 @@ double Problema::compare(double oldP, double newP)
 
 double Problema::compare(Problema& oldP, Problema& newP)
 {
-	return oldP.getFitnessMinimize() - newP.getFitnessMinimize();
+	return oldP.getFitness() - newP.getFitness();
 }
 
 /* Metodos */
@@ -310,32 +321,32 @@ inline bool FlowShop::calcFitness(bool esc)
 
 bool FlowShop::operator == (const Problema& p)
 {
-	return this->getFitnessMinimize() == p.getFitnessMinimize();
+	return this->getFitness() == p.getFitness();
 }
 
 bool FlowShop::operator != (const Problema& p)
 {
-	return this->getFitnessMinimize() != p.getFitnessMinimize();
+	return this->getFitness() != p.getFitness();
 }
 
 bool FlowShop::operator <= (const Problema& p)
 {
-	return this->getFitnessMinimize() <= p.getFitnessMinimize();
+	return this->getFitness() <= p.getFitness();
 }
 
 bool FlowShop::operator >= (const Problema& p)
 {
-	return this->getFitnessMinimize() >= p.getFitnessMinimize();
+	return this->getFitness() >= p.getFitness();
 }
 
 bool FlowShop::operator < (const Problema& p)
 {
-	return this->getFitnessMinimize() < p.getFitnessMinimize();
+	return this->getFitness() < p.getFitness();
 }
 
 bool FlowShop::operator > (const Problema& p)
 {
-	return this->getFitnessMinimize() > p.getFitnessMinimize();
+	return this->getFitness() > p.getFitness();
 }
 
 inline void FlowShop::imprimir(bool esc)
@@ -386,7 +397,7 @@ inline Problema* FlowShop::vizinho()
 		p2 = xRand(rand(), 0, njob);
 
 	job = new FlowShop(*this, p1, p2);
-	if(job->getFitnessMinimize() != -1)
+	if(job->getFitness() != -1)
 	{
 		return job;
 	}
@@ -413,7 +424,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* FlowShop::buscaLocal()
 		for(p2 = p1+1; p2 < njob; p2++)
 		{
 			job = new FlowShop(*this, p1, p2);
-			if(job->getFitnessMinimize() != -1)
+			if(job->getFitness() != -1)
 			{
 				temp = new pair<Problema*, InfoTabu*>();
 				temp->first = job;
@@ -441,14 +452,14 @@ inline vector<pair<Problema*, InfoTabu*>* >* FlowShop::buscaLocal(float parcela)
 	int p1, p2;
 	pair<Problema*, InfoTabu*>* temp;
 	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
-	int def, i;
+	int def;
 
 	def = (int)((float)FlowShop::num_vizinhos*parcela);
 
 	if(def > MAX_PERMUTACOES)
 		def = MAX_PERMUTACOES;
 
-	for(i = 0; i < def; i++)
+	for(register int i = 0; i < def; i++)
 	{
 		p1 = xRand(rand(), 0, njob), p2 = xRand(rand(), 0, njob);
 
@@ -456,7 +467,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* FlowShop::buscaLocal(float parcela)
 			p2 = xRand(rand(), 0, njob);
 
 		job = new FlowShop(*this, p1, p2);
-		if(job->getFitnessMinimize() != -1)
+		if(job->getFitness() != -1)
 		{
 			temp = new pair<Problema*, InfoTabu*>();
 			temp->first = job;
@@ -542,6 +553,11 @@ inline Problema* FlowShop::mutacao(int mutMax)
 	return mutacao;
 }
 
+inline double FlowShop::getFitness() const
+{
+	return sol.fitness;
+}
+
 inline double FlowShop::getFitnessMaximize() const
 {
 	return (double)INV_FITNESS/sol.fitness;
@@ -556,7 +572,7 @@ inline double FlowShop::getFitnessMinimize() const
 
 inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam)
 {
-	for(int i = pos; i < pos+tam; i++)
+	for(register int i = pos; i < pos+tam; i++)
 		f[i] = p1[i];
 
 	for(register int i = 0, j = 0; i < FlowShop::njob && j < FlowShop::njob; i++)
@@ -570,15 +586,6 @@ inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int t
 	return;
 }
 
-
-int findOrdem(int M, int maq, short int* job)
-{
-	for(int i = 0; i < M; i++)
-		if(job[i] == maq)
-			return i;
-	return -1;
-}
-
 inline void* alocaMatriz(int dim, int a, int b, int c)
 						{
 	if(dim == 1)
@@ -590,7 +597,7 @@ inline void* alocaMatriz(int dim, int a, int b, int c)
 	else if(dim == 2)
 	{
 		short int **M = (short int**)malloc(a * sizeof (short int*));
-		for (int i = 0; i < a; i++)
+		for(int i = 0; i < a; i++)
 			M[i] = (short int*)malloc(b * sizeof (short int));
 
 		return (void*)M;
@@ -598,7 +605,7 @@ inline void* alocaMatriz(int dim, int a, int b, int c)
 	else if(dim == 3)
 	{
 		short int ***M = (short int***)malloc(a * sizeof (short int**));
-		for (int i = 0; i < a; i++)
+		for(int i = 0; i < a; i++)
 		{
 			M[i] = (short int**)malloc(b * sizeof(short int*));
 			for(int j = 0; j < b; j++)
@@ -699,5 +706,5 @@ bool fncomp2(Problema *prob1, Problema *prob2)
 
 inline bool ptcomp(pair<Problema*, InfoTabu*>* p1, pair<Problema*, InfoTabu*>* p2)
 {
-	return (p1->first->getFitnessMinimize() > p2->first->getFitnessMinimize());
+	return (p1->first->getFitness() > p2->first->getFitness());
 }

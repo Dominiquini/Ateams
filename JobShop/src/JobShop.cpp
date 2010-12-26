@@ -4,13 +4,15 @@ using namespace std;
 
 /* Static Members */
 
+ProblemType Problema::TIPO = MINIMIZACAO;
+
 double Problema::best = 0;
 double Problema::worst = 0;
 int Problema::numInst = 0;
 long int Problema::totalNumInst = 0;
 
 char JobShop::name[128];
-short int **JobShop::maq = NULL, **JobShop::time = NULL;
+int **JobShop::maq = NULL, **JobShop::time = NULL;
 int JobShop::njob = 0, JobShop::nmaq = 0;
 
 int JobShop::num_vizinhos = 0;
@@ -34,14 +36,13 @@ void Problema::leProblema(FILE *f)
 	if(!fscanf (f, "%d %d", &JobShop::njob, &JobShop::nmaq))
 		exit(1);
 
-	JobShop::maq = (short int**)alocaMatriz(2, JobShop::njob, JobShop::nmaq, 1);
-	JobShop::time = (short int**)alocaMatriz(2, JobShop::njob, JobShop::nmaq, 1);
+	Problema::alocaMemoria();
 
-	for (int i = 0; i < JobShop::njob; i++)
+	for(int i = 0; i < JobShop::njob; i++)
 	{
-		for (int j = 0; j < JobShop::nmaq; j++)
+		for(int j = 0; j < JobShop::nmaq; j++)
 		{
-			if (!fscanf (f, "%hd %hd", &JobShop::maq[i][j], &JobShop::time[i][j]))
+			if (!fscanf (f, "%d %d", &JobShop::maq[i][j], &JobShop::time[i][j]))
 				exit(1);
 		}
 	}
@@ -97,9 +98,10 @@ list<Problema*>* Problema::lePopulacao(char *log)
 					}
 				}
 			}
+
 			p = new JobShop(prob);
 
-			if(makespan != p->getFitnessMinimize())
+			if(makespan != p->getFitness())
 			{
 				printf("Arquivo de log incorreto!\n\n");
 				exit(1);
@@ -170,10 +172,26 @@ void Problema::escreveResultado(char *dados, char *parametros, execInfo *info, c
 	fclose(f);
 }
 
+void Problema::alocaMemoria()
+{
+	JobShop::maq = (int**)malloc(JobShop::njob * sizeof(int*));
+	for(int i = 0; i < JobShop::njob; i++)
+		JobShop::maq[i] = (int*)malloc(JobShop::nmaq * sizeof(int));
+
+	JobShop::time = (int**)malloc(JobShop::njob * sizeof(int*));
+	for(int i = 0; i < JobShop::njob; i++)
+		JobShop::time[i] = (int*)malloc(JobShop::nmaq * sizeof(int));
+}
+
 void Problema::desalocaMemoria()
 {
-	desalocaMatriz(2, JobShop::maq, JobShop::njob, 1);
-	desalocaMatriz(2, JobShop::time, JobShop::njob, 1);
+	for(int i = 0; i < JobShop::njob; i++)
+		free(JobShop::maq[i]);
+	free(JobShop::maq);
+
+	for(int i = 0; i < JobShop::njob; i++)
+		free(JobShop::time[i]);
+	free(JobShop::time);
 }
 
 double Problema::compare(double oldP, double newP)
@@ -183,7 +201,7 @@ double Problema::compare(double oldP, double newP)
 
 double Problema::compare(Problema& oldP, Problema& newP)
 {
-	return oldP.getFitnessMinimize() - newP.getFitnessMinimize();
+	return oldP.getFitness() - newP.getFitness();
 }
 
 /* Metodos */
@@ -315,11 +333,11 @@ inline bool JobShop::calcFitness(bool esc)
 
 	register int i, j, k;
 
-	for (i = 0; i < njob; i++)
+	for(i = 0; i < njob; i++)
 		for(j = 0; j <= nmaq; j++)
 			tmp[i][j] = j == 0 ? 0 : -1;
 
-	for (i = 0; i < nmaq; i++)
+	for(i = 0; i < nmaq; i++)
 		for(j = 0; j < njob; j++)
 			aux_esc[i][j][0] = -1;
 
@@ -402,32 +420,32 @@ inline bool JobShop::calcFitness(bool esc)
 
 bool JobShop::operator == (const Problema& p)
 {
-	return this->getFitnessMinimize() == p.getFitnessMinimize();
+	return this->getFitness() == p.getFitness();
 }
 
 bool JobShop::operator != (const Problema& p)
 {
-	return this->getFitnessMinimize() != p.getFitnessMinimize();
+	return this->getFitness() != p.getFitness();
 }
 
 bool JobShop::operator <= (const Problema& p)
 {
-	return this->getFitnessMinimize() <= p.getFitnessMinimize();
+	return this->getFitness() <= p.getFitness();
 }
 
 bool JobShop::operator >= (const Problema& p)
 {
-	return this->getFitnessMinimize() >= p.getFitnessMinimize();
+	return this->getFitness() >= p.getFitness();
 }
 
 bool JobShop::operator < (const Problema& p)
 {
-	return this->getFitnessMinimize() < p.getFitnessMinimize();
+	return this->getFitness() < p.getFitness();
 }
 
 bool JobShop::operator > (const Problema& p)
 {
-	return this->getFitnessMinimize() > p.getFitnessMinimize();
+	return this->getFitness() > p.getFitness();
 }
 
 inline void JobShop::imprimir(bool esc)
@@ -481,7 +499,7 @@ inline Problema* JobShop::vizinho()
 		p2 = xRand(rand(), 0, njob);
 
 	job = new JobShop(*this, maq, p1, p2);
-	if(job->getFitnessMinimize() != -1)
+	if(job->getFitness() != -1)
 	{
 		return job;
 	}
@@ -511,7 +529,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal()
 			for(p2 = p1+1; p2 < numJobs; p2++)
 			{
 				job = new JobShop(*this, maq, p1, p2);
-				if(job->getFitnessMinimize() != -1)
+				if(job->getFitness() != -1)
 				{
 					temp = new pair<Problema*, InfoTabu*>();
 					temp->first = job;
@@ -540,14 +558,14 @@ inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal(float parcela)
 	int numMaqs = nmaq, numJobs = njob;
 	pair<Problema*, InfoTabu*>* temp;
 	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
-	int def, i;
+	int def;
 
 	def = (int)((float)JobShop::num_vizinhos*parcela);
 
 	if(def > MAX_PERMUTACOES)
 		def = MAX_PERMUTACOES;
 
-	for(i = 0; i < def; i++)
+	for(register int i = 0; i < def; i++)
 	{
 		maq = xRand(rand(), 0, numMaqs), p1 = xRand(rand(), 0, numJobs), p2 = xRand(rand(), 0, numJobs);
 
@@ -555,7 +573,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal(float parcela)
 			p2 = xRand(rand(), 0, numJobs);
 
 		job = new JobShop(*this, maq, p1, p2);
-		if(job->getFitnessMinimize() != -1)
+		if(job->getFitness() != -1)
 		{
 			temp = new pair<Problema*, InfoTabu*>();
 			temp->first = job;
@@ -686,6 +704,11 @@ inline Problema* JobShop::mutacao(int mutMax)
 	return mutacao;
 }
 
+inline double JobShop::getFitness() const
+{
+	return sol.fitness;
+}
+
 inline double JobShop::getFitnessMaximize() const
 {
 	return (double)INV_FITNESS/sol.fitness;
@@ -700,7 +723,7 @@ inline double JobShop::getFitnessMinimize() const
 
 inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam)
 {
-	for(int i = pos; i < pos+tam; i++)
+	for(register int i = pos; i < pos+tam; i++)
 		f[i] = p1[i];
 
 	for(register int i = 0, j = 0; i < JobShop::njob && j < JobShop::njob; i++)
@@ -715,11 +738,12 @@ inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int t
 }
 
 
-int findOrdem(int M, int maq, short int* job)
+inline int findOrdem(int M, int maq, int* job)
 {
 	for(int i = 0; i < M; i++)
 		if(job[i] == maq)
 			return i;
+
 	return -1;
 }
 
@@ -734,7 +758,7 @@ inline void* alocaMatriz(int dim, int a, int b, int c)
 	else if(dim == 2)
 	{
 		short int **M = (short int**)malloc(a * sizeof (short int*));
-		for (int i = 0; i < a; i++)
+		for(int i = 0; i < a; i++)
 			M[i] = (short int*)malloc(b * sizeof (short int));
 
 		return (void*)M;
@@ -742,7 +766,7 @@ inline void* alocaMatriz(int dim, int a, int b, int c)
 	else if(dim == 3)
 	{
 		short int ***M = (short int***)malloc(a * sizeof (short int**));
-		for (int i = 0; i < a; i++)
+		for(int i = 0; i < a; i++)
 		{
 			M[i] = (short int**)malloc(b * sizeof(short int*));
 			for(int j = 0; j < b; j++)
@@ -798,6 +822,7 @@ bool fnequal1(Problema* prob1, Problema* prob2)
 			for(int j = 0; j < JobShop::njob; j++)
 				if(p1->sol.esc[i][j] != p2->sol.esc[i][j])
 					return false;
+
 		return true;
 	}
 	else
@@ -825,6 +850,7 @@ bool fncomp1(Problema *prob1, Problema *prob2)
 			for(int j = 0; j < JobShop::njob; j++)
 				if(p1->sol.esc[i][j] != p2->sol.esc[i][j])
 					return p1->sol.esc[i][j] < p2->sol.esc[i][j];
+
 		return false;
 	}
 	else
@@ -843,5 +869,5 @@ bool fncomp2(Problema *prob1, Problema *prob2)
 
 inline bool ptcomp(pair<Problema*, InfoTabu*>* p1, pair<Problema*, InfoTabu*>* p2)
 {
-	return (p1->first->getFitnessMinimize() > p2->first->getFitnessMinimize());
+	return (p1->first->getFitness() > p2->first->getFitness());
 }
