@@ -497,7 +497,7 @@ inline void Controle::geraPop(list<Problema*>* popInicial)
 	int loading = (int)pop->size()*100/tamPop;
 
 	for(int i = 0; i < loading; i++)
-		cout << '#' << flush;
+		cout << '*' << flush;
 
 	loading = tamPop/100;
 
