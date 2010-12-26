@@ -350,6 +350,7 @@ inline void KnapSack::imprimir(bool esc)
 		for(int i = 0; i < nitens; i++)
 			printf("%d ", sol.itens[i]);
 	}
+	printf("\n");
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */
