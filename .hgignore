@@ -9,5 +9,8 @@ bin
 dados/jsp_gen
 dados/fsp_gen
 log*
+BinPacking/BinPacking
 FlowShop/FlowShop
 JobShop/JobShop
+KnapSack/KnapSack
+

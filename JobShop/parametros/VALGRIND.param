@@ -2,10 +2,10 @@
 
 *ATEAMS*
 [iterAteams] = 10		// Número de iterações do Ateams
-[tentAteams] = 100		// Tentativas sem melhora
-[maxTempoAteams] = 10000	// Tempo máximo de execução
+[tentAteams] = 10		// Tentativas sem melhora
+[maxTempoAteams] = 3600		// Tempo máximo de execução
 [numThreads] = 2                // Número máximo de threads ativas
-[tamPopAteams] = 500		// Tamanho da população
+[tamPopAteams] = 100		// Tamanho da população
 [critUnicidade] = 0		// Critério para se definir a unicidade da população
 [makespanBest] = -1		// Melhor makespan conhecido
 

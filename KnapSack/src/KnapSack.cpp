@@ -229,6 +229,8 @@ KnapSack::KnapSack() : Problema::Problema()
 		sol.itens[retirar[pos++]] = 0;
 	}
 
+	free(retirar);
+
 	exec.tabu = false;
 	exec.genetico = false;
 	exec.annealing = false;
