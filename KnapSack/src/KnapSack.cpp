@@ -12,7 +12,7 @@ int Problema::numInst = 0;
 long int Problema::totalNumInst = 0;
 
 char KnapSack::name[128];
-int *KnapSack::values = NULL, **KnapSack::constraint = NULL, *KnapSack::limit = NULL;
+double *KnapSack::values = NULL, **KnapSack::constraint = NULL, *KnapSack::limit = NULL;
 int KnapSack::nitens = 0, KnapSack::ncontraint = 0;
 
 int KnapSack::num_vizinhos = 0;
@@ -40,7 +40,7 @@ void Problema::leProblema(FILE *f)
 
 	for(int i = 0; i < KnapSack::nitens; i++)
 	{
-		if (!fscanf (f, "%d", &KnapSack::values[i]))
+		if (!fscanf (f, "%lf", &KnapSack::values[i]))
 			exit(1);
 	}
 
@@ -48,14 +48,14 @@ void Problema::leProblema(FILE *f)
 	{
 		for (int j = 0; j < KnapSack::nitens; j++)
 		{
-			if (!fscanf (f, "%d", &KnapSack::constraint[i][j]))
+			if (!fscanf (f, "%lf", &KnapSack::constraint[i][j]))
 				exit(1);
 		}
 	}
 
 	for(int i = 0; i < KnapSack::ncontraint; i++)
 	{
-		if (!fscanf (f, "%d", &KnapSack::limit[i]))
+		if (!fscanf (f, "%lf", &KnapSack::limit[i]))
 			exit(1);
 	}
 
@@ -90,7 +90,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 
 		for(int i = 0; i < npop; i++)
 		{
-			prob = (short int*)alocaMatriz(1, nitens, 1, 1);
+			prob = (short int*)malloc(nitens * sizeof(short int));
 
 			if(!fscanf (f, "%d", &valorTotal))
 			{
@@ -178,13 +178,13 @@ void Problema::escreveResultado(char *dados, char *parametros, execInfo *info, c
 
 void Problema::alocaMemoria()
 {
-	KnapSack::values = (int*)malloc(KnapSack::nitens * sizeof(int));
+	KnapSack::values = (double*)malloc(KnapSack::nitens * sizeof(double));
 
-	KnapSack::limit = (int*)malloc(KnapSack::ncontraint * sizeof(int));
+	KnapSack::limit = (double*)malloc(KnapSack::ncontraint * sizeof(double));
 
-	KnapSack::constraint = (int**)malloc(KnapSack::ncontraint * sizeof(int*));
+	KnapSack::constraint = (double**)malloc(KnapSack::ncontraint * sizeof(double*));
 	for(int i = 0; i < KnapSack::ncontraint; i++)
-		KnapSack::constraint[i] = (int*)malloc(KnapSack::nitens * sizeof(int));
+		KnapSack::constraint[i] = (double*)malloc(KnapSack::nitens * sizeof(double));
 }
 
 void Problema::desalocaMemoria()
@@ -212,21 +212,21 @@ double Problema::compare(Problema& oldP, Problema& newP)
 
 KnapSack::KnapSack() : Problema::Problema()
 {
-	sol.itens = (short int*)alocaMatriz(1, nitens, 1, 1);
-	short int *apagar = (short int*)alocaMatriz(1, nitens, 1, 1);
+	sol.itens = (short int*)malloc(nitens * sizeof(short int));
+	short int *retirar = (short int*)malloc(nitens * sizeof(short int));
 	register int pos = 0;
 
 	for(register int i = 0; i < nitens; i++)
 	{
 		sol.itens[i] = 1;
-		apagar[i] = i;
+		retirar[i] = i;
 	}
 
-	random_shuffle(&apagar[0], &apagar[nitens]);
+	random_shuffle(&retirar[0], &retirar[nitens]);
 
 	while(!calcFitness(false) && pos < nitens)
 	{
-		sol.itens[apagar[pos++]] = 0;
+		sol.itens[retirar[pos++]] = 0;
 	}
 
 	exec.tabu = false;
@@ -250,7 +250,7 @@ KnapSack::KnapSack(const Problema &prob) : Problema::Problema()
 {
 	KnapSack *other = dynamic_cast<KnapSack *>(const_cast<Problema *>(&prob));
 
-	this->sol.itens = (short int*)alocaMatriz(1, nitens, 1, 1);
+	this->sol.itens = (short int*)malloc(nitens * sizeof(short int));
 	for(int i = 0; i < nitens; i++)
 		this->sol.itens[i] = other->sol.itens[i];
 
@@ -262,7 +262,7 @@ KnapSack::KnapSack(const Problema &prob, int pos1, int pos2) : Problema::Problem
 {
 	KnapSack *other = dynamic_cast<KnapSack *>(const_cast<Problema *>(&prob));
 
-	this->sol.itens = (short int*)alocaMatriz(1, nitens, 1, 1);
+	this->sol.itens = (short int*)malloc(nitens * sizeof(short int));
 	for(int i = 0; i < nitens; i++)
 		this->sol.itens[i] = other->sol.itens[i];
 
@@ -287,7 +287,7 @@ KnapSack::KnapSack(const Problema &prob, int pos1, int pos2) : Problema::Problem
 KnapSack::~KnapSack()
 {
 	if(this->sol.itens != NULL)
-		desalocaMatriz(1, this->sol.itens, 1, 1);
+		free(this->sol.itens);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
@@ -339,11 +339,13 @@ bool KnapSack::operator > (const Problema& p)
 
 inline void KnapSack::imprimir(bool esc)
 {
-	if(esc == false)
+	if(esc == true)
 	{
 		for(int i = 0; i < nitens; i++)
 			if(sol.itens[i] == 1)
-				printf("%.3d ", i);
+				printf("|%.3d|", i);
+
+		printf(" ==> %0.2f\n", sol.fitness);
 	}
 	else
 	{
@@ -457,7 +459,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* KnapSack::buscaLocal(float parcela)
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
 inline pair<Problema*, Problema*>* KnapSack::crossOver(const Problema* parceiro, int tamParticao, int strength)
 {
-	short int *f1 = (short int*)alocaMatriz(1, nitens, 1, 1), *f2 = (short int*)alocaMatriz(1, nitens, 1, 1);
+	short int *f1 = (short int*)malloc(nitens * sizeof(short int)), *f2 = (short int*)malloc(nitens * sizeof(short int));
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
 	int particao = tamParticao == 0 ? (KnapSack::nitens)/2 : tamParticao;
 	int inicioPart = 0, fimPart = 0;
@@ -479,7 +481,7 @@ inline pair<Problema*, Problema*>* KnapSack::crossOver(const Problema* parceiro,
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
 inline pair<Problema*, Problema*>* KnapSack::crossOver(const Problema* parceiro, int strength)
 {
-	short int *f1 = (short int*)alocaMatriz(1, nitens, 1, 1), *f2 = (short int*)alocaMatriz(1, nitens, 1, 1);
+	short int *f1 = (short int*)malloc(nitens * sizeof(short int)), *f2 = (short int*)malloc(nitens * sizeof(short int));
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
 	int particao = 0;
 
@@ -499,7 +501,7 @@ inline pair<Problema*, Problema*>* KnapSack::crossOver(const Problema* parceiro,
 /* Devolve uma mutacao aleatoria na solucao atual. */
 inline Problema* KnapSack::mutacao(int mutMax)
 {
-	short int *mut = (short int*)alocaMatriz(1, nitens, 1, 1);
+	short int *mut = (short int*)malloc(nitens * sizeof(short int));
 	Problema* vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
 	for(int i = 0; i < nitens; i++)
@@ -560,69 +562,6 @@ inline bool constraintVerify(int c, short int* itens)
 			sumC += KnapSack::constraint[c][i];
 
 	return sumC <= KnapSack::limit[c];
-}
-
-inline void* alocaMatriz(int dim, int a, int b, int c)
-						{
-	if(dim == 1)
-	{
-		short int *M = (short int*)malloc(a * sizeof(short int));
-
-		return (void*)M;
-	}
-	else if(dim == 2)
-	{
-		short int **M = (short int**)malloc(a * sizeof (short int*));
-		for (int i = 0; i < a; i++)
-			M[i] = (short int*)malloc(b * sizeof (short int));
-
-		return (void*)M;
-	}
-	else if(dim == 3)
-	{
-		short int ***M = (short int***)malloc(a * sizeof (short int**));
-		for (int i = 0; i < a; i++)
-		{
-			M[i] = (short int**)malloc(b * sizeof(short int*));
-			for(int j = 0; j < b; j++)
-				M[i][j] = (short int*)malloc(c * sizeof (short int));
-		}
-
-		return (void*)M;
-	}
-	else
-		return NULL;
-						}
-
-inline void desalocaMatriz(int dim, void *MMM, int a, int b)
-{
-	if(dim == 1)
-	{
-		short int *M = (short int*)MMM;
-
-		free(M);
-	}
-	else if(dim == 2)
-	{
-		short int **M = (short int**)MMM;
-
-		for(int i = 0; i < a; i++)
-			free(M[i]);
-		free(M);
-	}
-	else if(dim == 3)
-	{
-		short int ***M = (short int***)MMM;
-
-		for(int i = 0; i < a; i++)
-		{
-			for(int j = 0; j < b; j++)
-				free(M[i][j]);
-			free(M[i]);
-		}
-		free(M);
-	}
-	return;
 }
 
 // comparator function:

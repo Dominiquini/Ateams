@@ -489,7 +489,7 @@ inline void Controle::geraPop(list<Problema*>* popInicial)
 	srand(unsigned(time(NULL)));
 
 	int iter = 0;
-	int limit = pow(tamPop, 2);
+	int limit = pow(tamPop, 3);
 	Problema* soluction = NULL;
 
 	cout << endl << "LOADING: " << flush;
