@@ -271,11 +271,12 @@ BinPacking::~BinPacking()
 inline bool BinPacking::calcFitness(bool esc)
 {
 	double sumBinAtual = 0;
+	int anterior = 0;
 	sol.fitness = 1;
 
 	sol.bins = (short int*)malloc(nitens * sizeof(short int));
 
-	for(register int pos = 0, ant = 0; pos < nitens; pos++)
+	for(register int pos = 0; pos < nitens; pos++)
 	{
 		sumBinAtual += sizes[sol.ordem[pos]];
 
@@ -284,12 +285,13 @@ inline bool BinPacking::calcFitness(bool esc)
 			sol.fitness++;
 			sumBinAtual = sizes[sol.ordem[pos]];
 
-			sort(&sol.ordem[ant], &sol.ordem[pos]);
-			ant = pos;
+			sort(&sol.ordem[anterior], &sol.ordem[pos]);
+			anterior = pos;
 		}
 
 		sol.bins[pos] = sol.fitness;
 	}
+	sort(&sol.ordem[anterior], &sol.ordem[nitens]);
 
 	return true;
 }
