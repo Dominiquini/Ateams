@@ -7,9 +7,9 @@ PATH_PROJ = ./
 PATH_BIN = ./bin/
 PATH_SRC = ./src/
 PATH_RES = ./resultados/
-PATH_CORE = ../Core/
-PATH_CORE_SRC = ../Core/src/
-PATH_CORE_BIN = ../Core/bin/
+PATH_CORE = ../Ateams_Base/
+PATH_CORE_SRC = ../Ateams_Base/src/
+PATH_CORE_BIN = ../Ateams_Base/bin/
 
 BIN = KnapSack
 SRCS =  $(PATH_SRC)KnapSack.cpp $(PATH_CORE_SRC)Ateams.cpp $(PATH_CORE_SRC)Controle.cpp $(PATH_CORE_SRC)Tabu.cpp $(PATH_CORE_SRC)Genetico.cpp $(PATH_CORE_SRC)Annealing.cpp

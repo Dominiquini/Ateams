@@ -1,4 +1,4 @@
-#include "../../Core/src/Problema.h"
+#include "../../Ateams_Base/src/Problema.h"
 
 #define INV_FITNESS 1000000
 #define MAX_PERMUTACOES 10000
