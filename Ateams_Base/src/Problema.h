@@ -192,6 +192,9 @@ public:
 				par = findPar(alg_p, (char*)"[alphaSA]");
 				pTEMP.alphaSA = (float)par;
 
+				par = findPar(alg_p, (char*)"[probElitismoSA]");
+				pTEMP.probElitismoSA = (float)par;
+
 				if(pTEMP.polEscolhaSA > pATEAMS->tamPopAteams)
 					pTEMP.polEscolhaSA = pATEAMS->tamPopAteams;
 			}
@@ -260,6 +263,9 @@ public:
 
 				par = findPar(alg_p, (char*)"[funcAspiracaoBT]");
 				pTEMP.funcAspiracaoBT = (float)par;
+
+				par = findPar(alg_p, (char*)"[probElitismoBT]");
+				pTEMP.probElitismoBT = (float)par;
 
 				if(pTEMP.polEscolhaBT > pATEAMS->tamPopAteams)
 					pTEMP.polEscolhaBT = pATEAMS->tamPopAteams;

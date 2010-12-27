@@ -11,6 +11,7 @@
 (name) = BT3
 [probBT] = 10			// Probabilidade de se executar BT em cada iteração do ATEAMS
 [polEscolhaBT] = 250		// Política de escolha
+[probElitismoSA] = 0.2		// Probabilidade de se escolher a melhor solução da memória
 [funcAspiracaoBT] = 0.5		// Função de Aspiração
 [iterBT] = 750			// Iterações do BT
 [tentSemMelhoraBT] = 750	// Política de leitura do BT

@@ -11,7 +11,7 @@ class Tabu : public Heuristica
 {
 public:
 
-	int iterTabu, tamListaTabu, tentSemMelhora;
+	int iterTabu, tamListaTabu, tentSemMelhora, elitismo;
 	float funcAsp, polExploracao;
 
 	Tabu();

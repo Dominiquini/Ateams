@@ -75,6 +75,7 @@ struct ParametrosHeuristicas {
 	int tamListaBT;
 	float polExplorBT;
 	float funcAspiracaoBT;
+	float probElitismoBT;
 
 	int probSA;
 	int polEscolhaSA;
@@ -83,6 +84,7 @@ struct ParametrosHeuristicas {
 	float finalTempSA;
 	int restauraSolSA;
 	float alphaSA;
+	float probElitismoSA;
 };
 
 void Interrompe(int signum);

@@ -13,6 +13,7 @@ Annealing::Annealing() : Heuristica::Heuristica("DEFAULT_SA")
 	fimTemp = 0.75;
 	restauraSol = false;
 	alfa = 0.99;
+	elitismo = 20;
 
 	Heuristica::numHeuristic += prob;
 }
@@ -28,6 +29,7 @@ Annealing::Annealing(string nome, ParametrosHeuristicas& pSA) : Heuristica::Heur
 	fimTemp = pSA.finalTempSA > 0 ? pSA.finalTempSA : 0.75;
 	restauraSol = pSA.restauraSolSA != 0 ? true : false;
 	alfa = pSA.alphaSA != -1 ? pSA.alphaSA : 0.99;
+	elitismo = pSA.probElitismoSA != -1 ? (int)(pSA.probElitismoSA * 100.0) : 20;
 
 	Heuristica::numHeuristic += prob;
 }
@@ -59,6 +61,15 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	double visao = polEscolha < 0 ? Controle::sumFitnessMaximize(sol, sol->size()) : Controle::sumFitnessMaximize(sol, polEscolha);
 
 	srand(randomic);
+
+	// Escolhe a melhor solucao com probabilidade 'elitismo'
+	if(xRand(rand(), 0, 101) < elitismo)
+	{
+		select = sol->begin();
+		solSA = Problema::copySoluction(**select);
+
+		return exec(solSA);
+	}
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	select = Controle::selectRouletteWheel(sol, visao, rand());

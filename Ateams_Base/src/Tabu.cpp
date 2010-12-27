@@ -13,6 +13,7 @@ Tabu::Tabu() : Heuristica::Heuristica("DEFAULT_BT")
 	tamListaTabu = 10;
 	tentSemMelhora = 500;
 	polExploracao = 0.5;
+	elitismo = 10;
 
 	Heuristica::numHeuristic += prob;
 }
@@ -28,6 +29,7 @@ Tabu::Tabu(string nome, ParametrosHeuristicas& pBT) : Heuristica::Heuristica(nom
 	tamListaTabu = pBT.tamListaBT != -1 ? pBT.tamListaBT : 10;
 	tentSemMelhora = pBT.tentSemMelhoraBT != -1 ? pBT.tentSemMelhoraBT : 250;
 	polExploracao = pBT.polExplorBT != -1 ? pBT.polExplorBT : 0.5;
+	elitismo = pBT.probElitismoBT != -1 ? (int)(pBT.probElitismoBT * 100.0) : 10;
 
 	Heuristica::numHeuristic += prob;
 }

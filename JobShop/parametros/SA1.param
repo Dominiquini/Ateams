@@ -11,6 +11,7 @@
 (name) = SA1
 [probSA] = 35			// Probabilidade de se executar SA em cada iteração do ATEAMS
 [polEscolhaSA] = 250		// Política de escolha
+[probElitismoSA] = 0.25		// Probabilidade de se escolher a melhor solução da memória
 [maxIterSA] = 250		// Número de iterações para atingir o equilíbrio
 [initTempSA] = 125		// Temperatura inicial
 [finalTempSA] = 0.75		// Temperatura final
