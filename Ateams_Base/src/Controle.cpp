@@ -266,7 +266,7 @@ Problema* Controle::start(list<Problema*>* popInicial)
 
 	if(pop->size() == 0)
 	{
-		cout << endl << "Memória Principal Inválida!" << endl << endl;
+		cout << endl << "Nenuma Solução Inicial Encontrada!" << endl << endl;
 
 		exit(1);
 	}
@@ -488,26 +488,30 @@ inline void Controle::geraPop(list<Problema*>* popInicial)
 	{
 		for(list<Problema*>::iterator iter = popInicial->begin(); iter != popInicial->end(); iter++)
 		{
-			ret = pop->insert(*iter);
-			if(!ret.second)
+			if((int)pop->size() < tamPop)
+			{
+				ret = pop->insert(*iter);
+				if(!ret.second)
+					delete *iter;
+			}
+			else
+			{
 				delete *iter;
+			}
 		}
 	}
 
 	srand(unsigned(time(NULL)));
 
-	int iter = 0;
-	int limit = pow(tamPop, 3);
+	unsigned long int limit = pow(tamPop, 3), iter = 0;
 	Problema* soluction = NULL;
 
 	cout << endl << endl << "LOADING: " << flush;
 
-	int loading = (int)pop->size()*100/tamPop;
+	int loadingMax = 100, loading = ceil((int)pop->size()*loadingMax/tamPop);
 
 	for(int i = 0; i < loading; i++)
 		cout << '*' << flush;
-
-	loading = tamPop/100;
 
 	while((int)pop->size() < tamPop && iter < limit && PARAR == false)
 	{
@@ -524,10 +528,14 @@ inline void Controle::geraPop(list<Problema*>* popInicial)
 			}
 			else
 			{
-				if(((int)pop->size() % loading) == 0)
+				if((ceil((int)pop->size()*loadingMax/tamPop) - loading) == 1)
+				{
 					cout << '#' << flush;
+					loading++;
+				}
 
-				iter--;
+				if(iter > 0)
+					iter--;
 			}
 		}
 		else
@@ -538,7 +546,7 @@ inline void Controle::geraPop(list<Problema*>* popInicial)
 		}
 	}
 
-	cout << endl << endl;
+	cout << " " << loading << "%" << endl << endl;
 
 	PARAR = false;
 

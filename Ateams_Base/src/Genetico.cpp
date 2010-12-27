@@ -45,6 +45,9 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator iter = sol->end();
 	int i = 0, j = 0;
 
+	if(tamPopGenetico > (int)sol->size())
+		tamPopGenetico = (int)sol->size();
+
 	numExec++;
 
 	pthread_mutex_lock(&mutex);
