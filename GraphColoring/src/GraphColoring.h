@@ -5,16 +5,16 @@
 
 using namespace std;
 
-#ifndef _BinPacking_
-#define _BinPacking_
+#ifndef _GraphColoring_
+#define _GraphColoring_
 
-class Solucao_BinPacking : public Solucao
+class Solucao_GraphColoring : public Solucao
 {
-	short int *ordemItens;		// Ordem em que os itens serao alocados nas bolsas
-	short int *bins;			// Itens para cada uma das bolsas
+	short int *ordemNodes;			// Ordem em que os nos serao coloridos
+	short int *colors;			// Cores de cada um dos nos
 
 	friend class Problema;
-	friend class BinPacking;
+	friend class GraphColoring;
 
 	friend bool fnequal1(Problema*, Problema*);	// Comparacao profunda
 	friend bool fnequal2(Problema*, Problema*);	// Comparacao superficial
@@ -22,14 +22,14 @@ class Solucao_BinPacking : public Solucao
 	friend bool fncomp2(Problema*, Problema*);	// Comparacao superficial
 };
 
-class InfoTabu_BinPacking : public InfoTabu
+class InfoTabu_GraphColoring : public InfoTabu
 {
 private:
 
 	short int A, B;
 
 public:
-	InfoTabu_BinPacking(int xA, int xB)
+	InfoTabu_GraphColoring(int xA, int xB)
 	{
 		A = xA;
 		B = xB;
@@ -38,7 +38,7 @@ public:
 	// Verifica se 't1' eh igual a 't2'
 	bool operator == (InfoTabu& movTabu)
 	{
-		InfoTabu_BinPacking* t = dynamic_cast<InfoTabu_BinPacking *>(&movTabu);
+		InfoTabu_GraphColoring* t = dynamic_cast<InfoTabu_GraphColoring *>(&movTabu);
 
 		if((A == t->A && B == t->B) || (A == t->B && B == t->A))
 			return true;
@@ -47,30 +47,30 @@ public:
 	}
 };
 
-class BinPacking : public Problema
+class GraphColoring : public Problema
 {
 private:
 
 	bool calcFitness(bool esc);		// Calcula o makespan
 
-	Solucao_BinPacking sol;			// Representacao interna da solucao
+	Solucao_GraphColoring sol;		// Representacao interna da solucao
 
 public:
 
 	static char name[128];			// Nome do problema
 
-	static double *sizes, capacity;	// Tamanho dos ítens e capacidade de cada uma das bolsas
-	static int nitens;				// Quantidade de jobs e de maquinas
+	static short int **edges;		// Matriz com as arestas
+	static int nedges, nnodes;		// Quantidade de arestas e de nos
 
 	static int num_vizinhos;		// Numero de permutacoes possiveis
 
 
-	BinPacking();											// Nova solucao aleatoria
-	BinPacking(short int *prob);							// Copia de prob
-	BinPacking(const Problema &prob);						// Copia de prob
-	BinPacking(const Problema &prob, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
+	GraphColoring();											// Nova solucao aleatoria
+	GraphColoring(short int *prob);								// Copia de prob
+	GraphColoring(const Problema &prob);						// Copia de prob
+	GraphColoring(const Problema &prob, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
-	virtual ~BinPacking();
+	virtual ~GraphColoring();
 
 	bool operator == (const Problema&);
 	bool operator != (const Problema&);
@@ -100,7 +100,7 @@ public:
 	double getFitnessMaximize() const;
 	double getFitnessMinimize() const;
 
-	Solucao_BinPacking& getSoluction()
+	Solucao_GraphColoring& getSoluction()
 	{
 		return sol;
 	}
