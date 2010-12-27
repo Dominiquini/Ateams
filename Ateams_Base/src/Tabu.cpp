@@ -45,14 +45,19 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator select;
 	Problema* solBT;
 
+	srand(randomic);
+
 	numExec++;
 
 	pthread_mutex_lock(&mutex);
 
-	if(polEscolha == 0)
+	// Escolhe a melhor solucao para ser usada pelo BT
+	if(polEscolha == 0 || xRand(rand(), 0, 101) < elitismo)
 	{
 		select = sol->begin();
 		solBT = Problema::copySoluction(**select);
+
+		pthread_mutex_unlock(&mutex);
 
 		return exec(solBT);
 	}

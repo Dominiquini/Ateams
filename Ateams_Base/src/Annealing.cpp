@@ -45,14 +45,19 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator select;
 	Problema* solSA;
 
+	srand(randomic);
+
 	numExec++;
 
 	pthread_mutex_lock(&mutex);
 
-	if(polEscolha == 0)
+	// Escolhe a melhor solucao para ser usada pelo SA
+	if(polEscolha == 0 || xRand(rand(), 0, 101) < elitismo)
 	{
 		select = sol->begin();
 		solSA = Problema::copySoluction(**select);
+
+		pthread_mutex_unlock(&mutex);
 
 		return exec(solSA);
 	}
@@ -61,15 +66,6 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	double visao = polEscolha < 0 ? Controle::sumFitnessMaximize(sol, sol->size()) : Controle::sumFitnessMaximize(sol, polEscolha);
 
 	srand(randomic);
-
-	// Escolhe a melhor solucao com probabilidade 'elitismo'
-	if(xRand(rand(), 0, 101) < elitismo)
-	{
-		select = sol->begin();
-		solSA = Problema::copySoluction(**select);
-
-		return exec(solSA);
-	}
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	select = Controle::selectRouletteWheel(sol, visao, rand());

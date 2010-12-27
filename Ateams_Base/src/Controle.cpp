@@ -283,7 +283,11 @@ Problema* Controle::start(list<Problema*>* popInicial)
 	long int ins = 0;
 	execThreads = 0;
 
-	pthread_create(&threadTime, &attr, pthrTime, (void*)this);
+	if(pthread_create(&threadTime, &attr, pthrTime, (void*)this) != 0)
+	{
+		cout << endl << endl << "Erro na criação da Thread! (pthrTime)" << endl << endl;
+		exit(1);
+	}
 
 	for(int execAteams = 0; execAteams < iterAteams; execAteams++)
 	{
@@ -291,7 +295,11 @@ Problema* Controle::start(list<Problema*>* popInicial)
 		par->first = execAteams+1;
 		par->second = this;
 
-		pthread_create(&threads[execAteams], &attr, pthrExec, (void*)par);
+		if(pthread_create(&threads[execAteams], &attr, pthrExec, (void*)par) != 0)
+		{
+			cout << endl << endl << "Erro na criação da Thread! (pthrExec)" << endl << endl;
+			exit(1);
+		}
 	}
 
 	for(int execAteams = 0; execAteams < iterAteams; execAteams++)
