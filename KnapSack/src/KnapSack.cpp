@@ -33,7 +33,7 @@ void Problema::leProblema(FILE *f)
 	if(!fgets (KnapSack::name, 128, f))
 		exit(1);
 
-	if(!fscanf (f, "%d %d %*d", &KnapSack::nitens, &KnapSack::ncontraint))
+	if(!fscanf (f, "%d %d %*d\n", &KnapSack::nitens, &KnapSack::ncontraint))
 		exit(1);
 
 	Problema::alocaMemoria();

@@ -33,7 +33,7 @@ void Problema::leProblema(FILE *f)
 	if(!fgets (BinPacking::name, 128, f))
 		exit(1);
 
-	if(!fscanf (f, "%lf %d %*d", &BinPacking::capacity, &BinPacking::nitens))
+	if(!fscanf (f, "%lf %d %*d\n", &BinPacking::capacity, &BinPacking::nitens))
 		exit(1);
 
 	Problema::alocaMemoria();
@@ -189,13 +189,98 @@ BinPacking::BinPacking() : Problema::Problema()
 {
 	sol.ordem = (short int*)malloc(nitens * sizeof(short int));
 
-	for(int i = 0; i < nitens; i++)
-		sol.ordem[i] = i;
+	if(Problema::numInst == 1)	// Tenta uma solucao gulosa
+	{
+		double *orderSize = (double*)malloc(nitens * sizeof(double));
 
-	random_shuffle(&sol.ordem[0], &sol.ordem[nitens]);
+		for(int i = 0; i < nitens; i++)
+			orderSize[i] = sizes[i];
 
-	sol.bins = NULL;
-	calcFitness(false);
+		for(int i = 0, posMax = -1; i < nitens; i++)
+		{
+			double max = 0;
+
+			for(int j = 0; j < nitens; j++)
+			{
+				if(orderSize[j] > max)
+				{
+					max = orderSize[j];
+					posMax = j;
+				}
+			}
+
+			orderSize[posMax] = -1;
+			sol.ordem[i] = posMax;
+		}
+
+		double *tempValBins = (double*)malloc(nitens * sizeof(double));
+		short int *tempBins = (short int*)malloc(nitens * sizeof(short int));
+
+		for(int i = 0; i < nitens; i++)
+		{
+			orderSize[i] = sol.ordem[i];
+			tempValBins[i] = -1;
+		}
+
+		int localFitness = 0;
+
+		for(int i = 0; i < nitens; i++)
+		{
+			bool insert = false;
+
+			for(int j = 0; j < localFitness; j++)
+			{
+				if(sizes[(int)orderSize[i]] + tempValBins[j] < capacity)
+				{
+					tempValBins[j] += sizes[(int)orderSize[i]];
+					tempBins[(int)orderSize[i]] = j;
+					insert = true;
+					break;
+				}
+			}
+
+			if(insert == false)
+			{
+				tempValBins[localFitness] = sizes[(int)orderSize[i]];
+				tempBins[(int)orderSize[i]] = localFitness;
+				localFitness++;
+			}
+		}
+
+		for(int i = 0, bin = 0; i < localFitness; i++)
+		{
+			for(int j = 0; j < nitens; j++)
+			{
+				if(tempBins[j] == i)
+				{
+					sol.ordem[bin++] = j;
+				}
+			}
+		}
+
+		free(orderSize);
+		free(tempValBins);
+		free(tempBins);
+
+		sol.bins = NULL;
+		calcFitness(false);
+
+		if((int)sol.fitness != localFitness)
+		{
+			cout << endl << endl << "Problema na Solução Gulosa!" << endl << endl;
+			exit(1);
+		}
+	}
+	else
+	{
+		for(int i = 0; i < nitens; i++)
+			sol.ordem[i] = i;
+
+		random_shuffle(&sol.ordem[0], &sol.ordem[nitens]);
+
+		sol.bins = NULL;
+		calcFitness(false);
+	}
 
 	exec.tabu = false;
 	exec.genetico = false;
