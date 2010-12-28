@@ -363,7 +363,7 @@ inline int Controle::exec(int randomic, int eID)
 
 		double newBest = Problema::best;
 
-		if(Problema::compare(oldBest, newBest) > 0)
+		if(Problema::melhora(oldBest, newBest) > 0)
 			iterMelhora = 0;
 		else
 			iterMelhora++;
@@ -411,7 +411,7 @@ void* Controle::pthrExec(void *obj)
 	{
 		ins = ctr->exec(rand(), execAteams);
 
-		if(ctr->iterMelhora > ctr->tentAteams || (ctr->makespanBest != -1 && Problema::compare(ctr->makespanBest, Problema::best) >= 0))
+		if(ctr->iterMelhora > ctr->tentAteams || (ctr->makespanBest != -1 && Problema::melhora(ctr->makespanBest, Problema::best) >= 0))
 			PARAR = true;
 	}
 
@@ -447,7 +447,7 @@ inline pair<int, int>* Controle::addSol(vector<Problema*> *news)
 
 	for(iterNews = news->begin(); iterNews != news->end(); iterNews++)
 	{
-		if(Problema::compare(**pop->rbegin(), **iterNews) < 0)
+		if(Problema::melhora(**pop->rbegin(), **iterNews) < 0)
 		{
 			delete *iterNews;
 		}

@@ -198,12 +198,12 @@ void Problema::desalocaMemoria()
 	free(KnapSack::constraint);
 }
 
-double Problema::compare(double oldP, double newP)
+double Problema::melhora(double oldP, double newP)
 {
 	return newP - oldP;
 }
 
-double Problema::compare(Problema& oldP, Problema& newP)
+double Problema::melhora(Problema& oldP, Problema& newP)
 {
 	return newP.getFitness() - oldP.getFitness();
 }
@@ -359,11 +359,8 @@ inline void KnapSack::imprimir(bool esc)
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problema* KnapSack::vizinho()
 {
-	int p1 = xRand(rand(), 0, nitens), p2 = xRand(rand(), 0, nitens);
+	int p1 = xRand(rand(), 0, sol.max), p2 = xRand(rand(), sol.max, nitens);
 	Problema *prob = NULL;
-
-	while((p2 == p1))
-		p2 = xRand(rand(), 0, nitens);
 
 	prob = new KnapSack(*this, p1, p2);
 
@@ -381,9 +378,9 @@ inline vector<pair<Problema*, InfoTabu*>* >* KnapSack::buscaLocal()
 	pair<Problema*, InfoTabu*>* temp;
 	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
 
-	for(p1 = 0; p1 < nitens-1; p1++)
+	for(p1 = 0; p1 < sol.max; p1++)
 	{
-		for(p2 = p1+1; p2 < nitens; p2++)
+		for(p2 = sol.max; p2 < nitens; p2++)
 		{
 			prob = new KnapSack(*this, p1, p2);
 
@@ -418,10 +415,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* KnapSack::buscaLocal(float parcela)
 
 	for(register int i = 0; i < def; i++)
 	{
-		p1 = xRand(rand(), 0, numItens), p2 = xRand(rand(), 0, numItens);
-
-		while((p2 == p1))
-			p2 = xRand(rand(), 0, numItens);
+		p1 = xRand(rand(), 0, sol.max), p2 = xRand(rand(), sol.max, numItens);
 
 		prob = new KnapSack(*this, p1, p2);
 

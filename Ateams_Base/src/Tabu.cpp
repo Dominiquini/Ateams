@@ -126,13 +126,13 @@ vector<Problema*>* Tabu::exec(Problema* init)
 			// Se nao for tabu...
 			if(!isTabu(listaTabu, local->second))
 			{
-				if(Problema::compare(*maxLocal, *local->first) > 0)
+				if(Problema::melhora(*maxLocal, *local->first) > 0)
 					j = 0;
 
 				delete maxLocal;
 				maxLocal = local->first;
 
-				if(Problema::compare(*maxGlobal->back(), *local->first) > 0)
+				if(Problema::melhora(*maxGlobal->back(), *local->first) > 0)
 				{
 					maxGlobal->push_back(Problema::copySoluction(*maxLocal));
 				}
@@ -154,7 +154,7 @@ vector<Problema*>* Tabu::exec(Problema* init)
 					delete maxLocal;
 					maxLocal = local->first;
 
-					if(Problema::compare(*maxGlobal->back(), *local->first) > 0)
+					if(Problema::melhora(*maxGlobal->back(), *local->first) > 0)
 					{
 						maxGlobal->push_back(Problema::copySoluction(*maxLocal));
 					}
@@ -222,5 +222,5 @@ inline void addTabu(list<InfoTabu*>* listaTabu, InfoTabu *m, int max)
 
 inline bool aspiracao(double paramAsp, Problema *atual, Problema *local, Problema *global)
 {
-	return Problema::compare(((paramAsp * global->getFitness()) + ((1-paramAsp) * local->getFitness())), atual->getFitness()) >= 0;
+	return Problema::melhora(((paramAsp * global->getFitness()) + ((1-paramAsp) * local->getFitness())), atual->getFitness()) >= 0;
 }

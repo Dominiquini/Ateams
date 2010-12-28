@@ -59,8 +59,8 @@ public:
 	static Problema* copySoluction(const Problema& prob);		// Copia de prob
 
 	// Calcula a melhora (Resultado Positivo !!!) de newP em relacao a oldP
-	static double compare(double oldP, double newP);
-	static double compare(Problema& oldP, Problema& newP);
+	static double melhora(double oldP, double newP);
+	static double melhora(Problema& oldP, Problema& newP);
 
 
 	executado exec;							// Algoritmos executados na solucao

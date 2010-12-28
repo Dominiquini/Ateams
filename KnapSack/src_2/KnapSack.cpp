@@ -198,12 +198,12 @@ void Problema::desalocaMemoria()
 	free(KnapSack::constraint);
 }
 
-double Problema::compare(double oldP, double newP)
+double Problema::melhora(double oldP, double newP)
 {
 	return newP - oldP;
 }
 
-double Problema::compare(Problema& oldP, Problema& newP)
+double Problema::melhora(Problema& oldP, Problema& newP)
 {
 	return newP.getFitness() - oldP.getFitness();
 }

@@ -194,12 +194,12 @@ void Problema::desalocaMemoria()
 	free(JobShop::time);
 }
 
-double Problema::compare(double oldP, double newP)
+double Problema::melhora(double oldP, double newP)
 {
 	return oldP - newP;
 }
 
-double Problema::compare(Problema& oldP, Problema& newP)
+double Problema::melhora(Problema& oldP, Problema& newP)
 {
 	return oldP.getFitness() - newP.getFitness();
 }

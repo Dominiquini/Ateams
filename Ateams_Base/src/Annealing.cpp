@@ -117,13 +117,13 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 				continue;
 			}
 
-			Ds = Problema::compare(*S, *Sn);
+			Ds = Problema::melhora(*S, *Sn);
 			if(Ds >= 0 || accept((double)rand(), Ds, T))
 			{
 				delete S;
 				S = Sn;
 
-				if(Problema::compare(*Sf->back(), *S) > 0)
+				if(Problema::melhora(*Sf->back(), *S) > 0)
 				{
 					Sf->push_back(Problema::copySoluction(*S));
 				}
