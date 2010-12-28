@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
 	fclose(fdados);
 	fclose(fparametros);
 
-	/* Le parametros adicionais passados por linha de comando */
+	/* Le parametros adicionais passados por linha de comando (Sobrepujam as lidas no arquivo de configuracao) */
 	Problema::leArgumentos(argv, argc, pATEAMS);
 
 	cout << endl;

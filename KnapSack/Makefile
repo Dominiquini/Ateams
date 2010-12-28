@@ -83,10 +83,10 @@ $(PATH_BIN2)%.o:$(PATH_SRC2)%.cpp $(PATH_SRC2)%.h
 		@$(CC) $(CFLAGS) -c $< -o $@
 		@echo "$(CC) $(CFLAGS) -c $< -o $@"
 
-run1:		install
+run1:		install_proj1
 		$(EXEC1) $(RUN_PARAM)
 
-run2:		install
+run2:		install_proj2
 		$(EXEC2) $(RUN_PARAM)
 
 clean:

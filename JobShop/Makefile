@@ -13,24 +13,29 @@ PATH_CORE_BIN = ../Ateams_Base/bin/
 
 BIN = JobShop
 SRCS =  $(PATH_SRC)JobShop.cpp $(PATH_CORE_SRC)Ateams.cpp $(PATH_CORE_SRC)Controle.cpp $(PATH_CORE_SRC)Tabu.cpp $(PATH_CORE_SRC)Genetico.cpp $(PATH_CORE_SRC)Annealing.cpp
+SRCS_BASE = $(PATH_CORE_SRC)Ateams.cpp $(PATH_CORE_SRC)Controle.cpp $(PATH_CORE_SRC)Tabu.cpp $(PATH_CORE_SRC)Genetico.cpp $(PATH_CORE_SRC)Annealing.cpp
 OBJS = $(PATH_BIN)JobShop.o
 INCL = $(SRCS:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heuristica.h
+INCL_BASE = $(SRCS_BASE:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heuristica.h
 EXEC = $(PATH_BIN)$(BIN)
 
-RUN_PARAM = -i $(PATH_DADOS)car1.prb -p $(PATH_PARAM)default.param -r $(PATH_RES)la01.res
+RUN_PARAM = -i $(PATH_DADOS)la01.prb -p $(PATH_PARAM)default.param -r $(PATH_RES)la01.res
 
 RM = rm -rf
 
 .PHONY: all install run auto clean purge
 
-all:		$(PATH_BIN) $(EXEC)
+all:		base $(PATH_BIN) $(EXEC)
 
 install:	all
 		@ln -fs $(EXEC) $(PATH_PROJ)$(BIN)
 
+base:		$(SRCS_BASE) $(INCL_BASE)
+		@cd $(PATH_CORE) && $(MAKE)
+
 debug:
-		@$(CC) $(SRCS) -g3 -O0 -lpthread -o $(BIN)
 		@echo "$(CC) $(PATH_CORE_SRC)*.cpp $(PATH_SRC)*.cpp -lpthread -g3 -O0 -o $(BIN)"
+		@$(CC) $(SRCS) -g3 -O0 -lpthread -o $(BIN)
 
 $(PATH_BIN):
 		@mkdir $(PATH_BIN)
@@ -41,7 +46,6 @@ $(EXEC):	$(OBJS)
 		@echo "$(CC) $(CFLAGS) $(PATH_BIN)*.o -o $@"
 
 $(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.h
-		@cd $(PATH_CORE) && $(MAKE)
 		@$(CC) $(CFLAGS) -c $< -o $@
 		@echo "$(CC) $(CFLAGS) -c $< -o $@"
 
