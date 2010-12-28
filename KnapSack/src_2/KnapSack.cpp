@@ -73,10 +73,11 @@ list<Problema*>* Problema::lePopulacao(char *log)
 	{
 		list<Problema*>* popInicial = new list<Problema*>();
 		int npop, nitens, nconstraint, valorTotal;
+		char format_type[32];
 		short int *prob;
 		Problema* p;
 
-		if(!fscanf (f, "%d %d %d", &npop, &nitens, &nconstraint))
+		if(!fscanf (f, "%d %d %d %s\n", &npop, &nitens, &nconstraint, format_type))
 		{
 			printf("Arquivo de log incorreto!\n\n");
 			exit(1);
@@ -88,22 +89,49 @@ list<Problema*>* Problema::lePopulacao(char *log)
 			exit(1);
 		}
 
-		for(int i = 0; i < npop; i++)
+		for(int s = 0; s < npop; s++)
 		{
 			prob = (short int*)malloc(nitens * sizeof(short int));
 
-			if(!fscanf (f, "%d", &valorTotal))
+			if(!fscanf (f, "%d\n", &valorTotal))
 			{
 				printf("Arquivo de log incorreto!\n\n");
 				exit(1);
 			}
 
-			for(int i = 0; i < nitens; i++)
+			if(!strcmp(format_type, "src_2"))
 			{
-				if(!fscanf (f, "%hd", &prob[i]))
+				for(int i = 0; i < nitens; i++)
+				{
+					if(!fscanf (f, "%hd", &prob[i]))
+					{
+						printf("Arquivo de log incorreto!\n\n");
+						exit(1);
+					}
+				}
+			}
+			else
+			{
+				int max = 0, pos = 0;
+
+				if(!fscanf (f, "%d", &max))
 				{
 					printf("Arquivo de log incorreto!\n\n");
 					exit(1);
+				}
+
+				for(int i = 0; i < nitens; i++)
+				{
+					if(!fscanf (f, "%d", &pos))
+					{
+						printf("Arquivo de log incorreto!\n\n");
+						exit(1);
+					}
+
+					if(i < max)
+						prob[pos] = 1;
+					else
+						prob[pos] = 0;
 				}
 			}
 
@@ -135,7 +163,7 @@ void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 	list<Problema*>::iterator iter;
 	short int *prob;
 
-	fprintf(f, "%d %d %d\n\n", sizePop, KnapSack::nitens, KnapSack::ncontraint);
+	fprintf(f, "%d %d %d %s\n\n", sizePop, KnapSack::nitens, KnapSack::ncontraint, "src_2");
 
 	for(iter = popInicial->begin(); iter != popInicial->end(); iter++)
 	{
@@ -147,7 +175,7 @@ void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 		{
 			fprintf(f, "%d ", prob[i]);
 		}
-		fprintf(f, "\n");
+		fprintf(f, "\n\n");
 	}
 	fclose(f);
 }

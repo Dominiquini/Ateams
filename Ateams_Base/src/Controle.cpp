@@ -506,7 +506,7 @@ inline void Controle::geraPop(list<Problema*>* popInicial)
 	unsigned long int limit = pow(tamPop, 3), iter = 0;
 	Problema* soluction = NULL;
 
-	cout << endl << endl << "LOADING: " << flush;
+	cout << endl << "LOADING: " << flush;
 
 	int loadingMax = 100, loading = ceil((int)pop->size()*loadingMax/tamPop);
 

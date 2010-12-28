@@ -70,6 +70,7 @@ public:
 
 	KnapSack();												// Nova solucao aleatoria
 	KnapSack(short int *prob);								// Copia de prob
+	KnapSack(short int *prob, int max);						// Copia de prob
 	KnapSack(const Problema &prob);							// Copia de prob
 	KnapSack(const Problema &prob, int pos1, int pos2);		// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 

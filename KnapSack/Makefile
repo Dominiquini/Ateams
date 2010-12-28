@@ -26,21 +26,31 @@ INCL_BASE = $(SRCS_BASE:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heur
 EXEC1 = $(PATH_BIN1)$(BIN1)
 EXEC2 = $(PATH_BIN2)$(BIN2)
 
-RUN_PARAM = -i $(PATH_DADOS)car1.prb -p $(PATH_PARAM)default.param -r $(PATH_RES)la01.res
+RUN_PARAM = -i $(PATH_DADOS)car1.prb -p $(PATH_PARAM)DEFAULT.param -r $(PATH_RES)la01.res
 
 RM = rm -rf
 
-.PHONY: all install run1 run2 auto clean purge
+.PHONY: all base install compile1 compile2 run1 run2 auto clean purge
 
 all:		proj_all
 
-proj_all:	proj1 proj2
+proj_all:	base
+		$(MAKE) compile1
+		$(MAKE) compile2
 
-proj1:		base $(PATH_BIN1) $(EXEC1)
+proj1:		base
+		$(MAKE) compile1
 
-proj2:		base $(PATH_BIN2) $(EXEC2)
+proj2:		base
+		$(MAKE) compile2
 
-install_all:	install_proj1 install_proj2
+install:	install_all
+
+install_all:	base
+		$(MAKE) compile1
+		@ln -fs $(EXEC1) $(PATH_PROJ)$(BIN1)
+		$(MAKE) compile2
+		@ln -fs $(EXEC2) $(PATH_PROJ)$(BIN2)
 
 install_proj1:	proj1
 		@ln -fs $(EXEC1) $(PATH_PROJ)$(BIN1)
@@ -51,6 +61,8 @@ install_proj2:	proj2
 base:		$(SRCS_BASE) $(INCL_BASE)
 		@cd $(PATH_CORE) && $(MAKE)
 
+debug:		debug_all
+
 debug_all:	debug_proj1 debug_proj2
 
 debug_proj1:	
@@ -60,6 +72,10 @@ debug_proj1:
 debug_proj2:
 		@$(CC) $(SRCS2) -g3 -O0 -lpthread -o $(BIN2)
 		@echo "$(CC) $(PATH_CORE_SRC)*.cpp $(PATH_SRC2)*.cpp -lpthread -g3 -O0 -o $(BIN2)"
+
+compile1:	$(PATH_BIN1) $(EXEC1)
+
+compile2: 	$(PATH_BIN2) $(EXEC2)
 
 $(PATH_BIN1):
 		@mkdir $(PATH_BIN1)

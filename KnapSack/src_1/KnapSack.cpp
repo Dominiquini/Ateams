@@ -72,51 +72,109 @@ list<Problema*>* Problema::lePopulacao(char *log)
 	if(f != NULL)
 	{
 		list<Problema*>* popInicial = new list<Problema*>();
-		int npop, nitens, nconstraint, valorTotal;
+		int npop, nitens, nconstraint, valorTotal, max;
+		char format_type[32];
 		short int *prob;
 		Problema* p;
 
-		if(!fscanf (f, "%d %d %d", &npop, &nitens, &nconstraint))
+		if(!fscanf (f, "%d %d %d %s\n", &npop, &nitens, &nconstraint, format_type))
 		{
-			printf("Arquivo de log incorreto!\n\n");
+			printf("Arquivo de Log Incorreto - Cabeçallho!\n\n");
 			exit(1);
 		}
 
 		if(nitens != KnapSack::nitens || nconstraint != KnapSack::ncontraint)
 		{
-			printf("Arquivo de log incorreto!\n\n");
+			printf("Arquivo de Log Incorreto!\n\n");
 			exit(1);
 		}
 
-		for(int i = 0; i < npop; i++)
+		if(!strcmp(format_type, "src_1"))
 		{
-			prob = (short int*)malloc(nitens * sizeof(short int));
-
-			if(!fscanf (f, "%d", &valorTotal))
+			for(int s = 0; s < npop; s++)
 			{
-				printf("Arquivo de log incorreto!\n\n");
-				exit(1);
-			}
+				prob = (short int*)malloc(nitens * sizeof(short int));
 
-			for(int i = 0; i < nitens; i++)
-			{
-				if(!fscanf (f, "%hd", &prob[i]))
+				if(!fscanf (f, "%d\n", &valorTotal))
 				{
-					printf("Arquivo de log incorreto!\n\n");
+					printf("Arquivo de Log Incorreto!\n\n");
 					exit(1);
 				}
+
+				if(!fscanf (f, "%d", &max))
+				{
+					printf("Arquivo de Log Incorreto - Separador!\n\n");
+					exit(1);
+				}
+
+				for(int i = 0; i < nitens; i++)
+				{
+					if(!fscanf (f, "%hd", &prob[i]))
+					{
+						printf("Arquivo de Log Incorreto - Soluçao!\n\n");
+						exit(1);
+					}
+				}
+
+				p = new KnapSack(prob, max);
+				if(valorTotal != p->getFitness())
+				{
+					printf("Arquivo de Log Incorreto - Fitness!\n\n");
+					exit(1);
+				}
+
+				popInicial->push_back(p);
 			}
-
-			p = new KnapSack(prob);
-
-			if(valorTotal != p->getFitness())
-			{
-				printf("Arquivo de log incorreto!\n\n");
-				exit(1);
-			}
-
-			popInicial->push_back(p);
 		}
+		else
+		{
+			short int *flags = (short int*)malloc(nitens * sizeof(short int));
+			int pos = 0;
+
+			for(int s = 0; s < npop; s++)
+			{
+				prob = (short int*)malloc(nitens * sizeof(short int));
+
+				if(!fscanf (f, "%d\n", &valorTotal))
+				{
+					printf("Arquivo de Log Incorreto!\n\n");
+					exit(1);
+				}
+
+				for(int i = 0; i < nitens; i++)
+				{
+					if(!fscanf (f, "%hd", &flags[i]))
+					{
+						printf("Arquivo de Log Incorreto - Flag!\n\n");
+						exit(1);
+					}
+				}
+
+				for(int i = 0; i < nitens; i++)
+				{
+					if(flags[i] == 1)
+						prob[pos++] = i;
+				}
+
+				for(int i = 0; i < nitens; i++)
+				{
+					if(flags[i] == 0)
+						prob[pos++] = i;
+				}
+
+				p = new KnapSack(prob);
+
+				if(valorTotal != p->getFitness())
+				{
+					printf("Arquivo de Log Incorreto - Fitness!\n\n");
+					exit(1);
+				}
+
+				popInicial->push_back(p);
+			}
+			free(flags);
+		}
+
 		fclose(f);
 
 		return popInicial;
@@ -135,7 +193,7 @@ void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 	list<Problema*>::iterator iter;
 	short int *prob;
 
-	fprintf(f, "%d %d %d\n\n", sizePop, KnapSack::nitens, KnapSack::ncontraint);
+	fprintf(f, "%d %d %d %s\n\n", sizePop, KnapSack::nitens, KnapSack::ncontraint, "src_1");
 
 	for(iter = popInicial->begin(); iter != popInicial->end(); iter++)
 	{
@@ -143,11 +201,12 @@ void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 
 		fprintf(f, "%d\n", (int)dynamic_cast<KnapSack *>(*iter)->getSoluction().fitness);
 
+		fprintf(f, "%d ", (int)dynamic_cast<KnapSack *>(*iter)->getSoluction().max);
 		for(int i = 0; i < KnapSack::nitens; i++)
 		{
 			fprintf(f, "%d ", prob[i]);
 		}
-		fprintf(f, "\n");
+		fprintf(f, "\n\n");
 	}
 	fclose(f);
 }
@@ -220,6 +279,7 @@ KnapSack::KnapSack() : Problema::Problema()
 	random_shuffle(&sol.ordemItens[0], &sol.ordemItens[nitens]);
 
 	sol.max = -1;
+
 	calcFitness(false);
 
 	exec.tabu = false;
@@ -231,8 +291,20 @@ KnapSack::KnapSack() : Problema::Problema()
 KnapSack::KnapSack(short int *prob) : Problema::Problema()
 {
 	sol.ordemItens = prob;
-
 	sol.max = -1;
+
+	calcFitness(false);
+
+	exec.tabu = false;
+	exec.genetico = false;
+	exec.annealing = false;
+}
+
+KnapSack::KnapSack(short int *prob, int max) : Problema::Problema()
+{
+	sol.ordemItens = prob;
+
+	sol.max = max;
 	calcFitness(false);
 
 	exec.tabu = false;
@@ -267,6 +339,7 @@ KnapSack::KnapSack(const Problema &prob, int pos1, int pos2) : Problema::Problem
 	this->sol.ordemItens[pos2] = aux;
 
 	sol.max = -1;
+
 	calcFitness(false);
 
 	exec.tabu = false;
@@ -283,27 +356,52 @@ KnapSack::~KnapSack()
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 inline bool KnapSack::calcFitness(bool esc)
 {
-	double *tempConstraints = (double*)malloc(KnapSack::ncontraint * sizeof(double));
-	for(register int i = 0; i < KnapSack::ncontraint; i++)
-		tempConstraints[i] = 0;
-
-	register int pos = 0;
-	for(pos = 0; pos < nitens; pos++)
-	{
-		if(!constraintVerify(sol.ordemItens[pos], tempConstraints))
-			break;
-	}
-
-	free(tempConstraints);
-
 	sol.fitness = 0;
-	for(int i = 0; i < pos; i++)
-		sol.fitness += KnapSack::values[i];
 
-	sort(&sol.ordemItens[0], &sol.ordemItens[pos]);
-	sort(&sol.ordemItens[pos], &sol.ordemItens[nitens]);
+	if(sol.max == -1)
+	{
+		double *tempConstraints = (double*)malloc(KnapSack::ncontraint * sizeof(double)), fitness = 0;
+		for(register int i = 0; i < KnapSack::ncontraint; i++)
+			tempConstraints[i] = 0;
 
-	sol.max = pos;
+		register int max = 0, item = 0;
+		for(max = 0; max < nitens; max++)
+		{
+			item = sol.ordemItens[max];
+
+			if(!constraintVerify(item, tempConstraints))
+				break;
+
+			fitness += KnapSack::values[item];
+		}
+
+		sort(&sol.ordemItens[0], &sol.ordemItens[max]);
+		sort(&sol.ordemItens[max], &sol.ordemItens[nitens]);
+
+		sol.fitness = fitness;
+		sol.max = max;
+
+		while(constraintVerify(sol.ordemItens[max], tempConstraints))
+			fitness += KnapSack::values[sol.ordemItens[max++]];
+
+		if(fitness != sol.fitness || max != sol.max)
+		{
+			sort(&sol.ordemItens[0], &sol.ordemItens[max]);
+			sort(&sol.ordemItens[max], &sol.ordemItens[nitens]);
+
+			sol.fitness = fitness;
+			sol.max = max;
+		}
+
+		free(tempConstraints);
+	}
+	else
+	{
+		for(register int i = 0; i < sol.max; i++)
+		{
+			sol.fitness += KnapSack::values[sol.ordemItens[i]];
+		}
+	}
 
 	return true;
 }
@@ -532,15 +630,25 @@ inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int t
 
 inline bool constraintVerify(int item, double *constraints)
 {
-	for(register int c = 0; c < KnapSack::ncontraint; c++)
+	register int c = 0;
+	bool valido = true;
+
+	for(c = 0; c < KnapSack::ncontraint; c++)
 	{
 		constraints[c] += KnapSack::constraint[c][item];
 
 		if(constraints[c] > KnapSack::limit[c])
-			return false;
+		{
+			valido = false;
+			break;
+		}
 	}
 
-	return true;
+	if(valido == false)
+		for(register int i = 0; i <= c; i++)
+			constraints[i] -= KnapSack::constraint[i][item];
+
+	return valido;
 }
 
 // comparator function:

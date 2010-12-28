@@ -19,13 +19,14 @@ INCL = $(SRCS:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heuristica.h
 INCL_BASE = $(SRCS_BASE:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heuristica.h
 EXEC = $(PATH_BIN)$(BIN)
 
-RUN_PARAM = -i $(PATH_DADOS)jean.prb -p $(PATH_PARAM)default.param -r $(PATH_RES)la01.res
+RUN_PARAM = -i $(PATH_DADOS)jean.prb -p $(PATH_PARAM)DEFAULT.param -r $(PATH_RES)la01.res
 
 RM = rm -rf
 
-.PHONY: all install run auto clean purge
+.PHONY: all base install compile run auto clean purge
 
-all:		base $(PATH_BIN) $(EXEC)
+all:		base
+		$(MAKE) compile
 
 install:	all
 		@ln -fs $(EXEC) $(PATH_PROJ)$(BIN)
@@ -36,6 +37,8 @@ base:		$(SRCS_BASE) $(INCL_BASE)
 debug:
 		@echo "$(CC) $(PATH_CORE_SRC)*.cpp $(PATH_SRC)*.cpp -lpthread -g3 -O0 -o $(BIN)"
 		@$(CC) $(SRCS) -g3 -O0 -lpthread -o $(BIN)
+
+compile: 	$(PATH_BIN) $(EXEC)
 
 $(PATH_BIN):
 		@mkdir $(PATH_BIN)

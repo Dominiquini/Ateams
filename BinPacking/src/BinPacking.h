@@ -67,6 +67,7 @@ public:
 
 	BinPacking();											// Nova solucao aleatoria
 	BinPacking(short int *prob);							// Copia de prob
+	BinPacking(short int *prob, short int *bins);			// Copia de prob
 	BinPacking(const Problema &prob);						// Copia de prob
 	BinPacking(const Problema &prob, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 

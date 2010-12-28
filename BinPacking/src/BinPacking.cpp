@@ -59,7 +59,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 		list<Problema*>* popInicial = new list<Problema*>();
 		double capacity;
 		int npop, nitens, nbins;
-		short int *ordem;
+		short int *ordem, *bins;
 		Problema* p;
 
 		if(!fscanf (f, "%d %lf %d", &npop, &capacity, &nitens))
@@ -77,6 +77,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 		for(int i = 0; i < npop; i++)
 		{
 			ordem = (short int*)malloc(nitens * sizeof(short int));
+			bins = (short int*)malloc(nitens * sizeof(short int));
 
 			if(!fscanf (f, "%d", &nbins))
 			{
@@ -86,14 +87,14 @@ list<Problema*>* Problema::lePopulacao(char *log)
 
 			for(int j = 0; j < nitens; j++)
 			{
-				if(!fscanf (f, "%hd", &ordem[j]))
+				if(!fscanf (f, "%hd %hd", &bins[j], &ordem[j]))
 				{
 					printf("Arquivo de log incorreto!\n\n");
 					exit(1);
 				}
 			}
 
-			p = new BinPacking(ordem);
+			p = new BinPacking(ordem, bins);
 
 			if(nbins != p->getFitness())
 			{
@@ -119,19 +120,20 @@ void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 
 	int sizePop = (int)popInicial->size();
 	list<Problema*>::iterator iter;
-	short int *ordem;
+	short int *ordem, *bins;
 
 	fprintf(f, "%d %f %d\n\n", sizePop, BinPacking::capacity, BinPacking::nitens);
 
 	for(iter = popInicial->begin(); iter != popInicial->end(); iter++)
 	{
 		ordem = dynamic_cast<BinPacking *>(*iter)->getSoluction().ordemItens;
+		bins = dynamic_cast<BinPacking *>(*iter)->getSoluction().bins;
 
 		fprintf(f, "%d\n", (int)dynamic_cast<BinPacking *>(*iter)->getSoluction().fitness);
 
 		for(int j = 0; j < BinPacking::nitens; j++)
 		{
-			fprintf(f, "%hd ", ordem[j]);
+			fprintf(f, "%hd %hd ", bins[j], ordem[j]);
 		}
 
 		fprintf(f, "\n\n");
@@ -291,8 +293,20 @@ BinPacking::BinPacking() : Problema::Problema()
 BinPacking::BinPacking(short int *prob) : Problema::Problema()
 {
 	sol.ordemItens = prob;
-
 	sol.bins = NULL;
+
+	calcFitness(false);
+
+	exec.tabu = false;
+	exec.genetico = false;
+	exec.annealing = false;
+}
+
+BinPacking::BinPacking(short int *prob, short int *bins) : Problema::Problema()
+{
+	sol.ordemItens = prob;
+	sol.bins = bins;
+
 	calcFitness(false);
 
 	exec.tabu = false;
@@ -336,6 +350,7 @@ BinPacking::BinPacking(const Problema &prob, int pos1, int pos2) : Problema::Pro
 	this->sol.ordemItens[pos2] = aux;
 
 	this->sol.bins = NULL;
+
 	calcFitness(false);
 
 	exec.tabu = false;
@@ -355,33 +370,47 @@ BinPacking::~BinPacking()
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 inline bool BinPacking::calcFitness(bool esc)
 {
-	double sumBinAtual = 0;
-	int anterior = 0;
 	sol.fitness = 1;
 
-	short int *aux_bins = (short int*)malloc(nitens * sizeof(short int));
-
-	for(register int pos = 0; pos < nitens; pos++)
+	if(sol.bins == NULL)
 	{
-		sumBinAtual += sizes[sol.ordemItens[pos]];
+		double sumBinAtual = 0;
+		int anterior = 0;
 
-		if(sumBinAtual > capacity)
+		short int *aux_bins = (short int*)malloc(nitens * sizeof(short int));
+
+		for(register int pos = 0; pos < nitens; pos++)
 		{
-			sol.fitness++;
-			sumBinAtual = sizes[sol.ordemItens[pos]];
+			sumBinAtual += sizes[sol.ordemItens[pos]];
 
-			sort(&sol.ordemItens[anterior], &sol.ordemItens[pos]);
-			anterior = pos;
+			if(sumBinAtual > capacity)
+			{
+				sol.fitness++;
+				sumBinAtual = sizes[sol.ordemItens[pos]];
+
+				sort(&sol.ordemItens[anterior], &sol.ordemItens[pos]);
+				anterior = pos;
+			}
+
+			aux_bins[pos] = sol.fitness;
 		}
+		sort(&sol.ordemItens[anterior], &sol.ordemItens[nitens]);
 
-		aux_bins[pos] = sol.fitness;
+		if(esc == false)
+			free(aux_bins);
+		else
+			sol.bins = aux_bins;
 	}
-	sort(&sol.ordemItens[anterior], &sol.ordemItens[nitens]);
-
-	if(esc == false)
-		free(aux_bins);
 	else
-		sol.bins = aux_bins;
+	{
+		sol.fitness = sol.bins[nitens - 1];
+
+		if(esc == false)
+		{
+			free(sol.bins);
+			sol.bins = NULL;
+		}
+	}
 
 	return true;
 }
