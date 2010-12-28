@@ -187,8 +187,8 @@ int main(int argc, char *argv[])
 
 	delete pop;
 
-	cout << endl << endl << "Pior Solução: " << Problema::worst << endl;
-	cout << endl << "Melhor Solução: " << Problema::best << endl;
+	cout << endl << endl << "Pior Solução Final: " << Problema::worst << endl;
+	cout << endl << "Melhor Solução Final: " << Problema::best << endl;
 
 	execInfo info;
 	ctr->getInfo(&info);

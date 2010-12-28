@@ -276,8 +276,8 @@ Problema* Controle::start(list<Problema*>* popInicial)
 	Problema::best = (*pop->begin())->getFitness();
 	Problema::worst = (*pop->rbegin())->getFitness();
 
-	cout << endl << "Pior Solução: " << Problema::worst << endl << endl;
-	cout << "Melhor Solução: " << Problema::best << endl << endl << endl;
+	cout << endl << "Pior Solução Inicial: " << Problema::worst << endl << endl;
+	cout << "Melhor Solução Inicial: " << Problema::best << endl << endl << endl;
 
 	pair<int, Controle*>* par = NULL;
 	long int ins = 0;
