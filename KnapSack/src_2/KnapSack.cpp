@@ -11,56 +11,56 @@ double Problema::worst = 0;
 int Problema::numInst = 0;
 long int Problema::totalNumInst = 0;
 
-char KnapSack::name[128];
-double *KnapSack::values = NULL, **KnapSack::constraint = NULL, *KnapSack::limit = NULL;
-int KnapSack::nitens = 0, KnapSack::ncontraint = 0;
+char KnapSack_2::name[128];
+double *KnapSack_2::values = NULL, **KnapSack_2::constraint = NULL, *KnapSack_2::limit = NULL;
+int KnapSack_2::nitens = 0, KnapSack_2::ncontraint = 0;
 
-int KnapSack::num_vizinhos = 0;
+int KnapSack_2::num_vizinhos = 0;
 
 Problema* Problema::randSoluction()
 {
-	return new KnapSack();
+	return new KnapSack_2();
 }
 
 Problema* Problema::copySoluction(const Problema& prob)
 {
-	return new KnapSack(prob);
+	return new KnapSack_2(prob);
 }
 
 
 void Problema::leProblema(FILE *f)
 {
-	if(!fgets (KnapSack::name, 128, f))
+	if(!fgets (KnapSack_2::name, 128, f))
 		exit(1);
 
-	if(!fscanf (f, "%d %d %*d\n", &KnapSack::nitens, &KnapSack::ncontraint))
+	if(!fscanf (f, "%d %d %*d\n", &KnapSack_2::nitens, &KnapSack_2::ncontraint))
 		exit(1);
 
 	Problema::alocaMemoria();
 
-	for(int i = 0; i < KnapSack::nitens; i++)
+	for(int i = 0; i < KnapSack_2::nitens; i++)
 	{
-		if (!fscanf (f, "%lf", &KnapSack::values[i]))
+		if (!fscanf (f, "%lf", &KnapSack_2::values[i]))
 			exit(1);
 	}
 
-	for(int i = 0; i < KnapSack::ncontraint; i++)
+	for(int i = 0; i < KnapSack_2::ncontraint; i++)
 	{
-		for (int j = 0; j < KnapSack::nitens; j++)
+		for (int j = 0; j < KnapSack_2::nitens; j++)
 		{
-			if (!fscanf (f, "%lf", &KnapSack::constraint[i][j]))
+			if (!fscanf (f, "%lf", &KnapSack_2::constraint[i][j]))
 				exit(1);
 		}
 	}
 
-	for(int i = 0; i < KnapSack::ncontraint; i++)
+	for(int i = 0; i < KnapSack_2::ncontraint; i++)
 	{
-		if (!fscanf (f, "%lf", &KnapSack::limit[i]))
+		if (!fscanf (f, "%lf", &KnapSack_2::limit[i]))
 			exit(1);
 	}
 
-	for(int i = 1; i < KnapSack::nitens + 2; i++)
-		KnapSack::num_vizinhos += i;
+	for(int i = 1; i < KnapSack_2::nitens + 2; i++)
+		KnapSack_2::num_vizinhos += i;
 
 	return;
 }
@@ -79,13 +79,13 @@ list<Problema*>* Problema::lePopulacao(char *log)
 
 		if(!fscanf (f, "%d %d %d %s\n", &npop, &nitens, &nconstraint, format_type))
 		{
-			printf("Arquivo de log incorreto!\n\n");
+			printf("Arquivo de Log Incorreto - Cabeçalho!\n\n");
 			exit(1);
 		}
 
-		if(nitens != KnapSack::nitens || nconstraint != KnapSack::ncontraint)
+		if(nitens != KnapSack_2::nitens || nconstraint != KnapSack_2::ncontraint)
 		{
-			printf("Arquivo de log incorreto!\n\n");
+			printf("Arquivo de Log Incorreto - Problemas Diferentes!\n\n");
 			exit(1);
 		}
 
@@ -95,7 +95,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 
 			if(!fscanf (f, "%d\n", &valorTotal))
 			{
-				printf("Arquivo de log incorreto!\n\n");
+				printf("Arquivo de Log Incorreto - Fitness!\n\n");
 				exit(1);
 			}
 
@@ -105,7 +105,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 				{
 					if(!fscanf (f, "%hd", &prob[i]))
 					{
-						printf("Arquivo de log incorreto!\n\n");
+						printf("Arquivo de Log Incorreto - Solução!\n\n");
 						exit(1);
 					}
 				}
@@ -116,7 +116,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 
 				if(!fscanf (f, "%d", &max))
 				{
-					printf("Arquivo de log incorreto!\n\n");
+					printf("Arquivo de Log Incorreto - Separador!\n\n");
 					exit(1);
 				}
 
@@ -124,7 +124,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 				{
 					if(!fscanf (f, "%d", &pos))
 					{
-						printf("Arquivo de log incorreto!\n\n");
+						printf("Arquivo de Log Incorreto - Solução!\n\n");
 						exit(1);
 					}
 
@@ -135,11 +135,11 @@ list<Problema*>* Problema::lePopulacao(char *log)
 				}
 			}
 
-			p = new KnapSack(prob);
+			p = new KnapSack_2(prob);
 
 			if(valorTotal != p->getFitness())
 			{
-				printf("Arquivo de log incorreto!\n\n");
+				printf("Arquivo de Log Incorreto - Fitness Diferente!\n\n");
 				exit(1);
 			}
 
@@ -163,15 +163,15 @@ void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 	list<Problema*>::iterator iter;
 	short int *prob;
 
-	fprintf(f, "%d %d %d %s\n\n", sizePop, KnapSack::nitens, KnapSack::ncontraint, "src_2");
+	fprintf(f, "%d %d %d %s\n\n", sizePop, KnapSack_2::nitens, KnapSack_2::ncontraint, "src_2");
 
 	for(iter = popInicial->begin(); iter != popInicial->end(); iter++)
 	{
-		prob = dynamic_cast<KnapSack *>(*iter)->getSoluction().itens;
+		prob = dynamic_cast<KnapSack_2 *>(*iter)->getSoluction().itens;
 
-		fprintf(f, "%d\n", (int)dynamic_cast<KnapSack *>(*iter)->getSoluction().fitness);
+		fprintf(f, "%d\n", (int)dynamic_cast<KnapSack_2 *>(*iter)->getSoluction().fitness);
 
-		for(int i = 0; i < KnapSack::nitens; i++)
+		for(int i = 0; i < KnapSack_2::nitens; i++)
 		{
 			fprintf(f, "%d ", prob[i]);
 		}
@@ -206,24 +206,24 @@ void Problema::escreveResultado(char *dados, char *parametros, execInfo *info, c
 
 void Problema::alocaMemoria()
 {
-	KnapSack::values = (double*)malloc(KnapSack::nitens * sizeof(double));
+	KnapSack_2::values = (double*)malloc(KnapSack_2::nitens * sizeof(double));
 
-	KnapSack::limit = (double*)malloc(KnapSack::ncontraint * sizeof(double));
+	KnapSack_2::limit = (double*)malloc(KnapSack_2::ncontraint * sizeof(double));
 
-	KnapSack::constraint = (double**)malloc(KnapSack::ncontraint * sizeof(double*));
-	for(int i = 0; i < KnapSack::ncontraint; i++)
-		KnapSack::constraint[i] = (double*)malloc(KnapSack::nitens * sizeof(double));
+	KnapSack_2::constraint = (double**)malloc(KnapSack_2::ncontraint * sizeof(double*));
+	for(int i = 0; i < KnapSack_2::ncontraint; i++)
+		KnapSack_2::constraint[i] = (double*)malloc(KnapSack_2::nitens * sizeof(double));
 }
 
 void Problema::desalocaMemoria()
 {
-	free(KnapSack::values);
+	free(KnapSack_2::values);
 
-	free(KnapSack::limit);
+	free(KnapSack_2::limit);
 
-	for(int i = 0; i < KnapSack::ncontraint; i++)
-		free(KnapSack::constraint[i]);
-	free(KnapSack::constraint);
+	for(int i = 0; i < KnapSack_2::ncontraint; i++)
+		free(KnapSack_2::constraint[i]);
+	free(KnapSack_2::constraint);
 }
 
 double Problema::melhora(double oldP, double newP)
@@ -238,7 +238,7 @@ double Problema::melhora(Problema& oldP, Problema& newP)
 
 /* Metodos */
 
-KnapSack::KnapSack() : Problema::Problema()
+KnapSack_2::KnapSack_2() : Problema::Problema()
 {
 	sol.itens = (short int*)malloc(nitens * sizeof(short int));
 	short int *retirar = (short int*)malloc(nitens * sizeof(short int));
@@ -265,7 +265,7 @@ KnapSack::KnapSack() : Problema::Problema()
 }
 
 
-KnapSack::KnapSack(short int *prob) : Problema::Problema()
+KnapSack_2::KnapSack_2(short int *prob) : Problema::Problema()
 {
 	sol.itens = prob;
 
@@ -276,9 +276,9 @@ KnapSack::KnapSack(short int *prob) : Problema::Problema()
 	exec.annealing = false;
 }
 
-KnapSack::KnapSack(const Problema &prob) : Problema::Problema()
+KnapSack_2::KnapSack_2(const Problema &prob) : Problema::Problema()
 {
-	KnapSack *other = dynamic_cast<KnapSack *>(const_cast<Problema *>(&prob));
+	KnapSack_2 *other = dynamic_cast<KnapSack_2 *>(const_cast<Problema *>(&prob));
 
 	this->sol.itens = (short int*)malloc(nitens * sizeof(short int));
 	for(int i = 0; i < nitens; i++)
@@ -288,9 +288,9 @@ KnapSack::KnapSack(const Problema &prob) : Problema::Problema()
 	exec = prob.exec;
 }
 
-KnapSack::KnapSack(const Problema &prob, int pos1, int pos2) : Problema::Problema()
+KnapSack_2::KnapSack_2(const Problema &prob, int pos1, int pos2) : Problema::Problema()
 {
-	KnapSack *other = dynamic_cast<KnapSack *>(const_cast<Problema *>(&prob));
+	KnapSack_2 *other = dynamic_cast<KnapSack_2 *>(const_cast<Problema *>(&prob));
 
 	this->sol.itens = (short int*)malloc(nitens * sizeof(short int));
 	for(int i = 0; i < nitens; i++)
@@ -314,58 +314,59 @@ KnapSack::KnapSack(const Problema &prob, int pos1, int pos2) : Problema::Problem
 	exec.annealing = false;
 }
 
-KnapSack::~KnapSack()
+KnapSack_2::~KnapSack_2()
 {
 	if(this->sol.itens != NULL)
 		free(this->sol.itens);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
-inline bool KnapSack::calcFitness(bool esc)
+inline bool KnapSack_2::calcFitness(bool esc)
 {
-	for(register int c = 0; c < KnapSack::ncontraint; c++)
+	sol.fitness = -1;
+	for(register int c = 0; c < KnapSack_2::ncontraint; c++)
 		if(!constraintVerify(c, sol.itens))
 			return false;
 
 	sol.fitness = 0;
-	for(register int i = 0; i < KnapSack::nitens; i++)
+	for(register int i = 0; i < KnapSack_2::nitens; i++)
 		if(sol.itens[i] == 1)
-			sol.fitness += KnapSack::values[i];
+			sol.fitness += KnapSack_2::values[i];
 
 	return true;
 }
 
-bool KnapSack::operator == (const Problema& p)
+bool KnapSack_2::operator == (const Problema& p)
 {
 	return this->getFitness() == p.getFitness();
 }
 
-bool KnapSack::operator != (const Problema& p)
+bool KnapSack_2::operator != (const Problema& p)
 {
 	return this->getFitness() != p.getFitness();
 }
 
-bool KnapSack::operator <= (const Problema& p)
+bool KnapSack_2::operator <= (const Problema& p)
 {
 	return this->getFitness() <= p.getFitness();
 }
 
-bool KnapSack::operator >= (const Problema& p)
+bool KnapSack_2::operator >= (const Problema& p)
 {
 	return this->getFitness() >= p.getFitness();
 }
 
-bool KnapSack::operator < (const Problema& p)
+bool KnapSack_2::operator < (const Problema& p)
 {
 	return this->getFitness() < p.getFitness();
 }
 
-bool KnapSack::operator > (const Problema& p)
+bool KnapSack_2::operator > (const Problema& p)
 {
 	return this->getFitness() > p.getFitness();
 }
 
-inline void KnapSack::imprimir(bool esc)
+inline void KnapSack_2::imprimir(bool esc)
 {
 	if(esc == true)
 	{
@@ -385,7 +386,7 @@ inline void KnapSack::imprimir(bool esc)
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */
-inline Problema* KnapSack::vizinho()
+inline Problema* KnapSack_2::vizinho()
 {
 	int p1 = xRand(rand(), 0, nitens), p2 = xRand(rand(), 0, nitens + 2);
 	Problema *prob = NULL;
@@ -393,7 +394,7 @@ inline Problema* KnapSack::vizinho()
 	while((p2 == p1) || (p2 < nitens && sol.itens[p1] == sol.itens[p2]) || (p2 == nitens && sol.itens[p1] == 0) || (p2 == nitens + 1 && sol.itens[p1] == 1))
 		p2 = xRand(rand(), 0, nitens + 2);
 
-	prob = new KnapSack(*this, p1, p2);
+	prob = new KnapSack_2(*this, p1, p2);
 	if(prob->getFitness() != -1)
 	{
 		return prob;
@@ -406,10 +407,10 @@ inline Problema* KnapSack::vizinho()
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problema*, InfoTabu*>* >* KnapSack::buscaLocal()
+inline vector<pair<Problema*, InfoTabu*>* >* KnapSack_2::buscaLocal()
 {
-	if(KnapSack::num_vizinhos > MAX_PERMUTACOES)
-		return buscaLocal((float)MAX_PERMUTACOES/(float)KnapSack::num_vizinhos);
+	if(KnapSack_2::num_vizinhos > MAX_PERMUTACOES)
+		return buscaLocal((float)MAX_PERMUTACOES/(float)KnapSack_2::num_vizinhos);
 
 	register int p1, p2;
 	Problema *prob = NULL;
@@ -422,12 +423,12 @@ inline vector<pair<Problema*, InfoTabu*>* >* KnapSack::buscaLocal()
 		{
 			if((p2 < nitens && sol.itens[p1] != sol.itens[p2]) || (p2 == nitens && sol.itens[p1] != 0) || (p2 == nitens+1 && sol.itens[p1] != 1))
 			{
-				prob = new KnapSack(*this, p1, p2);
+				prob = new KnapSack_2(*this, p1, p2);
 				if(prob->getFitness() != -1)
 				{
 					temp = new pair<Problema*, InfoTabu*>();
 					temp->first = prob;
-					temp->second = new InfoTabu_KnapSack(p1, p2);
+					temp->second = new InfoTabu_KnapSack_2(p1, p2);
 
 					local->push_back(temp);
 				}
@@ -445,7 +446,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* KnapSack::buscaLocal()
 }
 
 /* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problema*, InfoTabu*>* >* KnapSack::buscaLocal(float parcela)
+inline vector<pair<Problema*, InfoTabu*>* >* KnapSack_2::buscaLocal(float parcela)
 {
 	Problema *prob = NULL;
 	int p1, p2;
@@ -454,7 +455,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* KnapSack::buscaLocal(float parcela)
 	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
 	int def;
 
-	def = (int)((float)KnapSack::num_vizinhos*parcela);
+	def = (int)((float)KnapSack_2::num_vizinhos*parcela);
 
 	if(def > MAX_PERMUTACOES)
 		def = MAX_PERMUTACOES;
@@ -466,12 +467,12 @@ inline vector<pair<Problema*, InfoTabu*>* >* KnapSack::buscaLocal(float parcela)
 		while((p2 == p1) || (p2 < nitens && sol.itens[p1] == sol.itens[p2]) || (p2 == nitens && sol.itens[p1] == 0) || (p2 == nitens + 1 && sol.itens[p1] == 1))
 			p2 = xRand(rand(), 0, numItens + 2);
 
-		prob = new KnapSack(*this, p1, p2);
+		prob = new KnapSack_2(*this, p1, p2);
 		if(prob->getFitness() != -1)
 		{
 			temp = new pair<Problema*, InfoTabu*>();
 			temp->first = prob;
-			temp->second = new InfoTabu_KnapSack(p1, p2);
+			temp->second = new InfoTabu_KnapSack_2(p1, p2);
 
 			local->push_back(temp);
 		}
@@ -486,14 +487,14 @@ inline vector<pair<Problema*, InfoTabu*>* >* KnapSack::buscaLocal(float parcela)
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
-inline pair<Problema*, Problema*>* KnapSack::crossOver(const Problema* parceiro, int tamParticao, int strength)
+inline pair<Problema*, Problema*>* KnapSack_2::crossOver(const Problema* parceiro, int tamParticao, int strength)
 {
 	short int *f1 = (short int*)malloc(nitens * sizeof(short int)), *f2 = (short int*)malloc(nitens * sizeof(short int));
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
-	int particao = tamParticao == 0 ? (KnapSack::nitens)/2 : tamParticao;
+	int particao = tamParticao == 0 ? (KnapSack_2::nitens)/2 : tamParticao;
 	int inicioPart = 0, fimPart = 0;
 
-	KnapSack *other = dynamic_cast<KnapSack *>(const_cast<Problema *>(parceiro));
+	KnapSack_2 *other = dynamic_cast<KnapSack_2 *>(const_cast<Problema *>(parceiro));
 
 	inicioPart = xRand(rand(), 0, nitens);
 	fimPart = inicioPart+particao <= nitens ? inicioPart+particao : nitens;
@@ -501,34 +502,34 @@ inline pair<Problema*, Problema*>* KnapSack::crossOver(const Problema* parceiro,
 	swap_vect(this->sol.itens, other->sol.itens, f1, inicioPart, fimPart-inicioPart);
 	swap_vect(other->sol.itens, this->sol.itens, f2, inicioPart, fimPart-inicioPart);
 
-	filhos->first = new KnapSack(f1);
-	filhos->second = new KnapSack(f2);
+	filhos->first = new KnapSack_2(f1);
+	filhos->second = new KnapSack_2(f2);
 
 	return filhos;
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
-inline pair<Problema*, Problema*>* KnapSack::crossOver(const Problema* parceiro, int strength)
+inline pair<Problema*, Problema*>* KnapSack_2::crossOver(const Problema* parceiro, int strength)
 {
 	short int *f1 = (short int*)malloc(nitens * sizeof(short int)), *f2 = (short int*)malloc(nitens * sizeof(short int));
 	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
 	int particao = 0;
 
-	KnapSack *other = dynamic_cast<KnapSack *>(const_cast<Problema *>(parceiro));
+	KnapSack_2 *other = dynamic_cast<KnapSack_2 *>(const_cast<Problema *>(parceiro));
 
 	particao = xRand(rand(), 1, nitens);
 
 	swap_vect(this->sol.itens, other->sol.itens, f1, 0, particao);
 	swap_vect(other->sol.itens, this->sol.itens, f2, 0, particao);
 
-	filhos->first = new KnapSack(f1);
-	filhos->second = new KnapSack(f2);
+	filhos->first = new KnapSack_2(f1);
+	filhos->second = new KnapSack_2(f2);
 
 	return filhos;
 }
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
-inline Problema* KnapSack::mutacao(int mutMax)
+inline Problema* KnapSack_2::mutacao(int mutMax)
 {
 	short int *mut = (short int*)malloc(nitens * sizeof(short int));
 	Problema* vizinho = NULL, *temp = NULL, *mutacao = NULL;
@@ -536,7 +537,7 @@ inline Problema* KnapSack::mutacao(int mutMax)
 	for(int i = 0; i < nitens; i++)
 		mut[i] = sol.itens[i];
 
-	temp = new KnapSack(mut);
+	temp = new KnapSack_2(mut);
 	mutacao = temp;
 
 	while(mutMax-- > 0)
@@ -553,17 +554,17 @@ inline Problema* KnapSack::mutacao(int mutMax)
 	return mutacao;
 }
 
-inline double KnapSack::getFitness() const
+inline double KnapSack_2::getFitness() const
 {
 	return sol.fitness;
 }
 
-inline double KnapSack::getFitnessMaximize() const
+inline double KnapSack_2::getFitnessMaximize() const
 {
 	return (double)sol.fitness;
 }
 
-inline double KnapSack::getFitnessMinimize() const
+inline double KnapSack_2::getFitnessMinimize() const
 {
 	return (double)INV_FITNESS/sol.fitness;
 }
@@ -572,7 +573,7 @@ inline double KnapSack::getFitnessMinimize() const
 
 inline void swap_vect(short int* p1, short int* p2, short int* filho, int posInicio, int posFim)
 {
-	for(register int i = 0; i < KnapSack::nitens; i++)
+	for(register int i = 0; i < KnapSack_2::nitens; i++)
 		if(i >= posInicio && i < posFim)
 			filho[i] = p2[i];
 		else
@@ -586,22 +587,22 @@ inline bool constraintVerify(int c, short int* itens)
 {
 	double sumC = 0;
 
-	for(register int i = 0; i < KnapSack::nitens; i++)
+	for(register int i = 0; i < KnapSack_2::nitens; i++)
 		if(itens[i] == 1)
-			sumC += KnapSack::constraint[c][i];
+			sumC += KnapSack_2::constraint[c][i];
 
-	return sumC <= KnapSack::limit[c];
+	return sumC <= KnapSack_2::limit[c];
 }
 
 // comparator function:
 bool fnequal1(Problema* prob1, Problema* prob2)
 {
-	KnapSack *p1 = dynamic_cast<KnapSack *>(const_cast<Problema *>(prob1));
-	KnapSack *p2 = dynamic_cast<KnapSack *>(const_cast<Problema *>(prob2));
+	KnapSack_2 *p1 = dynamic_cast<KnapSack_2 *>(const_cast<Problema *>(prob1));
+	KnapSack_2 *p2 = dynamic_cast<KnapSack_2 *>(const_cast<Problema *>(prob2));
 
 	if(p1->sol.fitness == p2->sol.fitness)
 	{
-		for(int i = 0; i < KnapSack::nitens; i++)
+		for(int i = 0; i < KnapSack_2::nitens; i++)
 			if(p1->sol.itens[i] != p2->sol.itens[i])
 				return false;
 
@@ -614,8 +615,8 @@ bool fnequal1(Problema* prob1, Problema* prob2)
 // comparator function:
 bool fnequal2(Problema* prob1, Problema* prob2)
 {
-	KnapSack *p1 = dynamic_cast<KnapSack *>(const_cast<Problema *>(prob1));
-	KnapSack *p2 = dynamic_cast<KnapSack *>(const_cast<Problema *>(prob2));
+	KnapSack_2 *p1 = dynamic_cast<KnapSack_2 *>(const_cast<Problema *>(prob1));
+	KnapSack_2 *p2 = dynamic_cast<KnapSack_2 *>(const_cast<Problema *>(prob2));
 
 	return p1->sol.fitness == p2->sol.fitness;
 }
@@ -623,12 +624,12 @@ bool fnequal2(Problema* prob1, Problema* prob2)
 // comparator function:
 bool fncomp1(Problema *prob1, Problema *prob2)
 {
-	KnapSack *p1 = dynamic_cast<KnapSack *>(const_cast<Problema *>(prob1));
-	KnapSack *p2 = dynamic_cast<KnapSack *>(const_cast<Problema *>(prob2));
+	KnapSack_2 *p1 = dynamic_cast<KnapSack_2 *>(const_cast<Problema *>(prob1));
+	KnapSack_2 *p2 = dynamic_cast<KnapSack_2 *>(const_cast<Problema *>(prob2));
 
 	if(p1->sol.fitness == p2->sol.fitness)
 	{
-		for(int i = 0; i < KnapSack::nitens; i++)
+		for(int i = 0; i < KnapSack_2::nitens; i++)
 			if(p1->sol.itens[i] != p2->sol.itens[i])
 				return p1->sol.itens[i] > p2->sol.itens[i];
 
@@ -641,8 +642,8 @@ bool fncomp1(Problema *prob1, Problema *prob2)
 // comparator function:
 bool fncomp2(Problema *prob1, Problema *prob2)
 {
-	KnapSack *p1 = dynamic_cast<KnapSack *>(const_cast<Problema *>(prob1));
-	KnapSack *p2 = dynamic_cast<KnapSack *>(const_cast<Problema *>(prob2));
+	KnapSack_2 *p1 = dynamic_cast<KnapSack_2 *>(const_cast<Problema *>(prob1));
+	KnapSack_2 *p2 = dynamic_cast<KnapSack_2 *>(const_cast<Problema *>(prob2));
 
 	return p1->sol.fitness > p2->sol.fitness;
 }

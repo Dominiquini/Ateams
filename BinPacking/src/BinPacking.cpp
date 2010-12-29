@@ -396,20 +396,11 @@ inline bool BinPacking::calcFitness(bool esc)
 		}
 		sort(&sol.ordemItens[anterior], &sol.ordemItens[nitens]);
 
-		if(esc == false)
-			free(aux_bins);
-		else
-			sol.bins = aux_bins;
+		sol.bins = aux_bins;
 	}
 	else
 	{
 		sol.fitness = sol.bins[nitens - 1];
-
-		if(esc == false)
-		{
-			free(sol.bins);
-			sol.bins = NULL;
-		}
 	}
 
 	return true;

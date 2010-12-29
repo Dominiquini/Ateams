@@ -5,17 +5,17 @@
 
 using namespace std;
 
-#ifndef _KnapSack_
-#define _KnapSack_
+#ifndef _KnapSack_2_
+#define _KnapSack_2_
 
-class Solucao_KnapSack : public Solucao
+class Solucao_KnapSack_2 : public Solucao
 {
 private:
 
 	short int *itens;		// Solucao (Itens Escolhidos)
 
 	friend class Problema;
-	friend class KnapSack;
+	friend class KnapSack_2;
 
 	friend bool fnequal1(Problema*, Problema*);	// Comparacao profunda
 	friend bool fnequal2(Problema*, Problema*);	// Comparacao superficial
@@ -23,7 +23,7 @@ private:
 	friend bool fncomp2(Problema*, Problema*);	// Comparacao superficial
 };
 
-class InfoTabu_KnapSack : public InfoTabu
+class InfoTabu_KnapSack_2 : public InfoTabu
 {
 private:
 
@@ -31,7 +31,7 @@ private:
 
 public:
 
-	InfoTabu_KnapSack(int xA, int xB)
+	InfoTabu_KnapSack_2(int xA, int xB)
 	{
 		A = xA;
 		B = xB;
@@ -40,7 +40,7 @@ public:
 	// Verifica se 't1' eh igual a 't2'
 	bool operator == (InfoTabu& movTabu)
 	{
-		InfoTabu_KnapSack* t = dynamic_cast<InfoTabu_KnapSack *>(&movTabu);
+		InfoTabu_KnapSack_2* t = dynamic_cast<InfoTabu_KnapSack_2 *>(&movTabu);
 
 		if((A == t->A && B == t->B) || (A == t->B && B == t->A))
 			return true;
@@ -49,13 +49,13 @@ public:
 	}
 };
 
-class KnapSack : public Problema
+class KnapSack_2 : public Problema
 {
 private:
 
 	bool calcFitness(bool esc);		// Calcula o makespan
 
-	Solucao_KnapSack sol;			// Representacao interna da solucao
+	Solucao_KnapSack_2 sol;			// Representacao interna da solucao
 
 public:
 
@@ -67,12 +67,12 @@ public:
 	static int num_vizinhos;		// Numero de permutacoes possiveis
 
 
-	KnapSack();												// Nova solucao aleatoria
-	KnapSack(short int *prob);								// Copia de prob
-	KnapSack(const Problema &prob);							// Copia de prob
-	KnapSack(const Problema &prob, int pos1, int pos2);		// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
+	KnapSack_2();												// Nova solucao aleatoria
+	KnapSack_2(short int *prob);								// Copia de prob
+	KnapSack_2(const Problema &prob);							// Copia de prob
+	KnapSack_2(const Problema &prob, int pos1, int pos2);		// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
-	virtual ~KnapSack();
+	virtual ~KnapSack_2();
 
 	bool operator == (const Problema&);
 	bool operator != (const Problema&);
@@ -102,7 +102,7 @@ public:
 	double getFitnessMaximize() const;
 	double getFitnessMinimize() const;
 
-	Solucao_KnapSack& getSoluction()
+	Solucao_KnapSack_2& getSoluction()
 	{
 		return sol;
 	}
