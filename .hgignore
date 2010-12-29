@@ -6,11 +6,16 @@ syntax: glob
 Debug/*
 Release/*
 bin
+bin_1
+bin_2
 dados/jsp_gen
 dados/fsp_gen
 log*
 BinPacking/BinPacking
 FlowShop/FlowShop
+GraphColoring/GraphColoring
 JobShop/JobShop
-KnapSack/KnapSack
+KnapSack/KnapSack_1
+KnapSack/KnapSack_2
+TravellingSalesman/TravellingSalesman
 
