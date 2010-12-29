@@ -26,7 +26,7 @@ INCL_BASE = $(SRCS_BASE:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heur
 EXEC1 = $(PATH_BIN1)$(BIN1)
 EXEC2 = $(PATH_BIN2)$(BIN2)
 
-RUN_PARAM = -i $(PATH_DADOS)car1.prb -p $(PATH_PARAM)DEFAULT.param -r $(PATH_RES)la01.res
+RUN_PARAM = -i $(PATH_DADOS)mk_gk01.prb -p $(PATH_PARAM)DEFAULT.param -r $(PATH_RES)mk_gk01.res
 
 RM = rm -rf
 

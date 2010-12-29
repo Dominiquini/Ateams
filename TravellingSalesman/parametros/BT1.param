@@ -1,0 +1,19 @@
+*ATEAMS*
+[iterAteams] = 250		// Número de iterações do Ateams
+[tentAteams] = 100		// Tentativas sem melhora
+[maxTempoAteams] = 3600		// Tempo máximo de execução
+[numThreads] = 4                // Número máximo de threads ativas
+[tamPopAteams] = 500		// Tamanho da população
+[critUnicidade] = 1		// Critério para se definir a unicidade da população
+[makespanBest] = -1		// Melhor makespan conhecido
+
+##(BT)#
+(name) = BT1
+[probBT] = 20			// Probabilidade de se executar BT em cada iteração do ATEAMS
+[polEscolhaBT] = 500		// Política de escolha
+[probElitismoSA] = 0.25		// Probabilidade de se escolher a melhor solução da memória
+[funcAspiracaoBT] = 0.5		// Função de Aspiração
+[iterBT] = 750			// Iterações do BT
+[tentSemMelhoraBT] = 500	// Política de leitura do BT
+[tamListaBT] = 10		// Tamanho de lista do BT
+[polExplorBT] = 0.5		// Política na exploração da vizinhança

@@ -11,15 +11,15 @@ PATH_CORE = ../Ateams_Base/
 PATH_CORE_SRC = ../Ateams_Base/src/
 PATH_CORE_BIN = ../Ateams_Base/bin/
 
-BIN = FlowShop
-SRCS =  $(PATH_SRC)FlowShop.cpp $(PATH_CORE_SRC)Ateams.cpp $(PATH_CORE_SRC)Controle.cpp $(PATH_CORE_SRC)Tabu.cpp $(PATH_CORE_SRC)Genetico.cpp $(PATH_CORE_SRC)Annealing.cpp
+BIN = TravellingSalesman
+SRCS =  $(PATH_SRC)TravellingSalesman.cpp $(PATH_CORE_SRC)Ateams.cpp $(PATH_CORE_SRC)Controle.cpp $(PATH_CORE_SRC)Tabu.cpp $(PATH_CORE_SRC)Genetico.cpp $(PATH_CORE_SRC)Annealing.cpp
 SRCS_BASE = $(PATH_CORE_SRC)Ateams.cpp $(PATH_CORE_SRC)Controle.cpp $(PATH_CORE_SRC)Tabu.cpp $(PATH_CORE_SRC)Genetico.cpp $(PATH_CORE_SRC)Annealing.cpp
-OBJS = $(PATH_BIN)FlowShop.o
+OBJS = $(PATH_BIN)TravellingSalesman.o
 INCL = $(SRCS:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heuristica.h
 INCL_BASE = $(SRCS_BASE:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heuristica.h
 EXEC = $(PATH_BIN)$(BIN)
 
-RUN_PARAM = -i $(PATH_DADOS)car1.prb -p $(PATH_PARAM)DEFAULT.param -r $(PATH_RES)car1.res
+RUN_PARAM = -i $(PATH_DADOS)br17.prb -p $(PATH_PARAM)DEFAULT.param -r $(PATH_RES)br17.res
 
 RM = rm -rf
 

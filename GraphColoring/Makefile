@@ -19,7 +19,7 @@ INCL = $(SRCS:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heuristica.h
 INCL_BASE = $(SRCS_BASE:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heuristica.h
 EXEC = $(PATH_BIN)$(BIN)
 
-RUN_PARAM = -i $(PATH_DADOS)jean.prb -p $(PATH_PARAM)DEFAULT.param -r $(PATH_RES)la01.res
+RUN_PARAM = -i $(PATH_DADOS)jean.prb -p $(PATH_PARAM)DEFAULT.param -r $(PATH_RES)jean.res
 
 RM = rm -rf
 

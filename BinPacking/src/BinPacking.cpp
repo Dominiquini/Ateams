@@ -191,7 +191,7 @@ BinPacking::BinPacking() : Problema::Problema()
 {
 	sol.ordemItens = (short int*)malloc(nitens * sizeof(short int));
 
-	if(Problema::numInst == 1)	// Tenta uma solucao gulosa
+	if(Problema::totalNumInst == 1)	// Tenta uma solucao gulosa
 	{
 		double *orderSize = (double*)malloc(nitens * sizeof(double));
 
