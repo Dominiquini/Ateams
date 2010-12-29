@@ -30,6 +30,7 @@ Problema* Problema::copySoluction(const Problema& prob)
 
 void Problema::leProblema(FILE *f)
 {
+	char edge_weight_format[32];
 	char *line = NULL;
 	size_t size = 0;
 
@@ -41,22 +42,129 @@ void Problema::leProblema(FILE *f)
 		if(strstr(line, "DIMENSION: "))
 			sscanf(line + strlen("DIMENSION: "), "%d", &TravellingSalesman::nnodes);
 
-		if(strstr(line, "EDGE_WEIGHT_SECTION"))
+		if(strstr(line, "EDGE_WEIGHT_TYPE: "))
+			sscanf(line + strlen("EDGE_WEIGHT_TYPE: "), "%s", edge_weight_format);
+
+		if(strstr(line, "EDGE_WEIGHT_FORMAT: "))
+			sscanf(line + strlen("EDGE_WEIGHT_FORMAT: "), "%s", edge_weight_format);
+
+		if(strstr(line, "EDGE_WEIGHT_SECTION") || strstr(line, "NODE_COORD_SECTION"))
 			break;
 	}
 
 	Problema::alocaMemoria();
 
-	for(int i = 0; i < TravellingSalesman::nnodes; i++)
+	if(!strcmp(edge_weight_format, "FULL_MATRIX"))
 	{
-		for(int j = 0; j < TravellingSalesman::nnodes; j++)
+		for(int i = 0; i < TravellingSalesman::nnodes; i++)
 		{
-			if(!fscanf (f, "%lf", &TravellingSalesman::edges[i][j]))
+			for(int j = 0; j < TravellingSalesman::nnodes; j++)
+			{
+				if(!fscanf (f, "%lf", &TravellingSalesman::edges[i][j]))
+					exit(1);
+
+				if(i == j)
+					TravellingSalesman::edges[i][j] = -1;
+			}
+		}
+	}
+
+	if(!strcmp(edge_weight_format, "UPPER_ROW"))
+	{
+		for(int i = 0; i < TravellingSalesman::nnodes; i++)
+		{
+			TravellingSalesman::edges[i][i] = -1;
+
+			for(int j = i+1; j < TravellingSalesman::nnodes; j++)
+			{
+				if(!fscanf (f, "%lf", &TravellingSalesman::edges[i][j]))
+					exit(1);
+
+				TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
+			}
+		}
+	}
+
+	if(!strcmp(edge_weight_format, "UPPER_DIAG_ROW"))
+	{
+		for(int i = 0; i < TravellingSalesman::nnodes; i++)
+		{
+			for(int j = i; j < TravellingSalesman::nnodes; j++)
+			{
+				if(!fscanf (f, "%lf", &TravellingSalesman::edges[i][j]))
+					exit(1);
+
+				TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
+
+				if(i == j)
+					TravellingSalesman::edges[i][j] = -1;
+			}
+		}
+	}
+
+	if(!strcmp(edge_weight_format, "LOWER_ROW"))
+	{
+		for(int i = 0; i < TravellingSalesman::nnodes; i++)
+		{
+			TravellingSalesman::edges[i][i] = -1;
+
+			for(int j = 0; j < i; j++)
+			{
+				if(!fscanf (f, "%lf", &TravellingSalesman::edges[i][j]))
+					exit(1);
+
+				TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
+			}
+		}
+	}
+
+	if(!strcmp(edge_weight_format, "LOWER_DIAG_ROW"))
+	{
+		for(int i = 0; i < TravellingSalesman::nnodes; i++)
+		{
+			for(int j = 0; j <= i; j++)
+			{
+				if(!fscanf (f, "%lf", &TravellingSalesman::edges[i][j]))
+					exit(1);
+
+				TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
+
+				if(i == j)
+					TravellingSalesman::edges[i][j] = -1;
+			}
+		}
+	}
+
+	if(!strcmp(edge_weight_format, "EUC_2D"))
+	{
+		double *X = (double*)malloc(TravellingSalesman::nnodes * sizeof(double));
+		double *Y = (double*)malloc(TravellingSalesman::nnodes * sizeof(double));
+		int no = 0;
+
+		for(int i = 0; i < TravellingSalesman::nnodes; i++)
+		{
+			if(!fscanf (f, "%d %lf %lf", &no, &X[i], &Y[i]))
 				exit(1);
 
-			if(i == j)
-				TravellingSalesman::edges[i][j] = -1;
+			if(i+1 != no)
+				exit(1);
 		}
+
+		double xd, yd;
+
+		for(int i = 0; i < TravellingSalesman::nnodes; i++)
+		{
+			for(int j = 0; j < TravellingSalesman::nnodes; j++)
+			{
+				xd = X[i] - X[j];
+				yd = Y[i] - Y[j];
+
+				TravellingSalesman::edges[i][j] = sqrt(pow(xd, 2) + pow(yd, 2));
+			}
+		}
+
+		free(X);
+		free(Y);
 	}
 
 	for(int i = 1; i <= TravellingSalesman::nnodes; i++)
@@ -385,9 +493,9 @@ inline void TravellingSalesman::imprimir(bool esc)
 		printf("|--> ");
 		for(int j = 0; j < nnodes; j++)
 		{
-			printf("%d -> ", sol.ordemNodes[j]);
+			printf("%d -> ", sol.ordemNodes[j]+1);
 		}
-		printf("%d |\n", sol.ordemNodes[nnodes]);
+		printf("%d |\n", sol.ordemNodes[nnodes]+1);
 	}
 }
 
@@ -534,7 +642,7 @@ inline pair<Problema*, Problema*>* TravellingSalesman::crossOver(const Problema*
 /* Devolve uma mutacao aleatoria na solucao atual. */
 inline Problema* TravellingSalesman::mutacao(int mutMax)
 {
-	short int *mut = (short int*)malloc(nnodes * sizeof(short int));
+	short int *mut = (short int*)malloc((nnodes+1) * sizeof(short int));
 	Problema* vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
 	for(int j = 0; j <= nnodes; j++)
