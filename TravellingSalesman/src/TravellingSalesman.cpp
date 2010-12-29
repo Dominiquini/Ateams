@@ -315,9 +315,9 @@ TravellingSalesman::TravellingSalesman() : Problema::Problema()
 	sol.ordemNodes = (short int*)malloc((nnodes+1) * sizeof(short int));
 	sol.fitness = -1;
 
-	if(Problema::totalNumInst / nnodes == 0)	// Tenta uma solucao gulosa
+	if(rand() % 5 == 0)	// Tenta uma solucao gulosa
 	{
-		int noAtual = Problema::totalNumInst - 1;
+		int noAtual = xRand(rand(), 0, nnodes);
 		int proxNo = 0;
 		int pos = 0;
 		double d = 0;
