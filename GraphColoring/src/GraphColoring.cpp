@@ -299,7 +299,6 @@ inline bool GraphColoring::calcFitness(bool esc)
 {
 	short int *aux_colors = (short int*)malloc((nnodes + 1) * sizeof(short int));
 
-	// Matriz temporaria para o calculo do fitness
     short int **neighbourhoodColors = (short int**)malloc((nnodes + 1) * sizeof(short int*));
 	for(register int i = 1; i <= nnodes; i++)
 	{

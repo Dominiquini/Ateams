@@ -6,7 +6,7 @@
 [maxTempoAteams] = 3600		// Tempo máximo de execução
 [numThreads] = 2                // Número máximo de threads ativas
 [tamPopAteams] = 100		// Tamanho da população
-[critUnicidade] = 0		// Critério para se definir a unicidade da população
+[critUnicidade] = 1		// Critério para se definir a unicidade da população
 [makespanBest] = -1		// Melhor makespan conhecido
 
 
