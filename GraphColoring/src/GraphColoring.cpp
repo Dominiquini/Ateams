@@ -12,7 +12,7 @@ int Problema::numInst = 0;
 long int Problema::totalNumInst = 0;
 
 char GraphColoring::name[128];
-short int **GraphColoring::edges = NULL;
+vector<int> **GraphColoring::edges = NULL;
 int GraphColoring::nedges = 0, GraphColoring::nnodes = 0;
 
 int GraphColoring::num_vizinhos = 0;
@@ -46,13 +46,8 @@ void Problema::leProblema(FILE *f)
 		{
 			sscanf(tempLine, "%*c %d %d", &n1, &n2);
 
-			GraphColoring::edges[n1][n2] = 1;
-			GraphColoring::edges[n2][n1] = 1;
-
-			GraphColoring::edges[n1][0]++;
-			GraphColoring::edges[n2][0]++;
-			GraphColoring::edges[0][n1]++;
-			GraphColoring::edges[0][n2]++;
+			GraphColoring::edges[n1]->push_back(n2);
+			GraphColoring::edges[n2]->push_back(n1);
 		}
 	}
 
@@ -176,26 +171,16 @@ void Problema::escreveResultado(char *dados, char *parametros, execInfo *info, c
 
 void Problema::alocaMemoria()
 {
-	GraphColoring::edges = (short int**)malloc((1 + GraphColoring::nnodes) * sizeof(short int*));
+	GraphColoring::edges = (vector<int>**)malloc((1 + GraphColoring::nnodes) * sizeof(vector<int>*));
 
-	for(int i = 0; i <= GraphColoring::nnodes; i++)
-	{
-		GraphColoring::edges[i] = (short int*)malloc((1 + GraphColoring::nnodes) * sizeof(short int));
-
-		for(int j = 0; j <= GraphColoring::nnodes; j++)
-		{
-			if(i == 0 || j == 0)
-				GraphColoring::edges[i][j] = 0;
-			else
-				GraphColoring::edges[i][j] = -1;
-		}
-	}
+	for(int i = 1; i <= GraphColoring::nnodes; i++)
+		GraphColoring::edges[i] = new vector<int>();
 }
 
 void Problema::desalocaMemoria()
 {
-	for(int i = 0; i <= GraphColoring::nnodes; i++)
-		free(GraphColoring::edges[i]);
+	for(int i = 1; i <= GraphColoring::nnodes; i++)
+			delete GraphColoring::edges[i];
 
 	free(GraphColoring::edges);
 }
@@ -314,6 +299,7 @@ inline bool GraphColoring::calcFitness(bool esc)
 	aux_colors[0] = 1;
 
 	int noCorrente, corCorrente = 1;
+	vector<int>::iterator vizinhos;
 	for(register int n = 0; n < nnodes; n++)
 	{
 		noCorrente = sol.ordemNodes[n];
@@ -325,9 +311,8 @@ inline bool GraphColoring::calcFitness(bool esc)
 
 		aux_colors[noCorrente] = corCorrente;
 
-		for(register int v = 1; v <= nnodes; v++)
-			if(edges[noCorrente][v] != -1)
-				neighbourhoodColors[v][corCorrente] = -corCorrente;
+		for(vizinhos = edges[noCorrente]->begin(); vizinhos < edges[noCorrente]->end(); vizinhos++)
+			neighbourhoodColors[*vizinhos][corCorrente] = -corCorrente;
 	}
 
 	for(register int i = 1; i <= nnodes; i++)

@@ -59,7 +59,7 @@ public:
 
 	static char name[128];			// Nome do problema
 
-	static short int **edges;		// Matriz com as arestas
+	static vector<int>** edges;		// Matriz com as arestas
 	static int nedges, nnodes;		// Quantidade de arestas e de nos
 
 	static int num_vizinhos;		// Numero de permutacoes possiveis
