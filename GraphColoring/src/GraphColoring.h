@@ -10,7 +10,7 @@ using namespace std;
 
 class Solucao_GraphColoring : public Solucao
 {
-	short int *ordemNodes;			// Ordem em que os nos serao coloridos
+	short int *ordemNodes;		// Ordem em que os nos serao coloridos
 	short int *colors;			// Cores de cada um dos nos
 
 	friend class Problema;

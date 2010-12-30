@@ -196,6 +196,7 @@ void Problema::desalocaMemoria()
 {
 	for(int i = 0; i <= GraphColoring::nnodes; i++)
 		free(GraphColoring::edges[i]);
+
 	free(GraphColoring::edges);
 }
 
@@ -298,43 +299,43 @@ inline bool GraphColoring::calcFitness(bool esc)
 {
 	short int *aux_colors = (short int*)malloc((nnodes + 1) * sizeof(short int));
 
-	for(register int i = 0; i <= nnodes; i++)
+	// Matriz temporaria para o calculo do fitness
+    short int **neighbourhoodColors = (short int**)malloc((nnodes + 1) * sizeof(short int*));
+	for(register int i = 1; i <= nnodes; i++)
+	{
+		neighbourhoodColors[i] = (short int*)malloc((nnodes + 1) * sizeof(short int));
+		for(register int j = 1; j <= nnodes; j++)
+		{
+			neighbourhoodColors[i][j] = j;
+		}
 		aux_colors[i] = 0;
+	}
 
 	int maxColor = 1;
 	aux_colors[0] = 1;
 
-	int noCorrente = 0;
+	int noCorrente, corCorrente = 1;
 	for(register int n = 0; n < nnodes; n++)
 	{
 		noCorrente = sol.ordemNodes[n];
 
-		for(register int c = 1; c <= maxColor; c++)
-		{
-			for(register int v = 1; v <= nnodes; v++)
-			{
-				if(edges[noCorrente][v] == 1 && aux_colors[v] == c)
-				{
-					aux_colors[noCorrente] = -c;
-					break;
-				}
-			}
+		for(register int c = 1; c <= maxColor && (corCorrente = neighbourhoodColors[noCorrente][c]) < 0; c++);
 
-			if(aux_colors[noCorrente] != -c)
-			{
-				aux_colors[noCorrente] = c;
-				break;
-			}
-		}
+		if(corCorrente < 0)
+			corCorrente = ++maxColor;
 
-		if(aux_colors[noCorrente] == -maxColor)
-		{
-			maxColor++;
-			aux_colors[0]++;
-			aux_colors[noCorrente] = maxColor;
-		}
+		aux_colors[noCorrente] = corCorrente;
+
+		for(register int v = 1; v <= nnodes; v++)
+			if(edges[noCorrente][v] != -1)
+				neighbourhoodColors[v][corCorrente] = -corCorrente;
 	}
 
+	for(register int i = 1; i <= nnodes; i++)
+		free(neighbourhoodColors[i]);
+	free(neighbourhoodColors);
+
+	aux_colors[0] = maxColor;
 	sol.fitness = maxColor;
 
 	if(esc == false)
