@@ -284,43 +284,38 @@ inline bool GraphColoring::calcFitness(bool esc)
 {
 	short int *aux_colors = (short int*)malloc((nnodes + 1) * sizeof(short int));
 
-    short int **neighbourhoodColors = (short int**)malloc((nnodes + 1) * sizeof(short int*));
 	for(register int i = 1; i <= nnodes; i++)
-	{
-		neighbourhoodColors[i] = (short int*)malloc((nnodes + 1) * sizeof(short int));
-		for(register int j = 1; j <= nnodes; j++)
-		{
-			neighbourhoodColors[i][j] = j;
-		}
 		aux_colors[i] = 0;
-	}
 
-	int maxColor = 1;
+	int minColor = 1;
 	aux_colors[0] = 1;
 
-	int noCorrente, corCorrente = 1;
+	int noCorrente, corCorrente;
 	vector<int>::iterator vizinhos;
 	for(register int n = 0; n < nnodes; n++)
 	{
 		noCorrente = sol.ordemNodes[n];
+		corCorrente = -1;
 
-		for(register int c = 1; c <= maxColor && (corCorrente = neighbourhoodColors[noCorrente][c]) < 0; c++);
+		for(register int c = 1; c <= minColor; c++)
+		{
+			for(vizinhos = edges[noCorrente]->begin(); vizinhos != edges[noCorrente]->end() && aux_colors[*vizinhos] != c; vizinhos++);
+
+			if(vizinhos == edges[noCorrente]->end())
+			{
+				corCorrente = c;
+				break;
+			}
+		}
 
 		if(corCorrente < 0)
-			corCorrente = ++maxColor;
+			corCorrente = ++minColor;
 
 		aux_colors[noCorrente] = corCorrente;
-
-		for(vizinhos = edges[noCorrente]->begin(); vizinhos < edges[noCorrente]->end(); vizinhos++)
-			neighbourhoodColors[*vizinhos][corCorrente] = -corCorrente;
 	}
 
-	for(register int i = 1; i <= nnodes; i++)
-		free(neighbourhoodColors[i]);
-	free(neighbourhoodColors);
-
-	aux_colors[0] = maxColor;
-	sol.fitness = maxColor;
+	aux_colors[0] = minColor;
+	sol.fitness = minColor;
 
 	if(esc == false)
 		free(aux_colors);
