@@ -356,21 +356,31 @@ inline void KnapSack::imprimir(bool esc)
 {
 	if(esc == true)
 	{
-		int numItens = sol.limit;
+		double sumItens = 0;
+		int numItens = 0;
 
-		printf("sack: ");
+		printf("+sack: ");
 		for(int i = 0; i < sol.limit; i++)
-			printf("|%.3d|", sol.ordemItens[i]+1);
+		{
+			printf("|%.4d|", sol.ordemItens[i]+1);
+			sumItens += values[sol.ordemItens[i]];
+			numItens++;
+		}
 
-		printf(" ==> %0.2f (%d)\n", sol.fitness, numItens);
+		printf(" ==> %0.2f (%d)\n", sumItens, numItens);
 
-		numItens = nitens - sol.limit;
+		sumItens = 0;
+		numItens = 0;
 
-		printf("!sack: ");
+		printf("-sack: ");
 		for(int i = sol.limit; i < nitens; i++)
-			printf("|%.3d|", sol.ordemItens[i]+1);
+		{
+			printf("|%.4d|", sol.ordemItens[i]+1);
+			sumItens += values[sol.ordemItens[i]];
+			numItens++;
+		}
 
-		printf(" ==> %0.2f (%d)\n", sol.fitness, numItens);
+		printf(" ==> %0.2f (%d)\n", sumItens, numItens);
 	}
 	else
 	{

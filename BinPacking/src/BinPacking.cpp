@@ -445,17 +445,19 @@ inline void BinPacking::imprimir(bool esc)
 		for(int i = 1; i <= sol.fitness; i++)
 		{
 			double sumBin = 0;
+			int numItens = 0;
 
 			printf("bin %.2d: ", i);
 			for(int j = 0; j < nitens; j++)
 			{
 				if(sol.bins[j] == i)
 				{
-					printf("|%hd|", sol.ordemItens[j]);
+					printf("|%.4hd|", sol.ordemItens[j]+1);
 					sumBin += sizes[sol.ordemItens[j]];
+					numItens++;
 				}
 			}
-			printf(" ==> %0.2f\n", sumBin);
+			printf(" ==> %0.2f (%d)\n", sumBin, numItens);
 		}
 	}
 	else
