@@ -72,7 +72,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 	if(f != NULL)
 	{
 		list<Problema*>* popInicial = new list<Problema*>();
-		int npop, nitens, nconstraint, valorTotal, limit;
+		int npop, nitens, nconstraint, valorTotal;
 		char format_type[32];
 		short int *prob;
 		Problema* p;
@@ -99,12 +99,6 @@ list<Problema*>* Problema::lePopulacao(char *log)
 				exit(1);
 			}
 
-			if(!fscanf (f, "%d", &limit))
-			{
-				printf("Arquivo de Log Incorreto - Separador!\n\n");
-				exit(1);
-			}
-
 			for(int i = 0; i < nitens; i++)
 			{
 				if(!fscanf (f, "%hd", &prob[i]))
@@ -114,7 +108,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 				}
 			}
 
-			p = new KnapSack(prob, limit);
+			p = new KnapSack(prob);
 			if(valorTotal != p->getFitness())
 			{
 				printf("Arquivo de Log Incorreto - Fitness Diferentes!\n\n");
@@ -150,7 +144,6 @@ void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 
 		fprintf(f, "%d\n", (int)dynamic_cast<KnapSack *>(*iter)->getSoluction().fitness);
 
-		fprintf(f, "%d ", (int)dynamic_cast<KnapSack *>(*iter)->getSoluction().limit);
 		for(int i = 0; i < KnapSack::nitens; i++)
 		{
 			fprintf(f, "%d ", prob[i]);
@@ -249,18 +242,6 @@ KnapSack::KnapSack(short int *prob) : Problema::Problema()
 	exec.annealing = false;
 }
 
-KnapSack::KnapSack(short int *prob, int limit) : Problema::Problema()
-{
-	sol.ordemItens = prob;
-
-	sol.limit = limit;
-	calcFitness(false);
-
-	exec.tabu = false;
-	exec.genetico = false;
-	exec.annealing = false;
-}
-
 KnapSack::KnapSack(const Problema &prob) : Problema::Problema()
 {
 	KnapSack *other = dynamic_cast<KnapSack *>(const_cast<Problema *>(&prob));
@@ -307,50 +288,36 @@ inline bool KnapSack::calcFitness(bool esc)
 {
 	sol.fitness = 0;
 
-	if(sol.limit == -1)
+	double *tempConstraints = (double*)malloc(ncontraint * sizeof(double)), fitness = 0;
+	for(register int i = 0; i < ncontraint; i++)
+		tempConstraints[i] = 0;
+
+	register int item = 0, limit = 0;
+	for(register int i = 0; i < nitens; i++)
 	{
-		double *tempConstraints = (double*)malloc(KnapSack::ncontraint * sizeof(double)), fitness = 0;
-		for(register int i = 0; i < KnapSack::ncontraint; i++)
-			tempConstraints[i] = 0;
+		item = sol.ordemItens[i];
 
-		register int limit = 0, item = 0;
-		for(limit = 0; limit < nitens; limit++)
+		if(constraintVerify(item, tempConstraints))
 		{
-			item = sol.ordemItens[limit];
+			fitness += values[item];
 
-			if(!constraintVerify(item, tempConstraints))
-				break;
+			if(i != limit)
+			{
+				sol.ordemItens[i] = sol.ordemItens[limit];
+				sol.ordemItens[limit] = item;
+			}
 
-			fitness += KnapSack::values[item];
-		}
-
-		sort(&sol.ordemItens[0], &sol.ordemItens[limit]);
-		sort(&sol.ordemItens[limit], &sol.ordemItens[nitens]);
-
-		sol.fitness = fitness;
-		sol.limit = limit;
-
-		while(constraintVerify(sol.ordemItens[limit], tempConstraints))
-			fitness += KnapSack::values[sol.ordemItens[limit++]];
-
-		if(fitness != sol.fitness || limit != sol.limit)
-		{
-			sort(&sol.ordemItens[0], &sol.ordemItens[limit]);
-			sort(&sol.ordemItens[limit], &sol.ordemItens[nitens]);
-
-			sol.fitness = fitness;
-			sol.limit = limit;
-		}
-
-		free(tempConstraints);
-	}
-	else
-	{
-		for(register int i = 0; i < sol.limit; i++)
-		{
-			sol.fitness += KnapSack::values[sol.ordemItens[i]];
+			limit++;
 		}
 	}
+
+	sort(&sol.ordemItens[0], &sol.ordemItens[limit]);
+	sort(&sol.ordemItens[limit], &sol.ordemItens[nitens]);
+
+	sol.fitness = fitness;
+	sol.limit = limit;
+
+	free(tempConstraints);
 
 	return true;
 }
@@ -389,11 +356,21 @@ inline void KnapSack::imprimir(bool esc)
 {
 	if(esc == true)
 	{
+		int numItens = sol.limit;
+
 		printf("sack: ");
 		for(int i = 0; i < sol.limit; i++)
-			printf("|%d|", sol.ordemItens[i]);
+			printf("|%.3d|", sol.ordemItens[i]+1);
 
-		printf(" ==> %0.2f\n", sol.fitness);
+		printf(" ==> %0.2f (%d)\n", sol.fitness, numItens);
+
+		numItens = nitens - sol.limit;
+
+		printf("!sack: ");
+		for(int i = sol.limit; i < nitens; i++)
+			printf("|%.3d|", sol.ordemItens[i]+1);
+
+		printf(" ==> %0.2f (%d)\n", sol.fitness, numItens);
 	}
 	else
 	{
