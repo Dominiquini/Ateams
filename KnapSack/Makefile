@@ -4,112 +4,62 @@ CFLAGS = -lpthread -Wall -pedantic -O3 -march=native
 PATH_DADOS = ./dados/
 PATH_PARAM = ./parametros/
 PATH_PROJ = ./
-PATH_BIN1 = ./bin_1/
-PATH_BIN2 = ./bin_2/
-PATH_SRC1 = ./src_1/
-PATH_SRC2 = ./src_2/
+PATH_BIN = ./bin/
+PATH_SRC = ./src/
 PATH_RES = ./resultados/
 PATH_CORE = ../Ateams_Base/
 PATH_CORE_SRC = ../Ateams_Base/src/
 PATH_CORE_BIN = ../Ateams_Base/bin/
 
-BIN1 = KnapSack_1
-BIN2 = KnapSack_2
-SRCS1 =  $(PATH_SRC1)KnapSack.cpp $(PATH_CORE_SRC)Ateams.cpp $(PATH_CORE_SRC)Controle.cpp $(PATH_CORE_SRC)Tabu.cpp $(PATH_CORE_SRC)Genetico.cpp $(PATH_CORE_SRC)Annealing.cpp
-SRCS2 =  $(PATH_SRC2)KnapSack.cpp $(PATH_CORE_SRC)Ateams.cpp $(PATH_CORE_SRC)Controle.cpp $(PATH_CORE_SRC)Tabu.cpp $(PATH_CORE_SRC)Genetico.cpp $(PATH_CORE_SRC)Annealing.cpp
+BIN = KnapSack
+SRCS =  $(PATH_SRC)KnapSack.cpp $(PATH_CORE_SRC)Ateams.cpp $(PATH_CORE_SRC)Controle.cpp $(PATH_CORE_SRC)Tabu.cpp $(PATH_CORE_SRC)Genetico.cpp $(PATH_CORE_SRC)Annealing.cpp
 SRCS_BASE = $(PATH_CORE_SRC)Ateams.cpp $(PATH_CORE_SRC)Controle.cpp $(PATH_CORE_SRC)Tabu.cpp $(PATH_CORE_SRC)Genetico.cpp $(PATH_CORE_SRC)Annealing.cpp
-OBJS1 = $(PATH_BIN1)KnapSack.o
-OBJS2 = $(PATH_BIN2)KnapSack.o
-INCL1 = $(SRCS1:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heuristica.h
-INCL2 = $(SRCS2:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heuristica.h
+OBJS = $(PATH_BIN)KnapSack.o
+INCL = $(SRCS:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heuristica.h
 INCL_BASE = $(SRCS_BASE:.cpp=.h) $(PATH_CORE_SRC)Problema.h $(PATH_CORE_SRC)Heuristica.h
-EXEC1 = $(PATH_BIN1)$(BIN1)
-EXEC2 = $(PATH_BIN2)$(BIN2)
+EXEC = $(PATH_BIN)$(BIN)
 
 RUN_PARAM = -i $(PATH_DADOS)mk_gk01.prb -p $(PATH_PARAM)DEFAULT.param -r $(PATH_RES)mk_gk01.res
 
 RM = rm -rf
 
-.PHONY: all base install compile1 compile2 run1 run2 auto clean purge
+.PHONY: all base install compile run auto clean purge
 
-all:		proj_all
+all:		base
+		$(MAKE) compile
 
-proj_all:	base
-		$(MAKE) compile1
-		$(MAKE) compile2
-
-proj1:		base
-		$(MAKE) compile1
-
-proj2:		base
-		$(MAKE) compile2
-
-install:	install_all
-
-install_all:	base
-		$(MAKE) compile1
-		@ln -fs $(EXEC1) $(PATH_PROJ)$(BIN1)
-		$(MAKE) compile2
-		@ln -fs $(EXEC2) $(PATH_PROJ)$(BIN2)
-
-install_proj1:	proj1
-		@ln -fs $(EXEC1) $(PATH_PROJ)$(BIN1)
-
-install_proj2:	proj2
-		@ln -fs $(EXEC2) $(PATH_PROJ)$(BIN2)
+install:	all
+		@ln -fs $(EXEC) $(PATH_PROJ)$(BIN)
 
 base:		$(SRCS_BASE) $(INCL_BASE)
 		@cd $(PATH_CORE) && $(MAKE)
 
-debug:		debug_all
+debug:
+		@echo "$(CC) $(PATH_CORE_SRC)*.cpp $(PATH_SRC)*.cpp -lpthread -g3 -O0 -o $(BIN)"
+		@$(CC) $(SRCS) -g3 -O0 -lpthread -o $(BIN)
 
-debug_all:	debug_proj1 debug_proj2
+compile:	$(PATH_BIN) $(EXEC)
 
-debug_proj1:	
-		@echo "$(CC) $(PATH_CORE_SRC)*.cpp $(PATH_SRC1)*.cpp -lpthread -g3 -O0 -o $(BIN1)"
-		@$(CC) $(SRCS1) -g3 -O0 -lpthread -o $(BIN1)
+$(PATH_BIN):
+		@mkdir $(PATH_BIN)
 
-debug_proj2:
-		@$(CC) $(SRCS2) -g3 -O0 -lpthread -o $(BIN2)
-		@echo "$(CC) $(PATH_CORE_SRC)*.cpp $(PATH_SRC2)*.cpp -lpthread -g3 -O0 -o $(BIN2)"
 
-compile1:	$(PATH_BIN1) $(EXEC1)
-
-compile2: 	$(PATH_BIN2) $(EXEC2)
-
-$(PATH_BIN1):
-		@mkdir $(PATH_BIN1)
-
-$(PATH_BIN2):
-		@mkdir $(PATH_BIN2)
-
-$(EXEC1):	$(OBJS1)
+$(EXEC):	$(OBJS)
 		@$(CC) $(CFLAGS) $(PATH_CORE_BIN)*.o $^ -o $@
-		@echo "$(CC) $(CFLAGS) $(PATH_BIN1)*.o -o $@"
+		@echo "$(CC) $(CFLAGS) $(PATH_BIN)*.o -o $@"
 
-$(EXEC2):	$(OBJS2)
-		@$(CC) $(CFLAGS) $(PATH_CORE_BIN)*.o $^ -o $@
-		@echo "$(CC) $(CFLAGS) $(PATH_BIN2)*.o -o $@"
-
-$(PATH_BIN1)%.o:$(PATH_SRC1)%.cpp $(PATH_SRC1)%.h
+$(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.h
 		@$(CC) $(CFLAGS) -c $< -o $@
 		@echo "$(CC) $(CFLAGS) -c $< -o $@"
 
-$(PATH_BIN2)%.o:$(PATH_SRC2)%.cpp $(PATH_SRC2)%.h
-		@$(CC) $(CFLAGS) -c $< -o $@
-		@echo "$(CC) $(CFLAGS) -c $< -o $@"
-
-run1:		install_proj1
-		$(EXEC1) $(RUN_PARAM)
-
-run2:		install_proj2
-		$(EXEC2) $(RUN_PARAM)
+run:		install
+		$(EXEC) $(RUN_PARAM)
 
 clean:
-		@$(RM) $(OBJS1) $(OBJS2) $(BIN1) $(BIN2) $(EXEC1) $(EXEC2) $(PATH_BIN1) $(PATH_BIN2)
-		@echo "$(RM) $(BIN1) $(BIN2) $(OBJS1) $(OBJS2) $(EXEC1) $(EXEC2) $(PATH_BIN1) $(PATH_BIN2)"
+		@$(RM) $(OBJS) $(BIN) $(EXEC) $(PATH_BIN)
+		@echo "$(RM) $(BIN) $(OBJS) $(EXEC) $(PATH_BIN)"
 
 purge:		clean
-		@$(RM) $(PATH_RES) $(PATH_BIN1) $(PATH_BIN2)
+		@$(RM) $(PATH_RES) $(PATH_BIN)
 		@cd $(PATH_CORE) && $(MAKE) $@
 		@echo "$(RM) $(PATH_RES)*.res $(PATH_BIN)"
