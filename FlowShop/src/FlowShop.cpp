@@ -179,15 +179,6 @@ void Problema::desalocaMemoria()
 	free(FlowShop::time);
 }
 
-double Problema::melhora(double oldP, double newP)
-{
-	return oldP - newP;
-}
-
-double Problema::melhora(Problema& oldP, Problema& newP)
-{
-	return oldP.getFitness() - newP.getFitness();
-}
 
 /* Metodos */
 
@@ -317,36 +308,6 @@ inline bool FlowShop::calcFitness(bool esc)
 	sol.fitness = sum_time;
 
 	return true;
-}
-
-bool FlowShop::operator == (const Problema& p)
-{
-	return this->getFitness() == p.getFitness();
-}
-
-bool FlowShop::operator != (const Problema& p)
-{
-	return this->getFitness() != p.getFitness();
-}
-
-bool FlowShop::operator <= (const Problema& p)
-{
-	return this->getFitness() <= p.getFitness();
-}
-
-bool FlowShop::operator >= (const Problema& p)
-{
-	return this->getFitness() >= p.getFitness();
-}
-
-bool FlowShop::operator < (const Problema& p)
-{
-	return this->getFitness() < p.getFitness();
-}
-
-bool FlowShop::operator > (const Problema& p)
-{
-	return this->getFitness() > p.getFitness();
 }
 
 inline void FlowShop::imprimir(bool esc)

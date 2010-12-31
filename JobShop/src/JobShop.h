@@ -75,13 +75,6 @@ public:
 
 	virtual ~JobShop();
 
-	bool operator == (const Problema&);
-	bool operator != (const Problema&);
-	bool operator <= (const Problema&);
-	bool operator >= (const Problema&);
-	bool operator < (const Problema&);
-	bool operator > (const Problema&);
-
 	void imprimir(bool esc);		// Imprime o escalonamento atual
 
 	/* Retorna um novo vizinho aleatorio */

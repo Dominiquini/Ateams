@@ -298,15 +298,6 @@ void Problema::desalocaMemoria()
 	free(TravellingSalesman::edges);
 }
 
-double Problema::melhora(double oldP, double newP)
-{
-	return oldP - newP;
-}
-
-double Problema::melhora(Problema& oldP, Problema& newP)
-{
-	return oldP.getFitness() - newP.getFitness();
-}
 
 /* Metodos */
 
@@ -445,36 +436,6 @@ inline bool TravellingSalesman::calcFitness(bool esc)
 	sol.fitness = sumEdges;
 
 	return true;
-}
-
-bool TravellingSalesman::operator == (const Problema& p)
-{
-	return this->getFitness() == p.getFitness();
-}
-
-bool TravellingSalesman::operator != (const Problema& p)
-{
-	return this->getFitness() != p.getFitness();
-}
-
-bool TravellingSalesman::operator <= (const Problema& p)
-{
-	return this->getFitness() <= p.getFitness();
-}
-
-bool TravellingSalesman::operator >= (const Problema& p)
-{
-	return this->getFitness() >= p.getFitness();
-}
-
-bool TravellingSalesman::operator < (const Problema& p)
-{
-	return this->getFitness() < p.getFitness();
-}
-
-bool TravellingSalesman::operator > (const Problema& p)
-{
-	return this->getFitness() > p.getFitness();
 }
 
 inline void TravellingSalesman::imprimir(bool esc)

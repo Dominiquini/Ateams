@@ -72,7 +72,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 	if(f != NULL)
 	{
 		list<Problema*>* popInicial = new list<Problema*>();
-		int npop, nitens, nconstraint, valorTotal;
+		int npop, nitens, nconstraint, valorTotal, limit;
 		char format_type[32];
 		short int *prob;
 		Problema* p;
@@ -99,16 +99,22 @@ list<Problema*>* Problema::lePopulacao(char *log)
 				exit(1);
 			}
 
+			if(!fscanf (f, "%d ", &limit))
+			{
+				printf("Arquivo de Log Incorreto - Limite!\n\n");
+				exit(1);
+			}
+
 			for(int i = 0; i < nitens; i++)
 			{
-				if(!fscanf (f, "%hd", &prob[i]))
+				if(!fscanf (f, "%hd ", &prob[i]))
 				{
 					printf("Arquivo de Log Incorreto - Soluçao!\n\n");
 					exit(1);
 				}
 			}
 
-			p = new KnapSack(prob);
+			p = new KnapSack(prob, limit);
 			if(valorTotal != p->getFitness())
 			{
 				printf("Arquivo de Log Incorreto - Fitness Diferentes!\n\n");
@@ -143,7 +149,7 @@ void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 		prob = dynamic_cast<KnapSack *>(*iter)->getSoluction().ordemItens;
 
 		fprintf(f, "%d\n", (int)dynamic_cast<KnapSack *>(*iter)->getSoluction().fitness);
-
+		fprintf(f, "%d ", (int)dynamic_cast<KnapSack *>(*iter)->getSoluction().limit);
 		for(int i = 0; i < KnapSack::nitens; i++)
 		{
 			fprintf(f, "%d ", prob[i]);
@@ -199,15 +205,6 @@ void Problema::desalocaMemoria()
 	free(KnapSack::constraint);
 }
 
-double Problema::melhora(double oldP, double newP)
-{
-	return newP - oldP;
-}
-
-double Problema::melhora(Problema& oldP, Problema& newP)
-{
-	return newP.getFitness() - oldP.getFitness();
-}
 
 /* Metodos */
 
@@ -229,11 +226,22 @@ KnapSack::KnapSack() : Problema::Problema()
 	exec.annealing = false;
 }
 
-
 KnapSack::KnapSack(short int *prob) : Problema::Problema()
 {
 	sol.ordemItens = prob;
 	sol.limit = -1;
+
+	calcFitness(false);
+
+	exec.tabu = false;
+	exec.genetico = false;
+	exec.annealing = false;
+}
+
+KnapSack::KnapSack(short int *prob, int limit) : Problema::Problema()
+{
+	sol.ordemItens = prob;
+	sol.limit = limit;
 
 	calcFitness(false);
 
@@ -315,41 +323,18 @@ inline bool KnapSack::calcFitness(bool esc)
 	sort(&sol.ordemItens[limit], &sol.ordemItens[nitens]);
 
 	sol.fitness = fitness;
-	sol.limit = limit;
+
+	if(sol.limit != -1 && sol.limit != limit)
+	{
+		cout << endl << "Solução Inválida!" << endl << endl;
+		exit(1);
+	}
+	else
+		sol.limit = limit;
 
 	free(tempConstraints);
 
 	return true;
-}
-
-bool KnapSack::operator == (const Problema& p)
-{
-	return this->getFitness() == p.getFitness();
-}
-
-bool KnapSack::operator != (const Problema& p)
-{
-	return this->getFitness() != p.getFitness();
-}
-
-bool KnapSack::operator <= (const Problema& p)
-{
-	return this->getFitness() <= p.getFitness();
-}
-
-bool KnapSack::operator >= (const Problema& p)
-{
-	return this->getFitness() >= p.getFitness();
-}
-
-bool KnapSack::operator < (const Problema& p)
-{
-	return this->getFitness() < p.getFitness();
-}
-
-bool KnapSack::operator > (const Problema& p)
-{
-	return this->getFitness() > p.getFitness();
 }
 
 inline void KnapSack::imprimir(bool esc)

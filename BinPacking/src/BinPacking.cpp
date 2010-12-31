@@ -175,15 +175,6 @@ void Problema::desalocaMemoria()
 	free(BinPacking::sizes);
 }
 
-double Problema::melhora(double oldP, double newP)
-{
-	return oldP - newP;
-}
-
-double Problema::melhora(Problema& oldP, Problema& newP)
-{
-	return oldP.getFitness() - newP.getFitness();
-}
 
 /* Metodos */
 
@@ -404,36 +395,6 @@ inline bool BinPacking::calcFitness(bool esc)
 	}
 
 	return true;
-}
-
-bool BinPacking::operator == (const Problema& p)
-{
-	return this->getFitness() == p.getFitness();
-}
-
-bool BinPacking::operator != (const Problema& p)
-{
-	return this->getFitness() != p.getFitness();
-}
-
-bool BinPacking::operator <= (const Problema& p)
-{
-	return this->getFitness() <= p.getFitness();
-}
-
-bool BinPacking::operator >= (const Problema& p)
-{
-	return this->getFitness() >= p.getFitness();
-}
-
-bool BinPacking::operator < (const Problema& p)
-{
-	return this->getFitness() < p.getFitness();
-}
-
-bool BinPacking::operator > (const Problema& p)
-{
-	return this->getFitness() > p.getFitness();
 }
 
 inline void BinPacking::imprimir(bool esc)

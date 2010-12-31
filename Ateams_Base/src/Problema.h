@@ -58,9 +58,22 @@ public:
 	static Problema* randSoluction();							// Nova solucao aleatoria
 	static Problema* copySoluction(const Problema& prob);		// Copia de prob
 
-	// Calcula a melhora (Resultado Positivo !!!) de newP em relacao a oldP
-	static double melhora(double oldP, double newP);
-	static double melhora(Problema& oldP, Problema& newP);
+	// Calcula a melhora (Resultado Positivo) de newP em relacao a oldP
+	static double melhora(double oldP, double newP)
+	{
+		if(TIPO == MINIMIZACAO)
+			return oldP - newP;
+		else
+			return newP - oldP;
+	}
+
+	static double melhora(Problema& oldP, Problema& newP)
+	{
+		if(TIPO == MINIMIZACAO)
+			return oldP.getFitness() - newP.getFitness();
+		else
+			return newP.getFitness() - oldP.getFitness();
+	}
 
 
 	executado exec;							// Algoritmos executados na solucao
@@ -69,13 +82,6 @@ public:
 	Problema() {pthread_mutex_lock(&mut_p); numInst++; totalNumInst++; pthread_mutex_unlock(&mut_p);}	// numInst++
 
 	virtual ~Problema() {pthread_mutex_lock(&mut_p); numInst--; pthread_mutex_unlock(&mut_p);}			// numInst--
-
-	virtual bool operator == (const Problema&) = 0;
-	virtual bool operator != (const Problema&) = 0;
-	virtual bool operator <= (const Problema&) = 0;
-	virtual bool operator >= (const Problema&) = 0;
-	virtual bool operator < (const Problema&) = 0;
-	virtual bool operator > (const Problema&) = 0;
 
 	virtual void imprimir(bool esc) = 0;	// Imprime o escalonamento
 

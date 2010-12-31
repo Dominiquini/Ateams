@@ -185,15 +185,6 @@ void Problema::desalocaMemoria()
 	free(GraphColoring::edges);
 }
 
-double Problema::melhora(double oldP, double newP)
-{
-	return oldP - newP;
-}
-
-double Problema::melhora(Problema& oldP, Problema& newP)
-{
-	return oldP.getFitness() - newP.getFitness();
-}
 
 /* Metodos */
 
@@ -323,36 +314,6 @@ inline bool GraphColoring::calcFitness(bool esc)
 		sol.colors = aux_colors;
 
 	return true;
-}
-
-bool GraphColoring::operator == (const Problema& p)
-{
-	return this->getFitness() == p.getFitness();
-}
-
-bool GraphColoring::operator != (const Problema& p)
-{
-	return this->getFitness() != p.getFitness();
-}
-
-bool GraphColoring::operator <= (const Problema& p)
-{
-	return this->getFitness() <= p.getFitness();
-}
-
-bool GraphColoring::operator >= (const Problema& p)
-{
-	return this->getFitness() >= p.getFitness();
-}
-
-bool GraphColoring::operator < (const Problema& p)
-{
-	return this->getFitness() < p.getFitness();
-}
-
-bool GraphColoring::operator > (const Problema& p)
-{
-	return this->getFitness() > p.getFitness();
 }
 
 inline void GraphColoring::imprimir(bool esc)

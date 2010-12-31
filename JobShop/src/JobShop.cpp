@@ -194,15 +194,6 @@ void Problema::desalocaMemoria()
 	free(JobShop::time);
 }
 
-double Problema::melhora(double oldP, double newP)
-{
-	return oldP - newP;
-}
-
-double Problema::melhora(Problema& oldP, Problema& newP)
-{
-	return oldP.getFitness() - newP.getFitness();
-}
 
 /* Metodos */
 
@@ -416,36 +407,6 @@ inline bool JobShop::calcFitness(bool esc)
 		sol.fitness = -1;
 		return false;
 	}
-}
-
-bool JobShop::operator == (const Problema& p)
-{
-	return this->getFitness() == p.getFitness();
-}
-
-bool JobShop::operator != (const Problema& p)
-{
-	return this->getFitness() != p.getFitness();
-}
-
-bool JobShop::operator <= (const Problema& p)
-{
-	return this->getFitness() <= p.getFitness();
-}
-
-bool JobShop::operator >= (const Problema& p)
-{
-	return this->getFitness() >= p.getFitness();
-}
-
-bool JobShop::operator < (const Problema& p)
-{
-	return this->getFitness() < p.getFitness();
-}
-
-bool JobShop::operator > (const Problema& p)
-{
-	return this->getFitness() > p.getFitness();
 }
 
 inline void JobShop::imprimir(bool esc)
