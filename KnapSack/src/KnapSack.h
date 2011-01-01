@@ -110,7 +110,7 @@ public:
 
 void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
 
-bool constraintVerify(int item, double *constraints);
+bool constraintVerify(int item, vector<double> &constraints);
 
 bool ptcomp(pair<Problema*, InfoTabu*>*, pair<Problema*, InfoTabu*>*);
 

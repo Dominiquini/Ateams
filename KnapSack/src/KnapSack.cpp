@@ -44,14 +44,26 @@ void Problema::leProblema(FILE *f)
 			exit(1);
 	}
 
+	double **constraints = (double**)malloc(KnapSack::ncontraint * sizeof(double*));
+	for(int i = 0; i < KnapSack::ncontraint; i++)
+		constraints[i] = (double*)malloc(KnapSack::nitens * sizeof(double));
+
 	for(int i = 0; i < KnapSack::ncontraint; i++)
 	{
 		for (int j = 0; j < KnapSack::nitens; j++)
 		{
-			if (!fscanf (f, "%lf", &KnapSack::constraint[i][j]))
+			if (!fscanf (f, "%lf", &constraints[i][j]))
 				exit(1);
 		}
 	}
+
+	for(int i = 0; i < KnapSack::nitens; i++)
+		for(int j = 0; j < KnapSack::ncontraint; j++)
+			KnapSack::constraint[i][j] = constraints[j][i];
+
+	for(int i = 0; i < KnapSack::ncontraint; i++)
+		free(constraints[i]);
+	free(constraints);
 
 	for(int i = 0; i < KnapSack::ncontraint; i++)
 	{
@@ -189,9 +201,9 @@ void Problema::alocaMemoria()
 
 	KnapSack::limit = (double*)malloc(KnapSack::ncontraint * sizeof(double));
 
-	KnapSack::constraint = (double**)malloc(KnapSack::ncontraint * sizeof(double*));
-	for(int i = 0; i < KnapSack::ncontraint; i++)
-		KnapSack::constraint[i] = (double*)malloc(KnapSack::nitens * sizeof(double));
+	KnapSack::constraint = (double**)malloc(KnapSack::nitens * sizeof(double*));
+	for(int i = 0; i < KnapSack::nitens; i++)
+		KnapSack::constraint[i] = (double*)malloc(KnapSack::ncontraint * sizeof(double));
 }
 
 void Problema::desalocaMemoria()
@@ -294,45 +306,34 @@ KnapSack::~KnapSack()
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 inline bool KnapSack::calcFitness(bool esc)
 {
-	sol.fitness = 0;
-
-	double *tempConstraints = (double*)malloc(ncontraint * sizeof(double)), fitness = 0;
-	for(register int i = 0; i < ncontraint; i++)
-		tempConstraints[i] = 0;
-
-	register int item = 0, limit = 0;
-	for(register int i = 0; i < nitens; i++)
+	if(sol.limit == -1)
 	{
-		item = sol.ordemItens[i];
+		vector<double> tempConstraints(ncontraint, 0);
 
-		if(constraintVerify(item, tempConstraints))
+		register double fitness = 0;
+		register int item = 0, limit = 0;
+		for(limit = 0; limit < nitens; limit++)
 		{
+			item = sol.ordemItens[limit];
+
+			if(!constraintVerify(item, tempConstraints))
+				break;
+
 			fitness += values[item];
-
-			if(i != limit)
-			{
-				sol.ordemItens[i] = sol.ordemItens[limit];
-				sol.ordemItens[limit] = item;
-			}
-
-			limit++;
 		}
-	}
 
-	sort(&sol.ordemItens[0], &sol.ordemItens[limit]);
-	sort(&sol.ordemItens[limit], &sol.ordemItens[nitens]);
+		sort(&sol.ordemItens[0], &sol.ordemItens[limit]);
+		sort(&sol.ordemItens[limit], &sol.ordemItens[nitens]);
 
-	sol.fitness = fitness;
-
-	if(sol.limit != -1 && sol.limit != limit)
-	{
-		cout << endl << "Solução Inválida!" << endl << endl;
-		exit(1);
+		sol.fitness = fitness;
+		sol.limit = limit;
 	}
 	else
-		sol.limit = limit;
-
-	free(tempConstraints);
+	{
+		sol.fitness = 0;
+		for(register int i = 0; i < sol.limit; i++)
+			sol.fitness += values[sol.ordemItens[i]];
+	}
 
 	return true;
 }
@@ -549,27 +550,20 @@ inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int t
 }
 
 
-inline bool constraintVerify(int item, double *constraints)
+inline bool constraintVerify(int item, vector<double> &constraints)
 {
+	vector<double>::iterator constraint;
 	register int c = 0;
-	bool valido = true;
 
-	for(c = 0; c < KnapSack::ncontraint; c++)
+	for(constraint = constraints.begin(); constraint != constraints.end(); constraint++)
 	{
-		constraints[c] += KnapSack::constraint[c][item];
+		*constraint += KnapSack::constraint[item][c];
 
-		if(constraints[c] > KnapSack::limit[c])
-		{
-			valido = false;
-			break;
-		}
+		if(*constraint > KnapSack::limit[c++])
+			return false;
 	}
 
-	if(valido == false)
-		for(register int i = 0; i <= c; i++)
-			constraints[i] -= KnapSack::constraint[i][item];
-
-	return valido;
+	return true;
 }
 
 // comparator function:
