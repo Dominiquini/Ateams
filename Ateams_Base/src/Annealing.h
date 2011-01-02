@@ -18,7 +18,7 @@ public:
 
 	Annealing();
 	Annealing(string, ParametrosHeuristicas&);
-	~Annealing();
+	virtual ~Annealing();
 
 	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic);
 

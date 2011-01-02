@@ -43,6 +43,9 @@ compile: 	$(PATH_BIN) $(EXEC)
 $(PATH_BIN):
 		@mkdir $(PATH_BIN)
 
+$(PATH_RES):
+		@mkdir $(PATH_RES)
+
 
 $(EXEC):	$(OBJS)
 		@$(CC) $(CFLAGS) $(PATH_CORE_BIN)*.o $^ -o $@
@@ -52,7 +55,7 @@ $(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.h
 		@$(CC) $(CFLAGS) -c $< -o $@
 		@echo "$(CC) $(CFLAGS) -c $< -o $@"
 
-run:		install
+run:		$(PATH_RES) install
 		$(EXEC) $(RUN_PARAM)
 
 clean:

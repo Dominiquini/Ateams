@@ -20,7 +20,7 @@ public:
 
 	Genetico();
 	Genetico(string, ParametrosHeuristicas&);
-	~Genetico();
+	virtual ~Genetico();
 
 	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic);
 
