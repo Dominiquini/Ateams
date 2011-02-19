@@ -149,7 +149,12 @@ int main(int argc, char *argv[])
 	cout << endl;
 
 	/* Adiciona as heuristicas selecionadas */
-	Controle* ctr = new Controle(pATEAMS);
+	Controle* ctr = NULL;
+	if(findPosArgv(argv, argc, (char*)"-g") == -1)
+		ctr = new Controle(pATEAMS, false);
+	else
+		ctr = new Controle(pATEAMS, true);
+
 	for(int i = 0; i < (int)pHEURISTICAS->size(); i++)
 	{
 		if(pHEURISTICAS->at(i).alg == SA)
@@ -198,7 +203,7 @@ int main(int argc, char *argv[])
 
 	cout << endl << endl << "Solução:" << endl << endl;
 
-	if(findPosArgv(argv, argc, (char*)"-g") != -1)
+	if(findPosArgv(argv, argc, (char*)"-d") != -1)
 		best->imprimir(true);
 	else
 		best->imprimir(false);

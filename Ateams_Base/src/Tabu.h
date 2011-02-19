@@ -18,11 +18,11 @@ public:
 	Tabu(string, ParametrosHeuristicas&);
 	virtual ~Tabu();
 
-	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic);
+	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener);
 
 private:
 
-	vector<Problema*>* exec(Problema*);
+	vector<Problema*>* exec(Problema*, Heuristica_Listener* listener);
 };
 
 bool isTabu(list<InfoTabu*> *listaTabu, InfoTabu *m);

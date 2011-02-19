@@ -22,11 +22,11 @@ public:
 	Genetico(string, ParametrosHeuristicas&);
 	virtual ~Genetico();
 
-	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic);
+	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener);
 
 private:
 
-	vector<Problema*>* exec(vector<Problema*>* pop);
+	vector<Problema*>* exec(vector<Problema*>* pop, Heuristica_Listener* listener);
 };
 
 #endif

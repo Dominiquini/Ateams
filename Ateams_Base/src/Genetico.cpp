@@ -39,7 +39,7 @@ Genetico::~Genetico()
 	Heuristica::numHeuristic -= prob;
 }
 
-vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
+vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener)
 {
 	vector<Problema*>* popAG = new vector<Problema*>();
 	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator iter = sol->end();
@@ -50,7 +50,7 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 
 	numExec++;
 
-	pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&mutex_pop);
 
 	if(polEscolha == 0)
 	{
@@ -84,12 +84,12 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 		sort(popAG->begin(), popAG->end(), fncomp2);
 	}
 
-	pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&mutex_pop);
 
-	return exec(popAG);
+	return exec(popAG, listener);
 }
 
-vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
+vector<Problema*>* Genetico::exec(vector<Problema*>* pop, Heuristica_Listener* listener)
 {
 	Problema *mutante;
 	pair<Problema*, Problema*>* temp;
@@ -107,11 +107,26 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop)
 
 	vector<Problema*> *bad_pop = new vector<Problema*>();
 
+	if(listener != NULL)
+		listener->bestInitialFitness = (*pop->rbegin())->getFitness();
+
 	/* Iteracao principal do AG */
 	for(int i = 0; i < iterGenetico; i++)
 	{
 		if(PARAR == true)
 			break;
+
+		if(listener != NULL)
+		{
+			listener->status = (100.00 * (double)(i+1)) / (double)iterGenetico;
+
+			listener->bestActualFitness = (*pop->rbegin())->getFitness();
+
+			char* ss = new char[32];
+			sprintf(ss, "Geração: %d", i+1);
+
+			listener->setInfo(ss);
+		}
 
 		numCrossOver = (int)((float)pop->size() * probCrossOver);
 

@@ -20,11 +20,11 @@ public:
 	Annealing(string, ParametrosHeuristicas&);
 	virtual ~Annealing();
 
-	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic);
+	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener);
 
 private:
 
-	vector<Problema*>* exec(Problema*);
+	vector<Problema*>* exec(Problema*, Heuristica_Listener* listener);
 };
 
 bool accept(double rand, double Ds, double T);

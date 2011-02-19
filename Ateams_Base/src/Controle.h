@@ -44,8 +44,9 @@ private:
 	int tamPop, iterAteams, tentAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes, tentativas sem melhora e tempo maximo de execucao
 	int critUnicidade;								// Criterio de unicidade da populacao adotado
 
-	list<string>* actAlgs;				// Algoritmos em execucao no momento
-	int actThreads;						// Threads em execucao no momento
+	list<Heuristica_Listener*>* actAlgs;	// Algoritmos em execucao no momento
+	int actThreads;							// Threads em execucao no momento
+	bool listener;							// Informa se as heuristicas serao acompanhadas por um listener
 
 	time_t time1, time2;				// Medidor do tempo inicial e final
 	int iterMelhora;					// Ultima iteracao em que houve melhora
@@ -62,7 +63,7 @@ private:
 
 public:
 	Controle();
-	Controle(ParametrosATEAMS* pATEAMS);
+	Controle(ParametrosATEAMS* pATEAMS, bool listener);
 
 	~Controle();
 

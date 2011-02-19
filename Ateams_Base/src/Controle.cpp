@@ -2,11 +2,12 @@
 
 using namespace std;
 
-pthread_mutex_t mutex;	// Mutex que protege a populacao principal
-pthread_mutex_t mut_p;	// Mutex que protege as variaveis de criacao de novas solucoes
-pthread_mutex_t mut_f;	// Mutex que protege a impressao das informacoes da execucao
+pthread_mutex_t mutex_pop;	// Mutex que protege a populacao principal
+pthread_mutex_t mutex_cont;	// Mutex que protege as variaveis de criacao de novas solucoes
+pthread_mutex_t mutex_info;	// Mutex que protege a impressao das informacoes da execucao
+pthread_mutex_t mutex_exec;	// Mutex que protege a impressao as informacoes de execucao
 
-sem_t semaphore;		// Semaforo que controla o acesso dos algoritmos ao processador
+sem_t semaphore;			// Semaforo que controla o acesso dos algoritmos ao processador
 
 Controle::Controle()
 {
@@ -25,17 +26,19 @@ Controle::Controle()
 
 	algs = new vector<Heuristica*>;
 
-	actAlgs = new list<string>;
+	actAlgs = new list<Heuristica_Listener*>;
+	this->listener = false;
 	actThreads = 0;
 
-	pthread_mutex_init(&mutex, NULL);
-	pthread_mutex_init(&mut_p, NULL);
-	pthread_mutex_init(&mut_f, NULL);
+	pthread_mutex_init(&mutex_pop, NULL);
+	pthread_mutex_init(&mutex_cont, NULL);
+	pthread_mutex_init(&mutex_info, NULL);
+	pthread_mutex_init(&mutex_exec, NULL);
 
 	sem_init(&semaphore, 0, numThreads);
 }
 
-Controle::Controle(ParametrosATEAMS* pATEAMS)
+Controle::Controle(ParametrosATEAMS* pATEAMS, bool listener)
 {
 	tamPop = pATEAMS->tamPopAteams != -1 ? pATEAMS->tamPopAteams : 1000;
 	critUnicidade = pATEAMS->critUnicidade != -1 ? pATEAMS->critUnicidade : 1;
@@ -52,12 +55,14 @@ Controle::Controle(ParametrosATEAMS* pATEAMS)
 
 	algs = new vector<Heuristica*>;
 
-	actAlgs = new list<string>;
+	actAlgs = new list<Heuristica_Listener*>;
+	this->listener = listener;
 	actThreads = 0;
 
-	pthread_mutex_init(&mutex, NULL);
-	pthread_mutex_init(&mut_p, NULL);
-	pthread_mutex_init(&mut_f, NULL);
+	pthread_mutex_init(&mutex_pop, NULL);
+	pthread_mutex_init(&mutex_cont, NULL);
+	pthread_mutex_init(&mutex_info, NULL);
+	pthread_mutex_init(&mutex_exec, NULL);
 
 	sem_init(&semaphore, 0, numThreads);
 }
@@ -84,9 +89,10 @@ Controle::~Controle()
 	actAlgs->clear();
 	delete actAlgs;
 
-	pthread_mutex_destroy(&mutex);
-	pthread_mutex_destroy(&mut_p);
-	pthread_mutex_destroy(&mut_f);
+	pthread_mutex_destroy(&mutex_pop);
+	pthread_mutex_destroy(&mutex_cont);
+	pthread_mutex_destroy(&mutex_info);
+	pthread_mutex_destroy(&mutex_exec);
 }
 
 double Controle::sumFitnessMaximize(set<Problema*, bool(*)(Problema*, Problema*)> *probs, int n)
@@ -323,42 +329,43 @@ Problema* Controle::start(list<Problema*>* popInicial)
 	return Problema::copySoluction(**(pop->begin()));
 }
 
-inline int Controle::exec(int randomic, int eID)
+inline int Controle::exec(int randomic, int idThread)
 {
 	srand(randomic);
 
 	Heuristica* alg = selectRouletteWheel(algs, Heuristica::numHeuristic, rand());
-	vector<Problema*> *prob = NULL;
-	pair<int, int>* ins;
+	vector<Problema*> *newSoluctions = NULL;
+	pair<int, int>* insert;
 	int contrib = 0;
 
-	char cID[16];
-	sprintf(cID, "%s(%.3d)", alg->name.c_str(), eID);
-	string id = cID;
+	Heuristica_Listener* listener = new Heuristica_Listener(alg, idThread);
 
 	string execNames;
 
-	pthread_mutex_lock(&mut_f);
+	pthread_mutex_lock(&mutex_info);
 	{
 		actThreads++;
 
-		actAlgs->push_back(id);
+		actAlgs->push_back(listener);
 
 		execNames = "";
-		for(list<string>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
-			execNames = execNames + *it + " ";
+		for(list<Heuristica_Listener*>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
+			execNames = execNames + (*it)->info + " ";
 
-		printf(">>> ALG: %s | ..................................................... | FILA: (%d : %s)\n", id.c_str(), actThreads, execNames.c_str());
+		printf(">>> ALG: %s | ..................................................... | FILA: (%d : %s)\n", listener->info.c_str(), actThreads, execNames.c_str());
 	}
-	pthread_mutex_unlock(&mut_f);
+	pthread_mutex_unlock(&mutex_info);
 
-	prob = alg->start(pop, randomic);
+	if(this->listener)
+		newSoluctions = alg->start(pop, randomic, listener);
+	else
+		newSoluctions = alg->start(pop, randomic, NULL);
 
-	pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&mutex_pop);
 	{
 		double oldBest = Problema::best;
 
-		ins = addSol(prob);
+		insert = addSol(newSoluctions);
 		execThreads++;
 
 		double newBest = Problema::best;
@@ -368,30 +375,35 @@ inline int Controle::exec(int randomic, int eID)
 		else
 			iterMelhora++;
 	}
-	pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&mutex_pop);
 
-	prob->clear();
-	delete prob;
+	newSoluctions->clear();
+	delete newSoluctions;
 
-	pthread_mutex_lock(&mut_f);
+	pthread_mutex_lock(&mutex_info);
 	{
 		actThreads--;
 
-		actAlgs->erase(find(actAlgs->begin(), actAlgs->end(), id));
+		list<Heuristica_Listener*>::iterator exec = find(actAlgs->begin(), actAlgs->end(), listener);
 
-		printf("<<< ALG: %s | ITER: %.3d | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d", id.c_str(), execThreads, (int)Problema::best, (int)Problema::worst, ins->first, ins->second);
+		printf("INFO: %s | STATUS: %f\n", (*exec)->getInfo().c_str(), (*exec)->status);
+
+		actAlgs->erase(exec);
+		delete *exec;
+
+		printf("<<< ALG: %s | ITER: %.3d | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d", listener->info.c_str(), execThreads, (int)Problema::best, (int)Problema::worst, insert->first, insert->second);
 
 		execNames = "";
-		for(list<string>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
-			execNames = execNames + *it + " ";
+		for(list<Heuristica_Listener*>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
+			execNames = execNames + (*it)->info + " ";
 
 		printf(" | FILA: (%d : %s)\n", actThreads, execNames.c_str());
 	}
-	pthread_mutex_unlock(&mut_f);
+	pthread_mutex_unlock(&mutex_info);
 
-	contrib = ins->second;
+	contrib = insert->second;
 
-	delete ins;
+	delete insert;
 
 	return contrib;
 }
@@ -557,5 +569,6 @@ inline bool cmpAlg(Heuristica *h1, Heuristica *h2)
 {
 	return h1->prob < h2->prob;
 }
+
 
 int Heuristica::numHeuristic = 0;

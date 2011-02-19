@@ -40,7 +40,7 @@ Annealing::~Annealing()
 }
 
 /* Executa um Simulated Annealing na populacao com o devido criterio de selecao */
-vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
+vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener)
 {
 	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator select;
 	Problema* solSA;
@@ -49,7 +49,7 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 
 	numExec++;
 
-	pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&mutex_pop);
 
 	// Escolhe a melhor solucao para ser usada pelo SA
 	if(polEscolha == 0 || xRand(rand(), 0, 101) < elitismo)
@@ -57,9 +57,9 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 		select = sol->begin();
 		solSA = Problema::copySoluction(**select);
 
-		pthread_mutex_unlock(&mutex);
+		pthread_mutex_unlock(&mutex_pop);
 
-		return exec(solSA);
+		return exec(solSA, listener);
 	}
 
 	// Escolhe alguem dentre os 'polEscolha' primeiras solucoes
@@ -80,13 +80,13 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 
 	solSA = Problema::copySoluction(**select);
 
-	pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&mutex_pop);
 
-	return exec(solSA);
+	return exec(solSA, listener);
 }
 
 /* Executa uma busca por solucoes a partir de 'init' */
-vector<Problema*>* Annealing::exec(Problema* Si)
+vector<Problema*>* Annealing::exec(Problema* Si, Heuristica_Listener* listener)
 {
 	vector<Problema*>* Sf = new vector<Problema*>();
 	Problema *S, *Sn;
@@ -97,15 +97,36 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 	Ti = initTemp != -1 ? initTemp : (Problema::best - Problema::worst) / log(0.5);
 	Tf = fimTemp > 0 ? fimTemp : 1;
 
+	double diff = Ti - Tf;
+
 	T = Ti;
 	S = Si;
 
 	Sf->push_back(Problema::copySoluction(*Si));
 
-	while(T > Tf)
+	if(listener != NULL)
+		listener->bestInitialFitness = (*Sf->rbegin())->getFitness();
+
+	bool exec = true;
+	while(exec)
 	{
 		if(PARAR == true)
 			break;
+
+		if(listener != NULL)
+		{
+			listener->status = 100.00 - (100.00 * (T - Tf)) / diff;
+
+			listener->bestActualFitness = (*Sf->rbegin())->getFitness();
+
+			char* ss = new char[32];
+			sprintf(ss, "Temperatura: %f", T);
+
+			listener->setInfo(ss);
+		}
+
+		if(T == Tf)
+			exec = false;
 
 		for(int i = 1; i < L; i++)
 		{
@@ -134,6 +155,9 @@ vector<Problema*>* Annealing::exec(Problema* Si)
 			}
 		}
 		T = alfa*T;
+
+		if(T < Tf)
+			T = Tf;
 
 		if(restauraSol)
 		{

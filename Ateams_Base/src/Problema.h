@@ -2,7 +2,7 @@
 
 using namespace std;
 
-extern pthread_mutex_t mut_p;
+extern pthread_mutex_t mutex_cont;
 
 #ifndef _PROBLEMA_
 #define _PROBLEMA_
@@ -79,9 +79,9 @@ public:
 	executado exec;							// Algoritmos executados na solucao
 
 	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
-	Problema() {pthread_mutex_lock(&mut_p); numInst++; totalNumInst++; pthread_mutex_unlock(&mut_p);}	// numInst++
+	Problema() {pthread_mutex_lock(&mutex_cont); numInst++; totalNumInst++; pthread_mutex_unlock(&mutex_cont);}	// numInst++
 
-	virtual ~Problema() {pthread_mutex_lock(&mut_p); numInst--; pthread_mutex_unlock(&mut_p);}			// numInst--
+	virtual ~Problema() {pthread_mutex_lock(&mutex_cont); numInst--; pthread_mutex_unlock(&mutex_cont);}			// numInst--
 
 	virtual void imprimir(bool esc) = 0;	// Imprime o escalonamento
 

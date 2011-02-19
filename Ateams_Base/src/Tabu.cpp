@@ -40,7 +40,7 @@ Tabu::~Tabu()
 }
 
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
-vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic)
+vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener)
 {
 	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator select;
 	Problema* solBT;
@@ -49,7 +49,7 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 
 	numExec++;
 
-	pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&mutex_pop);
 
 	// Escolhe a melhor solucao para ser usada pelo BT
 	if(polEscolha == 0 || xRand(rand(), 0, 101) < elitismo)
@@ -57,9 +57,9 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 		select = sol->begin();
 		solBT = Problema::copySoluction(**select);
 
-		pthread_mutex_unlock(&mutex);
+		pthread_mutex_unlock(&mutex_pop);
 
-		return exec(solBT);
+		return exec(solBT, listener);
 	}
 
 	// Escolhe alguem dentre os 'polEscolha' primeiras solucoes
@@ -80,13 +80,13 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 
 	solBT = Problema::copySoluction(**select);
 
-	pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&mutex_pop);
 
-	return exec(solBT);
+	return exec(solBT, listener);
 }
 
 /* Executa uma busca por solucoes a partir de 'init' por 'iterTabu' vezes */
-vector<Problema*>* Tabu::exec(Problema* init)
+vector<Problema*>* Tabu::exec(Problema* init, Heuristica_Listener* listener)
 {
 	vector<pair<Problema*, InfoTabu*>* >* vizinhanca;
 	pair<Problema*, InfoTabu*>* local;
@@ -100,11 +100,26 @@ vector<Problema*>* Tabu::exec(Problema* init)
 
 	maxGlobal->push_back(Problema::copySoluction(*maxLocal));
 
+	if(listener != NULL)
+		listener->bestInitialFitness = (*maxGlobal->rbegin())->getFitness();
+
 	// Loop principal
 	for(int i = 0, j = 0; i < iterTabu && j < tentSemMelhora; i++, j++)
 	{
 		if(PARAR == true)
 			break;
+
+		if(listener != NULL)
+		{
+			listener->status = (100.00 * (double)(i+1)) / (double)iterTabu;
+
+			listener->bestActualFitness = (*maxGlobal->rbegin())->getFitness();
+
+			char* ss = new char[32];
+			sprintf(ss, "Iteração: %d", i+1);
+
+			listener->setInfo(ss);
+		}
 
 		if(polExploracao >= 1)
 		{

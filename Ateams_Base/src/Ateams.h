@@ -13,6 +13,7 @@
 #include <functional>
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include <vector>
 #include <bitset>
