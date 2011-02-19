@@ -1,5 +1,6 @@
 CC = g++
 CFLAGS = -lpthread -Wall -pedantic -O3 -march=native
+LDFLAGS = -lglut -lGL -lGLU
 
 PATH_PROJ = ./
 PATH_BIN = ./bin/
@@ -16,16 +17,16 @@ RM = rm -rf
 all:		$(PATH_BIN) $(OBJS)
 
 debug:
-		@$(CC) $(SRCS) -g3 -O0 -lpthread -o $(BIN)
-		@echo "$(CC) $(PATH_SRC)*.cpp -lpthread -g3 -O0 -o $(BIN)"
+		@$(CC) $(SRCS) -g3 -O0 -lpthread $(LDFLAGS) -o $(BIN)
+		@echo "$(CC) $(PATH_SRC)*.cpp -lpthread $(LDFLAGS) -g3 -O0 -o $(BIN)"
 
 $(PATH_BIN):
 		@mkdir $(PATH_BIN)
 
 
 $(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.h
-		@$(CC) $(CFLAGS) -c $< -o $@
-		@echo "$(CC) $(CFLAGS) -c $< -o $@"
+		@$(CC) $(CFLAGS) $(LDFLAGS) -c $< -o $@
+		@echo "$(CC) $(CFLAGS) $(LDFLAGS) -c $< -o $@"
 
 clean:
 		@$(RM) $(OBJS) $(PATH_BIN)

@@ -150,10 +150,18 @@ int main(int argc, char *argv[])
 
 	/* Adiciona as heuristicas selecionadas */
 	Controle* ctr = NULL;
+
+	Controle::argc = &argc;
+	Controle::argv = argv;
+
 	if(findPosArgv(argv, argc, (char*)"-g") == -1)
+	{
 		ctr = new Controle(pATEAMS, false);
+	}
 	else
+	{
 		ctr = new Controle(pATEAMS, true);
+	}
 
 	for(int i = 0; i < (int)pHEURISTICAS->size(); i++)
 	{

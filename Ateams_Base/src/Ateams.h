@@ -1,5 +1,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <GL/glut.h>            /* GLUT library */
+#include <GL/gl.h>              /* OpenGL library */
+#include <GL/glu.h>             /* GLu Library */
+#include <stdarg.h>
 #include <signal.h>
 #include <limits.h>
 #include <stdlib.h>

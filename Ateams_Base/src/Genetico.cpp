@@ -123,7 +123,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop, Heuristica_Listener* l
 			listener->bestActualFitness = (*pop->rbegin())->getFitness();
 
 			char* ss = new char[32];
-			sprintf(ss, "Geração: %d", i+1);
+			sprintf(ss, "Geracao: %d", i+1);
 
 			listener->setInfo(ss);
 		}

@@ -289,6 +289,17 @@ Problema* Controle::start(list<Problema*>* popInicial)
 	long int ins = 0;
 	execThreads = 0;
 
+	if(listener)
+	{
+		pthread_t threadAnimation;
+
+		pthread_attr_t attr;
+		pthread_attr_init(&attr);
+		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+		pthread_create(&threadAnimation, &attr, pthrAnimation, NULL);
+	}
+
 	if(pthread_create(&threadTime, &attr, pthrTime, (void*)this) != 0)
 	{
 		cout << endl << endl << "Erro na criação da Thread! (pthrTime)" << endl << endl;
@@ -386,8 +397,6 @@ inline int Controle::exec(int randomic, int idThread)
 
 		list<Heuristica_Listener*>::iterator exec = find(actAlgs->begin(), actAlgs->end(), listener);
 
-		printf("INFO: %s | STATUS: %f\n", (*exec)->getInfo().c_str(), (*exec)->status);
-
 		actAlgs->erase(exec);
 		delete *exec;
 
@@ -446,6 +455,26 @@ void* Controle::pthrTime(void *obj)
 
 		sleep(1);
 	}
+
+	return NULL;			//	pthread_exit(NULL);
+}
+
+void* Controle::pthrAnimation(void* in)
+{
+	/* Cria a tela */
+	glutInit(Controle::argc, Controle::argv);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitWindowSize(1000, 500);
+	glutInitWindowPosition(0, 0);
+	glutCreateWindow(Controle::argv[0]);
+
+	/* Define as funcoes de desenho */
+	glutDisplayFunc(Controle::display);
+	glutIdleFunc(Controle::display);
+	glutReshapeFunc(Controle::reshape);
+
+	/* Loop principal do programa */
+	glutMainLoop();
 
 	return NULL;			//	pthread_exit(NULL);
 }
@@ -565,10 +594,82 @@ inline void Controle::geraPop(list<Problema*>* popInicial)
 	return;
 }
 
+
+void Controle::display()
+{
+	/* Limpa buffer */
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	/* Define a posicao da camera */
+	gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
+	/* Reinicia o sistema de coordenadas */
+	glLoadIdentity();
+
+	/* Restaura a posicao da camera */
+	gluLookAt (0, 0, 5, 0, 0, 0, 0, 1, 0);
+
+	/* Desenha as informacoes na tela */
+	float posY = 0;
+	for(list<Heuristica_Listener*>::iterator iter = actAlgs->begin(); iter != actAlgs->end(); iter++)
+	{
+		char header[] = "%s -> STATUS: %.2f %\n";
+		glColor3f(1.0f, 0.0f, 0.0f);
+		Controle::drawstr(-4, posY+1.8, GLUT_BITMAP_TIMES_ROMAN_24, header, (*iter)->info.c_str(), (*iter)->status);
+
+		char info[] = "Melhor solucao inicial: %.0f       Melhor solucao atual: %.0f\n\n";
+		glColor3f(0.0f, 1.0f, 0.0f);
+		Controle::drawstr(-4, posY+1.6, GLUT_BITMAP_TIMES_ROMAN_10, info, (*iter)->bestInitialFitness, (*iter)->bestActualFitness);
+
+		glColor3f(0.0f, 0.0f, 1.0f);
+		Controle::drawstr(-4, posY+1.4, GLUT_BITMAP_TIMES_ROMAN_10, const_cast<char*>((*iter)->getInfo().c_str()));
+
+		posY -= 1;
+	}
+
+	glutSwapBuffers();
+
+	usleep(250000);
+}
+
+void Controle::reshape(int width, int height)
+{
+	glViewport(0, 0, width, height);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(45.0, (float)width/height, 0.025, 25.0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(0,0,5,0,0,0,0,1,0);
+}
+
+void Controle::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, char* format, ...)
+{
+	va_list args;
+	char buffer[255], *s;
+
+	va_start(args, format);
+	vsprintf(buffer, format, args);
+	va_end(args);
+
+	glRasterPos2f(x, y);
+
+	for (s = buffer; *s; s++)
+	  glutBitmapCharacter(font_style, *s);
+}
+
+
 inline bool cmpAlg(Heuristica *h1, Heuristica *h2)
 {
 	return h1->prob < h2->prob;
 }
 
+list<Heuristica_Listener*>* Controle::actAlgs = NULL;
+int Controle::actThreads = 0;
+
+int* Controle::argc = NULL;
+char** Controle::argv = NULL;
 
 int Heuristica::numHeuristic = 0;

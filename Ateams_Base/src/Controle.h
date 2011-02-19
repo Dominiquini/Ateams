@@ -18,7 +18,17 @@ private:
 	/* Funcao que cotrola o tempo de execucao */
 	static void* pthrTime(void *obj);
 
+	/* Funcao que controla a tela de informacoes */
+	static void* pthrAnimation(void* in);
+
+	static void display();                                      	//Desenha a tela
+	static void reshape(int, int);                             	 	//Redesenha a tela
+	static void drawstr(GLfloat, GLfloat, GLvoid*, char*, ...); 	//Desenha uma string na tela
+
 public:
+	static int* argc;
+	static char** argv;
+
 	// Retorna a soma de fitness de uma populacao
 	static double sumFitnessMaximize(set<Problema*, bool(*)(Problema*, Problema*)> *probs, int n);
 	static double sumFitnessMaximize(vector<Problema*> *probs, int n);
@@ -44,9 +54,9 @@ private:
 	int tamPop, iterAteams, tentAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes, tentativas sem melhora e tempo maximo de execucao
 	int critUnicidade;								// Criterio de unicidade da populacao adotado
 
-	list<Heuristica_Listener*>* actAlgs;	// Algoritmos em execucao no momento
-	int actThreads;							// Threads em execucao no momento
-	bool listener;							// Informa se as heuristicas serao acompanhadas por um listener
+	static list<Heuristica_Listener*>* actAlgs;	// Algoritmos em execucao no momento
+	static int actThreads;						// Threads em execucao no momento
+	bool listener;								// Informa se as heuristicas serao acompanhadas por um listener
 
 	time_t time1, time2;				// Medidor do tempo inicial e final
 	int iterMelhora;					// Ultima iteracao em que houve melhora
@@ -79,5 +89,6 @@ public:
 };
 
 bool cmpAlg(Heuristica *h1, Heuristica *h2);
+
 
 #endif

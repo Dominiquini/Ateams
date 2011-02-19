@@ -1,5 +1,6 @@
 CC = g++
 CFLAGS = -lpthread -Wall -pedantic -O3 -march=native
+LDFLAGS = -lglut -lGL -lGLU
 
 PATH_DADOS = ./dados/
 PATH_PARAM = ./parametros/
@@ -35,8 +36,8 @@ base:		$(SRCS_BASE) $(INCL_BASE)
 		@cd $(PATH_CORE) && $(MAKE)
 
 debug:
-		@echo "$(CC) $(PATH_CORE_SRC)*.cpp $(PATH_SRC)*.cpp -lpthread -g3 -O0 -o $(BIN)"
-		@$(CC) $(SRCS) -g3 -O0 -lpthread -o $(BIN)
+		@echo "$(CC) $(PATH_CORE_SRC)*.cpp $(PATH_SRC)*.cpp -lpthread $(LDFLAGS) -g3 -O0 -o $(BIN)"
+		@$(CC) $(SRCS) -g3 -O0 -lpthread $(LDFLAGS) -o $(BIN)
 
 compile:	$(PATH_BIN) $(EXEC)
 
@@ -48,8 +49,8 @@ $(PATH_RES):
 
 
 $(EXEC):	$(OBJS)
-		@$(CC) $(CFLAGS) $(PATH_CORE_BIN)*.o $^ -o $@
-		@echo "$(CC) $(CFLAGS) $(PATH_BIN)*.o -o $@"
+		@$(CC) $(CFLAGS) $(LDFLAGS) $(PATH_CORE_BIN)*.o $^ -o $@
+		@echo "$(CC) $(CFLAGS) $(LDFLAGS) $(PATH_BIN)*.o -o $@"
 
 $(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.h
 		@$(CC) $(CFLAGS) -c $< -o $@
