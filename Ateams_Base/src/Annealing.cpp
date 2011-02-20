@@ -119,12 +119,7 @@ vector<Problema*>* Annealing::exec(Problema* Si, Heuristica_Listener* listener)
 
 			listener->bestActualFitness = (*Sf->rbegin())->getFitness();
 
-			char* ss = new char[32];
-			sprintf(ss, "Temperatura: %f", T);
-
-			listener->setInfo(ss);
-
-			delete[] ss;
+			listener->setInfo("Temperatura: %f", T);
 		}
 
 		if(T == Tf)

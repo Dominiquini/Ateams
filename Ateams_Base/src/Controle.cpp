@@ -630,18 +630,16 @@ void Controle::display()
 
 	/* Desenha as informacoes na tela */
 	float posY = 0;
-	for(list<Heuristica_Listener*>::iterator iter = execAlgs->begin(); iter != execAlgs->end(); iter++)
+	for(list<list<Heuristica_Listener*>::iterator >::iterator iter = actAlgs->begin(); iter != actAlgs->end(); iter++)
 	{
-		char header[] = "%s -> STATUS: %.2f %\n";
 		glColor3f(1.0f, 0.0f, 0.0f);
-		Controle::drawstr(-4, posY+1.8, GLUT_BITMAP_TIMES_ROMAN_24, header, (*iter)->info.c_str(), (*iter)->status);
+		Controle::drawstr(-4, posY+1.8, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (**iter)->info.c_str(), (**iter)->status);
 
-		char info[] = "Melhor solucao inicial: %.0f       Melhor solucao atual: %.0f\n\n";
 		glColor3f(0.0f, 1.0f, 0.0f);
-		Controle::drawstr(-4, posY+1.6, GLUT_BITMAP_TIMES_ROMAN_10, info, (*iter)->bestInitialFitness, (*iter)->bestActualFitness);
+		Controle::drawstr(-4, posY+1.6, GLUT_BITMAP_TIMES_ROMAN_10, "Melhor solucao inicial: %.0f       Melhor solucao atual: %.0f\n\n", (**iter)->bestInitialFitness, (**iter)->bestActualFitness);
 
 		glColor3f(0.0f, 0.0f, 1.0f);
-		Controle::drawstr(-4, posY+1.4, GLUT_BITMAP_TIMES_ROMAN_10, const_cast<char*>((*iter)->getInfo().c_str()));
+		Controle::drawstr(-4, posY+1.4, GLUT_BITMAP_TIMES_ROMAN_10, (**iter)->getInfo());
 
 		posY -= 1;
 	}
@@ -664,10 +662,13 @@ void Controle::reshape(int width, int height)
 	gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
 }
 
-void Controle::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, char* format, ...)
+void Controle::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, const char* format, ...)
 {
+	if(format == NULL)
+		return;
+
 	va_list args;
-	char buffer[255], *s;
+	char buffer[512], *s;
 
 	va_start(args, format);
 	vsprintf(buffer, format, args);

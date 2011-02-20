@@ -34,7 +34,7 @@ public:
 
 	double bestInitialFitness, bestActualFitness;
 	Heuristica* heuristica;
-	string execInfo;
+	char* execInfo;
 	double status;
 	string info;
 	int id;
@@ -46,6 +46,7 @@ public:
 		char infoThread[16];
 		sprintf(infoThread, "%s(%.3d)", alg->name.c_str(), threadId);
 
+		this->execInfo = new char[512];
 		this->info = infoThread;
 
 		this->id = threadId;
@@ -53,20 +54,29 @@ public:
 		this->status = -1;
 	}
 
-	inline void setInfo(char* info)
+	~Heuristica_Listener()
+	{
+		if(execInfo != NULL)
+			delete[] execInfo;
+	}
+
+	inline void setInfo(const char* format, ...)
 	{
 		pthread_mutex_lock(&mutex_exec);
 
-		this->execInfo = string(info);
+		va_list args;
+		va_start(args, format);
+		vsprintf(this->execInfo, format, args);
+		va_end(args);
 
 		pthread_mutex_unlock(&mutex_exec);
 	}
 
-	inline string getInfo()
+	inline const char* getInfo()
 	{
 		pthread_mutex_lock(&mutex_exec);
 
-		string info = this->execInfo;
+		char* info = this->execInfo;
 
 		pthread_mutex_unlock(&mutex_exec);
 

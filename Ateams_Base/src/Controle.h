@@ -21,9 +21,9 @@ private:
 	/* Funcao que controla a tela de informacoes */
 	static void* pthrAnimation(void* in);
 
-	static void display();                                      	//Desenha a tela
-	static void reshape(int, int);                             	 	//Redesenha a tela
-	static void drawstr(GLfloat, GLfloat, GLvoid*, char*, ...); 	//Desenha uma string na tela
+	static void display();                                      		//Desenha a tela
+	static void reshape(int, int);                             	 		//Redesenha a tela
+	static void drawstr(GLfloat, GLfloat, GLvoid*, const char*, ...); 	//Desenha uma string na tela
 
 	static int window;
 
