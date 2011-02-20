@@ -49,6 +49,8 @@ public:
 		this->info = infoThread;
 
 		this->id = threadId;
+
+		this->status = -1;
 	}
 
 	inline void setInfo(char* info)

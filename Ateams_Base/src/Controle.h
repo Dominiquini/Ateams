@@ -56,9 +56,10 @@ private:
 	int tamPop, iterAteams, tentAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes, tentativas sem melhora e tempo maximo de execucao
 	int critUnicidade;								// Criterio de unicidade da populacao adotado
 
-	static list<Heuristica_Listener*>* actAlgs;	// Algoritmos em execucao no momento
-	static int actThreads;						// Threads em execucao no momento
-	bool listener;								// Informa se as heuristicas serao acompanhadas por um listener
+	static list<Heuristica_Listener*>* execAlgs;					// Algoritmos executados ate o momento
+	static list<list<Heuristica_Listener*>::iterator >* actAlgs;	// Algoritmos em execucao no momento
+	static int actThreads;											// Threads em execucao no momento
+	bool listener;													// Informa se as heuristicas serao acompanhadas por um listener
 
 	time_t time1, time2;				// Medidor do tempo inicial e final
 	int iterMelhora;					// Ultima iteracao em que houve melhora

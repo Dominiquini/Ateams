@@ -26,7 +26,8 @@ Controle::Controle()
 
 	algs = new vector<Heuristica*>;
 
-	actAlgs = new list<Heuristica_Listener*>;
+	execAlgs = new list<Heuristica_Listener*>;
+	actAlgs = new list<list<Heuristica_Listener*>::iterator >;
 	this->listener = false;
 	actThreads = 0;
 
@@ -55,7 +56,8 @@ Controle::Controle(ParametrosATEAMS* pATEAMS, bool listener)
 
 	algs = new vector<Heuristica*>;
 
-	actAlgs = new list<Heuristica_Listener*>;
+	execAlgs = new list<Heuristica_Listener*>;
+	actAlgs = new list<list<Heuristica_Listener*>::iterator >;
 	this->listener = listener;
 	actThreads = 0;
 
@@ -85,6 +87,12 @@ Controle::~Controle()
 
 	algs->clear();
 	delete algs;
+
+	for(list<Heuristica_Listener*>::iterator it = execAlgs->begin(); it != execAlgs->end(); it++)
+		delete *it;
+
+	execAlgs->clear();
+	delete execAlgs;
 
 	actAlgs->clear();
 	delete actAlgs;
@@ -337,7 +345,8 @@ Problema* Controle::start(list<Problema*>* popInicial)
 
 	time(&time2);
 
-	glutDestroyWindow(window);
+	if(listener)
+		glutDestroyWindow(window);
 
 	return Problema::copySoluction(**(pop->begin()));
 }
@@ -346,12 +355,14 @@ inline int Controle::exec(int randomic, int idThread)
 {
 	srand(randomic);
 
+	list<Heuristica_Listener*>::iterator listener_iterator;
 	vector<Problema*> *newSoluctions = NULL;
 	Heuristica_Listener* listener = NULL;
 	Heuristica* alg = NULL;
 	pair<int, int>* insert;
 	string execNames;
 	int contrib = 0;
+
 
 	pthread_mutex_lock(&mutex_info);
 	{
@@ -360,11 +371,12 @@ inline int Controle::exec(int randomic, int idThread)
 
 		actThreads++;
 
-		actAlgs->push_back(listener);
+		listener_iterator = execAlgs->insert(execAlgs->begin(), listener);
+		actAlgs->push_back(listener_iterator);
 
 		execNames = "";
-		for(list<Heuristica_Listener*>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
-			execNames = execNames + (*it)->info + " ";
+		for(list<list<Heuristica_Listener*>::iterator >::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
+			execNames = execNames + (**it)->info + " ";
 
 		printf(">>> ALG: %s | ..................................................... | FILA: (%d : %s)\n", listener->info.c_str(), actThreads, execNames.c_str());
 	}
@@ -398,17 +410,15 @@ inline int Controle::exec(int randomic, int idThread)
 	{
 		actThreads--;
 
-		list<Heuristica_Listener*>::iterator exec = find(actAlgs->begin(), actAlgs->end(), listener);
+		list<list<Heuristica_Listener*>::iterator >::iterator exec = find(actAlgs->begin(), actAlgs->end(), listener_iterator);
 
 		actAlgs->erase(exec);
 
 		printf("<<< ALG: %s | ITER: %.3d | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d", listener->info.c_str(), execThreads, (int)Problema::best, (int)Problema::worst, insert->first, insert->second);
 
-		delete listener;
-
 		execNames = "";
-		for(list<Heuristica_Listener*>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
-			execNames = execNames + (*it)->info + " ";
+		for(list<list<Heuristica_Listener*>::iterator >::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
+			execNames = execNames + (**it)->info + " ";
 
 		printf(" | FILA: (%d : %s)\n", actThreads, execNames.c_str());
 	}
@@ -620,7 +630,7 @@ void Controle::display()
 
 	/* Desenha as informacoes na tela */
 	float posY = 0;
-	for(list<Heuristica_Listener*>::iterator iter = actAlgs->begin(); iter != actAlgs->end(); iter++)
+	for(list<Heuristica_Listener*>::iterator iter = execAlgs->begin(); iter != execAlgs->end(); iter++)
 	{
 		char header[] = "%s -> STATUS: %.2f %\n";
 		glColor3f(1.0f, 0.0f, 0.0f);
@@ -651,7 +661,7 @@ void Controle::reshape(int width, int height)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(0,0,5,0,0,0,0,1,0);
+	gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
 }
 
 void Controle::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, char* format, ...)
@@ -675,12 +685,14 @@ inline bool cmpAlg(Heuristica *h1, Heuristica *h2)
 	return h1->prob < h2->prob;
 }
 
-list<Heuristica_Listener*>* Controle::actAlgs = NULL;
+list<Heuristica_Listener*>* Controle::execAlgs = NULL;
+list<list<Heuristica_Listener*>::iterator >* Controle::actAlgs = NULL;
 int Controle::actThreads = 0;
 
 int* Controle::argc = NULL;
 char** Controle::argv = NULL;
 
 int Controle::window = 0;
+
 
 int Heuristica::numHeuristic = 0;
