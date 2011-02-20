@@ -101,7 +101,7 @@ vector<Problema*>* Tabu::exec(Problema* init, Heuristica_Listener* listener)
 	maxGlobal->push_back(Problema::copySoluction(*maxLocal));
 
 	if(listener != NULL)
-		listener->bestInitialFitness = (*maxGlobal->rbegin())->getFitness();
+		listener->bestInitialFitness = (*maxGlobal->begin())->getFitness();
 
 	// Loop principal
 	for(int i = 0, j = 0; i < iterTabu && j < tentSemMelhora; i++, j++)
@@ -119,6 +119,8 @@ vector<Problema*>* Tabu::exec(Problema* init, Heuristica_Listener* listener)
 			sprintf(ss, "Iteracao: %d", i+1);
 
 			listener->setInfo(ss);
+
+			delete[] ss;
 		}
 
 		if(polExploracao >= 1)

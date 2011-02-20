@@ -337,6 +337,8 @@ Problema* Controle::start(list<Problema*>* popInicial)
 
 	time(&time2);
 
+	glutDestroyWindow(window);
+
 	return Problema::copySoluction(**(pop->begin()));
 }
 
@@ -344,17 +346,18 @@ inline int Controle::exec(int randomic, int idThread)
 {
 	srand(randomic);
 
-	Heuristica* alg = selectRouletteWheel(algs, Heuristica::numHeuristic, rand());
 	vector<Problema*> *newSoluctions = NULL;
+	Heuristica_Listener* listener = NULL;
+	Heuristica* alg = NULL;
 	pair<int, int>* insert;
-	int contrib = 0;
-
-	Heuristica_Listener* listener = new Heuristica_Listener(alg, idThread);
-
 	string execNames;
+	int contrib = 0;
 
 	pthread_mutex_lock(&mutex_info);
 	{
+		alg = selectRouletteWheel(algs, Heuristica::numHeuristic, rand());
+		listener = new Heuristica_Listener(alg, idThread);
+
 		actThreads++;
 
 		actAlgs->push_back(listener);
@@ -398,9 +401,10 @@ inline int Controle::exec(int randomic, int idThread)
 		list<Heuristica_Listener*>::iterator exec = find(actAlgs->begin(), actAlgs->end(), listener);
 
 		actAlgs->erase(exec);
-		delete *exec;
 
 		printf("<<< ALG: %s | ITER: %.3d | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d", listener->info.c_str(), execThreads, (int)Problema::best, (int)Problema::worst, insert->first, insert->second);
+
+		delete listener;
 
 		execNames = "";
 		for(list<Heuristica_Listener*>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
@@ -466,12 +470,17 @@ void* Controle::pthrAnimation(void* in)
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(1000, 500);
 	glutInitWindowPosition(0, 0);
-	glutCreateWindow(Controle::argv[0]);
+	window = glutCreateWindow(Controle::argv[0]);
 
 	/* Define as funcoes de desenho */
 	glutDisplayFunc(Controle::display);
 	glutIdleFunc(Controle::display);
 	glutReshapeFunc(Controle::reshape);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glEnable(GL_LINE_SMOOTH);
+	glLineWidth(2.0);
 
 	/* Loop principal do programa */
 	glutMainLoop();
@@ -671,5 +680,7 @@ int Controle::actThreads = 0;
 
 int* Controle::argc = NULL;
 char** Controle::argv = NULL;
+
+int Controle::window = 0;
 
 int Heuristica::numHeuristic = 0;

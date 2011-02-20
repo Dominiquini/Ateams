@@ -58,8 +58,6 @@ public:
 		this->execInfo = string(info);
 
 		pthread_mutex_unlock(&mutex_exec);
-
-		free(info);
 	}
 
 	inline string getInfo()

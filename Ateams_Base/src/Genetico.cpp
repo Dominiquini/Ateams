@@ -108,7 +108,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop, Heuristica_Listener* l
 	vector<Problema*> *bad_pop = new vector<Problema*>();
 
 	if(listener != NULL)
-		listener->bestInitialFitness = (*pop->rbegin())->getFitness();
+		listener->bestInitialFitness = (*pop->begin())->getFitness();
 
 	/* Iteracao principal do AG */
 	for(int i = 0; i < iterGenetico; i++)
@@ -120,12 +120,14 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop, Heuristica_Listener* l
 		{
 			listener->status = (100.00 * (double)(i+1)) / (double)iterGenetico;
 
-			listener->bestActualFitness = (*pop->rbegin())->getFitness();
+			listener->bestActualFitness = (*pop->begin())->getFitness();
 
 			char* ss = new char[32];
 			sprintf(ss, "Geracao: %d", i+1);
 
 			listener->setInfo(ss);
+
+			delete[] ss;
 		}
 
 		numCrossOver = (int)((float)pop->size() * probCrossOver);

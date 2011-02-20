@@ -25,6 +25,8 @@ private:
 	static void reshape(int, int);                             	 	//Redesenha a tela
 	static void drawstr(GLfloat, GLfloat, GLvoid*, char*, ...); 	//Desenha uma string na tela
 
+	static int window;
+
 public:
 	static int* argc;
 	static char** argv;

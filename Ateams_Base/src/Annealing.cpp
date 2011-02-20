@@ -105,7 +105,7 @@ vector<Problema*>* Annealing::exec(Problema* Si, Heuristica_Listener* listener)
 	Sf->push_back(Problema::copySoluction(*Si));
 
 	if(listener != NULL)
-		listener->bestInitialFitness = (*Sf->rbegin())->getFitness();
+		listener->bestInitialFitness = (*Sf->begin())->getFitness();
 
 	bool exec = true;
 	while(exec)
@@ -123,6 +123,8 @@ vector<Problema*>* Annealing::exec(Problema* Si, Heuristica_Listener* listener)
 			sprintf(ss, "Temperatura: %f", T);
 
 			listener->setInfo(ss);
+
+			delete[] ss;
 		}
 
 		if(T == Tf)
