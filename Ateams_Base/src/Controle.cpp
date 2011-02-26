@@ -478,7 +478,7 @@ void* Controle::pthrAnimation(void* in)
 	/* Cria a tela */
 	glutInit(Controle::argc, Controle::argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(1000, 500);
+	glutInitWindowSize(1250, 500);
 	glutInitWindowPosition(0, 0);
 	window = glutCreateWindow(Controle::argv[0]);
 
@@ -629,19 +629,26 @@ void Controle::display()
 	gluLookAt (0, 0, 5, 0, 0, 0, 0, 1, 0);
 
 	/* Desenha as informacoes na tela */
-	float posY = 0;
+	float linha = 1.4;
+	float coluna = -5;
 	for(list<list<Heuristica_Listener*>::iterator >::iterator iter = actAlgs->begin(); iter != actAlgs->end(); iter++)
 	{
 		glColor3f(1.0f, 0.0f, 0.0f);
-		Controle::drawstr(-4, posY+1.8, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (**iter)->info.c_str(), (**iter)->status);
+		Controle::drawstr(coluna, linha+0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (**iter)->info.c_str(), (**iter)->status);
 
 		glColor3f(0.0f, 1.0f, 0.0f);
-		Controle::drawstr(-4, posY+1.6, GLUT_BITMAP_TIMES_ROMAN_10, "Melhor solucao inicial: %.0f       Melhor solucao atual: %.0f\n\n", (**iter)->bestInitialFitness, (**iter)->bestActualFitness);
+		Controle::drawstr(coluna, linha+0.2, GLUT_BITMAP_TIMES_ROMAN_10, "Melhor solucao inicial: %.0f       Melhor solucao atual: %.0f\n\n", (**iter)->bestInitialFitness, (**iter)->bestActualFitness);
 
 		glColor3f(0.0f, 0.0f, 1.0f);
-		Controle::drawstr(-4, posY+1.4, GLUT_BITMAP_TIMES_ROMAN_10, (**iter)->getInfo());
+		Controle::drawstr(coluna, linha, GLUT_BITMAP_TIMES_ROMAN_10, (**iter)->getInfo());
 
-		posY -= 1;
+		coluna += 3.4;
+
+		if(coluna > 1.8)
+		{
+			coluna = -5;
+			linha -= 1;
+		}
 	}
 
 	glutSwapBuffers();
