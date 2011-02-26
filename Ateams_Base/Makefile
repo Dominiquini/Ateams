@@ -12,13 +12,9 @@ INCL = $(SRCS:.cpp=.h) $(PATH_SRC)Problema.h $(PATH_SRC)Heuristica.h
 
 RM = rm -rf
 
-.PHONY: all install run auto clean purge
+.PHONY: all install clean purge
 
 all:		$(PATH_BIN) $(OBJS)
-
-debug:
-		@$(CC) $(SRCS) -g3 -O0 -lpthread $(LDFLAGS) -o $(BIN)
-		@echo "$(CC) $(PATH_SRC)*.cpp -lpthread $(LDFLAGS) -g3 -O0 -o $(BIN)"
 
 $(PATH_BIN):
 		@mkdir $(PATH_BIN)
