@@ -25,10 +25,10 @@ int main(int argc, char *argv[])
 
 	srand(unsigned(time(NULL)));
 
-	char dados[32];
-	char parametros[32];
-	char resultado[32];
-	char log[32];
+	char dados[64];
+	char parametros[64];
+	char resultado[64];
+	char log[64];
 
 	FILE *fdados;
 	FILE *fparametros;

@@ -13,7 +13,7 @@ OBJS = $(subst $(PATH_SRC),$(PATH_BIN),$(subst .cpp,.o,$(SRCS)))
 RM = rm -rf
 
 
-.PHONY: all clean purge
+.PHONY: 	all clean purge
 
 all:		$(PATH_BIN) $(OBJS)
 

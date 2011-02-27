@@ -3,16 +3,25 @@ syntax: glob
 *.res
 *.log
 *.o
+
 Debug/*
 Release/*
 bin
 dados/jsp_gen
 dados/fsp_gen
 log*
+
 BinPacking/BinPacking
 FlowShop/FlowShop
 GraphColoring/GraphColoring
 JobShop/JobShop
 KnapSack/KnapSack
 TravellingSalesman/TravellingSalesman
+
+Ateams_BinPacking
+Ateams_FlowShop
+Ateams_GraphColoring
+Ateams_JobShop
+Ateams_KnapSack
+Ateams_TravellingSalesman
 
