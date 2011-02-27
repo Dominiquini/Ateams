@@ -40,8 +40,8 @@ base:
 		@cd $(BASE_PATH) && $(MAKE)
 
 debug:
-		@echo "$(CC) $(BASE_PATH_SRC)*.cpp $(SRCS) -lpthread $(LDFLAGS) -g3 -O0 -o $(BIN)"
-		@$(CC) $(BASE_SRCS) $(SRCS) -g3 -O0 -lpthread $(LDFLAGS) -o $(BIN)
+		@echo "$(CC) $(BASE_PATH_SRC)*.cpp $(SRCS) -lefence $(LDFLAGS) -g3 -O0 -o $(BIN)"
+		@$(CC) $(BASE_SRCS) $(SRCS) -g3 -O0 -lefence $(LDFLAGS) -o $(BIN)
 
 $(PATH_BIN):
 		@mkdir $(PATH_BIN)
