@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
 	cout << endl << endl << "Pior Solução Final: " << Problema::worst << endl;
 	cout << endl << "Melhor Solução Final: " << Problema::best << endl;
 
-	execInfo info;
+	ExecInfo info;
 	ctr->getInfo(&info);
 
 	/* Escreve solucao em arquivo no disco */

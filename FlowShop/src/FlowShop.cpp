@@ -141,7 +141,7 @@ void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
 	fclose(f);
 }
 
-void Problema::escreveResultado(char *dados, char *parametros, execInfo *info, char *resultado)
+void Problema::escreveResultado(char *dados, char *parametros, ExecInfo *info, char *resultado)
 {
 	FILE *f;
 

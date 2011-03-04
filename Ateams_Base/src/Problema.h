@@ -48,7 +48,7 @@ public:
 
 	// Imprime em um arquivo os resultados da execucao
 	static void escrevePopulacao(char*, list<Problema*>*);
-	static void escreveResultado(char*, char*, execInfo*, char*);
+	static void escreveResultado(char*, char*, ExecInfo*, char*);
 
 	// Aloca e Desaloca as estruturas do problema
 	static void alocaMemoria();
@@ -76,7 +76,7 @@ public:
 	}
 
 
-	executado exec;							// Algoritmos executados na solucao
+	Executado exec;							// Algoritmos executados na solucao
 
 	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
 	Problema() {pthread_mutex_lock(&mutex_cont); numInst++; totalNumInst++; pthread_mutex_unlock(&mutex_cont);}	// numInst++

@@ -85,7 +85,7 @@ public:
 
 	list<Problema*>* getPop();		// Retorna a populacao da memoria principal
 	Problema* getSol(int n);		// Retorna a melhor solucao da memoria principal
-	void getInfo(execInfo *info);	// Retorna algumas informacoes da ultima execucao
+	void getInfo(ExecInfo *info);	// Retorna algumas informacoes da ultima execucao
 
 	/* Comeca a execucao do Ateams utilizando os algoritmos disponiveis */
 	Problema* start(list<Problema*>* popInicial);

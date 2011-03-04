@@ -37,7 +37,7 @@ install:	all
 		@ln -fs $(EXEC) $(PATH_PROJ)$(BIN)
 
 base:
-		@cd $(BASE_PATH) && $(MAKE)
+		@cd $(BASE_PATH) && $(MAKE) -s
 
 debug:
 		@echo "$(CC) $(BASE_PATH_SRC)*.cpp $(SRCS) -lefence $(LDFLAGS) -g3 -O0 -o $(BIN)"
@@ -66,5 +66,5 @@ clean:
 
 purge:		clean
 		@$(RM) $(PATH_RES) $(PATH_BIN)
-		@cd $(BASE_PATH) && $(MAKE) $@
+		@cd $(BASE_PATH) && $(MAKE) $@ -s
 		@echo "$(RM) $(PATH_RES)*.res $(PATH_BIN)"

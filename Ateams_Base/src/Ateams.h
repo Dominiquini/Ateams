@@ -32,21 +32,21 @@ using namespace std;
 
 typedef enum ProblemType {MINIMIZACAO, MAXIMIZACAO} ProblemType;
 
-typedef struct executado
+struct Executado
 {
 	bool tabu;
 	bool genetico;
 	bool annealing;
-} executado;
+};
 
-typedef struct execInfo
+struct ExecInfo
 {
 	double diffTime;
 	int numExecs;
 	long int expSol;
 	double worstFitness;
 	double bestFitness;
-} execInfo;
+};
 
 struct ParametrosATEAMS {
 	int tamPopAteams;

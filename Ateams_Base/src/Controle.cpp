@@ -252,7 +252,7 @@ Problema* Controle::getSol(int n)
 	return Problema::copySoluction(**(--iter));
 }
 
-void Controle::getInfo(execInfo *info)
+void Controle::getInfo(ExecInfo *info)
 {
 	info->diffTime = difftime(time2, time1);
 	info->numExecs = execThreads;
