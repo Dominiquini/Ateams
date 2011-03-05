@@ -8,6 +8,7 @@ extern pthread_mutex_t mutex_cont;
 #define _PROBLEMA_
 
 class Problema;
+class InfoTabu;
 class Solucao;
 
 bool fncomp1(Problema*, Problema*);		//Se P1 for menor que P2
@@ -313,5 +314,6 @@ public:
 			pATEAMS->makespanBest = atoi(argv[p]);
 	}
 };
+
 
 #endif

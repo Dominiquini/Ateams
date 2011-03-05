@@ -5,7 +5,7 @@ using namespace std;
 pthread_mutex_t mutex_pop;	// Mutex que protege a populacao principal
 pthread_mutex_t mutex_cont;	// Mutex que protege as variaveis de criacao de novas solucoes
 pthread_mutex_t mutex_info;	// Mutex que protege a impressao das informacoes da execucao
-pthread_mutex_t mutex_exec;	// Mutex que protege a impressao as informacoes de execucao
+pthread_mutex_t mutex_exec;	// Mutex que protege as informacoes de execucao
 
 sem_t semaphore;			// Semaforo que controla o acesso dos algoritmos ao processador
 
