@@ -6,6 +6,11 @@
 using namespace std;
 
 #ifndef _JobShop_
+#define _JobShop_
+
+class JobShop;
+
+typedef boost::fast_pool_allocator<JobShop> alloc_sync;
 
 class Solucao_JobShop : public Solucao
 {
@@ -73,7 +78,17 @@ public:
 	JobShop(const Problema &prob);								// Copia de prob
 	JobShop(const Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
-	virtual ~JobShop();
+	~JobShop();
+
+	static void* operator new(size_t size)
+	{
+		return (void*)alloc_sync::allocate();
+	}
+
+	static void operator delete(void* p)
+	{
+		alloc_sync::deallocate((JobShop*)p);
+	}
 
 	void imprimir(bool esc);		// Imprime o escalonamento atual
 

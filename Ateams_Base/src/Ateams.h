@@ -1,8 +1,10 @@
+#include <boost/pool/pool_alloc.hpp>
+
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <GL/glut.h>            /* GLUT library */
-#include <GL/gl.h>              /* OpenGL library */
-#include <GL/glu.h>             /* GLu Library */
+#include <GL/glut.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <stdarg.h>
 #include <signal.h>
 #include <limits.h>

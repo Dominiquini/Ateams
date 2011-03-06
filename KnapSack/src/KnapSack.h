@@ -8,6 +8,10 @@ using namespace std;
 #ifndef _KnapSack_
 #define _KnapSack_
 
+class KnapSack;
+
+typedef boost::fast_pool_allocator<KnapSack> alloc_sync;
+
 class Solucao_KnapSack : public Solucao
 {
 private:
@@ -74,7 +78,17 @@ public:
 	KnapSack(const Problema &prob);							// Copia de prob
 	KnapSack(const Problema &prob, int pos1, int pos2);		// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
-	virtual ~KnapSack();
+	~KnapSack();
+
+	static void* operator new(size_t size)
+	{
+		return (void*)alloc_sync::allocate();
+	}
+
+	static void operator delete(void* p)
+	{
+		alloc_sync::deallocate((KnapSack*)p);
+	}
 
 	void imprimir(bool esc);		// Imprime o escalonamento atual
 

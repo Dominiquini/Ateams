@@ -311,6 +311,7 @@ JobShop::~JobShop()
 		desalocaMatriz(3, this->sol.escalon, JobShop::nmaq, JobShop::njob);
 }
 
+
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 inline bool JobShop::calcFitness(bool esc)
 {

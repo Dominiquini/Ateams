@@ -8,6 +8,10 @@ using namespace std;
 #ifndef _BinPacking_
 #define _BinPacking_
 
+class BinPacking;
+
+typedef boost::fast_pool_allocator<BinPacking> alloc_sync;
+
 class Solucao_BinPacking : public Solucao
 {
 	short int *ordemItens;		// Ordem em que os itens serao alocados nas bolsas
@@ -71,7 +75,17 @@ public:
 	BinPacking(const Problema &prob);						// Copia de prob
 	BinPacking(const Problema &prob, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
-	virtual ~BinPacking();
+	~BinPacking();
+
+	static void* operator new(size_t size)
+	{
+		return (void*)alloc_sync::allocate();
+	}
+
+	static void operator delete(void* p)
+	{
+		alloc_sync::deallocate((BinPacking*)p);
+	}
 
 	void imprimir(bool esc);		// Imprime o escalonamento atual
 
