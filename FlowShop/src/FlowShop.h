@@ -8,10 +8,6 @@ using namespace std;
 #ifndef _FlowShop_
 #define _FlowShop_
 
-class FlowShop;
-
-typedef boost::fast_pool_allocator<FlowShop> alloc_sync;
-
 class Solucao_FlowShop : public Solucao
 {
 	short int *esc;			// Solucao
@@ -76,15 +72,6 @@ public:
 
 	~FlowShop();
 
-	static void* operator new(size_t size)
-	{
-		return (void*)alloc_sync::allocate();
-	}
-
-	static void operator delete(void* p)
-	{
-		alloc_sync::deallocate((FlowShop*)p);
-	}
 
 	void imprimir(bool esc);		// Imprime o escalonamento atual
 

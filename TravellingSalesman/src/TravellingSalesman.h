@@ -8,10 +8,6 @@ using namespace std;
 #ifndef _TravellingSalesman_
 #define _TravellingSalesman_
 
-class TravellingSalesman;
-
-typedef boost::fast_pool_allocator<TravellingSalesman> alloc_sync;
-
 class Solucao_TravellingSalesman : public Solucao
 {
 	short int *ordemNodes;		// Ordem em que os itens serao alocados nas bolsas
@@ -75,15 +71,6 @@ public:
 
 	~TravellingSalesman();
 
-	static void* operator new(size_t size)
-	{
-		return (void*)alloc_sync::allocate();
-	}
-
-	static void operator delete(void* p)
-	{
-		alloc_sync::deallocate((TravellingSalesman*)p);
-	}
 
 	void imprimir(bool esc);		// Imprime o escalonamento atual
 

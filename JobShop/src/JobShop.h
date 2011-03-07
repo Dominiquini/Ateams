@@ -8,10 +8,6 @@ using namespace std;
 #ifndef _JobShop_
 #define _JobShop_
 
-class JobShop;
-
-typedef boost::fast_pool_allocator<JobShop> alloc_sync;
-
 class Solucao_JobShop : public Solucao
 {
 private:
@@ -80,15 +76,6 @@ public:
 
 	~JobShop();
 
-	static void* operator new(size_t size)
-	{
-		return (void*)alloc_sync::allocate();
-	}
-
-	static void operator delete(void* p)
-	{
-		alloc_sync::deallocate((JobShop*)p);
-	}
 
 	void imprimir(bool esc);		// Imprime o escalonamento atual
 

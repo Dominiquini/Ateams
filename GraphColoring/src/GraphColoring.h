@@ -8,10 +8,6 @@ using namespace std;
 #ifndef _GraphColoring_
 #define _GraphColoring_
 
-class GraphColoring;
-
-typedef boost::fast_pool_allocator<GraphColoring> alloc_sync;
-
 class Solucao_GraphColoring : public Solucao
 {
 	short int *ordemNodes;		// Ordem em que os nos serao coloridos
@@ -76,15 +72,6 @@ public:
 
 	~GraphColoring();
 
-	static void* operator new(size_t size)
-	{
-		return (void*)alloc_sync::allocate();
-	}
-
-	static void operator delete(void* p)
-	{
-		alloc_sync::deallocate((GraphColoring*)p);
-	}
 
 	void imprimir(bool esc);		// Imprime o escalonamento atual
 

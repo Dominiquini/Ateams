@@ -1,5 +1,3 @@
-#include <boost/pool/pool_alloc.hpp>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <GL/glut.h>
