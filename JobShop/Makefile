@@ -16,7 +16,6 @@ PATH_SRC = ./src/
 PATH_RES = ./resultados/
 
 SRCS =  $(wildcard $(PATH_SRC)*.cpp)
-INCL = $(wildcard $(PATH_SRC)*.h)
 
 OBJS = $(subst $(PATH_SRC),$(PATH_BIN),$(subst .cpp,.o,$(SRCS)))
 

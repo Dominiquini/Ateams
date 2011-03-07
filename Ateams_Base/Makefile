@@ -6,7 +6,7 @@ PATH_BIN = ./bin/
 PATH_SRC = ./src/
 
 SRCS = $(wildcard $(PATH_SRC)*.cpp)
-INCL = $(wildcard $(PATH_SRC)*.h)
+DEPS = $(PATH_SRC)Problema.h $(PATH_SRC)Heuristica.h
 
 OBJS = $(subst $(PATH_SRC),$(PATH_BIN),$(subst .cpp,.o,$(SRCS)))
 
@@ -22,7 +22,7 @@ $(PATH_BIN):
 		@mkdir $(PATH_BIN)
 
 
-$(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.h
+$(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.h $(DEPS)
 		@$(CC) $(CFLAGS) -c $< -o $@
 		@echo "$(CC) $(CFLAGS) -c $< -o $@"
 
