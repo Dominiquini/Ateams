@@ -13,7 +13,16 @@ sem_t semaphore;			// Semaforo que controla o acesso dos algoritmos ao processad
 Controle* Controle::getInstance(char* xml)
 {
 	if(instance == NULL)
+	{
 		instance = new Controle();
+	}
+	else
+	{
+		delete instance;
+		instance = NULL;
+
+		return getInstance(xml);
+	}
 
 	try
 	{
@@ -70,13 +79,13 @@ Controle* Controle::getInstance(char* xml)
 		exit(1);
 	}
 
+	XMLPlatformUtils::Terminate();
+
 	return instance;
 }
 
 void Controle::terminate()
 {
-	XMLPlatformUtils::Terminate();
-
 	delete instance;
 	instance = NULL;
 }
@@ -850,7 +859,7 @@ inline bool cmpAlg(Heuristica *h1, Heuristica *h2)
 	return h1->prob < h2->prob;
 }
 
-Controle* Controle::instance;
+Controle* Controle::instance = NULL;
 
 list<Heuristica_Listener*>* Controle::execAlgs = NULL;
 list<list<Heuristica_Listener*>::iterator >* Controle::actAlgs = NULL;

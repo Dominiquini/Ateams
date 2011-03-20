@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Controller
+   iterAteams = "10"
+   tentAteams = "10"
+   maxTempoAteams = "3600"
+   numThreads = "2"
+   tamPopAteams = "100"
+   critUnicidade = "1"
+   makespanBest = "-1">
+
+  <Heuristics>
+
+    <SimulatedAnnealing
+       name = "SA"
+       probSA = "33"
+       polEscolhaSA = "100"
+       probElitismoSA = "0.25"
+       maxIterSA = "50"
+       initTempSA = "50"
+       finalTempSA = "1"
+       restauraSolSA = "0"
+       alphaSA = "0.9">
+    </SimulatedAnnealing>
+
+    <TabuSearch
+       name = "BT"
+       probBT = "33"
+       polEscolhaBT = "100"
+       probElitismoBT = "0.1"
+       funcAspiracaoBT = "0.5"
+       iterBT = "50"
+       tentSemMelhoraBT = "25"
+       tamListaBT = "10"
+       polExplorBT = "0.5">
+    </TabuSearch>
+
+    <GeneticAlgorithm
+       name = "AG1"
+       probAG = "33"
+       polEscolhaAG = "-1"
+       iterAG = "50"
+       tamPopAG = "100"
+       tamParticaoAG = "-1"
+       probCrossOverAG = "0.8"
+       powerCrossOver = "0.25"
+       probMutacaoAG = "0.08">
+    </GeneticAlgorithm>
+
+  </Heuristics>
+
+</Controller>
