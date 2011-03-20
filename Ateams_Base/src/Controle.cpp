@@ -228,19 +228,19 @@ void Controle::commandLineParameters()
 
 Controle::Controle()
 {
-	tamPop = 500;
-	critUnicidade = 1;
-	iterAteams = 250;
-	tentAteams = 100;
-	maxTempo = 3600;
-	numThreads = 4;
-	makespanBest = -1;
+	this->tamPop = 500;
+	this->critUnicidade = 1;
+	this->iterAteams = 250;
+	this->tentAteams = 100;
+	this->maxTempo = 3600;
+	this->numThreads = 4;
+	this->makespanBest = -1;
+	this->activeListener = false;
 
 	srand(unsigned(time(NULL)));
 
 	execAlgs = new list<Heuristica_Listener*>;
 	actAlgs = new list<list<Heuristica_Listener*>::iterator >;
-	this->activeListener = false;
 	actThreads = 0;
 
 	pthread_mutex_init(&mutex_pop, NULL);
