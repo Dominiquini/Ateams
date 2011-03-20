@@ -1,4 +1,5 @@
 #include "Ateams.h"
+#include "Controle.h"
 
 using namespace std;
 
@@ -113,36 +114,6 @@ private:
 	friend bool fnequal2(Problema*, Problema*);	// Comparacao superficial
 	friend bool fncomp1(Problema*, Problema*);	// Comparacao profunda
 	friend bool fncomp2(Problema*, Problema*);	// Comparacao superficial
-
-public:
-
-	// Le parametros de entrada passados por linha de comando
-	static void leArgumentos(char **argv, int argc, ParametrosATEAMS *pATEAMS)
-	{
-		int p = -1;
-
-		if((p = findPosArgv(argv, argc, (char*)"--iterAteams")) != -1)
-			pATEAMS->iterAteams = atoi(argv[p]);
-
-		if((p = findPosArgv(argv, argc, (char*)"--numThreads")) != -1)
-			pATEAMS->numThreads = atoi(argv[p]);
-
-		if((p = findPosArgv(argv, argc, (char*)"--tentAteams")) != -1)
-			pATEAMS->tentAteams = atoi(argv[p]);
-
-		if((p = findPosArgv(argv, argc, (char*)"--maxTempoAteams")) != -1)
-			pATEAMS->maxTempoAteams = atoi(argv[p]);
-
-		if((p = findPosArgv(argv, argc, (char*)"--tamPopAteams")) != -1)
-			pATEAMS->tamPopAteams = atoi(argv[p]);
-
-		if((p = findPosArgv(argv, argc, (char*)"--critUnicidade")) != -1)
-			pATEAMS->critUnicidade = atoi(argv[p]);
-
-		if((p = findPosArgv(argv, argc, (char*)"--makespanBest")) != -1)
-			pATEAMS->makespanBest = atoi(argv[p]);
-	}
 };
-
 
 #endif

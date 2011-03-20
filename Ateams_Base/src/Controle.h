@@ -4,6 +4,9 @@
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/util/XMLString.hpp>
 
+using namespace xercesc;
+using namespace std;
+
 #ifndef _Controle_
 #define _Controle_
 
@@ -15,11 +18,7 @@
 #include "Genetico.h"
 #include "Annealing.h"
 
-using namespace xercesc;
-using namespace std;
-
 extern volatile bool PARAR;
-
 
 
 class Controle : public DefaultHandler
@@ -111,6 +110,8 @@ public:
 
 	bool setParameter(const char* parameter, const char* value);
 	void statusInfoScreen(bool status);
+
+	void commandLineParameters();
 
 	/* Comeca a execucao do Ateams utilizando os algoritmos disponiveis */
 	Problema* start(list<Problema*>* popInicial);

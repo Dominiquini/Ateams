@@ -79,6 +79,7 @@ Controle* Controle::getInstance(char* xml)
 		exit(1);
 	}
 
+	delete parser;
 	XMLPlatformUtils::Terminate();
 
 	return instance;
@@ -199,6 +200,31 @@ void Controle::statusInfoScreen(bool status)
 	this->activeListener = status;
 }
 
+void Controle::commandLineParameters()
+{
+	int p = -1;
+
+	if((p = findPosArgv(argv, *argc, (char*)"--iterAteams")) != -1)
+		setParameter("iterAteams", argv[p]);
+
+	if((p = findPosArgv(argv, *argc, (char*)"--numThreads")) != -1)
+		setParameter("numThreads", argv[p]);
+
+	if((p = findPosArgv(argv, *argc, (char*)"--tentAteams")) != -1)
+		setParameter("tentAteams", argv[p]);
+
+	if((p = findPosArgv(argv, *argc, (char*)"--maxTempoAteams")) != -1)
+		setParameter("maxTempoAteams", argv[p]);
+
+	if((p = findPosArgv(argv, *argc, (char*)"--tamPopAteams")) != -1)
+		setParameter("tamPopAteams", argv[p]);
+
+	if((p = findPosArgv(argv, *argc, (char*)"--critUnicidade")) != -1)
+		setParameter("critUnicidade", argv[p]);
+
+	if((p = findPosArgv(argv, *argc, (char*)"--makespanBest")) != -1)
+		setParameter("makespanBest", argv[p]);
+}
 
 Controle::Controle()
 {
@@ -212,9 +238,6 @@ Controle::Controle()
 
 	srand(unsigned(time(NULL)));
 
-	bool(*fn_pt)(Problema*, Problema*) = critUnicidade == 1 ? fncomp1 : fncomp2;
-	pop = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
-
 	execAlgs = new list<Heuristica_Listener*>;
 	actAlgs = new list<list<Heuristica_Listener*>::iterator >;
 	this->activeListener = false;
@@ -224,8 +247,6 @@ Controle::Controle()
 	pthread_mutex_init(&mutex_cont, NULL);
 	pthread_mutex_init(&mutex_info, NULL);
 	pthread_mutex_init(&mutex_exec, NULL);
-
-	sem_init(&semaphore, 0, numThreads);
 }
 
 Controle::~Controle()
@@ -430,6 +451,11 @@ void Controle::getInfo(ExecInfo *info)
 
 Problema* Controle::start(list<Problema*>* popInicial)
 {
+	bool(*fn_pt)(Problema*, Problema*) = critUnicidade == 1 ? fncomp1 : fncomp2;
+	pop = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
+
+	sem_init(&semaphore, 0, numThreads);
+
 	time(&time1);
 
 	pthread_t *threads = (pthread_t*)malloc(iterAteams * sizeof(pthread_t));

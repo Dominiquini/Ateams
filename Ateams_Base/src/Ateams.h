@@ -60,46 +60,11 @@ struct ParametrosATEAMS {
 
 enum Heuristicas {SA, BT, AG};
 
-struct ParametrosHeuristicas {
-	Heuristicas alg;
-	char algName[16];
-
-	int probAG;
-	int polEscolhaAG;
-	int iterAG;
-	int tamPopAG;
-	int tamParticaoAG;
-	float probCrossOverAG;
-	float powerCrossOverAG;
-	float probMutacaoAG;
-
-	int probBT;
-	int polEscolhaBT;
-	int tentSemMelhoraBT;
-	int iterBT;
-	int tamListaBT;
-	float polExplorBT;
-	float funcAspiracaoBT;
-	float probElitismoBT;
-
-	int probSA;
-	int polEscolhaSA;
-	int maxIterSA;
-	float initTempSA;
-	float finalTempSA;
-	int restauraSolSA;
-	float alphaSA;
-	float probElitismoSA;
-};
 
 void Interrompe(int signum);
 
 int xRand(int rand, int a, int b);
 
 int findPosArgv(char **in, int num, char *key);
-
-float findPar(string& in, char *key);
-
-size_t findPosPar(string& in, char *key);
 
 #endif

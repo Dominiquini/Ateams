@@ -7,9 +7,9 @@
 using namespace std;
 
 #ifdef _WIN32
-#define PARAMETROS "parametros\\DEFAULT.param"
+#define PARAMETROS "..\\Ateams_Base\\parametros\\DEFAULT.xml"
 #else
-#define PARAMETROS "parametros/DEFAULT.param"
+#define PARAMETROS "../Ateams_Base/parametros/DEFAULT.xml"
 #endif
 
 volatile bool PARAR = false;
@@ -22,19 +22,12 @@ int main(int argc, char *argv[])
 	srand(unsigned(time(NULL)));
 
 	char dados[64];
-	char parametros[64];
 	char resultado[64];
 	char log[64];
 
 	FILE *fdados;
 
 	char *fXmlParametros = NULL;
-
-	ParametrosATEAMS *pATEAMS;
-	vector<ParametrosHeuristicas> *pHEURISTICAS;
-
-	pATEAMS = (ParametrosATEAMS*)malloc(sizeof(ParametrosATEAMS));
-	pHEURISTICAS = new vector<ParametrosHeuristicas>;
 
 	int p = -1;
 
@@ -62,6 +55,11 @@ int main(int argc, char *argv[])
 	if((p = findPosArgv(argv, argc, (char*)"-p")) != -1)
 	{
 		fXmlParametros = argv[p];
+	}
+	else
+	{
+		fXmlParametros = (char*)malloc((strlen(PARAMETROS) * sizeof(char)) + 1);
+		strcpy(fXmlParametros, PARAMETROS);
 	}
 
 	if((p = findPosArgv(argv, argc, (char*)"-r")) != -1)
@@ -121,47 +119,33 @@ int main(int argc, char *argv[])
 	/* Leitura dos dados passados por arquivos */
 	Problema::leProblema(fdados);
 
-	//Problema::leParametros(fparametros, pATEAMS, pHEURISTICAS);
-
 	fclose(fdados);
 
-	/* Le parametros adicionais passados por linha de comando (Sobrepujam as lidas no arquivo de configuracao) */
-	//Problema::leArgumentos(argv, argc, pATEAMS);
-
 	cout << endl;
-
-	/* Adiciona as heuristicas selecionadas */
-	Controle* ctr = Controle::getInstance(fXmlParametros);
 
 	Controle::argc = &argc;
 	Controle::argv = argv;
 
+	/* Adiciona as heuristicas selecionadas */
+	Controle* ctrl = Controle::getInstance(fXmlParametros);
+
+	/* Le parametros adicionais passados por linha de comando (Sobrepujam as lidas no arquivo de configuracao) */
+	ctrl->commandLineParameters();
+
 	if(findPosArgv(argv, argc, (char*)"-g") == -1)
 	{
-		ctr->statusInfoScreen(false);
+		ctrl->statusInfoScreen(false);
 	}
 	else
 	{
-		ctr->statusInfoScreen(true);
+		ctrl->statusInfoScreen(true);
 	}
-
-	/*
-	for(int i = 0; i < (int)pHEURISTICAS->size(); i++)
-	{
-		if(pHEURISTICAS->at(i).alg == SA)
-			ctr->addHeuristic(new Annealing(pHEURISTICAS->at(i).algName, pHEURISTICAS->at(i)));
-		if(pHEURISTICAS->at(i).alg == AG)
-			ctr->addHeuristic(new Genetico(pHEURISTICAS->at(i).algName, pHEURISTICAS->at(i)));
-		if(pHEURISTICAS->at(i).alg == BT)
-			ctr->addHeuristic(new Tabu(pHEURISTICAS->at(i).algName, pHEURISTICAS->at(i)));
-	}
-	*/
 
 	/* Le memoria prinipal do disco, se especificado */
 	list<Problema*>* popInicial = *log == '\0' ? NULL : Problema::lePopulacao(log);
 
 	/* Inicia a execucao */
-	Problema* best = ctr->start(popInicial);
+	Problema* best = ctrl->start(popInicial);
 
 	if(popInicial != NULL)
 	{
@@ -169,7 +153,7 @@ int main(int argc, char *argv[])
 		delete popInicial;
 	}
 
-	list<Problema*>* pop = ctr->getPop();
+	list<Problema*>* pop = ctrl->getPop();
 	list<Problema*>::const_iterator iter1, iter2;
 
 	/* Testa a memoria principal por solucoes repetidas ou fora de ordem */
@@ -188,10 +172,10 @@ int main(int argc, char *argv[])
 	cout << endl << "Melhor Solução Final: " << Problema::best << endl;
 
 	ExecInfo info;
-	ctr->getInfo(&info);
+	ctrl->getInfo(&info);
 
 	/* Escreve solucao em arquivo no disco */
-	Problema::escreveResultado(dados, parametros, &info, resultado);
+	Problema::escreveResultado(dados, fXmlParametros, &info, resultado);
 
 	cout << endl << endl << "Solução:" << endl << endl;
 
@@ -205,9 +189,6 @@ int main(int argc, char *argv[])
 	Controle::terminate();
 
 	Problema::desalocaMemoria();
-
-	free(pATEAMS);
-	delete pHEURISTICAS;
 
 	cout << endl << endl << "Soluções Exploradas: " << Problema::totalNumInst << endl << endl;
 
@@ -237,29 +218,6 @@ int findPosArgv(char **in, int num, char *key)
 		if(!strcmp(in[i], key))
 			return i+1;
 	}
+
 	return -1;
-}
-
-float findPar(string& in, char *key)
-{
-	size_t pos = findPosPar(in, key);
-	char str[16] = "###############";
-	float ret = -1;
-
-	if((int)pos != -1)
-	{
-		in.copy(str, 15, pos);
-		sscanf(str, "%f", &ret);
-	}
-	return ret;
-}
-
-size_t findPosPar(string& in, char *key)
-{
-	size_t pos = in.find(key);
-
-	if(pos != string::npos)
-		return in.find("=", pos) + 1;
-	else
-		return (size_t)-1;
 }
