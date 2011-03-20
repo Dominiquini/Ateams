@@ -1,20 +1,20 @@
-#include "../../Ateams_Base/src/Problema.h"
+#include "../../Ateams_Base/src/Problema.hpp"
 
 #define INV_FITNESS 1000000
 #define MAX_PERMUTACOES 10000
 
 using namespace std;
 
-#ifndef _BinPacking_
-#define _BinPacking_
+#ifndef _FlowShop_
+#define _FlowShop_
 
-class Solucao_BinPacking : public Solucao
+class Solucao_FlowShop : public Solucao
 {
-	short int *ordemItens;		// Ordem em que os itens serao alocados nas bolsas
-	short int *bins;			// Itens para cada uma das bolsas
+	short int *esc;			// Solucao
+	short int ***escalon;	// Escalonamento nas maquinas - Grafico de Gant
 
 	friend class Problema;
-	friend class BinPacking;
+	friend class FlowShop;
 
 	friend bool fnequal1(Problema*, Problema*);	// Comparacao profunda
 	friend bool fnequal2(Problema*, Problema*);	// Comparacao superficial
@@ -22,14 +22,14 @@ class Solucao_BinPacking : public Solucao
 	friend bool fncomp2(Problema*, Problema*);	// Comparacao superficial
 };
 
-class InfoTabu_BinPacking : public InfoTabu
+class InfoTabu_FlowShop : public InfoTabu
 {
 private:
 
 	short int A, B;
 
 public:
-	InfoTabu_BinPacking(int xA, int xB)
+	InfoTabu_FlowShop(int xA, int xB)
 	{
 		A = xA;
 		B = xB;
@@ -38,7 +38,7 @@ public:
 	// Verifica se 't1' eh igual a 't2'
 	bool operator == (InfoTabu& movTabu)
 	{
-		InfoTabu_BinPacking* t = dynamic_cast<InfoTabu_BinPacking *>(&movTabu);
+		InfoTabu_FlowShop* t = dynamic_cast<InfoTabu_FlowShop *>(&movTabu);
 
 		if((A == t->A && B == t->B) || (A == t->B && B == t->A))
 			return true;
@@ -47,31 +47,30 @@ public:
 	}
 };
 
-class BinPacking : public Problema
+class FlowShop : public Problema
 {
 private:
 
 	bool calcFitness(bool esc);		// Calcula o makespan
 
-	Solucao_BinPacking sol;			// Representacao interna da solucao
+	Solucao_FlowShop sol;			// Representacao interna da solucao
 
 public:
 
 	static char name[128];			// Nome do problema
 
-	static double *sizes, capacity;	// Tamanho dos ítens e capacidade de cada uma das bolsas
-	static int nitens;				// Quantidade de jobs e de maquinas
+	static int **time;				// Matriz de maquinas e de tempos
+	static int njob, nmaq;			// Quantidade de jobs e de maquinas
 
 	static int num_vizinhos;		// Numero de permutacoes possiveis
 
 
-	BinPacking();											// Nova solucao aleatoria
-	BinPacking(short int *prob);							// Copia de prob
-	BinPacking(short int *prob, short int *bins);			// Copia de prob
-	BinPacking(const Problema &prob);						// Copia de prob
-	BinPacking(const Problema &prob, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
+	FlowShop();											// Nova solucao aleatoria
+	FlowShop(short int *prob);							// Copia de prob
+	FlowShop(const Problema &prob);						// Copia de prob
+	FlowShop(const Problema &prob, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
-	~BinPacking();
+	~FlowShop();
 
 
 	void imprimir(bool esc);		// Imprime o escalonamento atual
@@ -95,7 +94,7 @@ public:
 	double getFitnessMaximize() const;
 	double getFitnessMinimize() const;
 
-	Solucao_BinPacking& getSoluction()
+	Solucao_FlowShop& getSoluction()
 	{
 		return sol;
 	}
@@ -107,6 +106,10 @@ public:
 };
 
 void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
+
+void* alocaMatriz(int, int, int, int);
+
+void desalocaMatriz(int, void*, int, int);
 
 bool ptcomp(pair<Problema*, InfoTabu*>*, pair<Problema*, InfoTabu*>*);
 

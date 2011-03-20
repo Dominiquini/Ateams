@@ -1,4 +1,4 @@
-#include "Genetico.h"
+#include "Genetico.hpp"
 
 using namespace std;
 

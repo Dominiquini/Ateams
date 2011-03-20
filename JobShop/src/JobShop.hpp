@@ -1,19 +1,22 @@
-#include "../../Ateams_Base/src/Problema.h"
+#include "../../Ateams_Base/src/Problema.hpp"
 
 #define INV_FITNESS 1000000
 #define MAX_PERMUTACOES 10000
 
 using namespace std;
 
-#ifndef _TravellingSalesman_
-#define _TravellingSalesman_
+#ifndef _JobShop_
+#define _JobShop_
 
-class Solucao_TravellingSalesman : public Solucao
+class Solucao_JobShop : public Solucao
 {
-	short int *ordemNodes;		// Ordem em que os itens serao alocados nas bolsas
+private:
+
+	short int **esc;		// Solucao
+	short int ***escalon;	// Escalonamento nas maquinas - Grafico de Gant
 
 	friend class Problema;
-	friend class TravellingSalesman;
+	friend class JobShop;
 
 	friend bool fnequal1(Problema*, Problema*);	// Comparacao profunda
 	friend bool fnequal2(Problema*, Problema*);	// Comparacao superficial
@@ -21,15 +24,17 @@ class Solucao_TravellingSalesman : public Solucao
 	friend bool fncomp2(Problema*, Problema*);	// Comparacao superficial
 };
 
-class InfoTabu_TravellingSalesman : public InfoTabu
+class InfoTabu_JobShop : public InfoTabu
 {
 private:
 
-	short int A, B;
+	short int maq, A, B;
 
 public:
-	InfoTabu_TravellingSalesman(int xA, int xB)
+
+	InfoTabu_JobShop(int xmaq, int xA, int xB)
 	{
+		maq = xmaq;
 		A = xA;
 		B = xB;
 	}
@@ -37,39 +42,39 @@ public:
 	// Verifica se 't1' eh igual a 't2'
 	bool operator == (InfoTabu& movTabu)
 	{
-		InfoTabu_TravellingSalesman* t = dynamic_cast<InfoTabu_TravellingSalesman *>(&movTabu);
+		InfoTabu_JobShop* t = dynamic_cast<InfoTabu_JobShop *>(&movTabu);
 
-		if((A == t->A && B == t->B) || (A == t->B && B == t->A))
+		if((maq == t->maq) && ((A == t->A && B == t->B) || (A == t->B && B == t->A)))
 			return true;
 		else
 			return false;
 	}
 };
 
-class TravellingSalesman : public Problema
+class JobShop : public Problema
 {
 private:
 
 	bool calcFitness(bool esc);		// Calcula o makespan
 
-	Solucao_TravellingSalesman sol;			// Representacao interna da solucao
+	Solucao_JobShop sol;			// Representacao interna da solucao
 
 public:
 
 	static char name[128];			// Nome do problema
 
-	static double **edges;			// Peso das arestas que ligam os nos
-	static int nnodes;				// Quantidade de nos
+	static int **maq, **time;		// Matriz de maquinas e de tempos
+	static int njob, nmaq;			// Quantidade de jobs e de maquinas
 
 	static int num_vizinhos;		// Numero de permutacoes possiveis
 
 
-	TravellingSalesman();											// Nova solucao aleatoria
-	TravellingSalesman(short int *prob);							// Copia de prob
-	TravellingSalesman(const Problema &prob);						// Copia de prob
-	TravellingSalesman(const Problema &prob, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
+	JobShop();													// Nova solucao aleatoria
+	JobShop(short int **prob);									// Copia de prob
+	JobShop(const Problema &prob);								// Copia de prob
+	JobShop(const Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
-	~TravellingSalesman();
+	~JobShop();
 
 
 	void imprimir(bool esc);		// Imprime o escalonamento atual
@@ -78,7 +83,7 @@ public:
 	Problema* vizinho();
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
-	vector<pair<Problema*, InfoTabu*>* >* buscaLocal();			// Todos os vizinhos
+	vector<pair<Problema*, InfoTabu*>* >* buscaLocal();		// Todos os vizinhos
 	vector<pair<Problema*, InfoTabu*>* >* buscaLocal(float);	// Uma parcela aleatoria
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
@@ -93,7 +98,7 @@ public:
 	double getFitnessMaximize() const;
 	double getFitnessMinimize() const;
 
-	Solucao_TravellingSalesman& getSoluction()
+	Solucao_JobShop& getSoluction()
 	{
 		return sol;
 	}
@@ -105,6 +110,12 @@ public:
 };
 
 void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
+
+int findOrdem(int M, int maq, int* job);
+
+void* alocaMatriz(int, int, int, int);
+
+void desalocaMatriz(int, void*, int, int);
 
 bool ptcomp(pair<Problema*, InfoTabu*>*, pair<Problema*, InfoTabu*>*);
 

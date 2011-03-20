@@ -1,8 +1,8 @@
-#include "Ateams.h"
+#include "Ateams.hpp"
 
-#include "Problema.h"
+#include "Problema.hpp"
 
-#include "Controle.h"
+#include "Controle.hpp"
 
 using namespace std;
 

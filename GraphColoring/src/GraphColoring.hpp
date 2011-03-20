@@ -1,22 +1,20 @@
-#include "../../Ateams_Base/src/Problema.h"
+#include "../../Ateams_Base/src/Problema.hpp"
 
 #define INV_FITNESS 1000000
 #define MAX_PERMUTACOES 10000
 
 using namespace std;
 
-#ifndef _JobShop_
-#define _JobShop_
+#ifndef _GraphColoring_
+#define _GraphColoring_
 
-class Solucao_JobShop : public Solucao
+class Solucao_GraphColoring : public Solucao
 {
-private:
-
-	short int **esc;		// Solucao
-	short int ***escalon;	// Escalonamento nas maquinas - Grafico de Gant
+	short int *ordemNodes;		// Ordem em que os nos serao coloridos
+	short int *colors;			// Cores de cada um dos nos
 
 	friend class Problema;
-	friend class JobShop;
+	friend class GraphColoring;
 
 	friend bool fnequal1(Problema*, Problema*);	// Comparacao profunda
 	friend bool fnequal2(Problema*, Problema*);	// Comparacao superficial
@@ -24,17 +22,15 @@ private:
 	friend bool fncomp2(Problema*, Problema*);	// Comparacao superficial
 };
 
-class InfoTabu_JobShop : public InfoTabu
+class InfoTabu_GraphColoring : public InfoTabu
 {
 private:
 
-	short int maq, A, B;
+	short int A, B;
 
 public:
-
-	InfoTabu_JobShop(int xmaq, int xA, int xB)
+	InfoTabu_GraphColoring(int xA, int xB)
 	{
-		maq = xmaq;
 		A = xA;
 		B = xB;
 	}
@@ -42,39 +38,39 @@ public:
 	// Verifica se 't1' eh igual a 't2'
 	bool operator == (InfoTabu& movTabu)
 	{
-		InfoTabu_JobShop* t = dynamic_cast<InfoTabu_JobShop *>(&movTabu);
+		InfoTabu_GraphColoring* t = dynamic_cast<InfoTabu_GraphColoring *>(&movTabu);
 
-		if((maq == t->maq) && ((A == t->A && B == t->B) || (A == t->B && B == t->A)))
+		if((A == t->A && B == t->B) || (A == t->B && B == t->A))
 			return true;
 		else
 			return false;
 	}
 };
 
-class JobShop : public Problema
+class GraphColoring : public Problema
 {
 private:
 
 	bool calcFitness(bool esc);		// Calcula o makespan
 
-	Solucao_JobShop sol;			// Representacao interna da solucao
+	Solucao_GraphColoring sol;		// Representacao interna da solucao
 
 public:
 
 	static char name[128];			// Nome do problema
 
-	static int **maq, **time;		// Matriz de maquinas e de tempos
-	static int njob, nmaq;			// Quantidade de jobs e de maquinas
+	static vector<int>** edges;		// Matriz com as arestas
+	static int nedges, nnodes;		// Quantidade de arestas e de nos
 
 	static int num_vizinhos;		// Numero de permutacoes possiveis
 
 
-	JobShop();													// Nova solucao aleatoria
-	JobShop(short int **prob);									// Copia de prob
-	JobShop(const Problema &prob);								// Copia de prob
-	JobShop(const Problema &prob, int maq, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
+	GraphColoring();											// Nova solucao aleatoria
+	GraphColoring(short int *prob);								// Copia de prob
+	GraphColoring(const Problema &prob);						// Copia de prob
+	GraphColoring(const Problema &prob, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
-	~JobShop();
+	~GraphColoring();
 
 
 	void imprimir(bool esc);		// Imprime o escalonamento atual
@@ -83,7 +79,7 @@ public:
 	Problema* vizinho();
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
-	vector<pair<Problema*, InfoTabu*>* >* buscaLocal();		// Todos os vizinhos
+	vector<pair<Problema*, InfoTabu*>* >* buscaLocal();			// Todos os vizinhos
 	vector<pair<Problema*, InfoTabu*>* >* buscaLocal(float);	// Uma parcela aleatoria
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
@@ -98,7 +94,7 @@ public:
 	double getFitnessMaximize() const;
 	double getFitnessMinimize() const;
 
-	Solucao_JobShop& getSoluction()
+	Solucao_GraphColoring& getSoluction()
 	{
 		return sol;
 	}
@@ -110,12 +106,6 @@ public:
 };
 
 void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
-
-int findOrdem(int M, int maq, int* job);
-
-void* alocaMatriz(int, int, int, int);
-
-void desalocaMatriz(int, void*, int, int);
 
 bool ptcomp(pair<Problema*, InfoTabu*>*, pair<Problema*, InfoTabu*>*);
 

@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -Wall -pedantic -O3 -march=native
-LDFLAGS = -lpthread -lglut -lGL -lGLU
+LDFLAGS = -lpthread -lglut -lGL -lGLU -lxerces-c
 
 BASE_PATH = ../Ateams_Base/
 
@@ -52,7 +52,7 @@ $(EXEC):	$(OBJS) base
 		@$(CC) $(CFLAGS) $(LDFLAGS) $(BASE_PATH_BIN)*.o $< -o $@
 		@echo "$(CC) $(CFLAGS) $(LDFLAGS) $(BASE_PATH_BIN)*.o $< -o $@"
 
-$(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.h
+$(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.hpp
 		@$(CC) $(CFLAGS) -c $< -o $@
 		@echo "$(CC) $(CFLAGS) -c $< -o $@"
 

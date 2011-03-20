@@ -1,4 +1,4 @@
-#include "JobShop.h"
+#include "JobShop.hpp"
 
 using namespace std;
 

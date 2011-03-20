@@ -10,13 +10,13 @@ using namespace std;
 #ifndef _Controle_
 #define _Controle_
 
-#include "Ateams.h"
-#include "Problema.h"
-#include "Heuristica.h"
+#include "Ateams.hpp"
+#include "Problema.hpp"
+#include "Heuristica.hpp"
 
-#include "Tabu.h"
-#include "Genetico.h"
-#include "Annealing.h"
+#include "Tabu.hpp"
+#include "Genetico.hpp"
+#include "Annealing.hpp"
 
 extern volatile bool PARAR;
 

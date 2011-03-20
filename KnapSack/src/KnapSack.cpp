@@ -1,4 +1,4 @@
-#include "KnapSack.h"
+#include "KnapSack.hpp"
 
 using namespace std;
 

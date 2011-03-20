@@ -1,4 +1,4 @@
-#include "BinPacking.h"
+#include "BinPacking.hpp"
 
 using namespace std;
 

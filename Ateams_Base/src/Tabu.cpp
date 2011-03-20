@@ -1,4 +1,4 @@
-#include "Tabu.h"
+#include "Tabu.hpp"
 
 using namespace std;
 

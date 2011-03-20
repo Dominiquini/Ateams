@@ -1,20 +1,19 @@
-#include "../../Ateams_Base/src/Problema.h"
+#include "../../Ateams_Base/src/Problema.hpp"
 
 #define INV_FITNESS 1000000
 #define MAX_PERMUTACOES 10000
 
 using namespace std;
 
-#ifndef _GraphColoring_
-#define _GraphColoring_
+#ifndef _TravellingSalesman_
+#define _TravellingSalesman_
 
-class Solucao_GraphColoring : public Solucao
+class Solucao_TravellingSalesman : public Solucao
 {
-	short int *ordemNodes;		// Ordem em que os nos serao coloridos
-	short int *colors;			// Cores de cada um dos nos
+	short int *ordemNodes;		// Ordem em que os itens serao alocados nas bolsas
 
 	friend class Problema;
-	friend class GraphColoring;
+	friend class TravellingSalesman;
 
 	friend bool fnequal1(Problema*, Problema*);	// Comparacao profunda
 	friend bool fnequal2(Problema*, Problema*);	// Comparacao superficial
@@ -22,14 +21,14 @@ class Solucao_GraphColoring : public Solucao
 	friend bool fncomp2(Problema*, Problema*);	// Comparacao superficial
 };
 
-class InfoTabu_GraphColoring : public InfoTabu
+class InfoTabu_TravellingSalesman : public InfoTabu
 {
 private:
 
 	short int A, B;
 
 public:
-	InfoTabu_GraphColoring(int xA, int xB)
+	InfoTabu_TravellingSalesman(int xA, int xB)
 	{
 		A = xA;
 		B = xB;
@@ -38,7 +37,7 @@ public:
 	// Verifica se 't1' eh igual a 't2'
 	bool operator == (InfoTabu& movTabu)
 	{
-		InfoTabu_GraphColoring* t = dynamic_cast<InfoTabu_GraphColoring *>(&movTabu);
+		InfoTabu_TravellingSalesman* t = dynamic_cast<InfoTabu_TravellingSalesman *>(&movTabu);
 
 		if((A == t->A && B == t->B) || (A == t->B && B == t->A))
 			return true;
@@ -47,30 +46,30 @@ public:
 	}
 };
 
-class GraphColoring : public Problema
+class TravellingSalesman : public Problema
 {
 private:
 
 	bool calcFitness(bool esc);		// Calcula o makespan
 
-	Solucao_GraphColoring sol;		// Representacao interna da solucao
+	Solucao_TravellingSalesman sol;			// Representacao interna da solucao
 
 public:
 
 	static char name[128];			// Nome do problema
 
-	static vector<int>** edges;		// Matriz com as arestas
-	static int nedges, nnodes;		// Quantidade de arestas e de nos
+	static double **edges;			// Peso das arestas que ligam os nos
+	static int nnodes;				// Quantidade de nos
 
 	static int num_vizinhos;		// Numero de permutacoes possiveis
 
 
-	GraphColoring();											// Nova solucao aleatoria
-	GraphColoring(short int *prob);								// Copia de prob
-	GraphColoring(const Problema &prob);						// Copia de prob
-	GraphColoring(const Problema &prob, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
+	TravellingSalesman();											// Nova solucao aleatoria
+	TravellingSalesman(short int *prob);							// Copia de prob
+	TravellingSalesman(const Problema &prob);						// Copia de prob
+	TravellingSalesman(const Problema &prob, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
-	~GraphColoring();
+	~TravellingSalesman();
 
 
 	void imprimir(bool esc);		// Imprime o escalonamento atual
@@ -94,7 +93,7 @@ public:
 	double getFitnessMaximize() const;
 	double getFitnessMinimize() const;
 
-	Solucao_GraphColoring& getSoluction()
+	Solucao_TravellingSalesman& getSoluction()
 	{
 		return sol;
 	}

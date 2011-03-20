@@ -1,5 +1,5 @@
-#include "Ateams.h"
-#include "Controle.h"
+#include "Ateams.hpp"
+#include "Controle.hpp"
 
 using namespace std;
 
