@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Controller
+   iterAteams = "250"
+   tentAteams = "100"
+   maxTempoAteams = "3600"
+   numThreads = "4"
+   tamPopAteams = "500"
+   critUnicidade = "1"
+   makespanBest = "-1">
+
+  <Heuristics>
+
+    <TabuSearch
+       name = "BT1"
+       probBT = "20"
+       polEscolhaBT = "500"
+       probElitismoBT = "0.25"
+       funcAspiracaoBT = "0.5"
+       iterBT = "750"
+       tentSemMelhoraBT = "500"
+       tamListaBT = "10"
+       polExplorBT = "0.5">
+    </TabuSearch>
+
+  </Heuristics>
+
+</Controller>

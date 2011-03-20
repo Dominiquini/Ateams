@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Controller
+   iterAteams = "250"
+   tentAteams = "100"
+   maxTempoAteams = "3600"
+   numThreads = "4"
+   tamPopAteams = "500"
+   critUnicidade = "1"
+   makespanBest = "-1">
+
+  <Heuristics>
+
+    <GeneticAlgorithm
+       name = "AG1"
+       probAG = "9"
+       polEscolhaAG = "-1"
+       iterAG = "500"
+       tamPopAG = "250"
+       tamParticaoAG = "-1"
+       probCrossOverAG = "0.8"
+       powerCrossOver = "0.25"
+       probMutacaoAG = "0.08">
+    </GeneticAlgorithm>
+
+  </Heuristics>
+
+</Controller>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Controller
+   iterAteams = "250"
+   tentAteams = "100"
+   maxTempoAteams = "3600"
+   numThreads = "4"
+   tamPopAteams = "500"
+   critUnicidade = "1"
+   makespanBest = "-1">
+
+  <Heuristics>
+
+    <SimulatedAnnealing
+       name = "SA1"
+       probSA = "35"
+       polEscolhaSA = "250"
+       probElitismoSA = "0.25"
+       maxIterSA = "250"
+       initTempSA = "125"
+       finalTempSA = "0.75"
+       restauraSolSA = "0"
+       alphaSA = "0.99">
+    </SimulatedAnnealing>
+
+  </Heuristics>
+
+</Controller>
