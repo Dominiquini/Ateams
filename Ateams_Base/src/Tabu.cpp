@@ -26,39 +26,40 @@ Tabu::~Tabu()
 
 bool Tabu::setParameter(const char* parameter, const char* value)
 {
-	if(strcasecmp(parameter, "name"))
+	if(Heuristica::setParameter(parameter, value))
+		return true;
+
+	if(strcasecmp(parameter, "probBT") == 0)
 	{
-		name = string(value);
-	}
-	else if(strcasecmp(parameter, "probBT"))
-	{
+		Heuristica::numHeuristic -= prob;
 		sscanf(value, "%d", &prob);
+		Heuristica::numHeuristic += prob;
 	}
-	else if(strcasecmp(parameter, "polEscolhaBT"))
+	else if(strcasecmp(parameter, "polEscolhaBT") == 0)
 	{
 		sscanf(value, "%d", &polEscolha);
 	}
-	else if(strcasecmp(parameter, "probElitismoBT"))
+	else if(strcasecmp(parameter, "probElitismoBT") == 0)
 	{
 		sscanf(value, "%d", &elitismo);
 	}
-	else if(strcasecmp(parameter, "funcAspiracaoBT"))
+	else if(strcasecmp(parameter, "funcAspiracaoBT") == 0)
 	{
 		sscanf(value, "%f", &funcAsp);
 	}
-	else if(strcasecmp(parameter, "iterBT"))
+	else if(strcasecmp(parameter, "iterBT") == 0)
 	{
 		sscanf(value, "%d", &iterTabu);
 	}
-	else if(strcasecmp(parameter, "tentSemMelhoraBT"))
+	else if(strcasecmp(parameter, "tentSemMelhoraBT") == 0)
 	{
 		sscanf(value, "%d", &tentSemMelhora);
 	}
-	else if(strcasecmp(parameter, "tamListaBT"))
+	else if(strcasecmp(parameter, "tamListaBT") == 0)
 	{
 		sscanf(value, "%d", &tamListaTabu);
 	}
-	else if(strcasecmp(parameter, "polExplorBT"))
+	else if(strcasecmp(parameter, "polExplorBT") == 0)
 	{
 		sscanf(value, "%f", &polExploracao);
 	}

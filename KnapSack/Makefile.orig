@@ -1,0 +1,69 @@
+CC = g++
+CFLAGS = -Wall -pedantic -O3 -march=native
+LDFLAGS = -lpthread -lglut -lGL -lGLU -lxerces-c
+
+BASE_PATH = ../Ateams_Base/
+
+BASE_PATH_SRC = ../Ateams_Base/src/
+BASE_PATH_BIN = ../Ateams_Base/bin/
+
+BASE_SRCS = $(wildcard $(BASE_PATH_SRC)*.cpp)
+
+PATH_DADOS = ./dados/
+PATH_PARAM = ./parametros/
+PATH_BIN = ./bin/
+PATH_SRC = ./src/
+PATH_RES = ./resultados/
+
+SRCS =  $(wildcard $(PATH_SRC)*.cpp)
+
+OBJS = $(subst $(PATH_SRC),$(PATH_BIN),$(subst .cpp,.o,$(SRCS)))
+
+BIN = KnapSack
+
+EXEC = $(PATH_BIN)$(BIN)
+
+RUN_PARAM = -i $(PATH_DADOS)mk_gk01.prb -p $(PATH_PARAM)DEFAULT.param -r $(PATH_RES)mk_gk01.res
+
+RM = rm -rf
+
+
+.PHONY: 	all install base debug run clean purge
+
+all:		$(PATH_BIN) $(EXEC)
+
+install:	all
+		@ln -fs $(EXEC) $(PATH_PROJ)$(BIN)
+
+base:
+		@cd $(BASE_PATH) && $(MAKE) -s
+
+debug:
+		@echo "$(CC) $(BASE_PATH_SRC)*.cpp $(SRCS) -lefence $(LDFLAGS) -g3 -O0 -o $(BIN)"
+		@$(CC) $(BASE_SRCS) $(SRCS) -g3 -O0 -lefence $(LDFLAGS) -o $(BIN)
+
+$(PATH_BIN):
+		@mkdir $(PATH_BIN)
+
+$(PATH_RES):
+		@mkdir $(PATH_RES)
+
+$(EXEC):	$(OBJS) base
+		@$(CC) $(CFLAGS) $(LDFLAGS) $(BASE_PATH_BIN)*.o $< -o $@
+		@echo "$(CC) $(CFLAGS) $(LDFLAGS) $(BASE_PATH_BIN)*.o $< -o $@"
+
+$(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.h
+		@$(CC) $(CFLAGS) -c $< -o $@
+		@echo "$(CC) $(CFLAGS) -c $< -o $@"
+
+run:		$(PATH_RES) install
+		$(EXEC) $(RUN_PARAM)
+
+clean:
+		@$(RM) $(OBJS) $(BIN) $(EXEC) $(PATH_BIN)
+		@echo "$(RM) $(BIN) $(OBJS) $(EXEC) $(PATH_BIN)"
+
+purge:		clean
+		@$(RM) $(PATH_RES) $(PATH_BIN)
+		@cd $(BASE_PATH) && $(MAKE) $@ -s
+		@echo "$(RM) $(PATH_RES)*.res $(PATH_BIN)"

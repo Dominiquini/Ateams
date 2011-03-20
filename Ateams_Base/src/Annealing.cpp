@@ -8,7 +8,6 @@ Annealing::Annealing() : Heuristica::Heuristica("DEFAULT_SA")
 
 	prob = 52;
 	polEscolha = 10;
-
 	maxIter = 250;
 	initTemp = 125;
 	fimTemp = 0.75;
@@ -27,35 +26,36 @@ Annealing::~Annealing()
 
 bool Annealing::setParameter(const char* parameter, const char* value)
 {
-	if(strcasecmp(parameter, "name"))
+	if(Heuristica::setParameter(parameter, value))
+		return true;
+
+	if(strcasecmp(parameter, "probSA") == 0)
 	{
-		name = string(value);
-	}
-	else if(strcasecmp(parameter, "probSA"))
-	{
+		Heuristica::numHeuristic -= prob;
 		sscanf(value, "%d", &prob);
+		Heuristica::numHeuristic += prob;
 	}
-	else if(strcasecmp(parameter, "polEscolhaSA"))
+	else if(strcasecmp(parameter, "polEscolhaSA") == 0)
 	{
 		sscanf(value, "%d", &polEscolha);
 	}
-	else if(strcasecmp(parameter, "probElitismoSA"))
+	else if(strcasecmp(parameter, "probElitismoSA") == 0)
 	{
 		sscanf(value, "%d", &elitismo);
 	}
-	else if(strcasecmp(parameter, "maxIterSA"))
+	else if(strcasecmp(parameter, "maxIterSA") == 0)
 	{
 		sscanf(value, "%d", &maxIter);
 	}
-	else if(strcasecmp(parameter, "initTempSA"))
+	else if(strcasecmp(parameter, "initTempSA") == 0)
 	{
 		sscanf(value, "%f", &initTemp);
 	}
-	else if(strcasecmp(parameter, "finalTempSA"))
+	else if(strcasecmp(parameter, "finalTempSA") == 0)
 	{
 		sscanf(value, "%f", &fimTemp);
 	}
-	else if(strcasecmp(parameter, "restauraSolSA"))
+	else if(strcasecmp(parameter, "restauraSolSA") == 0)
 	{
 		int temp;
 
@@ -66,7 +66,7 @@ bool Annealing::setParameter(const char* parameter, const char* value)
 		else
 			restauraSol = false;
 	}
-	else if(strcasecmp(parameter, "alphaSA"))
+	else if(strcasecmp(parameter, "alphaSA") == 0)
 	{
 		sscanf(value, "%f", &alfa);
 	}

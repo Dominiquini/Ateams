@@ -26,39 +26,40 @@ Genetico::~Genetico()
 
 bool Genetico::setParameter(const char* parameter, const char* value)
 {
-	if(strcasecmp(parameter, "name"))
+	if(Heuristica::setParameter(parameter, value))
+		return true;
+
+	if(strcasecmp(parameter, "probAG") == 0)
 	{
-		name = string(value);
-	}
-	else if(strcasecmp(parameter, "probAG"))
-	{
+		Heuristica::numHeuristic -= prob;
 		sscanf(value, "%d", &prob);
+		Heuristica::numHeuristic += prob;
 	}
-	else if(strcasecmp(parameter, "polEscolhaAG"))
+	else if(strcasecmp(parameter, "polEscolhaAG") == 0)
 	{
 		sscanf(value, "%d", &polEscolha);
 	}
-	else if(strcasecmp(parameter, "iterAG"))
+	else if(strcasecmp(parameter, "iterAG") == 0)
 	{
 		sscanf(value, "%d", &iterGenetico);
 	}
-	else if(strcasecmp(parameter, "tamPopAG"))
+	else if(strcasecmp(parameter, "tamPopAG") == 0)
 	{
 		sscanf(value, "%d", &tamPopGenetico);
 	}
-	else if(strcasecmp(parameter, "tamParticaoAG"))
+	else if(strcasecmp(parameter, "tamParticaoAG") == 0)
 	{
 		sscanf(value, "%d", &tamParticionamento);
 	}
-	else if(strcasecmp(parameter, "probCrossOverAG"))
+	else if(strcasecmp(parameter, "probCrossOverAG") == 0)
 	{
 		sscanf(value, "%f", &probCrossOver);
 	}
-	else if(strcasecmp(parameter, "powerCrossOver"))
+	else if(strcasecmp(parameter, "powerCrossOver") == 0)
 	{
 		sscanf(value, "%f", &powerCrossOver);
 	}
-	else if(strcasecmp(parameter, "probMutacaoAG"))
+	else if(strcasecmp(parameter, "probMutacaoAG") == 0)
 	{
 		sscanf(value, "%f", &probMutacao);
 	}
