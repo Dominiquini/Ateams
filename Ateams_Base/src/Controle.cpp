@@ -18,8 +18,7 @@ Controle* Controle::getInstance(char* xml)
 	}
 	else
 	{
-		delete instance;
-		instance = NULL;
+		terminate();
 
 		return getInstance(xml);
 	}
