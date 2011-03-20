@@ -19,8 +19,9 @@ public:
 #endif
 
 	Genetico();
-	Genetico(string, ParametrosHeuristicas&);
-	virtual ~Genetico();
+	~Genetico();
+
+	bool setParameter(const char* parameter, const char* value);
 
 	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener);
 

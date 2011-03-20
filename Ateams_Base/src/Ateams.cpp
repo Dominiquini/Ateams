@@ -4,10 +4,6 @@
 
 #include "Controle.h"
 
-#include "Tabu.h"
-#include "Genetico.h"
-#include "Annealing.h"
-
 using namespace std;
 
 #ifdef _WIN32
@@ -31,7 +27,8 @@ int main(int argc, char *argv[])
 	char log[64];
 
 	FILE *fdados;
-	FILE *fparametros;
+
+	char *fXmlParametros = NULL;
 
 	ParametrosATEAMS *pATEAMS;
 	vector<ParametrosHeuristicas> *pHEURISTICAS;
@@ -64,22 +61,7 @@ int main(int argc, char *argv[])
 
 	if((p = findPosArgv(argv, argc, (char*)"-p")) != -1)
 	{
-		if((fparametros = fopen(argv[p], "r")) == NULL)
-		{
-			printf("Arquivo \"%s\" não encontrado.\n\n", argv[p]);
-			exit(1);
-		}
-		else
-		{
-			printf("Parâmetros: '%s'\n", argv[p]);
-			strcpy(parametros, argv[p]);
-		}
-	}
-	else
-	{
-		fparametros = fopen(PARAMETROS, "r");
-		printf("Parâmetros: '%s'\n", PARAMETROS);
-		strcpy(parametros, PARAMETROS);
+		fXmlParametros = argv[p];
 	}
 
 	if((p = findPosArgv(argv, argc, (char*)"-r")) != -1)
@@ -138,31 +120,32 @@ int main(int argc, char *argv[])
 
 	/* Leitura dos dados passados por arquivos */
 	Problema::leProblema(fdados);
-	Problema::leParametros(fparametros, pATEAMS, pHEURISTICAS);
+
+	//Problema::leParametros(fparametros, pATEAMS, pHEURISTICAS);
 
 	fclose(fdados);
-	fclose(fparametros);
 
 	/* Le parametros adicionais passados por linha de comando (Sobrepujam as lidas no arquivo de configuracao) */
-	Problema::leArgumentos(argv, argc, pATEAMS);
+	//Problema::leArgumentos(argv, argc, pATEAMS);
 
 	cout << endl;
 
 	/* Adiciona as heuristicas selecionadas */
-	Controle* ctr = NULL;
+	Controle* ctr = Controle::getInstance(fXmlParametros);
 
 	Controle::argc = &argc;
 	Controle::argv = argv;
 
 	if(findPosArgv(argv, argc, (char*)"-g") == -1)
 	{
-		ctr = new Controle(pATEAMS, false);
+		ctr->statusInfoScreen(false);
 	}
 	else
 	{
-		ctr = new Controle(pATEAMS, true);
+		ctr->statusInfoScreen(true);
 	}
 
+	/*
 	for(int i = 0; i < (int)pHEURISTICAS->size(); i++)
 	{
 		if(pHEURISTICAS->at(i).alg == SA)
@@ -172,6 +155,7 @@ int main(int argc, char *argv[])
 		if(pHEURISTICAS->at(i).alg == BT)
 			ctr->addHeuristic(new Tabu(pHEURISTICAS->at(i).algName, pHEURISTICAS->at(i)));
 	}
+	*/
 
 	/* Le memoria prinipal do disco, se especificado */
 	list<Problema*>* popInicial = *log == '\0' ? NULL : Problema::lePopulacao(log);
@@ -218,7 +202,7 @@ int main(int argc, char *argv[])
 
 	delete best;
 
-	delete ctr;
+	Controle::terminate();
 
 	Problema::desalocaMemoria();
 

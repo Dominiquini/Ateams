@@ -18,25 +18,56 @@ Tabu::Tabu() : Heuristica::Heuristica("DEFAULT_BT")
 	Heuristica::numHeuristic += prob;
 }
 
-Tabu::Tabu(string nome, ParametrosHeuristicas& pBT) : Heuristica::Heuristica(nome)
-{
-	numExec = 0;
-
-	prob = pBT.probBT != -1 ? pBT.probBT : 35;
-	funcAsp = pBT.funcAspiracaoBT != -1 ? pBT.funcAspiracaoBT : 0.5;
-	polEscolha = pBT.polEscolhaBT != -1 ? pBT.polEscolhaBT : 100;
-	iterTabu = pBT.iterBT != -1 ? pBT.iterBT : 500;
-	tamListaTabu = pBT.tamListaBT != -1 ? pBT.tamListaBT : 10;
-	tentSemMelhora = pBT.tentSemMelhoraBT != -1 ? pBT.tentSemMelhoraBT : 250;
-	polExploracao = pBT.polExplorBT != -1 ? pBT.polExplorBT : 0.5;
-	elitismo = pBT.probElitismoBT != -1 ? (int)(pBT.probElitismoBT * 100.0) : 10;
-
-	Heuristica::numHeuristic += prob;
-}
-
 Tabu::~Tabu()
 {
 	Heuristica::numHeuristic -= prob;
+}
+
+
+bool Tabu::setParameter(const char* parameter, const char* value)
+{
+	if(strcasecmp(parameter, "name"))
+	{
+		name = string(value);
+	}
+	else if(strcasecmp(parameter, "probBT"))
+	{
+		sscanf(value, "%d", &prob);
+	}
+	else if(strcasecmp(parameter, "polEscolhaBT"))
+	{
+		sscanf(value, "%d", &polEscolha);
+	}
+	else if(strcasecmp(parameter, "probElitismoBT"))
+	{
+		sscanf(value, "%d", &elitismo);
+	}
+	else if(strcasecmp(parameter, "funcAspiracaoBT"))
+	{
+		sscanf(value, "%f", &funcAsp);
+	}
+	else if(strcasecmp(parameter, "iterBT"))
+	{
+		sscanf(value, "%d", &iterTabu);
+	}
+	else if(strcasecmp(parameter, "tentSemMelhoraBT"))
+	{
+		sscanf(value, "%d", &tentSemMelhora);
+	}
+	else if(strcasecmp(parameter, "tamListaBT"))
+	{
+		sscanf(value, "%d", &tamListaTabu);
+	}
+	else if(strcasecmp(parameter, "polExplorBT"))
+	{
+		sscanf(value, "%f", &polExploracao);
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
 }
 
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */

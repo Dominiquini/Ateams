@@ -18,25 +18,56 @@ Genetico::Genetico() : Heuristica::Heuristica("DEFAULT_AG")
 	Heuristica::numHeuristic += prob;
 }
 
-Genetico::Genetico(string nome, ParametrosHeuristicas& pAG) : Heuristica::Heuristica(nome)
-{
-	numExec = 0;
-
-	prob = pAG.probAG != -1 ? pAG.probAG : 20;
-	polEscolha = pAG.polEscolhaAG != -1 ? pAG.polEscolhaAG : -1;
-	iterGenetico = pAG.iterAG != -1 ? pAG.iterAG : 500;
-	tamPopGenetico = pAG.tamPopAG != -1 ? pAG.tamPopAG : 250;
-	probCrossOver = pAG.probCrossOverAG != -1 ? pAG.probCrossOverAG : 0.8;
-	powerCrossOver = pAG.powerCrossOverAG != -1 ? pAG.powerCrossOverAG : 0.5;
-	probMutacao = pAG.probMutacaoAG != -1 ? pAG.probMutacaoAG : 0.02;
-	tamParticionamento = pAG.tamParticaoAG;
-
-	Heuristica::numHeuristic += prob;
-}
-
 Genetico::~Genetico()
 {
 	Heuristica::numHeuristic -= prob;
+}
+
+
+bool Genetico::setParameter(const char* parameter, const char* value)
+{
+	if(strcasecmp(parameter, "name"))
+	{
+		name = string(value);
+	}
+	else if(strcasecmp(parameter, "probAG"))
+	{
+		sscanf(value, "%d", &prob);
+	}
+	else if(strcasecmp(parameter, "polEscolhaAG"))
+	{
+		sscanf(value, "%d", &polEscolha);
+	}
+	else if(strcasecmp(parameter, "iterAG"))
+	{
+		sscanf(value, "%d", &iterGenetico);
+	}
+	else if(strcasecmp(parameter, "tamPopAG"))
+	{
+		sscanf(value, "%d", &tamPopGenetico);
+	}
+	else if(strcasecmp(parameter, "tamParticaoAG"))
+	{
+		sscanf(value, "%d", &tamParticionamento);
+	}
+	else if(strcasecmp(parameter, "probCrossOverAG"))
+	{
+		sscanf(value, "%f", &probCrossOver);
+	}
+	else if(strcasecmp(parameter, "powerCrossOver"))
+	{
+		sscanf(value, "%f", &powerCrossOver);
+	}
+	else if(strcasecmp(parameter, "probMutacaoAG"))
+	{
+		sscanf(value, "%f", &probMutacao);
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
 }
 
 vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener)

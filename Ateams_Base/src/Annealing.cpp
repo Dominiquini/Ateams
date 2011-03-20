@@ -8,6 +8,7 @@ Annealing::Annealing() : Heuristica::Heuristica("DEFAULT_SA")
 
 	prob = 52;
 	polEscolha = 10;
+
 	maxIter = 250;
 	initTemp = 125;
 	fimTemp = 0.75;
@@ -18,25 +19,63 @@ Annealing::Annealing() : Heuristica::Heuristica("DEFAULT_SA")
 	Heuristica::numHeuristic += prob;
 }
 
-Annealing::Annealing(string nome, ParametrosHeuristicas& pSA) : Heuristica::Heuristica(nome)
-{
-	numExec = 0;
-
-	prob = pSA.probSA != -1 ? pSA.probSA : 45;
-	polEscolha = pSA.polEscolhaSA != -1 ? pSA.polEscolhaSA : 10;
-	maxIter = pSA.maxIterSA != -1 ? pSA.maxIterSA : 250;
-	initTemp = pSA.initTempSA != -1 ? pSA.initTempSA : 125;
-	fimTemp = pSA.finalTempSA > 0 ? pSA.finalTempSA : 0.75;
-	restauraSol = pSA.restauraSolSA != 0 ? true : false;
-	alfa = pSA.alphaSA != -1 ? pSA.alphaSA : 0.99;
-	elitismo = pSA.probElitismoSA != -1 ? (int)(pSA.probElitismoSA * 100.0) : 20;
-
-	Heuristica::numHeuristic += prob;
-}
-
 Annealing::~Annealing()
 {
 	Heuristica::numHeuristic -= prob;
+}
+
+
+bool Annealing::setParameter(const char* parameter, const char* value)
+{
+	if(strcasecmp(parameter, "name"))
+	{
+		name = string(value);
+	}
+	else if(strcasecmp(parameter, "probSA"))
+	{
+		sscanf(value, "%d", &prob);
+	}
+	else if(strcasecmp(parameter, "polEscolhaSA"))
+	{
+		sscanf(value, "%d", &polEscolha);
+	}
+	else if(strcasecmp(parameter, "probElitismoSA"))
+	{
+		sscanf(value, "%d", &elitismo);
+	}
+	else if(strcasecmp(parameter, "maxIterSA"))
+	{
+		sscanf(value, "%d", &maxIter);
+	}
+	else if(strcasecmp(parameter, "initTempSA"))
+	{
+		sscanf(value, "%f", &initTemp);
+	}
+	else if(strcasecmp(parameter, "finalTempSA"))
+	{
+		sscanf(value, "%f", &fimTemp);
+	}
+	else if(strcasecmp(parameter, "restauraSolSA"))
+	{
+		int temp;
+
+		sscanf(value, "%d", &temp);
+
+		if(temp == 1)
+			restauraSol = true;
+		else
+			restauraSol = false;
+	}
+	else if(strcasecmp(parameter, "alphaSA"))
+	{
+		sscanf(value, "%f", &alfa);
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
 }
 
 /* Executa um Simulated Annealing na populacao com o devido criterio de selecao */

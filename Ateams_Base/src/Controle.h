@@ -1,17 +1,33 @@
-#include "Ateams.h"
-#include "Problema.h"
-#include "Heuristica.h"
-
-using namespace std;
-
-extern volatile bool PARAR;
+#include <xercesc/sax2/XMLReaderFactory.hpp>
+#include <xercesc/sax2/DefaultHandler.hpp>
+#include <xercesc/sax2/SAX2XMLReader.hpp>
+#include <xercesc/sax2/Attributes.hpp>
+#include <xercesc/util/XMLString.hpp>
 
 #ifndef _Controle_
 #define _Controle_
 
-class Controle
+#include "Ateams.h"
+#include "Problema.h"
+#include "Heuristica.h"
+
+#include "Tabu.h"
+#include "Genetico.h"
+#include "Annealing.h"
+
+using namespace xercesc;
+using namespace std;
+
+extern volatile bool PARAR;
+
+
+
+class Controle : public DefaultHandler
 {
 private:
+	/* Instancia do controle */
+	static Controle* instance;
+
 	/* Funcao que executa em multiplas threads e retorna o numero de solucoes inseridas */
 	static void* pthrExec(void *obj);
 
@@ -30,6 +46,9 @@ private:
 public:
 	static int* argc;
 	static char** argv;
+
+	static Controle* getInstance(char* xml);
+	static void terminate();
 
 	// Retorna a soma de fitness de uma populacao
 	static double sumFitnessMaximize(set<Problema*, bool(*)(Problema*, Problema*)> *probs, int n);
@@ -56,10 +75,13 @@ private:
 	int tamPop, iterAteams, tentAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes, tentativas sem melhora e tempo maximo de execucao
 	int critUnicidade;								// Criterio de unicidade da populacao adotado
 
+	/* Parser do arquivo XML de configuracoes */
+	void startElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname, const Attributes& attrs);
+
 	static list<Heuristica_Listener*>* execAlgs;					// Algoritmos executados ate o momento
 	static list<list<Heuristica_Listener*>::iterator >* actAlgs;	// Algoritmos em execucao no momento
 	static int actThreads;											// Threads em execucao no momento
-	bool listener;													// Informa se as heuristicas serao acompanhadas por um listener
+	bool activeListener;											// Informa se as heuristicas serao acompanhadas por um listener
 
 	time_t time1, time2;				// Medidor do tempo inicial e final
 	int iterMelhora;					// Ultima iteracao em que houve melhora
@@ -74,11 +96,11 @@ private:
 	/* Gera uma populacao inicial aleatoria com 'tamPop' elementos */
 	void geraPop(list<Problema*>* popInicial);
 
-public:
 	Controle();
-	Controle(ParametrosATEAMS* pATEAMS, bool listener);
 
 	~Controle();
+
+public:
 
 	/* Adiciona uma heuristica ao conjunto de algoritmos disponiveis */
 	void addHeuristic(Heuristica* alg);
@@ -86,6 +108,9 @@ public:
 	list<Problema*>* getPop();		// Retorna a populacao da memoria principal
 	Problema* getSol(int n);		// Retorna a melhor solucao da memoria principal
 	void getInfo(ExecInfo *info);	// Retorna algumas informacoes da ultima execucao
+
+	bool setParameter(const char* parameter, const char* value);
+	void statusInfoScreen(bool status);
 
 	/* Comeca a execucao do Ateams utilizando os algoritmos disponiveis */
 	Problema* start(list<Problema*>* popInicial);

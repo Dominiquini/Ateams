@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -Wall -pedantic -O3 -march=native
-LDFLAGS = -lpthread -lglut -lGL -lGLU
+LDFLAGS = -lpthread -lglut -lGL -lGLU -lxerces-c
 
 BASE_PATH = ../Ateams_Base/
 

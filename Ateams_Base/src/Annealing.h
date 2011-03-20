@@ -17,8 +17,9 @@ public:
 	float alfa;
 
 	Annealing();
-	Annealing(string, ParametrosHeuristicas&);
-	virtual ~Annealing();
+	~Annealing();
+
+	bool setParameter(const char* parameter, const char* value);
 
 	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener);
 

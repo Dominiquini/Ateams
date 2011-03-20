@@ -22,8 +22,10 @@ public:
 	string name;
 	int prob, polEscolha;
 
-	Heuristica(string nome) {name = nome;}
+	Heuristica(string heuristicName) {this->name = heuristicName;}
 	virtual ~Heuristica() {cout << name << ": " << numExec << endl;}
+
+	virtual bool setParameter(const char* parameter, const char* value);
 
 	virtual vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener) = 0;
 };

@@ -9,9 +9,191 @@ pthread_mutex_t mutex_exec;	// Mutex que protege as informacoes de execucao
 
 sem_t semaphore;			// Semaforo que controla o acesso dos algoritmos ao processador
 
+
+Controle* Controle::getInstance(char* xml)
+{
+	if(instance == NULL)
+		instance = new Controle();
+
+	try
+	{
+		XMLPlatformUtils::Initialize();
+	}
+	catch (const XMLException& toCatch)
+	{
+		char* message = XMLString::transcode(toCatch.getMessage());
+		cout << "Error During Initialization!" << endl;
+		cout << "Exception Message Is:" << endl	<< message << endl << endl;
+		XMLString::release(&message);
+
+		exit(1);
+	}
+
+	SAX2XMLReader* parser = XMLReaderFactory::createXMLReader();
+	parser->setFeature(XMLUni::fgSAX2CoreValidation, true);
+	parser->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
+
+	DefaultHandler* defaultHandler = instance;
+	parser->setContentHandler(defaultHandler);
+	parser->setErrorHandler(defaultHandler);
+
+	try
+	{
+		parser->parse(xml);
+	}
+	catch(string toCatch)
+	{
+		cout << endl << toCatch << endl << endl;
+
+		exit(1);
+	}
+	catch(const XMLException& toCatch)
+	{
+		char* message = XMLString::transcode(toCatch.getMessage());
+		cout << endl << "Exception Message Is:" << endl << message << endl << endl;
+		XMLString::release(&message);
+
+		exit(1);
+	}
+	catch(const SAXParseException& toCatch)
+	{
+		char* message = XMLString::transcode(toCatch.getMessage());
+		cout << endl << "Exception Message Is:" << endl << message << endl << endl;
+		XMLString::release(&message);
+
+		exit(1);
+	}
+	catch(...)
+	{
+		cout << endl << "Unexpected Exception" << endl << endl;
+
+		exit(1);
+	}
+
+	return instance;
+}
+
+void Controle::terminate()
+{
+	XMLPlatformUtils::Terminate();
+
+	delete instance;
+	instance = NULL;
+}
+
+void Controle::startElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname, const Attributes& attrs)
+{
+	char* element = XMLString::transcode(localname);
+
+	if(strcasecmp(element, "Controller") == 0)
+	{
+		char* parameter = NULL;
+		char* value = NULL;
+
+		for(unsigned int ix = 0; ix < attrs.getLength(); ++ix)
+		{
+			parameter = XMLString::transcode(attrs.getQName(ix));
+			value = XMLString::transcode(attrs.getValue(ix));
+
+			if(!setParameter(parameter, value))
+			{
+				throw string("Parâmetro Inválido: \" ").append(parameter).append(" \"");
+			}
+
+			XMLString::release(&parameter);
+			XMLString::release(&value);
+		}
+	}
+	else if(strcasecmp(element, "Heuristics") == 0)
+	{
+		algs = new vector<Heuristica*>();
+	}
+	else
+	{
+		Heuristica* newHeuristic = NULL;
+
+		if(strcasecmp(element, "SimulatedAnnealing") == 0)
+			newHeuristic = new Annealing();
+
+		if(strcasecmp(element, "TabuSearch") == 0)
+			newHeuristic = new Tabu();
+
+		if(strcasecmp(element, "GeneticAlgorithm") == 0)
+			newHeuristic = new Genetico();
+
+		if(newHeuristic != NULL)
+		{
+			char* parameter = NULL;
+			char* value = NULL;
+
+			for(unsigned int ix = 0; ix < attrs.getLength(); ++ix)
+			{
+				parameter = XMLString::transcode(attrs.getQName(ix));
+				value = XMLString::transcode(attrs.getValue(ix));
+
+				if(!newHeuristic->setParameter(parameter, value))
+				{
+					throw string("Parâmetro Inválido: \" ").append(parameter).append(" \"");
+				}
+
+				XMLString::release(&parameter);
+				XMLString::release(&value);
+			}
+
+			addHeuristic(newHeuristic);
+		}
+	}
+
+	XMLString::release(&element);
+}
+
+bool Controle::setParameter(const char* parameter, const char* value)
+{
+	if(strcasecmp(parameter, "iterAteams") == 0)
+	{
+		sscanf(value, "%d", &iterAteams);
+	}
+	else if(strcasecmp(parameter, "tentAteams") == 0)
+	{
+		sscanf(value, "%d", &tentAteams);
+	}
+	else if(strcasecmp(parameter, "maxTempoAteams") == 0)
+	{
+		sscanf(value, "%d", &maxTempo);
+	}
+	else if(strcasecmp(parameter, "numThreads") == 0)
+	{
+		sscanf(value, "%d", &numThreads);
+	}
+	else if(strcasecmp(parameter, "tamPopAteams") == 0)
+	{
+		sscanf(value, "%d", &tamPop);
+	}
+	else if(strcasecmp(parameter, "critUnicidade") == 0)
+	{
+		sscanf(value, "%d", &critUnicidade);
+	}
+	else if(strcasecmp(parameter, "makespanBest") == 0)
+	{
+		sscanf(value, "%d", &makespanBest);
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void Controle::statusInfoScreen(bool status)
+{
+	this->activeListener = status;
+}
+
+
 Controle::Controle()
 {
-	tamPop = 1000;
+	tamPop = 500;
 	critUnicidade = 1;
 	iterAteams = 250;
 	tentAteams = 100;
@@ -24,41 +206,9 @@ Controle::Controle()
 	bool(*fn_pt)(Problema*, Problema*) = critUnicidade == 1 ? fncomp1 : fncomp2;
 	pop = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
 
-	algs = new vector<Heuristica*>;
-
 	execAlgs = new list<Heuristica_Listener*>;
 	actAlgs = new list<list<Heuristica_Listener*>::iterator >;
-	this->listener = false;
-	actThreads = 0;
-
-	pthread_mutex_init(&mutex_pop, NULL);
-	pthread_mutex_init(&mutex_cont, NULL);
-	pthread_mutex_init(&mutex_info, NULL);
-	pthread_mutex_init(&mutex_exec, NULL);
-
-	sem_init(&semaphore, 0, numThreads);
-}
-
-Controle::Controle(ParametrosATEAMS* pATEAMS, bool listener)
-{
-	tamPop = pATEAMS->tamPopAteams != -1 ? pATEAMS->tamPopAteams : 1000;
-	critUnicidade = pATEAMS->critUnicidade != -1 ? pATEAMS->critUnicidade : 1;
-	iterAteams = pATEAMS->iterAteams != -1 ? pATEAMS->iterAteams: 100;
-	tentAteams = pATEAMS->tentAteams != -1 ? pATEAMS->tentAteams: 50;
-	maxTempo = pATEAMS->maxTempoAteams != -1 ? pATEAMS->maxTempoAteams : INT_MAX;
-	numThreads = pATEAMS->numThreads != -1 ? pATEAMS->numThreads : 4;
-	makespanBest = pATEAMS->makespanBest != -1 ? pATEAMS->makespanBest : -1;
-
-	srand(unsigned(time(NULL)));
-
-	bool(*fn_pt)(Problema*, Problema*) = critUnicidade == 1 ? fncomp1 : fncomp2;
-	pop = new set<Problema*, bool(*)(Problema*, Problema*)>(fn_pt);
-
-	algs = new vector<Heuristica*>;
-
-	execAlgs = new list<Heuristica_Listener*>;
-	actAlgs = new list<list<Heuristica_Listener*>::iterator >;
-	this->listener = listener;
+	this->activeListener = false;
 	actThreads = 0;
 
 	pthread_mutex_init(&mutex_pop, NULL);
@@ -187,6 +337,13 @@ vector<Problema*>::iterator Controle::selectRouletteWheel(vector<Problema*>* pro
 
 Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, unsigned int probTotal, unsigned int randWheel)
 {
+	if(heuristc == NULL || heuristc->size() == 0)
+	{
+		cout << "Nenhuma Heurística Definida!" << endl << endl;
+
+		exit(1);
+	}
+
 	// Armazena o fitness total da populacao
 	unsigned int sum = probTotal;
 	// Um numero entre zero e "sum" e sorteado
@@ -297,7 +454,7 @@ Problema* Controle::start(list<Problema*>* popInicial)
 	long int ins = 0;
 	execThreads = 0;
 
-	if(listener)
+	if(activeListener)
 	{
 		pthread_t threadAnimation;
 
@@ -345,7 +502,7 @@ Problema* Controle::start(list<Problema*>* popInicial)
 
 	time(&time2);
 
-	if(listener)
+	if(activeListener)
 		glutDestroyWindow(window);
 
 	return Problema::copySoluction(**(pop->begin()));
@@ -382,7 +539,7 @@ inline int Controle::exec(int randomic, int idThread)
 	}
 	pthread_mutex_unlock(&mutex_info);
 
-	if(this->listener)
+	if(this->activeListener)
 		newSoluctions = alg->start(pop, randomic, listener);
 	else
 		newSoluctions = alg->start(pop, randomic, NULL);
@@ -692,6 +849,8 @@ inline bool cmpAlg(Heuristica *h1, Heuristica *h2)
 {
 	return h1->prob < h2->prob;
 }
+
+Controle* Controle::instance;
 
 list<Heuristica_Listener*>* Controle::execAlgs = NULL;
 list<list<Heuristica_Listener*>::iterator >* Controle::actAlgs = NULL;

@@ -15,8 +15,9 @@ public:
 	float funcAsp, polExploracao;
 
 	Tabu();
-	Tabu(string, ParametrosHeuristicas&);
-	virtual ~Tabu();
+	~Tabu();
+
+	bool setParameter(const char* parameter, const char* value);
 
 	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener);
 
