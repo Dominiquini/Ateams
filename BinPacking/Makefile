@@ -39,8 +39,8 @@ base:
 		@cd $(BASE_PATH) && $(MAKE) -s
 
 debug:
-		@echo "$(CC) $(BASE_PATH_SRC)*.cpp $(SRCS) -lefence $(LDFLAGS) -g3 -O0 -o $(BIN)"
-		@$(CC) $(BASE_SRCS) $(SRCS) -g3 -O0 -lefence $(LDFLAGS) -o $(BIN)
+		@echo "$(CC) $(BASE_PATH_SRC)*.cpp $(SRCS) -g3 -O0 -o $(BIN) -lefence $(LDFLAGS)"
+		@$(CC) $(BASE_SRCS) $(SRCS) -g3 -O0 -o $(BIN) -lefence $(LDFLAGS)
 
 $(PATH_BIN):
 		@mkdir $(PATH_BIN)
@@ -49,8 +49,8 @@ $(PATH_RES):
 		@mkdir $(PATH_RES)
 
 $(EXEC):	$(OBJS) base
-		@$(CC) $(CFLAGS) $(LDFLAGS) $(BASE_PATH_BIN)*.o $< -o $@
-		@echo "$(CC) $(CFLAGS) $(LDFLAGS) $(BASE_PATH_BIN)*.o $< -o $@"
+		@$(CC) $(CFLAGS) $(BASE_PATH_BIN)*.o $< -o $@ $(LDFLAGS)
+		@echo "$(CC) $(CFLAGS) $(BASE_PATH_BIN)*.o $< -o $@ $(LDFLAGS)"
 
 $(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.hpp
 		@$(CC) $(CFLAGS) -c $< -o $@
