@@ -12,7 +12,7 @@ class Problema;
 class InfoTabu;
 class Solucao;
 
-bool fncomp1(Problema*, Problema*);		//Se P1 for menor que P2
+bool fncomp1(Problema*, Problema*);	//Se P1 for menor que P2
 bool fncomp2(Problema*, Problema*); 	//Se P1 for menor que P2, considerando apenas o fitness
 bool fnequal1(Problema*, Problema*);	//Se P1 for igual a P2
 bool fnequal2(Problema*, Problema*);	//Se P1 for igual a P2, considerando apenas o fitness
@@ -37,9 +37,9 @@ public:
 
 	static ProblemType TIPO;
 
-	static double best;				// Melhor solucao do momento
+	static double best;			// Melhor solucao do momento
 	static double worst;			// Pior solucao do momento
-	static int numInst;				// Quantidade de instancias criadas
+	static int numInst;			// Quantidade de instancias criadas
 	static long int totalNumInst;	// Quantidade total de problemas processados
 
 	// Le arquivo de dados de entrada
@@ -58,7 +58,7 @@ public:
 
 	// Alocador generico
 	static Problema* randSoluction();							// Nova solucao aleatoria
-	static Problema* copySoluction(const Problema& prob);		// Copia de prob
+	static Problema* copySoluction(const Problema& prob);	// Copia de prob
 
 	// Calcula a melhora (Resultado Positivo) de newP em relacao a oldP
 	static double melhora(double oldP, double newP)
@@ -90,12 +90,12 @@ public:
 	virtual Problema* vizinho() = 0;
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual */
-	virtual vector<pair<Problema*, InfoTabu*>* >* buscaLocal() = 0;			// Todos os vizinhos
+	virtual vector<pair<Problema*, InfoTabu*>* >* buscaLocal() = 0;		// Todos os vizinhos
 	virtual vector<pair<Problema*, InfoTabu*>* >* buscaLocal(float) = 0;	// Uma parcela aleatoria
 
 	/* Realiza um crossover com uma outra solucao */
 	virtual pair<Problema*, Problema*>* crossOver(const Problema*, int, int) = 0;	// Dois pivos
-	virtual pair<Problema*, Problema*>* crossOver(const Problema*, int) = 0;		// Um pivo
+	virtual pair<Problema*, Problema*>* crossOver(const Problema*, int) = 0;			// Um pivo
 
 	/* Devolve uma mutacao aleatoria na solucao atual */
 	virtual Problema* mutacao(int) = 0;

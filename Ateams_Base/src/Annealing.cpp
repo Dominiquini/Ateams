@@ -109,7 +109,7 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	select = Controle::selectRouletteWheel(sol, visao, rand());
 	if(polEscolha < -1)
-		while((*select)->exec.tabu == true)
+		while((*select)->exec.annealing == true)
 			if(select != sol->begin())
 				select--;
 			else

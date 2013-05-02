@@ -3,6 +3,7 @@
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/util/XMLString.hpp>
+#include <unistd.h>
 
 using namespace xercesc;
 using namespace std;
