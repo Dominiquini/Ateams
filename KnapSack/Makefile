@@ -1,10 +1,10 @@
 CC = g++
-CFLAGS = -Wall -pedantic -O3 -march=native
+CXXFLAGS = -Wall -pedantic -fpermissive -O3 -march=native
 
 ifeq ($(OS), Windows_NT)
-	LDFLAGS = -lmingw32 -lpthread -lfreeglut -lopengl32 -lGLU32 -lxerces-c
+  LDFLAGS = -lmingw32 -lpthread -lfreeglut -lopengl32 -lGLU32 -lxerces-c
 else
-	LDFLAGS = -lpthread -lglut -lGL -lGLU -lxerces-c -fpermissive
+  LDFLAGS = -lpthread -lglut -lGL -lGLU -lxerces-c
 endif
 
 BASE_PATH = ../Ateams_Base/
@@ -28,9 +28,15 @@ BIN = KnapSack
 
 EXEC = $(PATH_BIN)$(BIN)
 
-RUN_PARAM = -i $(PATH_DADOS)mk_gk01.prb -p $(PATH_PARAM)DEFAULT.param -r $(PATH_RES)mk_gk01.res
+RUN_PARAM = -i $(PATH_DADOS)mk_gk01.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)mk_gk01.res
 
-RM = rm -rf
+ifeq ($(OS), Windows_NT)
+  LN = ln -sf
+  RM = rm -rf
+else
+  LN = cp
+  RM = rm -rf
+endif
 
 
 .PHONY: 		all install base debug run clean purge
@@ -38,14 +44,10 @@ RM = rm -rf
 all:			$(PATH_BIN) $(EXEC)
 
 install:		all
-				@ln -fs $(EXEC) $(PATH_PROJ)$(BIN)
+				@$(LN) $(EXEC) $(PATH_PROJ)$(BIN)
 
 base:
 				@cd $(BASE_PATH) && $(MAKE) -s
-
-debug:
-				@echo "$(CC) $(BASE_PATH_SRC)*.cpp $(SRCS) -g3 -O0 -o $(BIN) -lefence $(LDFLAGS)"
-				@$(CC) $(BASE_SRCS) $(SRCS) -g3 -O0 -o $(BIN) -lefence $(LDFLAGS)
 
 $(PATH_BIN):
 				@mkdir $(PATH_BIN)
@@ -54,12 +56,12 @@ $(PATH_RES):
 				@mkdir $(PATH_RES)
 
 $(EXEC):		$(OBJS) base
-				@$(CC) $(CFLAGS) $(BASE_PATH_BIN)*.o $< -o $@ $(LDFLAGS)
-				@echo "$(CC) $(CFLAGS) $(BASE_PATH_BIN)*.o $< -o $@ $(LDFLAGS)"
+				@$(CC) $(CXXFLAGS) $(BASE_PATH_BIN)*.o $< -o $@ $(LDFLAGS)
+				@echo "$(CC) $(CXXFLAGS) $(BASE_PATH_BIN)*.o $< -o $@ $(LDFLAGS)"
 
 $(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.hpp
-				@$(CC) $(CFLAGS) -c $< -o $@
-				@echo "$(CC) $(CFLAGS) -c $< -o $@"
+				@$(CC) $(CXXFLAGS) -c $< -o $@
+				@echo "$(CC) $(CXXFLAGS) -c $< -o $@"
 
 run:			$(PATH_RES) install
 				$(EXEC) $(RUN_PARAM)

@@ -25,7 +25,13 @@ EXECS =	$(EXEC_BINPACKING) $(EXEC_FLOWSHOP) $(EXEC_GRAPHCOLORING) $(EXEC_JOBSHOP
 
 BINS = $(BIN_BINPACKING) $(BIN_FLOWSHOP) $(BIN_GRAPHCOLORING) $(BIN_JOBSHOP) $(BIN_KNAPSACK) $(BIN_TRAVELLINGSALESMAN)
 
-RM = rm -f
+ifeq ($(OS), Windows_NT)
+  LN = ln -sf
+  RM = rm -rf
+else
+  LN = cp
+  RM = rm -rf
+endif
 
 
 .PHONY:				all install clean purge $(EXECS)
@@ -41,39 +47,39 @@ all:				Base
 					@$(RM) $(EXECS)
 
 install:			all
-					@ln -fs $(BIN_BINPACKING) $(EXEC_BINPACKING)
-					@ln -fs $(BIN_FLOWSHOP) $(EXEC_FLOWSHOP)
-					@ln -fs $(BIN_GRAPHCOLORING) $(EXEC_GRAPHCOLORING)
-					@ln -fs $(BIN_JOBSHOP) $(EXEC_JOBSHOP)
-					@ln -fs $(BIN_KNAPSACK) $(EXEC_KNAPSACK)
-					@ln -fs $(BIN_TRAVELLINGSALESMAN) $(EXEC_TRAVELLINGSALESMAN)
+					@$(LN) $(BIN_BINPACKING) $(EXEC_BINPACKING)
+					@$(LN) $(BIN_FLOWSHOP) $(EXEC_FLOWSHOP)
+					@$(LN) $(BIN_GRAPHCOLORING) $(EXEC_GRAPHCOLORING)
+					@$(LN) $(BIN_JOBSHOP) $(EXEC_JOBSHOP)
+					@$(LN) $(BIN_KNAPSACK) $(EXEC_KNAPSACK)
+					@$(LN) $(BIN_TRAVELLINGSALESMAN) $(EXEC_TRAVELLINGSALESMAN)
 
 Base:
 					@$(MAKE) -s -C $(PATH_BASE)
 
 BinPacking:			$(EXEC_BINPACKING)
 					@$(MAKE) -s -C $(PATH_BINPACKING)
-					@ln -fs $(PATH_BINPACKING)bin/$@ $<
+					@$(LN) $(PATH_BINPACKING)bin/$@ $<
 
 FlowShop:			$(EXEC_FLOWSHOP)
 					@$(MAKE) -s -C $(PATH_FLOWSHOP)
-					@ln -fs $(PATH_FLOWSHOP)bin/$@ $<
+					@$(LN) $(PATH_FLOWSHOP)bin/$@ $<
 
 GraphColoring:		$(EXEC_GRAPHCOLORING)
 					@$(MAKE) -s -C $(PATH_GRAPHCOLORING)
-					@ln -fs $(PATH_GRAPHCOLORING)bin/$@ $<
+					@$(LN) $(PATH_GRAPHCOLORING)bin/$@ $<
 
 JobShop:			$(EXEC_JOBSHOP)
 					@$(MAKE) -s -C $(PATH_JOBSHOP)
-					@ln -fs $(PATH_JOBSHOP)bin/$@ $<
+					@$(LN) $(PATH_JOBSHOP)bin/$@ $<
 
 KnapSack:			$(EXEC_KNAPSACK)
 					@$(MAKE) -s -C $(PATH_KNAPSACK)
-					@ln -fs $(PATH_KNAPSACK)bin/$@ $<
+					@$(LN) $(PATH_KNAPSACK)bin/$@ $<
 
 TravellingSalesman:	$(EXEC_TRAVELLINGSALESMAN)
 					@$(MAKE) -s -C $(PATH_TRAVELLINGSALESMAN)
-					@ln -fs $(PATH_TRAVELLINGSALESMAN)bin/$@ $<
+					@$(LN) $(PATH_TRAVELLINGSALESMAN)bin/$@ $<
 
 clean:
 					@$(MAKE) -s $@ -C $(PATH_BASE)
