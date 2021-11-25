@@ -28,42 +28,42 @@ RUN_PARAM = -i $(PATH_DADOS)car1.prb -p $(PATH_PARAM)DEFAULT.param -r $(PATH_RES
 RM = rm -rf
 
 
-.PHONY: 	all install base debug run clean purge
+.PHONY: 		all install base debug run clean purge
 
-all:		$(PATH_BIN) $(EXEC)
+all:			$(PATH_BIN) $(EXEC)
 
-install:	all
-		@ln -fs $(EXEC) $(PATH_PROJ)$(BIN)
+install:		all
+				@ln -fs $(EXEC) $(PATH_PROJ)$(BIN)
 
 base:
-		@cd $(BASE_PATH) && $(MAKE) -s
+				@cd $(BASE_PATH) && $(MAKE) -s
 
 debug:
-		@echo "$(CC) $(BASE_PATH_SRC)*.cpp $(SRCS) -g3 -O0 -o $(BIN) -lefence $(LDFLAGS)"
-		@$(CC) $(BASE_SRCS) $(SRCS) -g3 -O0 -o $(BIN) -lefence $(LDFLAGS)
+				@echo "$(CC) $(BASE_PATH_SRC)*.cpp $(SRCS) -g3 -O0 -o $(BIN) -lefence $(LDFLAGS)"
+				@$(CC) $(BASE_SRCS) $(SRCS) -g3 -O0 -o $(BIN) -lefence $(LDFLAGS)
 
 $(PATH_BIN):
-		@mkdir $(PATH_BIN)
+				@mkdir $(PATH_BIN)
 
 $(PATH_RES):
-		@mkdir $(PATH_RES)
+				@mkdir $(PATH_RES)
 
-$(EXEC):	$(OBJS) base
-		@$(CC) $(CFLAGS) $(BASE_PATH_BIN)*.o $< -o $@ $(LDFLAGS)
-		@echo "$(CC) $(CFLAGS) $(BASE_PATH_BIN)*.o $< -o $@ $(LDFLAGS)"
+$(EXEC):		$(OBJS) base
+				@$(CC) $(CFLAGS) $(BASE_PATH_BIN)*.o $< -o $@ $(LDFLAGS)
+				@echo "$(CC) $(CFLAGS) $(BASE_PATH_BIN)*.o $< -o $@ $(LDFLAGS)"
 
 $(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.hpp
-		@$(CC) $(CFLAGS) -c $< -o $@
-		@echo "$(CC) $(CFLAGS) -c $< -o $@"
+				@$(CC) $(CFLAGS) -c $< -o $@
+				@echo "$(CC) $(CFLAGS) -c $< -o $@"
 
-run:		$(PATH_RES) install
-		$(EXEC) $(RUN_PARAM)
+run:			$(PATH_RES) install
+				$(EXEC) $(RUN_PARAM)
 
 clean:
-		@$(RM) $(OBJS) $(BIN) $(EXEC) $(PATH_BIN)
-		@echo "$(RM) $(BIN) $(OBJS) $(EXEC) $(PATH_BIN)"
+				@$(RM) $(OBJS) $(BIN) $(EXEC) $(PATH_BIN)
+				@echo "$(RM) $(BIN) $(OBJS) $(EXEC) $(PATH_BIN)"
 
-purge:		clean
-		@$(RM) $(PATH_RES) $(PATH_BIN)
-		@cd $(BASE_PATH) && $(MAKE) $@ -s
-		@echo "$(RM) $(PATH_RES)*.res $(PATH_BIN)"
+purge:			clean
+				@$(RM) $(PATH_RES) $(PATH_BIN)
+				@cd $(BASE_PATH) && $(MAKE) $@ -s
+				@echo "$(RM) $(PATH_RES)*.res $(PATH_BIN)"
