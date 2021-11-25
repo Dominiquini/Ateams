@@ -27,6 +27,10 @@
 
 using namespace std;
 
+#if (defined(_WIN32) || defined(__WIN32__))
+#define mkdir(A, B) mkdir(A)
+#endif
+
 #ifndef _ATEAMS_
 #define _ATEAMS_
 

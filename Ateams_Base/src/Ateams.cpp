@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		mkdir("resultados");
+		mkdir("resultados", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
 		string arq(dados);
 		char *c = NULL;
