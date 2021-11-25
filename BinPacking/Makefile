@@ -1,6 +1,11 @@
 CC = g++
 CFLAGS = -Wall -pedantic -O3 -march=native
-LDFLAGS = -lpthread -lglut -lGL -lGLU -lxerces-c
+
+ifeq ($(OS), Windows_NT)
+	LDFLAGS = -lmingw32 -lpthread -lfreeglut -lopengl32 -lGLU32 -lxerces-c
+else
+	LDFLAGS = -lpthread -lglut -lGL -lGLU -lxerces-c -fpermissive
+endif
 
 BASE_PATH = ../Ateams_Base/
 
@@ -9,11 +14,11 @@ BASE_PATH_BIN = ../Ateams_Base/bin/
 
 BASE_SRCS = $(wildcard $(BASE_PATH_SRC)*.cpp)
 
-PATH_DADOS = ./dados/
-PATH_PARAM = ./parametros/
-PATH_BIN = ./bin/
-PATH_SRC = ./src/
-PATH_RES = ./resultados/
+PATH_PARAM 	= ../Ateams_Base/parametros/
+PATH_DADOS 	= ./dados/
+PATH_BIN 	= ./bin/
+PATH_SRC 	= ./src/
+PATH_RES 	= ./resultados/
 
 SRCS =  $(wildcard $(PATH_SRC)*.cpp)
 
@@ -23,7 +28,7 @@ BIN = BinPacking
 
 EXEC = $(PATH_BIN)$(BIN)
 
-RUN_PARAM = -i $(PATH_DADOS)binpack1_01.prb -p $(PATH_PARAM)DEFAULT.param -r $(PATH_RES)binpack1_01.res
+RUN_PARAM = -i $(PATH_DADOS)binpack1_01.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)binpack1_01.res
 
 RM = rm -rf
 

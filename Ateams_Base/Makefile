@@ -1,6 +1,11 @@
 CC = g++
 CFLAGS = -Wall -pedantic -O3 -march=native
-LDFLAGS = -lpthread -lglut -lGL -lGLU -lxerces-c -fpermissive
+
+ifeq ($(OS), Windows_NT)
+	LDFLAGS = -lmingw32 -lpthread -lfreeglut -lopengl32 -lGLU32 -lxerces-c -fpermissive
+else
+	LDFLAGS = -lpthread -lglut -lGL -lGLU -lxerces-c -fpermissive
+endif
 
 PATH_BIN = ./bin/
 PATH_SRC = ./src/
