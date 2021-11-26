@@ -28,7 +28,7 @@ BIN = BinPacking
 
 EXEC = $(PATH_BIN)$(BIN)
 
-RUN_PARAM = -i $(PATH_DADOS)binpack1_01.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)binpack1_01.res
+RUN_PARAM = -i $(PATH_DADOS)binpack1_01.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)binpack1_01.res $(ARG)
 
 ifeq ($(OS), Windows_NT)
   LN = ln -sf

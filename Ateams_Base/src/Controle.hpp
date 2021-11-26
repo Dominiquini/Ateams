@@ -1,9 +1,13 @@
+#include <unistd.h>
+#include <iostream>
+#include <string>
+#include <cctype>
+
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax2/DefaultHandler.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/util/XMLString.hpp>
-#include <unistd.h>
 
 using namespace xercesc;
 using namespace std;
@@ -120,5 +124,21 @@ public:
 
 bool cmpAlg(Heuristica *h1, Heuristica *h2);
 
+inline string capitalize(string text) {
+
+	for (int x = 0; x < text.length(); x++)
+	{
+		if (x == 0)
+		{
+			text[x] = toupper(text[x]);
+		}
+		else if (text[x - 1] == ' ')
+		{
+			text[x] = toupper(text[x]);
+		}
+	}
+
+	return text;
+}
 
 #endif

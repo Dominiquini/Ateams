@@ -28,7 +28,7 @@ BIN = JobShop
 
 EXEC = $(PATH_BIN)$(BIN)
 
-RUN_PARAM = -i $(PATH_DADOS)la01.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)la01.res
+RUN_PARAM = -i $(PATH_DADOS)la01.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)la01.res $(ARG)
 
 ifeq ($(OS), Windows_NT)
   LN = ln -sf

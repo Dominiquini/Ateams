@@ -37,9 +37,9 @@ public:
 
 	static ProblemType TIPO;
 
-	static double best;			// Melhor solucao do momento
+	static double best;				// Melhor solucao do momento
 	static double worst;			// Pior solucao do momento
-	static int numInst;			// Quantidade de instancias criadas
+	static int numInst;				// Quantidade de instancias criadas
 	static long int totalNumInst;	// Quantidade total de problemas processados
 
 	// Le arquivo de dados de entrada

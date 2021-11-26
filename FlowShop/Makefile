@@ -28,7 +28,7 @@ BIN = FlowShop
 
 EXEC = $(PATH_BIN)$(BIN)
 
-RUN_PARAM = -i $(PATH_DADOS)car1.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)car1.res
+RUN_PARAM = -i $(PATH_DADOS)car1.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)car1.res $(ARG)
 
 ifeq ($(OS), Windows_NT)
   LN = ln -sf

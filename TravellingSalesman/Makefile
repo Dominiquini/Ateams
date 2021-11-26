@@ -28,7 +28,7 @@ BIN = TravellingSalesman
 
 EXEC = $(PATH_BIN)$(BIN)
 
-RUN_PARAM = -i $(PATH_DADOS)br17.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)br17.res
+RUN_PARAM = -i $(PATH_DADOS)br17.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)br17.res $(ARG)
 
 ifeq ($(OS), Windows_NT)
   LN = ln -sf

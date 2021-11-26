@@ -31,7 +31,7 @@ Controle* Controle::getInstance(char* xml)
 	{
 		char* message = XMLString::transcode(toCatch.getMessage());
 		cout << "Error During Initialization!" << endl;
-		cout << "Exception Message Is:" << endl	<< message << endl << endl;
+		cout << "Exception Message Is: " << capitalize(message) << endl << endl;
 		XMLString::release(&message);
 
 		exit(1);
@@ -58,7 +58,7 @@ Controle* Controle::getInstance(char* xml)
 	catch(const XMLException& toCatch)
 	{
 		char* message = XMLString::transcode(toCatch.getMessage());
-		cout << endl << "Exception Message Is:" << endl << message << endl << endl;
+		cout << endl << "Exception Message Is: " << capitalize(message) << endl << endl;
 		XMLString::release(&message);
 
 		exit(1);
@@ -66,14 +66,14 @@ Controle* Controle::getInstance(char* xml)
 	catch(const SAXParseException& toCatch)
 	{
 		char* message = XMLString::transcode(toCatch.getMessage());
-		cout << endl << "Exception Message Is:" << endl << message << endl << endl;
+		cout << endl << "Exception Message Is: " << capitalize(message) << endl << endl;
 		XMLString::release(&message);
 
 		exit(1);
 	}
 	catch(...)
 	{
-		cout << endl << "Unexpected Exception" << endl << endl;
+		cout << endl << "Unexpected Exception!" << endl << endl;
 
 		exit(1);
 	}
@@ -106,7 +106,7 @@ void Controle::startElement(const XMLCh* const uri, const XMLCh* const localname
 
 			if(!setParameter(parameter, value))
 			{
-				throw string("Parâmetro Inválido: \" ").append(parameter).append(" \"");
+				throw string("Invalid Parameter: \" ").append(parameter).append(" \"");
 			}
 
 			XMLString::release(&parameter);
@@ -142,7 +142,7 @@ void Controle::startElement(const XMLCh* const uri, const XMLCh* const localname
 
 				if(!newHeuristic->setParameter(parameter, value))
 				{
-					throw string("Parâmetro Inválido: \" ").append(parameter).append(" \"");
+					throw string("Invalid Parameter: \" ").append(parameter).append(" \"");
 				}
 
 				XMLString::release(&parameter);
@@ -260,7 +260,7 @@ Controle::~Controle()
 
 	vector<Heuristica*>::reverse_iterator it;
 
-	cout << endl << endl << "Execuções: " << execThreads << endl << endl;
+	cout << endl << endl << "Executions: " << execThreads << endl << endl;
 	for(it = algs->rbegin(); it != algs->rend(); it++)
 		delete *it;
 
@@ -368,7 +368,7 @@ Heuristica* Controle::selectRouletteWheel(vector<Heuristica*>* heuristc, unsigne
 {
 	if(heuristc == NULL || heuristc->size() == 0)
 	{
-		cout << "Nenhuma Heurística Definida!" << endl << endl;
+		cout << "No Heuristics Defined!" << endl << endl;
 
 		exit(1);
 	}
@@ -471,7 +471,7 @@ Problema* Controle::start(list<Problema*>* popInicial)
 
 	if(pop->size() == 0)
 	{
-		cout << endl << "Nenuma Solução Inicial Encontrada!" << endl << endl;
+		cout << endl << "No Initial Solution Found!" << endl << endl;
 
 		exit(1);
 	}
@@ -481,8 +481,8 @@ Problema* Controle::start(list<Problema*>* popInicial)
 	Problema::best = (*pop->begin())->getFitness();
 	Problema::worst = (*pop->rbegin())->getFitness();
 
-	cout << endl << "Pior Solução Inicial: " << Problema::worst << endl << endl;
-	cout << "Melhor Solução Inicial: " << Problema::best << endl << endl << endl;
+	cout << endl << "Worst Initial Solution: " << Problema::worst << endl << endl;
+	cout << "Best Initial Solution: " << Problema::best << endl << endl << endl;
 
 	pair<int, Controle*>* par = NULL;
 	long int ins = 0;
@@ -501,7 +501,7 @@ Problema* Controle::start(list<Problema*>* popInicial)
 
 	if(pthread_create(&threadTime, &attr, pthrTime, (void*)this) != 0)
 	{
-		cout << endl << endl << "Erro na criação da Thread! (pthrTime)" << endl << endl;
+		cout << endl << endl << "Thread Creation Error! (pthrTime)" << endl << endl;
 		exit(1);
 	}
 
@@ -513,7 +513,7 @@ Problema* Controle::start(list<Problema*>* popInicial)
 
 		if(pthread_create(&threads[execAteams], &attr, pthrExec, (void*)par) != 0)
 		{
-			cout << endl << endl << "Erro na criação da Thread! (pthrExec)" << endl << endl;
+			cout << endl << endl << "Thread Creation Error! (pthrExec)" << endl << endl;
 			exit(1);
 		}
 	}
@@ -528,7 +528,7 @@ Problema* Controle::start(list<Problema*>* popInicial)
 
 	pthread_join(threadTime, NULL);
 
-	cout << endl << "Soluções Permutadas: " << ins << endl;
+	cout << endl << "Swapped Solutions: " << ins << endl;
 
 	free(threads);
 
@@ -569,7 +569,7 @@ inline int Controle::exec(int randomic, int idThread)
 		for(list<list<Heuristica_Listener*>::iterator >::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
 			execNames = execNames + (**it)->info + " ";
 
-		printf(">>> ALG: %s | ..................................................... | FILA: (%d : %s)\n", listener->info.c_str(), actThreads, execNames.c_str());
+		printf(">>> ALG: %s | ..................................................... | QUEUE: (%d : %s)\n", listener->info.c_str(), actThreads, execNames.c_str());
 	}
 	pthread_mutex_unlock(&mutex_info);
 
@@ -611,7 +611,7 @@ inline int Controle::exec(int randomic, int idThread)
 		for(list<list<Heuristica_Listener*>::iterator >::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
 			execNames = execNames + (**it)->info + " ";
 
-		printf(" | FILA: (%d : %s)\n", actThreads, execNames.c_str());
+		printf(" | QUEUE: (%d : %s)\n", actThreads, execNames.c_str());
 	}
 	pthread_mutex_unlock(&mutex_info);
 
@@ -828,10 +828,10 @@ void Controle::display()
 		Controle::drawstr(coluna, linha+0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (**iter)->info.c_str(), (**iter)->status);
 
 		glColor3f(0.0f, 1.0f, 0.0f);
-		Controle::drawstr(coluna, linha+0.2, GLUT_BITMAP_TIMES_ROMAN_10, "Melhor solucao inicial: %.0f       Melhor solucao atual: %.0f\n\n", (**iter)->bestInitialFitness, (**iter)->bestActualFitness);
+		Controle::drawstr(coluna, linha+0.2, GLUT_BITMAP_HELVETICA_12, "Best Initial Solution: %.0f\t | \tBest Current Solution: %.0f\n\n", (**iter)->bestInitialFitness, (**iter)->bestActualFitness);
 
 		glColor3f(0.0f, 0.0f, 1.0f);
-		Controle::drawstr(coluna, linha, GLUT_BITMAP_TIMES_ROMAN_10, (**iter)->getInfo());
+		Controle::drawstr(coluna, linha, GLUT_BITMAP_9_BY_15, (**iter)->getInfo());
 
 		coluna += 3.4;
 
@@ -883,6 +883,7 @@ inline bool cmpAlg(Heuristica *h1, Heuristica *h2)
 {
 	return h1->prob < h2->prob;
 }
+
 
 Controle* Controle::instance = NULL;
 

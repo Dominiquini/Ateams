@@ -154,7 +154,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop, Heuristica_Listener* l
 
 			listener->bestActualFitness = (*pop->begin())->getFitness();
 
-			listener->setInfo("Geracao: %d", i+1);
+			listener->setInfo("Generation: %d", i+1);
 		}
 
 		numCrossOver = (int)((float)pop->size() * probCrossOver);

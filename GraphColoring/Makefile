@@ -28,7 +28,7 @@ BIN = GraphColoring
 
 EXEC = $(PATH_BIN)$(BIN)
 
-RUN_PARAM = -i $(PATH_DADOS)jean.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)jean.res
+RUN_PARAM = -i $(PATH_DADOS)jean.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)jean.res $(ARG)
 
 ifeq ($(OS), Windows_NT)
   LN = ln -sf

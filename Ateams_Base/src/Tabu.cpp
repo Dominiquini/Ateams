@@ -147,7 +147,7 @@ vector<Problema*>* Tabu::exec(Problema* init, Heuristica_Listener* listener)
 
 			listener->bestActualFitness = (*maxGlobal->rbegin())->getFitness();
 
-			listener->setInfo("Iteracao: %d", i+1);
+			listener->setInfo("Iteration: %d", i+1);
 		}
 
 		if(polExploracao >= 1)

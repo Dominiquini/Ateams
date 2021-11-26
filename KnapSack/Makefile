@@ -28,7 +28,7 @@ BIN = KnapSack
 
 EXEC = $(PATH_BIN)$(BIN)
 
-RUN_PARAM = -i $(PATH_DADOS)mk_gk01.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)mk_gk01.res
+RUN_PARAM = -i $(PATH_DADOS)mk_gk01.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)mk_gk01.res $(ARG)
 
 ifeq ($(OS), Windows_NT)
   LN = ln -sf

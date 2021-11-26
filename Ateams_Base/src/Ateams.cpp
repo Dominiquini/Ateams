@@ -36,18 +36,18 @@ int main(int argc, char *argv[])
 	{
 		if((fdados = fopen(argv[p], "r")) == NULL)
 		{
-			printf("\nArquivo \"%s\" não encontrado.\n\n", argv[p]);
+			printf("\nData File \"%s\" Not Found!.\n\n", argv[p]);
 			exit(1);
 		}
 		else
 		{
-			printf("\nDados: '%s'\n", argv[p]);
+			printf("\nData File: '%s'\n", argv[p]);
 			strcpy(dados, argv[p]);
 		}
 	}
 	else
 	{
-		printf("\n./Ateams -i <ARQUIVO_ENTRADA -p <ARQUIVO_PARÂMETROS -r <ARQUIVO_RESULTADOS> -l <ARQUIVO_LOG>\n\n");
+		printf("\n./Ateams -i <INPUT_FILE -p <INPUT_PARAMETERS -r <RESULT_FILE> -l <LOG_FILE>\n\n");
 
 		return -1;
 	}
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 	{
 		strcpy(resultado, argv[p]);
 
-		printf("Resultado: '%s'\n", resultado);
+		printf("Result File: '%s'\n", resultado);
 	}
 	else
 	{
@@ -97,20 +97,20 @@ int main(int argc, char *argv[])
 		resultado[strlen(resultado) - 3] = '\0';
 		strcat(resultado, "res");
 
-		printf("Resultado: '%s'\n", resultado);
+		printf("Result: '%s'\n", resultado);
 	}
 
 	if((p = findPosArgv(argv, argc, (char*)"-l")) != -1)
 	{
 		strcpy(log, argv[p]);
 
-		printf("Log: '%s'\n", argv[p]);
+		printf("Log File: '%s'\n", argv[p]);
 	}
 	else
 	{
 		log[0] = '\0';
 
-		printf("~Log: ---");
+		printf("~Log File: ---");
 	}
 
 	/* Leitura dos dados passados por arquivos */
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
 	for(iter1 = pop->begin(); iter1 != pop->end(); iter1++)
 		for(iter2 = iter1; iter2 != pop->end(); iter2++)
 			if((iter1 != iter2) && (fnequal1(*iter1, *iter2) || fncomp1(*iter2, *iter1)))
-				cout << endl << "Memória Principal Incorreta!!!" << endl;
+				cout << endl << "Incorrect Main Memory!!!" << endl;
 
 	/* Escreve memoria principal no disco */
 	if(*log != '\0')
@@ -165,8 +165,8 @@ int main(int argc, char *argv[])
 
 	delete pop;
 
-	cout << endl << endl << "Pior Solução Final: " << Problema::worst << endl;
-	cout << endl << "Melhor Solução Final: " << Problema::best << endl;
+	cout << endl << endl << "Worst Final Solution: " << Problema::worst << endl;
+	cout << endl << "Best Final Solution: " << Problema::best << endl;
 
 	ExecInfo info;
 	ctrl->getInfo(&info);
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
 	/* Escreve solucao em arquivo no disco */
 	Problema::escreveResultado(dados, fXmlParametros, &info, resultado);
 
-	cout << endl << endl << "Solução:" << endl << endl;
+	cout << endl << endl << "Solution:" << endl << endl;
 
 	if(findPosArgv(argv, argc, (char*)"-d") != -1)
 		best->imprimir(true);
@@ -187,10 +187,10 @@ int main(int argc, char *argv[])
 
 	Problema::desalocaMemoria();
 
-	cout << endl << endl << "Soluções Exploradas: " << Problema::totalNumInst << endl << endl;
+	cout << endl << endl << "Explored Solutions: " << Problema::totalNumInst << endl << endl;
 
 	if(Problema::numInst != 0)
-		cout << "Vazamento De Memória! ( " << Problema::numInst << " )" << endl << endl;
+		cout << "Memory Leak! ( " << Problema::numInst << " )" << endl << endl;
 
 	cout << endl;
 

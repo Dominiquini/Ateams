@@ -620,7 +620,6 @@ bool fncomp2(Problema *prob1, Problema *prob2)
 	return p1->sol.fitness > p2->sol.fitness;
 }
 
-
 inline bool ptcomp(pair<Problema*, InfoTabu*>* p1, pair<Problema*, InfoTabu*>* p2)
 {
 	return (p1->first->getFitness() < p2->first->getFitness());
