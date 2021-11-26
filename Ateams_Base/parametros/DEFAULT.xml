@@ -4,7 +4,7 @@
    iterAteams = "250"
    tentAteams = "100"
    maxTempoAteams = "3600"
-   numThreads = "4"
+   numThreads = "8"
    tamPopAteams = "500"
    critUnicidade = "1"
    makespanBest = "-1">

@@ -70,30 +70,27 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		mkdir("resultados", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-
 		string arq(dados);
 		char *c = NULL;
 
 #ifdef _WIN32
+		mkdir("resultados");
+
 		strcpy(resultado, "resultados\\");
 
 		size_t pos = arq.rfind("\\");
-		if(pos != string::npos)
-			c = &dados[pos+2];
-		else
-			c = dados;
-
 #else
+		mkdir("resultados", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
 		strcpy(resultado, "resultados/");
 
 		size_t pos = arq.rfind("/");
+#endif
+
 		if(pos != string::npos)
 			c = &dados[pos+1];
 		else
 			c = dados;
-
-#endif
 
 		strcat(resultado, c);
 
