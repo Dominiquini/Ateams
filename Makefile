@@ -44,7 +44,6 @@ all:				Base
 					@$(MAKE) -s JobShop 
 					@$(MAKE) -s KnapSack 
 					@$(MAKE) -s TravellingSalesman
-					@$(RM) $(EXECS)
 
 install:			all
 					@$(LN) $(BIN_BINPACKING) $(EXEC_BINPACKING)
@@ -59,44 +58,34 @@ Base:
 
 BinPacking:			$(EXEC_BINPACKING)
 					@$(MAKE) -s -C $(PATH_BINPACKING)
-					@$(LN) $(PATH_BINPACKING)bin/$@ $<
 
 FlowShop:			$(EXEC_FLOWSHOP)
 					@$(MAKE) -s -C $(PATH_FLOWSHOP)
-					@$(LN) $(PATH_FLOWSHOP)bin/$@ $<
 
 GraphColoring:		$(EXEC_GRAPHCOLORING)
 					@$(MAKE) -s -C $(PATH_GRAPHCOLORING)
-					@$(LN) $(PATH_GRAPHCOLORING)bin/$@ $<
 
 JobShop:			$(EXEC_JOBSHOP)
 					@$(MAKE) -s -C $(PATH_JOBSHOP)
-					@$(LN) $(PATH_JOBSHOP)bin/$@ $<
 
 KnapSack:			$(EXEC_KNAPSACK)
 					@$(MAKE) -s -C $(PATH_KNAPSACK)
-					@$(LN) $(PATH_KNAPSACK)bin/$@ $<
 
 TravellingSalesman:	$(EXEC_TRAVELLINGSALESMAN)
 					@$(MAKE) -s -C $(PATH_TRAVELLINGSALESMAN)
-					@$(LN) $(PATH_TRAVELLINGSALESMAN)bin/$@ $<
 
-clean:
-					@$(MAKE) -s $@ -C $(PATH_BASE)
-					@$(MAKE) -s $@ -C $(PATH_BINPACKING)
-					@$(MAKE) -s $@ -C $(PATH_FLOWSHOP)
-					@$(MAKE) -s $@ -C $(PATH_GRAPHCOLORING)
-					@$(MAKE) -s $@ -C $(PATH_JOBSHOP)
-					@$(MAKE) -s $@ -C $(PATH_KNAPSACK)
-					@$(MAKE) -s $@ -C $(PATH_TRAVELLINGSALESMAN)
-					@$(RM) $(EXECS)
+clean:				COMMAND=clean
+clean:				--delete
 
-purge:
-					@$(MAKE) -s $@ -C $(PATH_BASE)
-					@$(MAKE) -s $@ -C $(PATH_BINPACKING)
-					@$(MAKE) -s $@ -C $(PATH_FLOWSHOP)
-					@$(MAKE) -s $@ -C $(PATH_GRAPHCOLORING)
-					@$(MAKE) -s $@ -C $(PATH_JOBSHOP)
-					@$(MAKE) -s $@ -C $(PATH_KNAPSACK)
-					@$(MAKE) -s $@ -C $(PATH_TRAVELLINGSALESMAN)
+purge:				COMMAND=purge
+purge:				--delete
+
+--delete:
+					@$(MAKE) -s $(COMMAND) -C $(PATH_BASE)
+					@$(MAKE) -s $(COMMAND) -C $(PATH_BINPACKING)
+					@$(MAKE) -s $(COMMAND) -C $(PATH_FLOWSHOP)
+					@$(MAKE) -s $(COMMAND) -C $(PATH_GRAPHCOLORING)
+					@$(MAKE) -s $(COMMAND) -C $(PATH_JOBSHOP)
+					@$(MAKE) -s $(COMMAND) -C $(PATH_KNAPSACK)
+					@$(MAKE) -s $(COMMAND) -C $(PATH_TRAVELLINGSALESMAN)
 					@$(RM) $(EXECS)

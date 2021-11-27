@@ -57,20 +57,16 @@ $(PATH_RES):
 
 $(EXEC):		$(OBJS) base
 				@$(CC) $(CXXFLAGS) $(BASE_PATH_BIN)*.o $< -o $@ $(LDFLAGS)
-				@echo "$(CC) $(CXXFLAGS) $(BASE_PATH_BIN)*.o $< -o $@ $(LDFLAGS)"
 
 $(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.hpp
 				@$(CC) $(CXXFLAGS) -c $< -o $@
-				@echo "$(CC) $(CXXFLAGS) -c $< -o $@"
 
 run:			$(PATH_RES) install
 				$(EXEC) $(RUN_PARAM)
 
 clean:
 				@$(RM) $(OBJS) $(BIN) $(EXEC) $(PATH_BIN)
-				@echo "$(RM) $(BIN) $(OBJS) $(EXEC) $(PATH_BIN)"
 
 purge:			clean
 				@$(RM) $(PATH_RES) $(PATH_BIN)
 				@cd $(BASE_PATH) && $(MAKE) $@ -s
-				@echo "$(RM) $(PATH_RES)*.res $(PATH_BIN)"

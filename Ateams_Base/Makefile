@@ -22,17 +22,14 @@ RM = rm -rf
 
 all:			$(PATH_BIN) $(OBJS)
 
-
 $(PATH_BIN):
 				@mkdir $(PATH_BIN)
 
 
 $(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.hpp $(DEPS)
 				@$(CC) $(CXXFLAGS) -c $< -o $@ $(LDFLAGS)
-				@echo "$(CC) $(CXXFLAGS) -c $< -o $@  $(LDFLAGS)"
 
 clean:
 				@$(RM) $(OBJS) $(PATH_BIN)
-				@echo "$(RM) $(OBJS) $(PATH_BIN)"
 
 purge:			clean
