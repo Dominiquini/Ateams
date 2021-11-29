@@ -25,6 +25,8 @@ EXECS =	$(EXEC_BINPACKING) $(EXEC_FLOWSHOP) $(EXEC_GRAPHCOLORING) $(EXEC_JOBSHOP
 
 BINS = $(BIN_BINPACKING) $(BIN_FLOWSHOP) $(BIN_GRAPHCOLORING) $(BIN_JOBSHOP) $(BIN_KNAPSACK) $(BIN_TRAVELLINGSALESMAN)
 
+NINJA_OUTPUTS = .ninja_deps .ninja_log
+
 ifeq ($(OS), Windows_NT)
   LN = ln -sf
   RM = rm -rf
@@ -79,6 +81,7 @@ clean:				--delete
 
 purge:				COMMAND=purge
 purge:				--delete
+					@$(RM) $(NINJA_OUTPUTS)
 
 --delete:
 					@$(MAKE) -s $(COMMAND) -C $(PATH_BASE)

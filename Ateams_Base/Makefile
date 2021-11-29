@@ -11,7 +11,6 @@ PATH_BIN = ./bin/
 PATH_SRC = ./src/
 
 SRCS = $(wildcard $(PATH_SRC)*.cpp)
-DEPS = $(PATH_SRC)Problema.hpp $(PATH_SRC)Heuristica.hpp
 
 OBJS = $(subst $(PATH_SRC),$(PATH_BIN),$(subst .cpp,.o,$(SRCS)))
 
@@ -26,7 +25,7 @@ $(PATH_BIN):
 				@mkdir $(PATH_BIN)
 
 
-$(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.hpp $(DEPS)
+$(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.hpp
 				@$(CC) $(CXXFLAGS) -c $< -o $@ $(LDFLAGS)
 
 clean:

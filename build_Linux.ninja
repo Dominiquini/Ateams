@@ -1,0 +1,34 @@
+cxxflags = -Wall -pedantic -fpermissive -O3 -march=native
+ldflags = -lpthread -lglut -lGL -lGLU -lxerces-c
+
+rule cc
+  deps = gcc
+  depfile = $out.d
+  command = g++ -MD -MF $out.d $cxxflags -c -o $out $in $ldflags
+  description = CC $out
+
+rule link
+  command = g++ $cxxflags -o $out $in $ldflags
+  description = LINK $out
+
+build Ateams_Base/bin/Ateams.o: cc Ateams_Base/src/Ateams.cpp
+build Ateams_Base/bin/Controle.o: cc Ateams_Base/src/Controle.cpp
+build Ateams_Base/bin/Tabu.o: cc Ateams_Base/src/Tabu.cpp
+build Ateams_Base/bin/Genetico.o: cc Ateams_Base/src/Genetico.cpp
+build Ateams_Base/bin/Annealing.o: cc Ateams_Base/src/Annealing.cpp
+
+build BinPacking/bin/BinPacking.o: cc BinPacking/src/BinPacking.cpp
+build FlowShop/bin/FlowShop.o: cc FlowShop/src/FlowShop.cpp
+build GraphColoring/bin/GraphColoring.o: cc GraphColoring/src/GraphColoring.cpp
+build JobShop/bin/JobShop.o: cc JobShop/src/JobShop.cpp
+build KnapSack/bin/KnapSack.o: cc KnapSack/src/KnapSack.cpp
+build TravellingSalesman/bin/TravellingSalesman.o: cc TravellingSalesman/src/TravellingSalesman.cpp
+
+build BinPacking/bin/BinPacking: link Ateams_Base/bin/Ateams.o Ateams_Base/bin/Controle.o Ateams_Base/bin/Tabu.o Ateams_Base/bin/Genetico.o Ateams_Base/bin/Annealing.o BinPacking/bin/BinPacking.o
+build FlowShop/bin/FlowShop: link Ateams_Base/bin/Ateams.o Ateams_Base/bin/Controle.o Ateams_Base/bin/Tabu.o Ateams_Base/bin/Genetico.o Ateams_Base/bin/Annealing.o FlowShop/bin/FlowShop.o
+build GraphColoring/bin/GraphColoring: link Ateams_Base/bin/Ateams.o Ateams_Base/bin/Controle.o Ateams_Base/bin/Tabu.o Ateams_Base/bin/Genetico.o Ateams_Base/bin/Annealing.o GraphColoring/bin/GraphColoring.o
+build JobShop/bin/JobShop: link Ateams_Base/bin/Ateams.o Ateams_Base/bin/Controle.o Ateams_Base/bin/Tabu.o Ateams_Base/bin/Genetico.o Ateams_Base/bin/Annealing.o JobShop/bin/JobShop.o
+build KnapSack/bin/KnapSack: link Ateams_Base/bin/Ateams.o Ateams_Base/bin/Controle.o Ateams_Base/bin/Tabu.o Ateams_Base/bin/Genetico.o Ateams_Base/bin/Annealing.o KnapSack/bin/KnapSack.o
+build TravellingSalesman/bin/TravellingSalesman: link Ateams_Base/bin/Ateams.o Ateams_Base/bin/Controle.o Ateams_Base/bin/Tabu.o Ateams_Base/bin/Genetico.o Ateams_Base/bin/Annealing.o TravellingSalesman/bin/TravellingSalesman.o
+
+default BinPacking/bin/BinPacking FlowShop/bin/FlowShop GraphColoring/bin/GraphColoring JobShop/bin/JobShop KnapSack/bin/KnapSack TravellingSalesman/bin/TravellingSalesman

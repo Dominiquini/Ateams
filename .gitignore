@@ -2,6 +2,9 @@
 *.log
 *.o
 
+.ninja_deps
+.ninja_log
+
 Debug/*
 Release/*
 bin
