@@ -346,11 +346,11 @@ inline void GraphColoring::imprimir(bool esc)
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problema* GraphColoring::vizinho()
 {
-	int p1 = xRand(rand(), 0, nnodes), p2 = xRand(rand(), 0, nnodes);
+	int p1 = xRand(0, nnodes), p2 = xRand(0, nnodes);
 	Problema *prob = NULL;
 
 	while(p2 == p1)
-		p2 = xRand(rand(), 0, nnodes);
+		p2 = xRand(0, nnodes);
 
 	prob = new GraphColoring(*this, p1, p2);
 
@@ -404,10 +404,10 @@ inline vector<pair<Problema*, InfoTabu*>* >* GraphColoring::buscaLocal(float par
 
 	for(register int i = 0; i < def; i++)
 	{
-		p1 = xRand(rand(), 0, nnodes), p2 = xRand(rand(), 0, nnodes);
+		p1 = xRand(0, nnodes), p2 = xRand(0, nnodes);
 
 		while(p2 == p1)
-			p2 = xRand(rand(), 0, nnodes);
+			p2 = xRand(0, nnodes);
 
 		prob = new GraphColoring(*this, p1, p2);
 
@@ -432,7 +432,7 @@ inline pair<Problema*, Problema*>* GraphColoring::crossOver(const Problema* parc
 
 	GraphColoring *other = dynamic_cast<GraphColoring *>(const_cast<Problema *>(parceiro));
 
-	inicioPart = xRand(rand(), 0, nnodes);
+	inicioPart = xRand(0, nnodes);
 	fimPart = inicioPart+particao <= nnodes ? inicioPart+particao : nnodes;
 
 	swap_vect(this->sol.ordemNodes, other->sol.ordemNodes, f1, inicioPart, fimPart-inicioPart);
@@ -453,7 +453,7 @@ inline pair<Problema*, Problema*>* GraphColoring::crossOver(const Problema* parc
 
 	GraphColoring *other = dynamic_cast<GraphColoring *>(const_cast<Problema *>(parceiro));
 
-	particao = xRand(rand(), 1, nnodes);
+	particao = xRand(1, nnodes);
 
 	swap_vect(this->sol.ordemNodes, other->sol.ordemNodes, f1, 0, particao);
 	swap_vect(other->sol.ordemNodes, this->sol.ordemNodes, f2, 0, particao);

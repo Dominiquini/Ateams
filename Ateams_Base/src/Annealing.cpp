@@ -91,7 +91,7 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	pthread_mutex_lock(&mutex_pop);
 
 	// Escolhe a melhor solucao para ser usada pelo SA
-	if(polEscolha == 0 || xRand(rand(), 0, 101) < elitismo)
+	if(polEscolha == 0 || xRand(0, 101) < elitismo)
 	{
 		select = sol->begin();
 		solSA = Problema::copySoluction(**select);
@@ -107,7 +107,7 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	srand(randomic);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
-	select = Controle::selectRouletteWheel(sol, visao, rand());
+	select = Controle::selectRouletteWheel(sol, visao);
 	if(polEscolha < -1)
 		while((*select)->exec.annealing == true)
 			if(select != sol->begin())

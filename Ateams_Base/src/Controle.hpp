@@ -61,12 +61,12 @@ public:
 	static double sumFitnessMinimize(vector<Problema*> *probs, int n);
 
 	/* Seleciona um individuo da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
-	static set<Problema*, bool(*)(Problema*, Problema*)>::iterator selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* probs, double fitTotal, unsigned int randWheel);
-	static vector<Problema*>::iterator selectRouletteWheel(vector<Problema*>* probs, double fitTotal, unsigned int randWheel);
-	static Heuristica* selectRouletteWheel(vector<Heuristica*>* heuristc, unsigned int probTotal, unsigned int randWheel);
+	static set<Problema*, bool(*)(Problema*, Problema*)>::iterator selectRouletteWheel(set<Problema*, bool(*)(Problema*, Problema*)>* probs, double fitTotal);
+	static vector<Problema*>::iterator selectRouletteWheel(vector<Problema*>* probs, double fitTotal);
+	static Heuristica* selectRouletteWheel(vector<Heuristica*>* heuristc, unsigned int probTotal);
 
 	/* Seleciona um individuo aleatoriamente */
-	static vector<Problema*>::iterator selectRandom(vector<Problema*>* probs, int randWheel);
+	static vector<Problema*>::iterator selectRandom(vector<Problema*>* probs);
 
 	static list<Problema*>::iterator findSol(list<Problema*> *vect, Problema *p);
 

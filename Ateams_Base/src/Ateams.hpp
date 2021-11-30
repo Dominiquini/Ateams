@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <vector>
 #include <bitset>
+#include <random>
 #include <ctime>
 #include <list>
 #include <set>
@@ -63,7 +64,7 @@ enum Heuristicas {SA, BT, AG};
 
 void Interrompe(int signum);
 
-int xRand(int rand, int a, int b);
+int xRand(int a, int b);
 
 int findPosArgv(char **in, int num, char *key);
 

@@ -202,9 +202,13 @@ void Interrompe(int signum)
 	PARAR = true;
 }
 
-int xRand(int rand, int a, int b)
+int xRand(int min, int max)
 {
-	return a + (int)((double)(b-a)*rand/(RAND_MAX+1.0));
+	random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> distr(min, max-1);
+
+	return distr(gen);
 }
 
 /* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */

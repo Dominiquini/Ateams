@@ -308,7 +308,7 @@ TravellingSalesman::TravellingSalesman() : Problema::Problema()
 
 	if(rand() % 5 == 0)	// Tenta uma solucao gulosa
 	{
-		int noAtual = xRand(rand(), 0, nnodes);
+		int noAtual = xRand(0, nnodes);
 		int proxNo = 0;
 		int pos = 0;
 		double d = 0;
@@ -463,11 +463,11 @@ inline void TravellingSalesman::imprimir(bool esc)
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problema* TravellingSalesman::vizinho()
 {
-	int p1 = xRand(rand(), 0, nnodes+1), p2 = xRand(rand(), 0, nnodes+1);
+	int p1 = xRand(0, nnodes+1), p2 = xRand(0, nnodes+1);
 	Problema *prob = NULL;
 
 	while(p2 == p1)
-		p2 = xRand(rand(), 0, nnodes+1);
+		p2 = xRand(0, nnodes+1);
 
 	prob = new TravellingSalesman(*this, p1, p2);
 	if(prob->getFitness() != -1)
@@ -534,10 +534,10 @@ inline vector<pair<Problema*, InfoTabu*>* >* TravellingSalesman::buscaLocal(floa
 
 	for(register int i = 0; i < def; i++)
 	{
-		p1 = xRand(rand(), 0, nnodes+1), p2 = xRand(rand(), 0, nnodes+1);
+		p1 = xRand(0, nnodes+1), p2 = xRand(0, nnodes+1);
 
 		while(p2 == p1)
-			p2 = xRand(rand(), 0, nnodes+1);
+			p2 = xRand(0, nnodes+1);
 
 		prob = new TravellingSalesman(*this, p1, p2);
 		if(prob->getFitness() != -1)
@@ -568,7 +568,7 @@ inline pair<Problema*, Problema*>* TravellingSalesman::crossOver(const Problema*
 
 	TravellingSalesman *other = dynamic_cast<TravellingSalesman *>(const_cast<Problema *>(parceiro));
 
-	inicioPart = xRand(rand(), 0, nnodes);
+	inicioPart = xRand(0, nnodes);
 	fimPart = inicioPart+particao <= nnodes ? inicioPart+particao : nnodes;
 
 	swap_vect(this->sol.ordemNodes, other->sol.ordemNodes, f1, inicioPart, fimPart-inicioPart);
@@ -589,7 +589,7 @@ inline pair<Problema*, Problema*>* TravellingSalesman::crossOver(const Problema*
 
 	TravellingSalesman *other = dynamic_cast<TravellingSalesman *>(const_cast<Problema *>(parceiro));
 
-	particao = xRand(rand(), 1, nnodes);
+	particao = xRand(1, nnodes);
 
 	swap_vect(this->sol.ordemNodes, other->sol.ordemNodes, f1, 0, particao);
 	swap_vect(other->sol.ordemNodes, this->sol.ordemNodes, f2, 0, particao);

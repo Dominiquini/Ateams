@@ -379,7 +379,7 @@ inline void KnapSack::imprimir(bool esc)
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problema* KnapSack::vizinho()
 {
-	int p1 = xRand(rand(), 0, sol.limit), p2 = xRand(rand(), sol.limit, nitens);
+	int p1 = xRand(0, sol.limit), p2 = xRand(sol.limit, nitens);
 	Problema *prob = NULL;
 
 	prob = new KnapSack(*this, p1, p2);
@@ -435,7 +435,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* KnapSack::buscaLocal(float parcela)
 
 	for(register int i = 0; i < def; i++)
 	{
-		p1 = xRand(rand(), 0, sol.limit), p2 = xRand(rand(), sol.limit, numItens);
+		p1 = xRand(0, sol.limit), p2 = xRand(sol.limit, numItens);
 
 		prob = new KnapSack(*this, p1, p2);
 
@@ -460,7 +460,7 @@ inline pair<Problema*, Problema*>* KnapSack::crossOver(const Problema* parceiro,
 
 	KnapSack *other = dynamic_cast<KnapSack *>(const_cast<Problema *>(parceiro));
 
-	inicioPart = xRand(rand(), 0, nitens);
+	inicioPart = xRand(0, nitens);
 	fimPart = inicioPart+particao <= nitens ? inicioPart+particao : nitens;
 
 	swap_vect(this->sol.ordemItens, other->sol.ordemItens, f1, inicioPart, fimPart-inicioPart);
@@ -481,7 +481,7 @@ inline pair<Problema*, Problema*>* KnapSack::crossOver(const Problema* parceiro,
 
 	KnapSack *other = dynamic_cast<KnapSack *>(const_cast<Problema *>(parceiro));
 
-	particao = xRand(rand(), 1, nitens);
+	particao = xRand(1, nitens);
 
 	swap_vect(this->sol.ordemItens, other->sol.ordemItens, f1, 0, particao);
 	swap_vect(other->sol.ordemItens, this->sol.ordemItens, f2, 0, particao);

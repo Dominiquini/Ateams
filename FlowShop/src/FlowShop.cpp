@@ -351,11 +351,11 @@ inline void FlowShop::imprimir(bool esc)
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problema* FlowShop::vizinho()
 {
-	int p1 = xRand(rand(), 0, njob), p2 = xRand(rand(), 0, njob);
+	int p1 = xRand(0, njob), p2 = xRand(0, njob);
 	Problema *job = NULL;
 
 	while(p2 == p1)
-		p2 = xRand(rand(), 0, njob);
+		p2 = xRand(0, njob);
 
 	job = new FlowShop(*this, p1, p2);
 	if(job->getFitness() != -1)
@@ -422,10 +422,10 @@ inline vector<pair<Problema*, InfoTabu*>* >* FlowShop::buscaLocal(float parcela)
 
 	for(register int i = 0; i < def; i++)
 	{
-		p1 = xRand(rand(), 0, njob), p2 = xRand(rand(), 0, njob);
+		p1 = xRand(0, njob), p2 = xRand(0, njob);
 
 		while(p2 == p1)
-			p2 = xRand(rand(), 0, njob);
+			p2 = xRand(0, njob);
 
 		job = new FlowShop(*this, p1, p2);
 		if(job->getFitness() != -1)
@@ -456,7 +456,7 @@ inline pair<Problema*, Problema*>* FlowShop::crossOver(const Problema* parceiro,
 
 	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problema *>(parceiro));
 
-	inicioPart = xRand(rand(), 0, njob);
+	inicioPart = xRand(0, njob);
 	fimPart = inicioPart+particao <= njob ? inicioPart+particao : njob;
 
 	swap_vect(this->sol.esc, other->sol.esc, f1, inicioPart, fimPart-inicioPart);
@@ -477,7 +477,7 @@ inline pair<Problema*, Problema*>* FlowShop::crossOver(const Problema* parceiro,
 
 	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problema *>(parceiro));
 
-	particao = xRand(rand(), 1, njob);
+	particao = xRand(1, njob);
 
 	swap_vect(this->sol.esc, other->sol.esc, f1, 0, particao);
 	swap_vect(other->sol.esc, this->sol.esc, f2, 0, particao);

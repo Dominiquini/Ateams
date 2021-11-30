@@ -454,11 +454,11 @@ inline void JobShop::imprimir(bool esc)
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problema* JobShop::vizinho()
 {
-	int maq = xRand(rand(), 0, nmaq), p1 = xRand(rand(), 0, njob), p2 = xRand(rand(), 0, njob);
+	int maq = xRand(0, nmaq), p1 = xRand(0, njob), p2 = xRand(0, njob);
 	Problema *job = NULL;
 
 	while(p2 == p1)
-		p2 = xRand(rand(), 0, njob);
+		p2 = xRand(0, njob);
 
 	job = new JobShop(*this, maq, p1, p2);
 	if(job->getFitness() != -1)
@@ -529,10 +529,10 @@ inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal(float parcela)
 
 	for(register int i = 0; i < def; i++)
 	{
-		maq = xRand(rand(), 0, numMaqs), p1 = xRand(rand(), 0, numJobs), p2 = xRand(rand(), 0, numJobs);
+		maq = xRand(0, numMaqs), p1 = xRand(0, numJobs), p2 = xRand(0, numJobs);
 
 		while(p2 == p1)
-			p2 = xRand(rand(), 0, numJobs);
+			p2 = xRand(0, numJobs);
 
 		job = new JobShop(*this, maq, p1, p2);
 		if(job->getFitness() != -1)
@@ -576,7 +576,7 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro, 
 
 		if(i < numberCrossOver)
 		{
-			inicioPart = xRand(rand(), 0, njob);
+			inicioPart = xRand(0, njob);
 			fimPart = inicioPart+particao <= njob ? inicioPart+particao : njob;
 
 			swap_vect(this->sol.esc[j], other->sol.esc[j], f1[j], inicioPart, fimPart-inicioPart);
@@ -619,7 +619,7 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro, 
 
 		if(i < numberCrossOver)
 		{
-			particao = xRand(rand(), 1, njob);
+			particao = xRand(1, njob);
 
 			swap_vect(this->sol.esc[j], other->sol.esc[j], f1[j], 0, particao);
 			swap_vect(other->sol.esc[j], this->sol.esc[j], f2[j], 0, particao);

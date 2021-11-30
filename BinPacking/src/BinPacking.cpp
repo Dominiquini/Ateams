@@ -434,11 +434,11 @@ inline void BinPacking::imprimir(bool esc)
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problema* BinPacking::vizinho()
 {
-	int p1 = xRand(rand(), 0, nitens), p2 = xRand(rand(), 0, nitens);
+	int p1 = xRand(0, nitens), p2 = xRand(0, nitens);
 	Problema *prob = NULL;
 
 	while(p2 == p1 || sol.bins[p1] == sol.bins[p2])
-		p2 = xRand(rand(), 0, nitens);
+		p2 = xRand(0, nitens);
 
 	prob = new BinPacking(*this, p1, p2);
 
@@ -495,10 +495,10 @@ inline vector<pair<Problema*, InfoTabu*>* >* BinPacking::buscaLocal(float parcel
 
 	for(register int i = 0; i < def; i++)
 	{
-		p1 = xRand(rand(), 0, nitens), p2 = xRand(rand(), 0, nitens);
+		p1 = xRand(0, nitens), p2 = xRand(0, nitens);
 
 		while(p2 == p1 || sol.bins[p1] == sol.bins[p2])
-			p2 = xRand(rand(), 0, nitens);
+			p2 = xRand(0, nitens);
 
 		prob = new BinPacking(*this, p1, p2);
 
@@ -523,7 +523,7 @@ inline pair<Problema*, Problema*>* BinPacking::crossOver(const Problema* parceir
 
 	BinPacking *other = dynamic_cast<BinPacking *>(const_cast<Problema *>(parceiro));
 
-	inicioPart = xRand(rand(), 0, nitens);
+	inicioPart = xRand(0, nitens);
 	fimPart = inicioPart+particao <= nitens ? inicioPart+particao : nitens;
 
 	swap_vect(this->sol.ordemItens, other->sol.ordemItens, f1, inicioPart, fimPart-inicioPart);
@@ -544,7 +544,7 @@ inline pair<Problema*, Problema*>* BinPacking::crossOver(const Problema* parceir
 
 	BinPacking *other = dynamic_cast<BinPacking *>(const_cast<Problema *>(parceiro));
 
-	particao = xRand(rand(), 1, nitens);
+	particao = xRand(1, nitens);
 
 	swap_vect(this->sol.ordemItens, other->sol.ordemItens, f1, 0, particao);
 	swap_vect(other->sol.ordemItens, this->sol.ordemItens, f2, 0, particao);

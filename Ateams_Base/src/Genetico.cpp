@@ -102,7 +102,7 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 		{
 			/* Evita a escolha de individuos repetidos */
 			while((iter == sol->end() || (*iter)->exec.genetico == true) && (j++ < tamPopGenetico))
-				iter = Controle::selectRouletteWheel(sol, visao, rand());
+				iter = Controle::selectRouletteWheel(sol, visao);
 
 			j= 0;
 			(*iter)->exec.genetico = true;
@@ -168,12 +168,12 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop, Heuristica_Listener* l
 
 			if(rand() < RAND_MAX*probMutacao && (int)bad_pop->size() > 0)
 			{
-				iterProb = Controle::selectRandom(bad_pop, rand());
+				iterProb = Controle::selectRandom(bad_pop);
 				temp->first = *iterProb;
 			}
 			else
 			{
-				iterProb = Controle::selectRouletteWheel(pop, sumP, rand());
+				iterProb = Controle::selectRouletteWheel(pop, sumP);
 				sumP -= (*iterProb)->getFitnessMaximize();
 				aux_pop->push_back(*iterProb);
 				temp->first = *iterProb;
@@ -182,12 +182,12 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop, Heuristica_Listener* l
 
 			if(rand() < RAND_MAX*probMutacao && (int)bad_pop->size() > 0)
 			{
-				iterProb = Controle::selectRandom(bad_pop, rand());
+				iterProb = Controle::selectRandom(bad_pop);
 				temp->second = *iterProb;
 			}
 			else
 			{
-				iterProb = Controle::selectRouletteWheel(pop, sumP, rand());
+				iterProb = Controle::selectRouletteWheel(pop, sumP);
 				sumP -= (*iterProb)->getFitnessMaximize();
 				aux_pop->push_back(*iterProb);
 				temp->second = *iterProb;
@@ -212,14 +212,14 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop, Heuristica_Listener* l
 
 			if(rand() < (RAND_MAX*probMutacao/2))
 			{
-				mutante = temp->first->mutacao(xRand(rand(), 1, (int)(((float)100)*probMutacao)));
+				mutante = temp->first->mutacao(xRand(1, (int)(((float)100)*probMutacao)));
 				delete temp->first;
 				temp->first = mutante;
 			}
 
 			if(rand() < (RAND_MAX*probMutacao/2))
 			{
-				mutante = temp->second->mutacao(xRand(rand(), 1, (int)(((float)100)*probMutacao)));
+				mutante = temp->second->mutacao(xRand(1, (int)(((float)100)*probMutacao)));
 				delete temp->second;
 				temp->second = mutante;
 			}
