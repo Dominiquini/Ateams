@@ -1,34 +1,40 @@
-cxxflags = -Wall -pedantic -fpermissive -O3 -march=native
+cxxflags = -Wall -O3 -march=native
 ldflags = -lmingw32 -lpthread -lfreeglut -lopengl32 -lGLU32 -lxerces-c
 
-rule cc
+pool default_pool
+  depth = 16
+
+rule compile
   deps = gcc
   depfile = $out.d
   command = g++ -MD -MF $out.d $cxxflags -c -o $out $in $ldflags
-  description = CC $out
+  description = COMPILE $out
+  pool = default_pool
 
 rule link
   command = g++ $cxxflags -o $out $in $ldflags
   description = LINK $out
+  pool = default_pool
 
 rule archive
   command = ar -rsc $out $in
   description = ARCHIVE $out
+  pool = default_pool
 
-build Ateams_Base/bin/Ateams.o: cc Ateams_Base/src/Ateams.cpp
-build Ateams_Base/bin/Controle.o: cc Ateams_Base/src/Controle.cpp
-build Ateams_Base/bin/Tabu.o: cc Ateams_Base/src/Tabu.cpp
-build Ateams_Base/bin/Genetico.o: cc Ateams_Base/src/Genetico.cpp
-build Ateams_Base/bin/Annealing.o: cc Ateams_Base/src/Annealing.cpp
+build Ateams_Base/bin/Ateams.o: compile Ateams_Base/src/Ateams.cpp
+build Ateams_Base/bin/Controle.o: compile Ateams_Base/src/Controle.cpp
+build Ateams_Base/bin/Tabu.o: compile Ateams_Base/src/Tabu.cpp
+build Ateams_Base/bin/Genetico.o: compile Ateams_Base/src/Genetico.cpp
+build Ateams_Base/bin/Annealing.o: compile Ateams_Base/src/Annealing.cpp
 
 build Ateams_Base/bin/AteamsBase.a: archive Ateams_Base/bin/Ateams.o Ateams_Base/bin/Controle.o Ateams_Base/bin/Tabu.o Ateams_Base/bin/Genetico.o Ateams_Base/bin/Annealing.o
 
-build BinPacking/bin/BinPacking.o: cc BinPacking/src/BinPacking.cpp
-build FlowShop/bin/FlowShop.o: cc FlowShop/src/FlowShop.cpp
-build GraphColoring/bin/GraphColoring.o: cc GraphColoring/src/GraphColoring.cpp
-build JobShop/bin/JobShop.o: cc JobShop/src/JobShop.cpp
-build KnapSack/bin/KnapSack.o: cc KnapSack/src/KnapSack.cpp
-build TravellingSalesman/bin/TravellingSalesman.o: cc TravellingSalesman/src/TravellingSalesman.cpp
+build BinPacking/bin/BinPacking.o: compile BinPacking/src/BinPacking.cpp
+build FlowShop/bin/FlowShop.o: compile FlowShop/src/FlowShop.cpp
+build GraphColoring/bin/GraphColoring.o: compile GraphColoring/src/GraphColoring.cpp
+build JobShop/bin/JobShop.o: compile JobShop/src/JobShop.cpp
+build KnapSack/bin/KnapSack.o: compile KnapSack/src/KnapSack.cpp
+build TravellingSalesman/bin/TravellingSalesman.o: compile TravellingSalesman/src/TravellingSalesman.cpp
 
 build BinPacking/bin/BinPacking.exe: link Ateams_Base/bin/AteamsBase.a BinPacking/bin/BinPacking.o
 build FlowShop/bin/FlowShop.exe: link Ateams_Base/bin/AteamsBase.a FlowShop/bin/FlowShop.o

@@ -275,7 +275,7 @@ inline bool GraphColoring::calcFitness(bool esc)
 {
 	short int *aux_colors = (short int*)malloc((nnodes + 1) * sizeof(short int));
 
-	for(register int i = 1; i <= nnodes; i++)
+	for(int i = 1; i <= nnodes; i++)
 		aux_colors[i] = 0;
 
 	int minColor = 1;
@@ -283,12 +283,12 @@ inline bool GraphColoring::calcFitness(bool esc)
 
 	int noCorrente, corCorrente;
 	vector<int>::iterator vizinhos;
-	for(register int n = 0; n < nnodes; n++)
+	for(int n = 0; n < nnodes; n++)
 	{
 		noCorrente = sol.ordemNodes[n];
 		corCorrente = -1;
 
-		for(register int c = 1; c <= minColor; c++)
+		for(int c = 1; c <= minColor; c++)
 		{
 			for(vizinhos = edges[noCorrente]->begin(); vizinhos != edges[noCorrente]->end() && aux_colors[*vizinhos] != c; vizinhos++);
 
@@ -364,7 +364,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* GraphColoring::buscaLocal()
 		return buscaLocal((float)MAX_PERMUTACOES/(float)GraphColoring::num_vizinhos);
 
 	Problema *prob = NULL;
-	register int p1, p2;
+	int p1, p2;
 	pair<Problema*, InfoTabu*>* temp;
 	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
 
@@ -402,7 +402,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* GraphColoring::buscaLocal(float par
 	if(def > MAX_PERMUTACOES)
 		def = MAX_PERMUTACOES;
 
-	for(register int i = 0; i < def; i++)
+	for(int i = 0; i < def; i++)
 	{
 		p1 = xRand(0, nnodes), p2 = xRand(0, nnodes);
 
@@ -506,10 +506,10 @@ inline double GraphColoring::getFitnessMinimize() const
 
 inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam)
 {
-	for(register int i = pos; i < pos+tam; i++)
+	for(int i = pos; i < pos+tam; i++)
 		f[i] = p1[i];
 
-	for(register int i = 0, j = 0; i < GraphColoring::nnodes && j < GraphColoring::nnodes; i++)
+	for(int i = 0, j = 0; i < GraphColoring::nnodes && j < GraphColoring::nnodes; i++)
 	{
 		if(j == pos)
 			j = pos+tam;

@@ -422,7 +422,7 @@ inline bool TravellingSalesman::calcFitness(bool esc)
 
 	double d;
 	int c1, c2;
-	for(register int c = 0; c < nnodes; c++)
+	for(int c = 0; c < nnodes; c++)
 	{
 		c1 = sol.ordemNodes[c];
 		c2 = sol.ordemNodes[c+1];
@@ -488,7 +488,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* TravellingSalesman::buscaLocal()
 		return buscaLocal((float)MAX_PERMUTACOES/(float)TravellingSalesman::num_vizinhos);
 
 	Problema *prob = NULL;
-	register int p1, p2;
+	int p1, p2;
 	pair<Problema*, InfoTabu*>* temp;
 	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
 
@@ -532,7 +532,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* TravellingSalesman::buscaLocal(floa
 	if(def > MAX_PERMUTACOES)
 		def = MAX_PERMUTACOES;
 
-	for(register int i = 0; i < def; i++)
+	for(int i = 0; i < def; i++)
 	{
 		p1 = xRand(0, nnodes+1), p2 = xRand(0, nnodes+1);
 
@@ -645,10 +645,10 @@ inline double TravellingSalesman::getFitnessMinimize() const
 
 inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam)
 {
-	for(register int i = pos; i < pos+tam; i++)
+	for(int i = pos; i < pos+tam; i++)
 		f[i] = p1[i];
 
-	for(register int i = 0, j = 0; i < TravellingSalesman::nnodes && j < TravellingSalesman::nnodes; i++)
+	for(int i = 0, j = 0; i < TravellingSalesman::nnodes && j < TravellingSalesman::nnodes; i++)
 	{
 		if(j == pos)
 			j = pos+tam;

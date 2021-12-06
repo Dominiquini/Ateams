@@ -136,7 +136,7 @@ ssize_t getline(char **pline_buf, size_t *pn, FILE *fin)
 	/* If output buffer is NULL, then allocate a buffer. */
 	if (NULL == *pline_buf)
 	{
-		*pline_buf = malloc(INITALLOC);
+		*pline_buf = (char *)malloc(INITALLOC);
 		if (NULL == *pline_buf)
 		{
 			/* Can't allocate memory. */
@@ -162,7 +162,7 @@ ssize_t getline(char **pline_buf, size_t *pn, FILE *fin)
 			if (num_read >= *pn)
 			{
 				size_t n_realloc = *pn + ALLOCSTEP;
-				char * tmp = realloc(*pline_buf, n_realloc + 1); /* +1 for the trailing NUL. */
+				char * tmp = (char *)realloc(*pline_buf, n_realloc + 1); /* +1 for the trailing NUL. */
 				if (NULL != tmp)
 				{
 					/* Use the new buffer and note the new buffer size. */

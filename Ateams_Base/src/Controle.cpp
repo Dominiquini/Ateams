@@ -521,7 +521,7 @@ Problema* Controle::start(list<Problema*>* popInicial)
 	for(int execAteams = 0; execAteams < iterAteams; execAteams++)
 	{
 		pthread_join(threads[execAteams], &temp);
-		ins += (long int)temp;
+		ins += (uintptr_t)temp;
 	}
 
 	PARAR = true;
@@ -627,7 +627,7 @@ void* Controle::pthrExec(void *obj)
 	pair<int, Controle*>* in = (pair<int, Controle*>*)obj;
 	int execAteams = in->first;
 	Controle *ctr = in->second;
-	long int ins = 0;
+	intptr_t ins = 0;
 
 	delete in;
 

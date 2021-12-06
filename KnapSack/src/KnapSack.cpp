@@ -224,7 +224,7 @@ KnapSack::KnapSack() : Problema::Problema()
 {
 	sol.ordemItens = (short int*)malloc(nitens * sizeof(short int));
 
-	for(register int i = 0; i < nitens; i++)
+	for(int i = 0; i < nitens; i++)
 		sol.ordemItens[i] = i;
 
 	random_shuffle(&sol.ordemItens[0], &sol.ordemItens[nitens]);
@@ -310,8 +310,8 @@ inline bool KnapSack::calcFitness(bool esc)
 	{
 		vector<double> tempConstraints(ncontraint, 0);
 
-		register double fitness = 0;
-		register int item = 0, limit = 0;
+		double fitness = 0;
+		int item = 0, limit = 0;
 		for(limit = 0; limit < nitens; limit++)
 		{
 			item = sol.ordemItens[limit];
@@ -331,7 +331,7 @@ inline bool KnapSack::calcFitness(bool esc)
 	else
 	{
 		sol.fitness = 0;
-		for(register int i = 0; i < sol.limit; i++)
+		for(int i = 0; i < sol.limit; i++)
 			sol.fitness += values[sol.ordemItens[i]];
 	}
 
@@ -393,7 +393,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* KnapSack::buscaLocal()
 	if(KnapSack::num_vizinhos > MAX_PERMUTACOES)
 		return buscaLocal((float)MAX_PERMUTACOES/(float)KnapSack::num_vizinhos);
 
-	register int p1, p2;
+	int p1, p2;
 	Problema *prob = NULL;
 	pair<Problema*, InfoTabu*>* temp;
 	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
@@ -433,7 +433,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* KnapSack::buscaLocal(float parcela)
 	if(def > MAX_PERMUTACOES)
 		def = MAX_PERMUTACOES;
 
-	for(register int i = 0; i < def; i++)
+	for(int i = 0; i < def; i++)
 	{
 		p1 = xRand(0, sol.limit), p2 = xRand(sol.limit, numItens);
 
@@ -535,10 +535,10 @@ inline double KnapSack::getFitnessMinimize() const
 
 inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam)
 {
-	for(register int i = pos; i < pos+tam; i++)
+	for(int i = pos; i < pos+tam; i++)
 		f[i] = p1[i];
 
-	for(register int i = 0, j = 0; i < KnapSack::nitens && j < KnapSack::nitens; i++)
+	for(int i = 0, j = 0; i < KnapSack::nitens && j < KnapSack::nitens; i++)
 	{
 		if(j == pos)
 			j = pos+tam;
@@ -553,7 +553,7 @@ inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int t
 inline bool constraintVerify(int item, vector<double> &constraints)
 {
 	vector<double>::iterator constraint;
-	register int c = 0;
+	int c = 0;
 
 	for(constraint = constraints.begin(); constraint != constraints.end(); constraint++)
 	{

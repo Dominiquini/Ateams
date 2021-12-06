@@ -315,7 +315,7 @@ JobShop::~JobShop()
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 inline bool JobShop::calcFitness(bool esc)
 {
-	register int max, cont = 0;
+	int max, cont = 0;
 	short int ***aux_esc, **tmp, *pos;
 	int ajob, apos, ainic, afim, sum_time;
 
@@ -323,7 +323,7 @@ inline bool JobShop::calcFitness(bool esc)
 	tmp = (short int**)alocaMatriz(2, njob, nmaq+1, 1);
 	aux_esc = (short int***)alocaMatriz(3, nmaq, njob, 3);
 
-	register int i, j, k;
+	int i, j, k;
 
 	for(i = 0; i < njob; i++)
 		for(j = 0; j <= nmaq; j++)
@@ -479,7 +479,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal()
 		return buscaLocal((float)MAX_PERMUTACOES/(float)JobShop::num_vizinhos);
 
 	Problema *job = NULL;
-	register int maq, p1, p2;
+	int maq, p1, p2;
 	int numMaqs = nmaq, numJobs = njob;
 	pair<Problema*, InfoTabu*>* temp;
 	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
@@ -527,7 +527,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal(float parcela)
 	if(def > MAX_PERMUTACOES)
 		def = MAX_PERMUTACOES;
 
-	for(register int i = 0; i < def; i++)
+	for(int i = 0; i < def; i++)
 	{
 		maq = xRand(0, numMaqs), p1 = xRand(0, numJobs), p2 = xRand(0, numJobs);
 
@@ -565,12 +565,12 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro, 
 
 	JobShop *other = dynamic_cast<JobShop *>(const_cast<Problema *>(parceiro));
 
-	for(register int i = 0; i < nmaq; i++)
+	for(int i = 0; i < nmaq; i++)
 		maqs[i] = i;
 
 	random_shuffle(&maqs[0], &maqs[nmaq]);
 
-	for(register int i = 0, j; i < nmaq; i++)
+	for(int i = 0, j; i < nmaq; i++)
 	{
 		j = maqs[i];
 
@@ -608,12 +608,12 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro, 
 
 	JobShop *other = dynamic_cast<JobShop *>(const_cast<Problema *>(parceiro));
 
-	for(register int i = 0; i < nmaq; i++)
+	for(int i = 0; i < nmaq; i++)
 		maqs[i] = i;
 
 	random_shuffle(&maqs[0], &maqs[nmaq]);
 
-	for(register int i = 0, j; i < nmaq; i++)
+	for(int i = 0, j; i < nmaq; i++)
 	{
 		j = maqs[i];
 
@@ -685,10 +685,10 @@ inline double JobShop::getFitnessMinimize() const
 
 inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam)
 {
-	for(register int i = pos; i < pos+tam; i++)
+	for(int i = pos; i < pos+tam; i++)
 		f[i] = p1[i];
 
-	for(register int i = 0, j = 0; i < JobShop::njob && j < JobShop::njob; i++)
+	for(int i = 0, j = 0; i < JobShop::njob && j < JobShop::njob; i++)
 	{
 		if(j == pos)
 			j = pos+tam;
