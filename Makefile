@@ -14,67 +14,41 @@ BIN_JOBSHOP 			= $(PATH_JOBSHOP)bin/JobShop
 BIN_KNAPSACK 			= $(PATH_KNAPSACK)bin/KnapSack
 BIN_TRAVELLINGSALESMAN	= $(PATH_TRAVELLINGSALESMAN)bin/TravellingSalesman
 
-EXEC_BINPACKING 		= Ateams_BinPacking
-EXEC_FLOWSHOP 			= Ateams_FlowShop
-EXEC_GRAPHCOLORING 		= Ateams_GraphColoring
-EXEC_JOBSHOP 			= Ateams_JobShop
-EXEC_KNAPSACK 			= Ateams_KnapSack
-EXEC_TRAVELLINGSALESMAN	= Ateams_TravellingSalesman
-
-EXECS =	$(EXEC_BINPACKING) $(EXEC_FLOWSHOP) $(EXEC_GRAPHCOLORING) $(EXEC_JOBSHOP) $(EXEC_KNAPSACK) $(EXEC_TRAVELLINGSALESMAN)
-
 BINS = $(BIN_BINPACKING) $(BIN_FLOWSHOP) $(BIN_GRAPHCOLORING) $(BIN_JOBSHOP) $(BIN_KNAPSACK) $(BIN_TRAVELLINGSALESMAN)
 
 NINJA_OUTPUTS = .ninja_deps .ninja_log
 
-ifeq ($(OS), Windows_NT)
-  LN = ln -sf
-  RM = rm -rf
-else
-  LN = cp
-  RM = rm -rf
-endif
+RM = rm -rf
 
 
-.PHONY:				all install clean purge $(EXECS)
+.PHONY:				list all clean purge
 
 
-all:				Base
-					@$(MAKE) -s BinPacking 
-					@$(MAKE) -s FlowShop 
-					@$(MAKE) -s GraphColoring 
-					@$(MAKE) -s JobShop 
-					@$(MAKE) -s KnapSack 
-					@$(MAKE) -s TravellingSalesman
-
-install:			all
-					@$(LN) $(BIN_BINPACKING) $(EXEC_BINPACKING)
-					@$(LN) $(BIN_FLOWSHOP) $(EXEC_FLOWSHOP)
-					@$(LN) $(BIN_GRAPHCOLORING) $(EXEC_GRAPHCOLORING)
-					@$(LN) $(BIN_JOBSHOP) $(EXEC_JOBSHOP)
-					@$(LN) $(BIN_KNAPSACK) $(EXEC_KNAPSACK)
-					@$(LN) $(BIN_TRAVELLINGSALESMAN) $(EXEC_TRAVELLINGSALESMAN)
+all:				Base BinPacking FlowShop GraphColoring JobShop KnapSack TravellingSalesman
 
 Base:
-					@$(MAKE) -s -C $(PATH_BASE)
+					@$(MAKE) -C $(PATH_BASE)
 
-BinPacking:			$(EXEC_BINPACKING)
-					@$(MAKE) -s -C $(PATH_BINPACKING)
+BinPacking:			Base
+					@$(MAKE) -C $(PATH_BINPACKING)
 
-FlowShop:			$(EXEC_FLOWSHOP)
-					@$(MAKE) -s -C $(PATH_FLOWSHOP)
+FlowShop:			Base
+					@$(MAKE) -C $(PATH_FLOWSHOP)
 
-GraphColoring:		$(EXEC_GRAPHCOLORING)
-					@$(MAKE) -s -C $(PATH_GRAPHCOLORING)
+GraphColoring:		Base
+					@$(MAKE) -C $(PATH_GRAPHCOLORING)
+					
+JobShop:			Base
+					@$(MAKE) -C $(PATH_JOBSHOP)
 
-JobShop:			$(EXEC_JOBSHOP)
-					@$(MAKE) -s -C $(PATH_JOBSHOP)
+KnapSack:			Base
+					@$(MAKE) -C $(PATH_KNAPSACK)
 
-KnapSack:			$(EXEC_KNAPSACK)
-					@$(MAKE) -s -C $(PATH_KNAPSACK)
-
-TravellingSalesman:	$(EXEC_TRAVELLINGSALESMAN)
-					@$(MAKE) -s -C $(PATH_TRAVELLINGSALESMAN)
+TravellingSalesman:	Base
+					@$(MAKE) -C $(PATH_TRAVELLINGSALESMAN)
+					
+list:
+					@LC_ALL=C $(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
 
 clean:				COMMAND=clean
 clean:				--delete
@@ -91,4 +65,4 @@ purge:				--delete
 					@$(MAKE) -s $(COMMAND) -C $(PATH_JOBSHOP)
 					@$(MAKE) -s $(COMMAND) -C $(PATH_KNAPSACK)
 					@$(MAKE) -s $(COMMAND) -C $(PATH_TRAVELLINGSALESMAN)
-					@$(RM) $(EXECS)
+					@$(RM) $(BINS)
