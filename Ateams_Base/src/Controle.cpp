@@ -49,7 +49,13 @@ Controle* Controle::getInstance(char* xml)
 	{
 		parser->parse(xml);
 	}
-	catch(string toCatch)
+	catch(const char* toCatch)
+	{
+		cout << endl << toCatch << endl << endl;
+
+		exit(1);
+	}
+	catch(string& toCatch)
 	{
 		cout << endl << toCatch << endl << endl;
 
@@ -227,6 +233,9 @@ void Controle::commandLineParameters()
 
 Controle::Controle()
 {
+	this->algs = NULL;
+	this->pop = NULL;
+
 	this->tamPop = 500;
 	this->critUnicidade = 1;
 	this->iterAteams = 250;
@@ -235,6 +244,10 @@ Controle::Controle()
 	this->numThreads = 4;
 	this->makespanBest = -1;
 	this->activeListener = false;
+
+	this->time1 = this->time2 = 0;
+	this->iterMelhora = 0;
+	this->execThreads = 0;
 
 	srand(unsigned(time(NULL)));
 
@@ -394,7 +407,7 @@ vector<Problema*>::iterator Controle::selectRandom(vector<Problema*>* probs)
 	unsigned int randWheel = xRand(0, probs->size());
 
 	vector<Problema*>::iterator iter = probs->begin();
-	for(int i = 0; iter != probs->end() && i < randWheel; iter++, i++);
+	for(unsigned long i = 0; iter != probs->end() && i < randWheel; iter++, i++);
 
 	return iter;
 }

@@ -102,11 +102,15 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	select = Controle::selectRouletteWheel(sol, visao);
 	if(polEscolha < -1)
+	{
 		while((*select)->exec.tabu == true)
+		{
 			if(select != sol->begin())
 				select--;
 			else
 				break;
+		}
+	}
 
 	(*select)->exec.tabu = true;
 

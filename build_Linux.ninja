@@ -1,4 +1,4 @@
-cxxflags = -Wall -O3 -march=native
+cxxflags = -Wall -pedantic -O3 -march=native
 ldflags = -lpthread -lglut -lGL -lGLU -lxerces-c
 
 pool default_pool

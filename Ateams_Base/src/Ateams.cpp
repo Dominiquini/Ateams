@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 		resultado[strlen(resultado) - 3] = '\0';
 		strcat(resultado, "res");
 
-		printf("Result: '%s'\n", resultado);
+		printf("Result File: '%s'\n", resultado);
 	}
 
 	if((p = findPosArgv(argv, argc, (char*)"-l")) != -1)

@@ -89,8 +89,8 @@ private:
 	bool activeListener;											// Informa se as heuristicas serao acompanhadas por um listener
 
 	time_t time1, time2;				// Medidor do tempo inicial e final
-	int iterMelhora;					// Ultima iteracao em que houve melhora
-	int execThreads;					// Threads executadas
+	int iterMelhora = 0;				// Ultima iteracao em que houve melhora
+	int execThreads = 0;				// Threads executadas
 
 	/* Seleciona um dos algoritmos implementados para executar */
 	int exec(int randWheel, int eID);
@@ -127,7 +127,7 @@ bool cmpAlg(Heuristica *h1, Heuristica *h2);
 
 inline string capitalize(string text) {
 
-	for (int x = 0; x < text.length(); x++)
+	for (unsigned long x = 0; x < text.length(); x++)
 	{
 		if (x == 0)
 		{

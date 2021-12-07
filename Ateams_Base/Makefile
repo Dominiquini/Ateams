@@ -2,7 +2,7 @@ CC = g++
 AR = ar
 RANLIB = ranlib
 
-CXXFLAGS = -Wall -pedantic -fpermissive -O3 -march=native
+CXXFLAGS = -Wall -pedantic -O3 -march=native
 
 ifeq ($(OS), Windows_NT)
   LDFLAGS = -lmingw32 -lpthread -lfreeglut -lopengl32 -lGLU32 -lxerces-c

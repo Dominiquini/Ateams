@@ -29,6 +29,9 @@ class InfoTabu
 public:
 
 	virtual bool operator == (InfoTabu&) = 0;
+
+	InfoTabu() {}
+	virtual ~InfoTabu() {}
 };
 
 class Problema
