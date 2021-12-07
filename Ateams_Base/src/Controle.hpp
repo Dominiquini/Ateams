@@ -26,7 +26,6 @@ using namespace std;
 
 extern volatile bool PARAR;
 
-
 class Controle : public DefaultHandler
 {
 private:
@@ -93,7 +92,7 @@ private:
 	int execThreads = 0;				// Threads executadas
 
 	/* Seleciona um dos algoritmos implementados para executar */
-	int exec(int randWheel, int eID);
+	int exec(int eID);
 
 	/* Adiciona um novo conjunto de solucoes a populacao corrente */
 	pair<int, int>* addSol(vector<Problema*> *news);

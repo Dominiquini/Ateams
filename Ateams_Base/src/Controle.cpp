@@ -249,8 +249,6 @@ Controle::Controle()
 	this->iterMelhora = 0;
 	this->execThreads = 0;
 
-	srand(unsigned(time(NULL)));
-
 	execAlgs = new list<Heuristica_Listener*>;
 	actAlgs = new list<list<Heuristica_Listener*>::iterator >;
 	actThreads = 0;
@@ -478,8 +476,6 @@ Problema* Controle::start(list<Problema*>* popInicial)
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-	srand(unsigned(time(NULL)));
-
 	geraPop(popInicial);
 
 	if(pop->size() == 0)
@@ -555,10 +551,8 @@ Problema* Controle::start(list<Problema*>* popInicial)
 	return Problema::copySoluction(**(pop->begin()));
 }
 
-inline int Controle::exec(int randomic, int idThread)
+inline int Controle::exec(int idThread)
 {
-	srand(randomic);
-
 	list<Heuristica_Listener*>::iterator listener_iterator;
 	vector<Problema*> *newSoluctions = NULL;
 	Heuristica_Listener* listener = NULL;
@@ -566,7 +560,6 @@ inline int Controle::exec(int randomic, int idThread)
 	pair<int, int>* insert;
 	string execNames;
 	int contrib = 0;
-
 
 	pthread_mutex_lock(&mutex_info);
 	{
@@ -587,9 +580,9 @@ inline int Controle::exec(int randomic, int idThread)
 	pthread_mutex_unlock(&mutex_info);
 
 	if(this->activeListener)
-		newSoluctions = alg->start(pop, randomic, listener);
+		newSoluctions = alg->start(pop, listener);
 	else
-		newSoluctions = alg->start(pop, randomic, NULL);
+		newSoluctions = alg->start(pop, NULL);
 
 	pthread_mutex_lock(&mutex_pop);
 	{
@@ -648,7 +641,7 @@ void* Controle::pthrExec(void *obj)
 
 	if(PARAR != true)
 	{
-		ins = ctr->exec(rand(), execAteams);
+		ins = ctr->exec(execAteams);
 
 		if(ctr->iterMelhora > ctr->tentAteams || (ctr->makespanBest != -1 && Problema::melhora(ctr->makespanBest, Problema::best) >= 0))
 			PARAR = true;
@@ -764,8 +757,6 @@ inline void Controle::geraPop(list<Problema*>* popInicial)
 			}
 		}
 	}
-
-	srand(unsigned(time(NULL)));
 
 	unsigned long int limit = pow(tamPop, 3), iter = 0;
 	Problema* soluction = NULL;

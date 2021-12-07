@@ -23,7 +23,7 @@ public:
 
 	bool setParameter(const char* parameter, const char* value);
 
-	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener);
+	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, Heuristica_Listener* listener);
 
 private:
 

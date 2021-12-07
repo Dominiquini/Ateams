@@ -79,12 +79,10 @@ bool Annealing::setParameter(const char* parameter, const char* value)
 }
 
 /* Executa um Simulated Annealing na populacao com o devido criterio de selecao */
-vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener)
+vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, Heuristica_Listener* listener)
 {
 	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator select;
 	Problema* solSA;
-
-	srand(randomic);
 
 	numExec++;
 
@@ -103,8 +101,6 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 
 	// Escolhe alguem dentre os 'polEscolha' primeiras solucoes
 	double visao = polEscolha < 0 ? Controle::sumFitnessMaximize(sol, sol->size()) : Controle::sumFitnessMaximize(sol, polEscolha);
-
-	srand(randomic);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	select = Controle::selectRouletteWheel(sol, visao);
@@ -179,7 +175,7 @@ vector<Problema*>* Annealing::exec(Problema* Si, Heuristica_Listener* listener)
 			}
 
 			Ds = Problema::melhora(*S, *Sn);
-			if(Ds >= 0 || accept((double)rand(), Ds, T))
+			if(Ds >= 0 || accept((double)xRand(), Ds, T))
 			{
 				delete S;
 				S = Sn;

@@ -35,7 +35,7 @@ public:
 		return true;
 	}
 
-	virtual vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener) = 0;
+	virtual vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, Heuristica_Listener* listener) = 0;
 };
 
 class Heuristica_Listener

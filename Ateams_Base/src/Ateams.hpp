@@ -64,7 +64,9 @@ enum Heuristicas {SA, BT, AG};
 
 void Interrompe(int signum);
 
-int xRand(int a, int b);
+int xRand();
+
+int xRand(int min, int max);
 
 int findPosArgv(char **in, int num, char *key);
 

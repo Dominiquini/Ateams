@@ -72,12 +72,10 @@ bool Tabu::setParameter(const char* parameter, const char* value)
 }
 
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
-vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, int randomic, Heuristica_Listener* listener)
+vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, Heuristica_Listener* listener)
 {
 	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator select;
 	Problema* solBT;
-
-	srand(randomic);
 
 	numExec++;
 
@@ -96,8 +94,6 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 
 	// Escolhe alguem dentre os 'polEscolha' primeiras solucoes
 	double visao = polEscolha < 0 ? Controle::sumFitnessMaximize(sol, sol->size()) : Controle::sumFitnessMaximize(sol, polEscolha);
-
-	srand(randomic);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
 	select = Controle::selectRouletteWheel(sol, visao);

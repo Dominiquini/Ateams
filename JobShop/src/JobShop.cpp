@@ -201,7 +201,7 @@ JobShop::JobShop() : Problema::Problema()
 {
 	sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
 
-	if(rand() % 2 == 0)
+	if(xRand(0, 2) == 0)
 	{
 		short int *aux_vet = (short int*)alocaMatriz(1, njob, 1, 1);
 		short int *aux_maq = (short int*)alocaMatriz(1, nmaq, 1, 1);

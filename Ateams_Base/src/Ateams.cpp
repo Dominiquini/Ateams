@@ -202,6 +202,11 @@ void Interrompe(int signum)
 	PARAR = true;
 }
 
+int xRand()
+{
+	return xRand(0, RAND_MAX);
+}
+
 int xRand(int min, int max)
 {
 	random_device rd;

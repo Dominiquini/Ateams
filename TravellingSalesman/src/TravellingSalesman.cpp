@@ -306,7 +306,7 @@ TravellingSalesman::TravellingSalesman() : Problema::Problema()
 	sol.ordemNodes = (short int*)malloc((nnodes+1) * sizeof(short int));
 	sol.fitness = -1;
 
-	if(rand() % 5 == 0)	// Tenta uma solucao gulosa
+	if(xRand(0, 5) == 0)	// Tenta uma solucao gulosa
 	{
 		int noAtual = xRand(0, nnodes);
 		int proxNo = 0;
