@@ -1,65 +1,39 @@
-CC = g++
+include ../Makefile.mk
 
-CXXFLAGS = -Wall -pedantic -O3 -march=native
+PATH_ROOT = ../
 
-ifeq ($(OS), Windows_NT)
-  LDFLAGS = -lmingw32 -lpthread -lfreeglut -lopengl32 -lGLU32 -lxerces-c
-else
-  LDFLAGS = -lpthread -lglut -lGL -lGLU -lxerces-c
-endif
+PROJ = BinPacking
 
-BASE_PATH = ../Ateams_Base/
-
-BASE_PATH_SRC = ../Ateams_Base/src/
-BASE_PATH_BIN = ../Ateams_Base/bin/
-
-BASE_SRCS = $(wildcard $(BASE_PATH_SRC)*.cpp)
-BASE_LIB = $(BASE_PATH_BIN)AteamsBase.a
-
-PATH_PARAM 	= ../Ateams_Base/parametros/
-PATH_DADOS 	= ./dados/
-PATH_BIN 	= ./bin/
-PATH_SRC 	= ./src/
-PATH_RES 	= ./resultados/
-
-SRCS =  $(wildcard $(PATH_SRC)*.cpp)
-
-OBJS = $(subst $(PATH_SRC),$(PATH_BIN),$(subst .cpp,.o,$(SRCS)))
-
-BIN = BinPacking
-
-EXEC = $(PATH_BIN)$(BIN)
-
-RUN_PARAM = -i $(PATH_DADOS)binpack1_01.prb -p $(PATH_PARAM)DEFAULT.xml -r $(PATH_RES)binpack1_01.res $(ARG)
-
-RM = rm -rf
+RUN_PARAM = -i $(PATH_PROJ_DADOS)binpack1_01.prb -p $(PATH_PROJ_PARAM)DEFAULT.xml -r $(PATH_PROJ_RES)binpack1_01.res $(ARG)
 
 
-.PHONY: 		all base run clean purge
+.PHONY: 				all base run clean purge
 
-all:			$(PATH_BIN) $(EXEC)
 
-base:
-				@$(MAKE) -C $(BASE_PATH)
+all:					$(PATH_PROJ_BIN) $(PROJ_BIN)
 
-$(PATH_BIN):
-				@mkdir $(PATH_BIN)
+base:					$(BASE_LIB)
 
-$(PATH_RES):
-				@mkdir $(PATH_RES)
-
-$(PATH_BIN)%.o:	$(PATH_SRC)%.cpp $(PATH_SRC)%.hpp
-				@$(CC) $(CXXFLAGS) -c $< -o $@
-
-$(EXEC):		$(OBJS) base
-				@$(CC) $(CXXFLAGS) $(BASE_LIB) $< -o $@ $(LDFLAGS)
-
-run:			$(PATH_RES) all
-				$(EXEC) $(RUN_PARAM)
+run:					$(PATH_PROJ_RES) all
+						$(PROJ_BIN) $(RUN_PARAM)
 
 clean:
-				@$(RM) $(OBJS) $(EXEC) $(PATH_BIN)
+						$(RM) $(PROJ_OBJS) $(PROJ_BIN) $(PATH_PROJ_BIN)
 
-purge:			clean
-				@$(RM) $(PATH_RES)
-				@cd $(BASE_PATH) && $(MAKE) $@ -s
+purge:					clean
+						$(RM) $(PATH_PROJ_RES)
+
+$(PATH_PROJ_BIN):
+						$(MKDIR) $(PATH_PROJ_BIN)
+
+$(PATH_PROJ_RES):
+						$(MKDIR) $(PATH_PROJ_RES)
+
+$(BASE_LIB):			$(BASE_SRCS) $(BASE_HEADERS)
+						$(MAKE) -C $(PATH_BASE)
+
+$(PATTERN_PROJ_OBJS):	$(PATTERN_PROJ_SRCS) $(PROJ_HEADERS)
+						$(CC) $(CXXFLAGS) -c $< -o $@
+
+$(PROJ_BIN):			$(BASE_LIB) $(PROJ_OBJS)
+						$(CC) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)

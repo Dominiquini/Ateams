@@ -27,7 +27,7 @@ build Ateams_Base/bin/Tabu.o: compile Ateams_Base/src/Tabu.cpp
 build Ateams_Base/bin/Genetico.o: compile Ateams_Base/src/Genetico.cpp
 build Ateams_Base/bin/Annealing.o: compile Ateams_Base/src/Annealing.cpp
 
-build Ateams_Base/bin/AteamsBase.a: archive Ateams_Base/bin/Ateams.o Ateams_Base/bin/Controle.o Ateams_Base/bin/Tabu.o Ateams_Base/bin/Genetico.o Ateams_Base/bin/Annealing.o
+build Ateams_Base/bin/Ateams_Base.a: archive Ateams_Base/bin/Ateams.o Ateams_Base/bin/Controle.o Ateams_Base/bin/Tabu.o Ateams_Base/bin/Genetico.o Ateams_Base/bin/Annealing.o
 
 build BinPacking/bin/BinPacking.o: compile BinPacking/src/BinPacking.cpp
 build FlowShop/bin/FlowShop.o: compile FlowShop/src/FlowShop.cpp
@@ -36,11 +36,11 @@ build JobShop/bin/JobShop.o: compile JobShop/src/JobShop.cpp
 build KnapSack/bin/KnapSack.o: compile KnapSack/src/KnapSack.cpp
 build TravellingSalesman/bin/TravellingSalesman.o: compile TravellingSalesman/src/TravellingSalesman.cpp
 
-build BinPacking/bin/BinPacking: link Ateams_Base/bin/AteamsBase.a BinPacking/bin/BinPacking.o
-build FlowShop/bin/FlowShop: link Ateams_Base/bin/AteamsBase.a FlowShop/bin/FlowShop.o
-build GraphColoring/bin/GraphColoring: link Ateams_Base/bin/AteamsBase.a GraphColoring/bin/GraphColoring.o
-build JobShop/bin/JobShop: link Ateams_Base/bin/AteamsBase.a JobShop/bin/JobShop.o
-build KnapSack/bin/KnapSack: link Ateams_Base/bin/AteamsBase.a KnapSack/bin/KnapSack.o
-build TravellingSalesman/bin/TravellingSalesman: link Ateams_Base/bin/AteamsBase.a TravellingSalesman/bin/TravellingSalesman.o
+build BinPacking/bin/BinPacking: link Ateams_Base/bin/Ateams_Base.a BinPacking/bin/BinPacking.o
+build FlowShop/bin/FlowShop: link Ateams_Base/bin/Ateams_Base.a FlowShop/bin/FlowShop.o
+build GraphColoring/bin/GraphColoring: link Ateams_Base/bin/Ateams_Base.a GraphColoring/bin/GraphColoring.o
+build JobShop/bin/JobShop: link Ateams_Base/bin/Ateams_Base.a JobShop/bin/JobShop.o
+build KnapSack/bin/KnapSack: link Ateams_Base/bin/Ateams_Base.a KnapSack/bin/KnapSack.o
+build TravellingSalesman/bin/TravellingSalesman: link Ateams_Base/bin/Ateams_Base.a TravellingSalesman/bin/TravellingSalesman.o
 
 default BinPacking/bin/BinPacking FlowShop/bin/FlowShop GraphColoring/bin/GraphColoring JobShop/bin/JobShop KnapSack/bin/KnapSack TravellingSalesman/bin/TravellingSalesman
