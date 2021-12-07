@@ -62,12 +62,10 @@ struct ParametrosATEAMS {
 enum Heuristicas {SA, BT, AG};
 
 
-void Interrompe(int signum);
-
 int xRand();
 
 int xRand(int min, int max);
 
-int findPosArgv(char **in, int num, char *key);
+void terminate(int signal);
 
 #endif

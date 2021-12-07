@@ -122,7 +122,22 @@ public:
 	Problema* start(list<Problema*>* popInicial);
 };
 
-bool cmpAlg(Heuristica *h1, Heuristica *h2);
+inline bool cmpAlg(Heuristica *h1, Heuristica *h2)
+{
+	return h1->prob < h2->prob;
+}
+
+/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
+inline int findPosArgv(char **in, int num, char *key)
+{
+	for(int i = 0; i < num; i++)
+	{
+		if(!strcmp(in[i], key))
+			return i+1;
+	}
+
+	return -1;
+}
 
 inline string capitalize(string text) {
 

@@ -17,13 +17,13 @@ volatile bool PARAR = false;
 int main(int argc, char *argv[])
 {
 	/* Interrompe o programa ao se pessionar 'ctrl-c' */
-	signal(SIGINT, Interrompe);
+	signal(SIGINT, terminate);
 
 	srand(unsigned(time(NULL)));
 
-	char dados[64];
-	char resultado[64];
-	char log[64];
+	char inputDataFile[64];
+	char outputResultFile[64];
+	char outputLogFile[64];
 
 	FILE *fdados;
 
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 		else
 		{
 			printf("\nData File: '%s'\n", argv[p]);
-			strcpy(dados, argv[p]);
+			strcpy(inputDataFile, argv[p]);
 		}
 	}
 	else
@@ -64,53 +64,28 @@ int main(int argc, char *argv[])
 
 	if((p = findPosArgv(argv, argc, (char*)"-r")) != -1)
 	{
-		strcpy(resultado, argv[p]);
+		strcpy(outputResultFile, argv[p]);
 
-		printf("Result File: '%s'\n", resultado);
+		printf("Result File: '%s'\n", outputResultFile);
 	}
 	else
 	{
-		string arq(dados);
-		char *c = NULL;
+		outputResultFile[0] = '\0';
 
-#ifdef _WIN32
-		mkdir("resultados");
-
-		strcpy(resultado, "resultados\\");
-
-		size_t pos = arq.rfind("\\");
-#else
-		mkdir("resultados", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-
-		strcpy(resultado, "resultados/");
-
-		size_t pos = arq.rfind("/");
-#endif
-
-		if(pos != string::npos)
-			c = &dados[pos+1];
-		else
-			c = dados;
-
-		strcat(resultado, c);
-
-		resultado[strlen(resultado) - 3] = '\0';
-		strcat(resultado, "res");
-
-		printf("Result File: '%s'\n", resultado);
+		printf("~Result File: ---\n");
 	}
 
 	if((p = findPosArgv(argv, argc, (char*)"-l")) != -1)
 	{
-		strcpy(log, argv[p]);
+		strcpy(outputLogFile, argv[p]);
 
 		printf("Log File: '%s'\n", argv[p]);
 	}
 	else
 	{
-		log[0] = '\0';
+		outputLogFile[0] = '\0';
 
-		printf("~Log File: ---");
+		printf("~Log File: ---\n");
 	}
 
 	/* Leitura dos dados passados por arquivos */
@@ -139,7 +114,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Le memoria prinipal do disco, se especificado */
-	list<Problema*>* popInicial = *log == '\0' ? NULL : Problema::lePopulacao(log);
+	list<Problema*>* popInicial = *outputLogFile == '\0' ? NULL : Problema::lePopulacao(outputLogFile);
 
 	/* Inicia a execucao */
 	Problema* best = ctrl->start(popInicial);
@@ -160,8 +135,8 @@ int main(int argc, char *argv[])
 				cout << endl << "Incorrect Main Memory!!!" << endl;
 
 	/* Escreve memoria principal no disco */
-	if(*log != '\0')
-		Problema::escrevePopulacao(log, pop);
+	if(*outputLogFile != '\0')
+		Problema::escrevePopulacao(outputLogFile, pop);
 
 	delete pop;
 
@@ -172,7 +147,8 @@ int main(int argc, char *argv[])
 	ctrl->getInfo(&info);
 
 	/* Escreve solucao em arquivo no disco */
-	Problema::escreveResultado(dados, fXmlParametros, &info, resultado);
+	if(*outputResultFile != '\0')
+		Problema::escreveResultado(inputDataFile, fXmlParametros, &info, outputResultFile);
 
 	cout << endl << endl << "Solution:" << endl << endl;
 
@@ -197,11 +173,6 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-void Interrompe(int signum)
-{
-	PARAR = true;
-}
-
 int xRand()
 {
 	return xRand(0, RAND_MAX);
@@ -210,20 +181,13 @@ int xRand()
 int xRand(int min, int max)
 {
 	random_device rd;
-    mt19937 gen(rd());
-    uniform_int_distribution<> distr(min, max-1);
+    mt19937_64 gen(rd());
+    uniform_int_distribution<int> distr(min, max-1);
 
 	return distr(gen);
 }
 
-/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
-int findPosArgv(char **in, int num, char *key)
+void terminate(int signal)
 {
-	for(int i = 0; i < num; i++)
-	{
-		if(!strcmp(in[i], key))
-			return i+1;
-	}
-
-	return -1;
+	PARAR = true;
 }

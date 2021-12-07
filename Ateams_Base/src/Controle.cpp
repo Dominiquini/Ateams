@@ -883,12 +883,6 @@ void Controle::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, const char* for
 }
 
 
-inline bool cmpAlg(Heuristica *h1, Heuristica *h2)
-{
-	return h1->prob < h2->prob;
-}
-
-
 Controle* Controle::instance = NULL;
 
 list<Heuristica_Listener*>* Controle::execAlgs = NULL;
