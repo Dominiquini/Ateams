@@ -3,24 +3,24 @@
 <Controller
    iterAteams = "250"
    tentAteams = "100"
-   maxTempoAteams = "3600"
+   maxTimeAteams = "3600"
    numThreads = "4"
    tamPopAteams = "500"
-   critUnicidade = "1"
+   comparatorMode = "1"
    makespanBest = "-1">
 
   <Heuristics>
 
     <GeneticAlgorithm
-       name = "AG1"
-       probAG = "9"
+       name = "AG2"
+       probAG = "4"
        polEscolhaAG = "-1"
-       iterAG = "500"
-       tamPopAG = "250"
-       tamParticaoAG = "-1"
+       iterAG = "1000"
+       tamPopAG = "500"
+       tamParticaoAG = "0"
        probCrossOverAG = "0.8"
-       powerCrossOver = "0.25"
-       probMutacaoAG = "0.08">
+       powerCrossOver = "1"
+       probMutacaoAG = "0.2">
     </GeneticAlgorithm>
 
   </Heuristics>

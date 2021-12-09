@@ -1,4 +1,4 @@
-#include "../../Ateams_Base/src/Problema.hpp"
+#include "../../Ateams_Base/src/Problem.hpp"
 
 #define INV_FITNESS 1000000
 #define MAX_PERMUTACOES 10000
@@ -15,13 +15,13 @@ private:
 	short int *ordemItens;		// Solucao
 	short int limit;			// Ponto onde nao cabe mais itens
 
-	friend class Problema;
+	friend class Problem;
 	friend class KnapSack;
 
-	friend bool fnequal1(Problema*, Problema*);	// Comparacao profunda
-	friend bool fnequal2(Problema*, Problema*);	// Comparacao superficial
-	friend bool fncomp1(Problema*, Problema*);	// Comparacao profunda
-	friend bool fncomp2(Problema*, Problema*);	// Comparacao superficial
+	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
+	friend bool fnequal2(Problem*, Problem*);	// Comparacao superficial
+	friend bool fncomp1(Problem*, Problem*);	// Comparacao profunda
+	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
 };
 
 class InfoTabu_KnapSack : public InfoTabu
@@ -50,7 +50,7 @@ public:
 	}
 };
 
-class KnapSack : public Problema
+class KnapSack : public Problem
 {
 private:
 
@@ -71,8 +71,8 @@ public:
 	KnapSack();												// Nova solucao aleatoria
 	KnapSack(short int *prob);								// Copia de prob
 	KnapSack(short int *prob, int limit);					// Copia de prob
-	KnapSack(const Problema &prob);							// Copia de prob
-	KnapSack(const Problema &prob, int pos1, int pos2);		// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
+	KnapSack(const Problem &prob);							// Copia de prob
+	KnapSack(const Problem &prob, int pos1, int pos2);		// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
 	~KnapSack();
 
@@ -80,18 +80,18 @@ public:
 	void imprimir(bool esc);		// Imprime o escalonamento atual
 
 	/* Retorna um novo vizinho aleatorio */
-	Problema* vizinho();
+	Problem* vizinho();
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
-	vector<pair<Problema*, InfoTabu*>* >* buscaLocal();		// Todos os vizinhos
-	vector<pair<Problema*, InfoTabu*>* >* buscaLocal(float);	// Uma parcela aleatoria
+	vector<pair<Problem*, InfoTabu*>* >* buscaLocal();		// Todos os vizinhos
+	vector<pair<Problem*, InfoTabu*>* >* buscaLocal(float);	// Uma parcela aleatoria
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
-	pair<Problema*, Problema*>* crossOver(const Problema*, int, int);	// Dois pivos
-	pair<Problema*, Problema*>* crossOver(const Problema*, int);		// Um pivo
+	pair<Problem*, Problem*>* crossOver(const Problem*, int, int);	// Dois pivos
+	pair<Problem*, Problem*>* crossOver(const Problem*, int);		// Um pivo
 
 	/* Devolve uma mutacao aleatoria na solucao atual */
-	Problema* mutacao(int);
+	Problem* mutacao(int);
 
 	/* Devolve o valor da solucao */
 	double getFitness() const;
@@ -103,18 +103,18 @@ public:
 		return sol;
 	}
 
-	friend bool fnequal1(Problema*, Problema*);	// Comparacao profunda
-	friend bool fnequal2(Problema*, Problema*);	// Comparacao superficial
-	friend bool fncomp1(Problema*, Problema*);	// Comparacao profunda
-	friend bool fncomp2(Problema*, Problema*);	// Comparacao superficial
+	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
+	friend bool fnequal2(Problem*, Problem*);	// Comparacao superficial
+	friend bool fncomp1(Problem*, Problem*);	// Comparacao profunda
+	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
 };
 
 void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
 
 bool constraintVerify(int item, vector<double> &constraints);
 
-bool ptcomp(pair<Problema*, InfoTabu*>*, pair<Problema*, InfoTabu*>*);
+bool ptcomp(pair<Problem*, InfoTabu*>*, pair<Problem*, InfoTabu*>*);
 
-bool find(vector<Problema*> *vect, Problema *p);
+bool find(vector<Problem*> *vect, Problem *p);
 
 #endif

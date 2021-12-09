@@ -51,11 +51,11 @@ struct ExecInfo
 
 struct ParametrosATEAMS {
 	int tamPopAteams;
-	int critUnicidade;
+	int comparatorMode;
 	int iterAteams;
 	int numThreads;
 	int tentAteams;
-	int maxTempoAteams;
+	int maxTimeAteams;
 	int makespanBest;
 };
 

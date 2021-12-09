@@ -39,11 +39,11 @@ PATH_TRAVELLINGSALESMAN = $(PATH_ROOT)TravellingSalesman/
 PATH_BASE_SRC 	= $(PATH_BASE)src/
 PATH_BASE_BIN 	= $(PATH_BASE)bin/
 
-PATH_PROJ_PARAM = $(PATH_BASE)parametros/
-PATH_PROJ_DADOS = $(PATH_ROOT)$(PROJ)/dados/
+PATH_PROJ_PARAM = $(PATH_BASE)parameters/
+PATH_PROJ_INPUT = $(PATH_ROOT)$(PROJ)/input/
 PATH_PROJ_SRC 	= $(PATH_ROOT)$(PROJ)/src/
 PATH_PROJ_BIN 	= $(PATH_ROOT)$(PROJ)/bin/
-PATH_PROJ_RES 	= $(PATH_ROOT)$(PROJ)/resultados/
+PATH_PROJ_RES 	= $(PATH_ROOT)$(PROJ)/results/
 
 BASE_SRCS = $(wildcard $(PATH_BASE_SRC)*.cpp)
 BASE_HEADERS = $(wildcard $(PATH_BASE_SRC)*.hpp)

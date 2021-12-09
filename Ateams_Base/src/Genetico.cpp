@@ -71,10 +71,10 @@ bool Genetico::setParameter(const char* parameter, const char* value)
 	return true;
 }
 
-vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, Heuristica_Listener* listener)
+vector<Problem*>* Genetico::start(set<Problem*, bool(*)(Problem*, Problem*)>* sol, Heuristica_Listener* listener)
 {
-	vector<Problema*>* popAG = new vector<Problema*>();
-	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator iter = sol->end();
+	vector<Problem*>* popAG = new vector<Problem*>();
+	set<Problem*, bool(*)(Problem*, Problem*)>::const_iterator iter = sol->end();
 	int i = 0, j = 0;
 
 	if(tamPopGenetico > (int)sol->size())
@@ -89,24 +89,24 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 		for(iter = sol->begin(), i = 0; iter != sol->end() && i < tamPopGenetico; iter++, i++)
 		{
 			(*iter)->exec.genetico = true;
-			popAG->push_back(Problema::copySoluction(**iter));
+			popAG->push_back(Problem::copySoluction(**iter));
 		}
 	}
 	else
 	{
-		double visao = polEscolha < 0 ? Controle::sumFitnessMaximize(sol, sol->size()) : Controle::sumFitnessMaximize(sol, polEscolha);
+		double visao = polEscolha < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, polEscolha);
 
 		for(i = 1; i < tamPopGenetico; i++)
 		{
 			/* Evita a escolha de individuos repetidos */
 			while((iter == sol->end() || (*iter)->exec.genetico == true) && (j++ < tamPopGenetico))
-				iter = Controle::selectRouletteWheel(sol, visao);
+				iter = Control::selectRouletteWheel(sol, visao);
 
 			j= 0;
 			(*iter)->exec.genetico = true;
-			popAG->push_back(Problema::copySoluction(**iter));
+			popAG->push_back(Problem::copySoluction(**iter));
 		}
-		popAG->push_back(Problema::copySoluction(**sol->begin()));
+		popAG->push_back(Problem::copySoluction(**sol->begin()));
 
 		for(iter = sol->begin(); iter != sol->end(); iter++)
 			(*iter)->exec.genetico = false;
@@ -119,23 +119,23 @@ vector<Problema*>* Genetico::start(set<Problema*, bool(*)(Problema*, Problema*)>
 	return exec(popAG, listener);
 }
 
-vector<Problema*>* Genetico::exec(vector<Problema*>* pop, Heuristica_Listener* listener)
+vector<Problem*>* Genetico::exec(vector<Problem*>* pop, Heuristica_Listener* listener)
 {
-	Problema *mutante;
-	pair<Problema*, Problema*>* temp;
-	vector<Problema*> *aux_pop = new vector<Problema*>();
-	vector<pair<Problema*, Problema*>* > *pais, *filhos;
-	pais = new vector<pair<Problema*, Problema*>* >();
-	filhos = new vector<pair<Problema*, Problema*>* >();
+	Problem *mutante;
+	pair<Problem*, Problem*>* temp;
+	vector<Problem*> *aux_pop = new vector<Problem*>();
+	vector<pair<Problem*, Problem*>* > *pais, *filhos;
+	pais = new vector<pair<Problem*, Problem*>* >();
+	filhos = new vector<pair<Problem*, Problem*>* >();
 
-	vector<pair<Problema*, Problema*>* >::const_iterator iterParProb;
-	vector<Problema*>::iterator iterProb;
+	vector<pair<Problem*, Problem*>* >::const_iterator iterParProb;
+	vector<Problem*>::iterator iterProb;
 
 	int strengthCrossOver = (int)(powerCrossOver * 100);
 	int numCrossOver;
 	double sumP;
 
-	vector<Problema*> *bad_pop = new vector<Problema*>();
+	vector<Problem*> *bad_pop = new vector<Problem*>();
 
 	if(listener != NULL)
 		listener->bestInitialFitness = (*pop->begin())->getFitness();
@@ -157,21 +157,21 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop, Heuristica_Listener* l
 
 		numCrossOver = (int)((float)pop->size() * probCrossOver);
 
-		sumP = Controle::sumFitnessMaximize(pop, pop->size());
+		sumP = Control::sumFitnessMaximize(pop, pop->size());
 
 		/* Escolhe os casais de 'pop' que se cruzarao */
 		for(int j = 0; j < numCrossOver/2; j++)
 		{
-			temp = new pair<Problema*, Problema*>();
+			temp = new pair<Problem*, Problem*>();
 
 			if(xRand() < RAND_MAX*probMutacao && (int)bad_pop->size() > 0)
 			{
-				iterProb = Controle::selectRandom(bad_pop);
+				iterProb = Control::selectRandom(bad_pop);
 				temp->first = *iterProb;
 			}
 			else
 			{
-				iterProb = Controle::selectRouletteWheel(pop, sumP);
+				iterProb = Control::selectRouletteWheel(pop, sumP);
 				sumP -= (*iterProb)->getFitnessMaximize();
 				aux_pop->push_back(*iterProb);
 				temp->first = *iterProb;
@@ -180,12 +180,12 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop, Heuristica_Listener* l
 
 			if(xRand() < RAND_MAX*probMutacao && (int)bad_pop->size() > 0)
 			{
-				iterProb = Controle::selectRandom(bad_pop);
+				iterProb = Control::selectRandom(bad_pop);
 				temp->second = *iterProb;
 			}
 			else
 			{
-				iterProb = Controle::selectRouletteWheel(pop, sumP);
+				iterProb = Control::selectRouletteWheel(pop, sumP);
 				sumP -= (*iterProb)->getFitnessMaximize();
 				aux_pop->push_back(*iterProb);
 				temp->second = *iterProb;

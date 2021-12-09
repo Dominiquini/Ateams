@@ -1,4 +1,4 @@
-#include "Problema.hpp"
+#include "Problem.hpp"
 
 using namespace std;
 
@@ -35,7 +35,7 @@ public:
 		return true;
 	}
 
-	virtual vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, Heuristica_Listener* listener) = 0;
+	virtual vector<Problem*>* start(set<Problem*, bool(*)(Problem*, Problem*)>* sol, Heuristica_Listener* listener) = 0;
 };
 
 class Heuristica_Listener

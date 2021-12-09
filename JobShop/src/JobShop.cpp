@@ -4,12 +4,12 @@ using namespace std;
 
 /* Static Members */
 
-ProblemType Problema::TIPO = MINIMIZACAO;
+ProblemType Problem::TIPO = MINIMIZACAO;
 
-double Problema::best = 0;
-double Problema::worst = 0;
-int Problema::numInst = 0;
-long int Problema::totalNumInst = 0;
+double Problem::best = 0;
+double Problem::worst = 0;
+int Problem::numInst = 0;
+long int Problem::totalNumInst = 0;
 
 char JobShop::name[128];
 int **JobShop::maq = NULL, **JobShop::time = NULL;
@@ -17,100 +17,86 @@ int JobShop::njob = 0, JobShop::nmaq = 0;
 
 int JobShop::num_vizinhos = 0;
 
-Problema* Problema::randSoluction()
+Problem* Problem::randSoluction()
 {
 	return new JobShop();
 }
 
-Problema* Problema::copySoluction(const Problema& prob)
+Problem* Problem::copySoluction(const Problem& prob)
 {
 	return new JobShop(prob);
 }
 
 
-void Problema::leProblema(char* input)
+void Problem::readProblemFromFile(char* input)
 {
 	FILE *f = fopen(input, "r");
 
 	if(f == NULL)
-		exit(1);
+		throw "Wrong Data File!";
 
 	if(!fgets (JobShop::name, 128, f))
-		exit(1);
+		throw "Wrong Data File!";
 
 	if(!fscanf (f, "%d %d", &JobShop::njob, &JobShop::nmaq))
-		exit(1);
+		throw "Wrong Data File!";
 
-	Problema::alocaMemoria();
+	Problem::alocaMemoria();
 
 	for(int i = 0; i < JobShop::njob; i++)
 	{
 		for(int j = 0; j < JobShop::nmaq; j++)
 		{
 			if (!fscanf (f, "%d %d", &JobShop::maq[i][j], &JobShop::time[i][j]))
-				exit(1);
+				throw "Wrong Data File!";
 		}
 	}
 
 	for(int i = 1; i < JobShop::njob; i++)
 		JobShop::num_vizinhos += i;
+
 	JobShop::num_vizinhos *= JobShop::nmaq;
 
 	return;
 }
 
-list<Problema*>* Problema::lePopulacao(char *log)
+list<Problem*>* Problem::readPopulationFromLog(char *log)
 {
 	FILE *f = fopen(log, "r");
 
 	if(f != NULL)
 	{
-		list<Problema*>* popInicial = new list<Problema*>();
+		list<Problem*>* popInicial = new list<Problem*>();
 		int njob, nmaq, nprob, makespan;
 		short int **prob;
-		Problema* p;
+		Problem* p;
 
 		if(!fscanf (f, "%d %d %d", &nprob, &nmaq, &njob))
-		{
-			printf("Wrong Log File!\n\n");
-			exit(1);
-		}
+			throw "Wrong Log File!";
 
 		if(nmaq != JobShop::nmaq || njob != JobShop::njob)
-		{
-			printf("Wrong Log File!\n\n");
-			exit(1);
-		}
+			throw "Wrong Log File!";
 
 		for(int i = 0; i < nprob; i++)
 		{
 			prob = (short int**)alocaMatriz(2, nmaq, njob, 1);
 
 			if(!fscanf (f, "%d", &makespan))
-			{
-				printf("Wrong Log File!\n\n");
-				exit(1);
-			}
+				throw "Wrong Log File!";
 
 			for(int i = 0; i < nmaq; i++)
 			{
 				for(int j = 0; j < njob; j++)
 				{
 					if(!fscanf (f, "%hd", &prob[i][j]))
-					{
-						printf("Wrong Log File!\n\n");
-						exit(1);
-					}
+						throw "Wrong Log File!";
 				}
 			}
 
 			p = new JobShop(prob);
 
 			if(makespan != p->getFitness())
-			{
-				printf("Wrong Log File!\n\n");
-				exit(1);
-			}
+				throw "Wrong Log File!";
 
 			popInicial->push_back(p);
 		}
@@ -125,60 +111,67 @@ list<Problema*>* Problema::lePopulacao(char *log)
 	}
 }
 
-void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
+void Problem::dumpCurrentPopulationInLog(char *log, list<Problem*>* popInicial)
 {
 	FILE *f = fopen(log, "w");
 
-	int sizePop = (int)popInicial->size();
-	list<Problema*>::iterator iter;
-	short int **prob;
-
-	fprintf(f, "%d %d %d\n\n", sizePop, JobShop::nmaq, JobShop::njob);
-
-	for(iter = popInicial->begin(); iter != popInicial->end(); iter++)
+	if(f != NULL)
 	{
-		prob = dynamic_cast<JobShop *>(*iter)->getSoluction().esc;
+		int sizePop = (int)popInicial->size();
+		list<Problem*>::iterator iter;
+		short int **prob;
 
-		fprintf(f, "%d\n", (int)dynamic_cast<JobShop *>(*iter)->getSoluction().fitness);
+		fprintf(f, "%d %d %d\n\n", sizePop, JobShop::nmaq, JobShop::njob);
 
-		for(int j = 0; j < JobShop::nmaq; j++)
+		for(iter = popInicial->begin(); iter != popInicial->end(); iter++)
 		{
-			for(int m = 0; m < JobShop::njob; m++)
+			prob = dynamic_cast<JobShop *>(*iter)->getSoluction().esc;
+
+			fprintf(f, "%d\n", (int)dynamic_cast<JobShop *>(*iter)->getSoluction().fitness);
+
+			for(int j = 0; j < JobShop::nmaq; j++)
 			{
-				fprintf(f, "%.2d ", prob[j][m]);
+				for(int m = 0; m < JobShop::njob; m++)
+				{
+					fprintf(f, "%.2d ", prob[j][m]);
+				}
+				fprintf(f, "\n");
 			}
 			fprintf(f, "\n");
 		}
-		fprintf(f, "\n");
+
+		fclose(f);
 	}
-	fclose(f);
 }
 
-void Problema::escreveResultado(char *dados, char *parametros, ExecInfo *info, char *resultado)
+void Problem::writeResultInFile(char *dados, char *parametros, ExecInfo *info, char *resultado)
 {
 	FILE *f;
 
-	if((f = fopen(resultado, "r+")) != NULL)
+	if(*resultado != '\0')
 	{
-		fseek(f, 0, SEEK_END);
+		if((f = fopen(resultado, "r+")) != NULL)
+		{
+			fseek(f, 0, SEEK_END);
+		}
+		else
+		{
+			f = fopen(resultado, "w");
+
+			fprintf(f, "%*s%*s", -16, "bestFitness", -16, "worstFitness");
+			fprintf(f, "%*s%*s%*s", -16, "numExecs", -16, "diffTime", -24, "expSol");
+			fprintf(f, "%*s%s\n", -24, "dados", "parametros");
+		}
+
+		fprintf(f, "%*d%*d", -16, (int)info->bestFitness, -16, (int)info->worstFitness);
+		fprintf(f, "%*d%*d%*d", -16, info->numExecs, -16, (int)info->diffTime, -24, (int)info->expSol);
+		fprintf(f, "%*s%s\n", -24, dados, parametros);
+
+		fclose(f);
 	}
-	else
-	{
-		f = fopen(resultado, "w");
-
-		fprintf(f, "%*s%*s", -16, "bestFitness", -16, "worstFitness");
-		fprintf(f, "%*s%*s%*s", -16, "numExecs", -16, "diffTime", -24, "expSol");
-		fprintf(f, "%*s%s\n", -24, "dados", "parametros");
-	}
-
-	fprintf(f, "%*d%*d", -16, (int)info->bestFitness, -16, (int)info->worstFitness);
-	fprintf(f, "%*d%*d%*d", -16, info->numExecs, -16, (int)info->diffTime, -24, (int)info->expSol);
-	fprintf(f, "%*s%s\n", -24, dados, parametros);
-
-	fclose(f);
 }
 
-void Problema::alocaMemoria()
+void Problem::alocaMemoria()
 {
 	JobShop::maq = (int**)malloc(JobShop::njob * sizeof(int*));
 	for(int i = 0; i < JobShop::njob; i++)
@@ -189,7 +182,7 @@ void Problema::alocaMemoria()
 		JobShop::time[i] = (int*)malloc(JobShop::nmaq * sizeof(int));
 }
 
-void Problema::desalocaMemoria()
+void Problem::unloadMemory()
 {
 	for(int i = 0; i < JobShop::njob; i++)
 		free(JobShop::maq[i]);
@@ -203,7 +196,7 @@ void Problema::desalocaMemoria()
 
 /* Metodos */
 
-JobShop::JobShop() : Problema::Problema()
+JobShop::JobShop() : Problem::Problem()
 {
 	sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
 
@@ -252,7 +245,7 @@ JobShop::JobShop() : Problema::Problema()
 }
 
 
-JobShop::JobShop(short int **prob) : Problema::Problema()
+JobShop::JobShop(short int **prob) : Problem::Problem()
 {
 	sol.esc = prob;
 
@@ -264,9 +257,9 @@ JobShop::JobShop(short int **prob) : Problema::Problema()
 	exec.annealing = false;
 }
 
-JobShop::JobShop(const Problema &prob) : Problema::Problema()
+JobShop::JobShop(const Problem &prob) : Problem::Problem()
 {
-	JobShop *other = dynamic_cast<JobShop *>(const_cast<Problema *>(&prob));
+	JobShop *other = dynamic_cast<JobShop *>(const_cast<Problem *>(&prob));
 
 	this->sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	for(int i = 0; i < nmaq; i++)
@@ -287,9 +280,9 @@ JobShop::JobShop(const Problema &prob) : Problema::Problema()
 	exec = prob.exec;
 }
 
-JobShop::JobShop(const Problema &prob, int maq, int pos1, int pos2) : Problema::Problema()
+JobShop::JobShop(const Problem &prob, int maq, int pos1, int pos2) : Problem::Problem()
 {
-	JobShop *other = dynamic_cast<JobShop *>(const_cast<Problema *>(&prob));
+	JobShop *other = dynamic_cast<JobShop *>(const_cast<Problem *>(&prob));
 
 	this->sol.esc = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	for(int i = 0; i < nmaq; i++)
@@ -458,10 +451,10 @@ inline void JobShop::imprimir(bool esc)
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */
-inline Problema* JobShop::vizinho()
+inline Problem* JobShop::vizinho()
 {
 	int maq = xRand(0, nmaq), p1 = xRand(0, njob), p2 = xRand(0, njob);
-	Problema *job = NULL;
+	Problem *job = NULL;
 
 	while(p2 == p1)
 		p2 = xRand(0, njob);
@@ -479,16 +472,16 @@ inline Problema* JobShop::vizinho()
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal()
+inline vector<pair<Problem*, InfoTabu*>* >* JobShop::buscaLocal()
 {
 	if(JobShop::num_vizinhos > MAX_PERMUTACOES)
 		return buscaLocal((float)MAX_PERMUTACOES/(float)JobShop::num_vizinhos);
 
-	Problema *job = NULL;
+	Problem *job = NULL;
 	int maq, p1, p2;
 	int numMaqs = nmaq, numJobs = njob;
-	pair<Problema*, InfoTabu*>* temp;
-	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
+	pair<Problem*, InfoTabu*>* temp;
+	vector<pair<Problem*, InfoTabu*>* >* local = new vector<pair<Problem*, InfoTabu*>* >();
 
 	for(maq = 0; maq < numMaqs; maq++)
 	{
@@ -499,7 +492,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal()
 				job = new JobShop(*this, maq, p1, p2);
 				if(job->getFitness() != -1)
 				{
-					temp = new pair<Problema*, InfoTabu*>();
+					temp = new pair<Problem*, InfoTabu*>();
 					temp->first = job;
 					temp->second = new InfoTabu_JobShop(maq, p1, p2);
 
@@ -519,13 +512,13 @@ inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal()
 }
 
 /* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal(float parcela)
+inline vector<pair<Problem*, InfoTabu*>* >* JobShop::buscaLocal(float parcela)
 {
-	Problema *job = NULL;
+	Problem *job = NULL;
 	int maq, p1, p2;
 	int numMaqs = nmaq, numJobs = njob;
-	pair<Problema*, InfoTabu*>* temp;
-	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
+	pair<Problem*, InfoTabu*>* temp;
+	vector<pair<Problem*, InfoTabu*>* >* local = new vector<pair<Problem*, InfoTabu*>* >();
 	int def;
 
 	def = (int)((float)JobShop::num_vizinhos*parcela);
@@ -543,7 +536,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal(float parcela)
 		job = new JobShop(*this, maq, p1, p2);
 		if(job->getFitness() != -1)
 		{
-			temp = new pair<Problema*, InfoTabu*>();
+			temp = new pair<Problem*, InfoTabu*>();
 			temp->first = job;
 			temp->second = new InfoTabu_JobShop(maq, p1, p2);
 
@@ -560,16 +553,16 @@ inline vector<pair<Problema*, InfoTabu*>* >* JobShop::buscaLocal(float parcela)
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
-inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro, int tamParticao, int strength)
+inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem* parceiro, int tamParticao, int strength)
 {
 	short int **f1 = (short int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (short int**)alocaMatriz(2, nmaq, njob, 1);
-	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
+	pair<Problem*, Problem*>* filhos = new pair<Problem*, Problem*>();
 	int particao = tamParticao == 0 ? (JobShop::njob)/2 : tamParticao;
 	int numberCrossOver = (int)ceil((float)(strength * nmaq) / 100);
 	int inicioPart = 0, fimPart = 0;
 	short int *maqs = (short int*)alocaMatriz(1, nmaq, 1, 1);
 
-	JobShop *other = dynamic_cast<JobShop *>(const_cast<Problema *>(parceiro));
+	JobShop *other = dynamic_cast<JobShop *>(const_cast<Problem *>(parceiro));
 
 	for(int i = 0; i < nmaq; i++)
 		maqs[i] = i;
@@ -604,15 +597,15 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro, 
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
-inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro, int strength)
+inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem* parceiro, int strength)
 {
 	short int **f1 = (short int**)alocaMatriz(2, nmaq, njob, 1), **f2 = (short int**)alocaMatriz(2, nmaq, njob, 1);
-	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
+	pair<Problem*, Problem*>* filhos = new pair<Problem*, Problem*>();
 	int numberCrossOver = (int)ceil((float)(strength * nmaq) / 100);
 	short int *maqs = (short int*)alocaMatriz(1, nmaq, 1, 1);
 	int particao = 0;
 
-	JobShop *other = dynamic_cast<JobShop *>(const_cast<Problema *>(parceiro));
+	JobShop *other = dynamic_cast<JobShop *>(const_cast<Problem *>(parceiro));
 
 	for(int i = 0; i < nmaq; i++)
 		maqs[i] = i;
@@ -646,10 +639,10 @@ inline pair<Problema*, Problema*>* JobShop::crossOver(const Problema* parceiro, 
 }
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
-inline Problema* JobShop::mutacao(int mutMax)
+inline Problem* JobShop::mutacao(int mutMax)
 {
 	short int **mut = (short int**)alocaMatriz(2, nmaq, njob, 1);
-	Problema* vizinho = NULL, *temp = NULL, *mutacao = NULL;
+	Problem* vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
 	for(int i = 0; i < nmaq; i++)
 		for(int j = 0; j < njob; j++)
@@ -779,10 +772,10 @@ inline void desalocaMatriz(int dim, void *MMM, int a, int b)
 }
 
 // comparator function:
-bool fnequal1(Problema* prob1, Problema* prob2)
+bool fnequal1(Problem* prob1, Problem* prob2)
 {
-	JobShop *p1 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob1));
-	JobShop *p2 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob2));
+	JobShop *p1 = dynamic_cast<JobShop *>(const_cast<Problem *>(prob1));
+	JobShop *p2 = dynamic_cast<JobShop *>(const_cast<Problem *>(prob2));
 
 	if(p1->sol.fitness == p2->sol.fitness)
 	{
@@ -798,19 +791,19 @@ bool fnequal1(Problema* prob1, Problema* prob2)
 }
 
 // comparator function:
-bool fnequal2(Problema* prob1, Problema* prob2)
+bool fnequal2(Problem* prob1, Problem* prob2)
 {
-	JobShop *p1 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob1));
-	JobShop *p2 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob2));
+	JobShop *p1 = dynamic_cast<JobShop *>(const_cast<Problem *>(prob1));
+	JobShop *p2 = dynamic_cast<JobShop *>(const_cast<Problem *>(prob2));
 
 	return p1->sol.fitness == p2->sol.fitness;
 }
 
 // comparator function:
-bool fncomp1(Problema *prob1, Problema *prob2)
+bool fncomp1(Problem *prob1, Problem *prob2)
 {
-	JobShop *p1 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob1));
-	JobShop *p2 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob2));
+	JobShop *p1 = dynamic_cast<JobShop *>(const_cast<Problem *>(prob1));
+	JobShop *p2 = dynamic_cast<JobShop *>(const_cast<Problem *>(prob2));
 
 	if(p1->sol.fitness == p2->sol.fitness)
 	{
@@ -826,15 +819,15 @@ bool fncomp1(Problema *prob1, Problema *prob2)
 }
 
 // comparator function:
-bool fncomp2(Problema *prob1, Problema *prob2)
+bool fncomp2(Problem *prob1, Problem *prob2)
 {
-	JobShop *p1 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob1));
-	JobShop *p2 = dynamic_cast<JobShop *>(const_cast<Problema *>(prob2));
+	JobShop *p1 = dynamic_cast<JobShop *>(const_cast<Problem *>(prob1));
+	JobShop *p2 = dynamic_cast<JobShop *>(const_cast<Problem *>(prob2));
 
 	return p1->sol.fitness < p2->sol.fitness;
 }
 
-inline bool ptcomp(pair<Problema*, InfoTabu*>* p1, pair<Problema*, InfoTabu*>* p2)
+inline bool ptcomp(pair<Problem*, InfoTabu*>* p1, pair<Problem*, InfoTabu*>* p2)
 {
 	return (p1->first->getFitness() > p2->first->getFitness());
 }

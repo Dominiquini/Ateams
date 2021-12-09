@@ -4,7 +4,7 @@ PATH_ROOT = ../
 
 PROJ = JobShop
 
-RUN_PARAM = -i $(PATH_PROJ_DADOS)la01.prb -p $(PATH_PROJ_PARAM)DEFAULT.xml -r $(PATH_PROJ_RES)la01.res $(ARG)
+RUN_PARAM = -i $(PATH_PROJ_INPUT)la01.prb -p $(PATH_PROJ_PARAM)DEFAULT.xml -r $(PATH_PROJ_RES)la01.res $(ARG)
 
 
 .PHONY: 				all base run clean purge

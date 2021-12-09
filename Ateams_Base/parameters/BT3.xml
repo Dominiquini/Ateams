@@ -3,24 +3,24 @@
 <Controller
    iterAteams = "250"
    tentAteams = "100"
-   maxTempoAteams = "3600"
+   maxTimeAteams = "3600"
    numThreads = "4"
    tamPopAteams = "500"
-   critUnicidade = "1"
+   comparatorMode = "1"
    makespanBest = "-1">
 
   <Heuristics>
 
     <TabuSearch
-       name = "BT2"
+       name = "BT3"
        probBT = "10"
-       polEscolhaBT = "50"
-       probElitismoBT = "0.1"
+       polEscolhaBT = "250"
+       probElitismoBT = "0.2"
        funcAspiracaoBT = "0.5"
        iterBT = "750"
        tentSemMelhoraBT = "750"
-       tamListaBT = "25"
-       polExplorBT = "1">
+       tamListaBT = "250"
+       polExplorBT = "0.25">
     </TabuSearch>
 
   </Heuristics>

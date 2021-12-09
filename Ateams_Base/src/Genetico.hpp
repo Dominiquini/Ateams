@@ -1,6 +1,6 @@
-#include "Problema.hpp"
+#include "Control.hpp"
 #include "Heuristica.hpp"
-#include "Controle.hpp"
+#include "Problem.hpp"
 
 using namespace std;
 
@@ -15,7 +15,7 @@ public:
 	float probCrossOver, powerCrossOver, probMutacao;
 
 #ifndef THREADS
-	vector<Problema*> *bad_pop;
+	vector<Problem*> *bad_pop;
 #endif
 
 	Genetico();
@@ -23,11 +23,11 @@ public:
 
 	bool setParameter(const char* parameter, const char* value);
 
-	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, Heuristica_Listener* listener);
+	vector<Problem*>* start(set<Problem*, bool(*)(Problem*, Problem*)>* sol, Heuristica_Listener* listener);
 
 private:
 
-	vector<Problema*>* exec(vector<Problema*>* pop, Heuristica_Listener* listener);
+	vector<Problem*>* exec(vector<Problem*>* pop, Heuristica_Listener* listener);
 };
 
 #endif

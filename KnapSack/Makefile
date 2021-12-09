@@ -4,7 +4,7 @@ PATH_ROOT = ../
 
 PROJ = KnapSack
 
-RUN_PARAM = -i $(PATH_PROJ_DADOS)mk_gk01.prb -p $(PATH_PROJ_PARAM)DEFAULT.xml -r $(PATH_PROJ_RES)mk_gk01.res $(ARG)
+RUN_PARAM = -i $(PATH_PROJ_INPUT)mk_gk01.prb -p $(PATH_PROJ_PARAM)DEFAULT.xml -r $(PATH_PROJ_RES)mk_gk01.res $(ARG)
 
 
 .PHONY: 				all base run clean purge

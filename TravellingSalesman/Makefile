@@ -4,7 +4,7 @@ PATH_ROOT = ../
 
 PROJ = TravellingSalesman
 
-RUN_PARAM = -i $(PATH_PROJ_DADOS)br17.prb -p $(PATH_PROJ_PARAM)DEFAULT.xml -r $(PATH_PROJ_RES)br17.res $(ARG)
+RUN_PARAM = -i $(PATH_PROJ_INPUT)br17.prb -p $(PATH_PROJ_PARAM)DEFAULT.xml -r $(PATH_PROJ_RES)br17.res $(ARG)
 
 
 .PHONY: 				all base run clean purge

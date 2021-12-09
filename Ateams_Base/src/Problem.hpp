@@ -1,5 +1,5 @@
 #include "Ateams.hpp"
-#include "Controle.hpp"
+#include "Control.hpp"
 
 using namespace std;
 
@@ -8,14 +8,14 @@ extern pthread_mutex_t mutex_cont;
 #ifndef _PROBLEMA_
 #define _PROBLEMA_
 
-class Problema;
+class Problem;
 class InfoTabu;
 class Solucao;
 
-bool fncomp1(Problema*, Problema*);	//Se P1 for menor que P2
-bool fncomp2(Problema*, Problema*); 	//Se P1 for menor que P2, considerando apenas o fitness
-bool fnequal1(Problema*, Problema*);	//Se P1 for igual a P2
-bool fnequal2(Problema*, Problema*);	//Se P1 for igual a P2, considerando apenas o fitness
+bool fncomp1(Problem*, Problem*);	//Se P1 for menor que P2
+bool fncomp2(Problem*, Problem*); 	//Se P1 for menor que P2, considerando apenas o fitness
+bool fnequal1(Problem*, Problem*);	//Se P1 for igual a P2
+bool fnequal2(Problem*, Problem*);	//Se P1 for igual a P2, considerando apenas o fitness
 
 class Solucao
 {
@@ -34,7 +34,7 @@ public:
 	virtual ~InfoTabu() {}
 };
 
-class Problema
+class Problem
 {
 public:
 
@@ -46,22 +46,22 @@ public:
 	static long int totalNumInst;	// Quantidade total de problemas processados
 
 	// Le arquivo de dados de entrada
-	static void leProblema(char*);
+	static void readProblemFromFile(char*);
 
 	// Le a especificacao do problema
-	static list<Problema*>* lePopulacao(char*);
+	static list<Problem*>* readPopulationFromLog(char*);
 
 	// Imprime em um arquivo os resultados da execucao
-	static void escrevePopulacao(char*, list<Problema*>*);
-	static void escreveResultado(char*, char*, ExecInfo*, char*);
+	static void dumpCurrentPopulationInLog(char*, list<Problem*>*);
+	static void writeResultInFile(char*, char*, ExecInfo*, char*);
 
 	// Aloca e Desaloca as estruturas do problema
 	static void alocaMemoria();
-	static void desalocaMemoria();
+	static void unloadMemory();
 
 	// Alocador generico
-	static Problema* randSoluction();							// Nova solucao aleatoria
-	static Problema* copySoluction(const Problema& prob);	// Copia de prob
+	static Problem* randSoluction();							// Nova solucao aleatoria
+	static Problem* copySoluction(const Problem& prob);	// Copia de prob
 
 	// Calcula a melhora (Resultado Positivo) de newP em relacao a oldP
 	static double melhora(double oldP, double newP)
@@ -72,7 +72,7 @@ public:
 			return newP - oldP;
 	}
 
-	static double melhora(Problema& oldP, Problema& newP)
+	static double melhora(Problem& oldP, Problem& newP)
 	{
 		if(TIPO == MINIMIZACAO)
 			return oldP.getFitness() - newP.getFitness();
@@ -84,24 +84,24 @@ public:
 	Executado exec;							// Algoritmos executados na solucao
 
 	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
-	Problema() {pthread_mutex_lock(&mutex_cont); numInst++; totalNumInst++; pthread_mutex_unlock(&mutex_cont);}	// numInst++
-	virtual ~Problema() {pthread_mutex_lock(&mutex_cont); numInst--; pthread_mutex_unlock(&mutex_cont);}		// numInst--
+	Problem() {pthread_mutex_lock(&mutex_cont); numInst++; totalNumInst++; pthread_mutex_unlock(&mutex_cont);}	// numInst++
+	virtual ~Problem() {pthread_mutex_lock(&mutex_cont); numInst--; pthread_mutex_unlock(&mutex_cont);}		// numInst--
 
 	virtual void imprimir(bool esc) = 0;	// Imprime o escalonamento
 
 	/* Retorna um vizinho aleatorio da solucao atual */
-	virtual Problema* vizinho() = 0;
+	virtual Problem* vizinho() = 0;
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual */
-	virtual vector<pair<Problema*, InfoTabu*>* >* buscaLocal() = 0;		// Todos os vizinhos
-	virtual vector<pair<Problema*, InfoTabu*>* >* buscaLocal(float) = 0;	// Uma parcela aleatoria
+	virtual vector<pair<Problem*, InfoTabu*>* >* buscaLocal() = 0;		// Todos os vizinhos
+	virtual vector<pair<Problem*, InfoTabu*>* >* buscaLocal(float) = 0;	// Uma parcela aleatoria
 
 	/* Realiza um crossover com uma outra solucao */
-	virtual pair<Problema*, Problema*>* crossOver(const Problema*, int, int) = 0;	// Dois pivos
-	virtual pair<Problema*, Problema*>* crossOver(const Problema*, int) = 0;			// Um pivo
+	virtual pair<Problem*, Problem*>* crossOver(const Problem*, int, int) = 0;	// Dois pivos
+	virtual pair<Problem*, Problem*>* crossOver(const Problem*, int) = 0;			// Um pivo
 
 	/* Devolve uma mutacao aleatoria na solucao atual */
-	virtual Problema* mutacao(int) = 0;
+	virtual Problem* mutacao(int) = 0;
 
 	/* Devolve o valor da solucao */
 	virtual double getFitness() const = 0;
@@ -113,10 +113,10 @@ private:
 	virtual bool calcFitness(bool esc) = 0;		// Calcula o makespan
 
 
-	friend bool fnequal1(Problema*, Problema*);	// Comparacao profunda
-	friend bool fnequal2(Problema*, Problema*);	// Comparacao superficial
-	friend bool fncomp1(Problema*, Problema*);	// Comparacao profunda
-	friend bool fncomp2(Problema*, Problema*);	// Comparacao superficial
+	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
+	friend bool fnequal2(Problem*, Problem*);	// Comparacao superficial
+	friend bool fncomp1(Problem*, Problem*);	// Comparacao profunda
+	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
 };
 
 #endif

@@ -22,12 +22,12 @@ rule archive
   pool = default_pool
 
 build Ateams_Base/bin/Ateams.o: compile Ateams_Base/src/Ateams.cpp
-build Ateams_Base/bin/Controle.o: compile Ateams_Base/src/Controle.cpp
+build Ateams_Base/bin/Control.o: compile Ateams_Base/src/Control.cpp
 build Ateams_Base/bin/Tabu.o: compile Ateams_Base/src/Tabu.cpp
 build Ateams_Base/bin/Genetico.o: compile Ateams_Base/src/Genetico.cpp
 build Ateams_Base/bin/Annealing.o: compile Ateams_Base/src/Annealing.cpp
 
-build Ateams_Base/bin/Ateams_Base.a: archive Ateams_Base/bin/Ateams.o Ateams_Base/bin/Controle.o Ateams_Base/bin/Tabu.o Ateams_Base/bin/Genetico.o Ateams_Base/bin/Annealing.o
+build Ateams_Base/bin/Ateams_Base.a: archive Ateams_Base/bin/Ateams.o Ateams_Base/bin/Control.o Ateams_Base/bin/Tabu.o Ateams_Base/bin/Genetico.o Ateams_Base/bin/Annealing.o
 
 build BinPacking/bin/BinPacking.o: compile BinPacking/src/BinPacking.cpp
 build FlowShop/bin/FlowShop.o: compile FlowShop/src/FlowShop.cpp

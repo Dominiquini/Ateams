@@ -3,10 +3,10 @@
 <Controller
    iterAteams = "10"
    tentAteams = "10"
-   maxTempoAteams = "3600"
+   maxTimeAteams = "3600"
    numThreads = "2"
    tamPopAteams = "100"
-   critUnicidade = "1"
+   comparatorMode = "1"
    makespanBest = "-1">
 
   <Heuristics>

@@ -72,10 +72,10 @@ bool Tabu::setParameter(const char* parameter, const char* value)
 }
 
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
-vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, Heuristica_Listener* listener)
+vector<Problem*>* Tabu::start(set<Problem*, bool(*)(Problem*, Problem*)>* sol, Heuristica_Listener* listener)
 {
-	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator select;
-	Problema* solBT;
+	set<Problem*, bool(*)(Problem*, Problem*)>::const_iterator select;
+	Problem* solBT;
 
 	numExec++;
 
@@ -85,7 +85,7 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	if(polEscolha == 0 || xRand(0, 101) < elitismo)
 	{
 		select = sol->begin();
-		solBT = Problema::copySoluction(**select);
+		solBT = Problem::copySoluction(**select);
 
 		pthread_mutex_unlock(&mutex_pop);
 
@@ -93,10 +93,10 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 	}
 
 	// Escolhe alguem dentre os 'polEscolha' primeiras solucoes
-	double visao = polEscolha < 0 ? Controle::sumFitnessMaximize(sol, sol->size()) : Controle::sumFitnessMaximize(sol, polEscolha);
+	double visao = polEscolha < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, polEscolha);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
-	select = Controle::selectRouletteWheel(sol, visao);
+	select = Control::selectRouletteWheel(sol, visao);
 	if(polEscolha < -1)
 	{
 		while((*select)->exec.tabu == true)
@@ -110,7 +110,7 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 
 	(*select)->exec.tabu = true;
 
-	solBT = Problema::copySoluction(**select);
+	solBT = Problem::copySoluction(**select);
 
 	pthread_mutex_unlock(&mutex_pop);
 
@@ -118,19 +118,19 @@ vector<Problema*>* Tabu::start(set<Problema*, bool(*)(Problema*, Problema*)>* so
 }
 
 /* Executa uma busca por solucoes a partir de 'init' por 'iterTabu' vezes */
-vector<Problema*>* Tabu::exec(Problema* init, Heuristica_Listener* listener)
+vector<Problem*>* Tabu::exec(Problem* init, Heuristica_Listener* listener)
 {
-	vector<pair<Problema*, InfoTabu*>* >* vizinhanca;
-	pair<Problema*, InfoTabu*>* local;
+	vector<pair<Problem*, InfoTabu*>* >* vizinhanca;
+	pair<Problem*, InfoTabu*>* local;
 
 	// Lista Tabu de movimentos repetidos
 	list<InfoTabu*>* listaTabu = new list<InfoTabu*>;
 
 	// Maximos globais e locais na execucao da Busca Tabu
-	vector<Problema*>* maxGlobal = new vector<Problema*>();
-	Problema *maxLocal = init;
+	vector<Problem*>* maxGlobal = new vector<Problem*>();
+	Problem *maxLocal = init;
 
-	maxGlobal->push_back(Problema::copySoluction(*maxLocal));
+	maxGlobal->push_back(Problem::copySoluction(*maxLocal));
 
 	if(listener != NULL)
 		listener->bestInitialFitness = (*maxGlobal->begin())->getFitness();
@@ -170,15 +170,15 @@ vector<Problema*>* Tabu::exec(Problema* init, Heuristica_Listener* listener)
 			// Se nao for tabu...
 			if(!isTabu(listaTabu, local->second))
 			{
-				if(Problema::melhora(*maxLocal, *local->first) > 0)
+				if(Problem::melhora(*maxLocal, *local->first) > 0)
 					j = 0;
 
 				delete maxLocal;
 				maxLocal = local->first;
 
-				if(Problema::melhora(*maxGlobal->back(), *local->first) > 0)
+				if(Problem::melhora(*maxGlobal->back(), *local->first) > 0)
 				{
-					maxGlobal->push_back(Problema::copySoluction(*maxLocal));
+					maxGlobal->push_back(Problem::copySoluction(*maxLocal));
 				}
 
 				addTabu(listaTabu, local->second, tamListaTabu);
@@ -198,9 +198,9 @@ vector<Problema*>* Tabu::exec(Problema* init, Heuristica_Listener* listener)
 					delete maxLocal;
 					maxLocal = local->first;
 
-					if(Problema::melhora(*maxGlobal->back(), *local->first) > 0)
+					if(Problem::melhora(*maxGlobal->back(), *local->first) > 0)
 					{
-						maxGlobal->push_back(Problema::copySoluction(*maxLocal));
+						maxGlobal->push_back(Problem::copySoluction(*maxLocal));
 					}
 
 					delete local->second;
@@ -264,7 +264,7 @@ inline void addTabu(list<InfoTabu*>* listaTabu, InfoTabu *m, int max)
 	}
 }
 
-inline bool aspiracao(double paramAsp, Problema *atual, Problema *local, Problema *global)
+inline bool aspiracao(double paramAsp, Problem *atual, Problem *local, Problem *global)
 {
-	return Problema::melhora(((paramAsp * global->getFitness()) + ((1-paramAsp) * local->getFitness())), atual->getFitness()) >= 0;
+	return Problem::melhora(((paramAsp * global->getFitness()) + ((1-paramAsp) * local->getFitness())), atual->getFitness()) >= 0;
 }

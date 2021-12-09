@@ -4,7 +4,7 @@ PATH_ROOT = ../
 
 PROJ = BinPacking
 
-RUN_PARAM = -i $(PATH_PROJ_DADOS)binpack1_01.prb -p $(PATH_PROJ_PARAM)DEFAULT.xml -r $(PATH_PROJ_RES)binpack1_01.res $(ARG)
+RUN_PARAM = -i $(PATH_PROJ_INPUT)binpack1_01.prb -p $(PATH_PROJ_PARAM)DEFAULT.xml -r $(PATH_PROJ_RES)binpack1_01.res $(ARG)
 
 
 .PHONY: 				all base run clean purge

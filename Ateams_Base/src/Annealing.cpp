@@ -79,10 +79,10 @@ bool Annealing::setParameter(const char* parameter, const char* value)
 }
 
 /* Executa um Simulated Annealing na populacao com o devido criterio de selecao */
-vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, Heuristica_Listener* listener)
+vector<Problem*>* Annealing::start(set<Problem*, bool(*)(Problem*, Problem*)>* sol, Heuristica_Listener* listener)
 {
-	set<Problema*, bool(*)(Problema*, Problema*)>::const_iterator select;
-	Problema* solSA;
+	set<Problem*, bool(*)(Problem*, Problem*)>::const_iterator select;
+	Problem* solSA;
 
 	numExec++;
 
@@ -92,7 +92,7 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	if(polEscolha == 0 || xRand(0, 101) < elitismo)
 	{
 		select = sol->begin();
-		solSA = Problema::copySoluction(**select);
+		solSA = Problem::copySoluction(**select);
 
 		pthread_mutex_unlock(&mutex_pop);
 
@@ -100,10 +100,10 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 	}
 
 	// Escolhe alguem dentre os 'polEscolha' primeiras solucoes
-	double visao = polEscolha < 0 ? Controle::sumFitnessMaximize(sol, sol->size()) : Controle::sumFitnessMaximize(sol, polEscolha);
+	double visao = polEscolha < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, polEscolha);
 
 	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
-	select = Controle::selectRouletteWheel(sol, visao);
+	select = Control::selectRouletteWheel(sol, visao);
 	if(polEscolha < -1)
 	{
 		while((*select)->exec.annealing == true)
@@ -117,7 +117,7 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 
 	(*select)->exec.annealing = true;
 
-	solSA = Problema::copySoluction(**select);
+	solSA = Problem::copySoluction(**select);
 
 	pthread_mutex_unlock(&mutex_pop);
 
@@ -125,15 +125,15 @@ vector<Problema*>* Annealing::start(set<Problema*, bool(*)(Problema*, Problema*)
 }
 
 /* Executa uma busca por solucoes a partir de 'init' */
-vector<Problema*>* Annealing::exec(Problema* Si, Heuristica_Listener* listener)
+vector<Problem*>* Annealing::exec(Problem* Si, Heuristica_Listener* listener)
 {
-	vector<Problema*>* Sf = new vector<Problema*>();
-	Problema *S, *Sn;
+	vector<Problem*>* Sf = new vector<Problem*>();
+	Problem *S, *Sn;
 	double Ti, Tf, T;
 	int L = maxIter;
 	double Ds;
 
-	Ti = initTemp != -1 ? initTemp : (Problema::best - Problema::worst) / log(0.5);
+	Ti = initTemp != -1 ? initTemp : (Problem::best - Problem::worst) / log(0.5);
 	Tf = fimTemp > 0 ? fimTemp : 1;
 
 	double diff = Ti - Tf;
@@ -141,7 +141,7 @@ vector<Problema*>* Annealing::exec(Problema* Si, Heuristica_Listener* listener)
 	T = Ti;
 	S = Si;
 
-	Sf->push_back(Problema::copySoluction(*Si));
+	Sf->push_back(Problem::copySoluction(*Si));
 
 	if(listener != NULL)
 		listener->bestInitialFitness = (*Sf->begin())->getFitness();
@@ -174,15 +174,15 @@ vector<Problema*>* Annealing::exec(Problema* Si, Heuristica_Listener* listener)
 				continue;
 			}
 
-			Ds = Problema::melhora(*S, *Sn);
+			Ds = Problem::melhora(*S, *Sn);
 			if(Ds >= 0 || accept((double)xRand(), Ds, T))
 			{
 				delete S;
 				S = Sn;
 
-				if(Problema::melhora(*Sf->back(), *S) > 0)
+				if(Problem::melhora(*Sf->back(), *S) > 0)
 				{
-					Sf->push_back(Problema::copySoluction(*S));
+					Sf->push_back(Problem::copySoluction(*S));
 				}
 			}
 			else
@@ -198,7 +198,7 @@ vector<Problema*>* Annealing::exec(Problema* Si, Heuristica_Listener* listener)
 		if(restauraSol)
 		{
 			delete S;
-			S = Problema::copySoluction(*Sf->back());
+			S = Problem::copySoluction(*Sf->back());
 		}
 	}
 	delete S;

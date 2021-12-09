@@ -4,12 +4,12 @@ using namespace std;
 
 /* Static Members */
 
-ProblemType Problema::TIPO = MINIMIZACAO;
+ProblemType Problem::TIPO = MINIMIZACAO;
 
-double Problema::best = 0;
-double Problema::worst = 0;
-int Problema::numInst = 0;
-long int Problema::totalNumInst = 0;
+double Problem::best = 0;
+double Problem::worst = 0;
+int Problem::numInst = 0;
+long int Problem::totalNumInst = 0;
 
 char FlowShop::name[128];
 int **FlowShop::time = NULL;
@@ -17,38 +17,38 @@ int FlowShop::njob = 0, FlowShop::nmaq = 0;
 
 int FlowShop::num_vizinhos = 0;
 
-Problema* Problema::randSoluction()
+Problem* Problem::randSoluction()
 {
 	return new FlowShop();
 }
 
-Problema* Problema::copySoluction(const Problema& prob)
+Problem* Problem::copySoluction(const Problem& prob)
 {
 	return new FlowShop(prob);
 }
 
 
-void Problema::leProblema(char* input)
+void Problem::readProblemFromFile(char* input)
 {
 	FILE *f = fopen(input, "r");
 
 	if(f == NULL)
-		exit(1);
+		throw "Wrong Data File!";
 
 	if(!fgets (FlowShop::name, 128, f))
-		exit(1);
+		throw "Wrong Data File!";
 
 	if(!fscanf (f, "%d %d", &FlowShop::njob, &FlowShop::nmaq))
-		exit(1);
+		throw "Wrong Data File!";
 
-	Problema::alocaMemoria();
+	Problem::alocaMemoria();
 
 	for(int i = 0; i < FlowShop::njob; i++)
 	{
 		for(int j = 0; j < FlowShop::nmaq; j++)
 		{
 			if (!fscanf (f, "%*d %d", &FlowShop::time[i][j]))
-				exit(1);
+				throw "Wrong Data File!";
 		}
 	}
 
@@ -58,55 +58,40 @@ void Problema::leProblema(char* input)
 	return;
 }
 
-list<Problema*>* Problema::lePopulacao(char *log)
+list<Problem*>* Problem::readPopulationFromLog(char *log)
 {
 	FILE *f = fopen(log, "r");
 
 	if(f != NULL)
 	{
-		list<Problema*>* popInicial = new list<Problema*>();
+		list<Problem*>* popInicial = new list<Problem*>();
 		int njob, nmaq, nprob, makespan;
 		short int *prob;
-		Problema* p;
+		Problem* p;
 
 		if(!fscanf (f, "%d %d %d", &nprob, &nmaq, &njob))
-		{
-			printf("Wrong Log File!\n\n");
-			exit(1);
-		}
+			throw "Wrong Log File!";
 
 		if(nmaq != FlowShop::nmaq || njob != FlowShop::njob)
-		{
-			printf("Arquivo de log incorreto!\n\n");
-			exit(1);
-		}
+			throw "Wrong Log File!";
 
 		for(int i = 0; i < nprob; i++)
 		{
 			prob = (short int*)alocaMatriz(1, njob, 1, 1);
 
 			if(!fscanf (f, "%d", &makespan))
-			{
-				printf("Wrong Log File!\n\n");
-				exit(1);
-			}
+				throw "Wrong Log File!";
 
 			for(int j = 0; j < njob; j++)
 			{
 				if(!fscanf (f, "%hd", &prob[j]))
-				{
-					printf("Wrong Log File!\n\n");
-					exit(1);
-				}
+					throw "Wrong Log File!";
 			}
 
 			p = new FlowShop(prob);
 
 			if(makespan != p->getFitness())
-			{
-				printf("Wrong Log File!\n\n");
-				exit(1);
-			}
+				throw "Wrong Log File!";
 
 			popInicial->push_back(p);
 		}
@@ -121,64 +106,71 @@ list<Problema*>* Problema::lePopulacao(char *log)
 	}
 }
 
-void Problema::escrevePopulacao(char *log, list<Problema*>* popInicial)
+void Problem::dumpCurrentPopulationInLog(char *log, list<Problem*>* popInicial)
 {
 	FILE *f = fopen(log, "w");
 
-	int sizePop = (int)popInicial->size();
-	list<Problema*>::iterator iter;
-	short int *prob;
-
-	fprintf(f, "%d %d %d\n\n", sizePop, FlowShop::nmaq, FlowShop::njob);
-
-	for(iter = popInicial->begin(); iter != popInicial->end(); iter++)
+	if(f != NULL)
 	{
-		prob = dynamic_cast<FlowShop *>(*iter)->getSoluction().esc;
+		int sizePop = (int)popInicial->size();
+		list<Problem*>::iterator iter;
+		short int *prob;
 
-		fprintf(f, "%d\n", (int)dynamic_cast<FlowShop *>(*iter)->getSoluction().fitness);
+		fprintf(f, "%d %d %d\n\n", sizePop, FlowShop::nmaq, FlowShop::njob);
 
-		for(int j = 0; j < FlowShop::njob; j++)
+		for(iter = popInicial->begin(); iter != popInicial->end(); iter++)
 		{
-			fprintf(f, "%.2d ", prob[j]);
+			prob = dynamic_cast<FlowShop *>(*iter)->getSoluction().esc;
+
+			fprintf(f, "%d\n", (int)dynamic_cast<FlowShop *>(*iter)->getSoluction().fitness);
+
+			for(int j = 0; j < FlowShop::njob; j++)
+			{
+				fprintf(f, "%.2d ", prob[j]);
+			}
+
+			fprintf(f, "\n\n");
 		}
 
-		fprintf(f, "\n\n");
+		fclose(f);
 	}
-	fclose(f);
 }
 
-void Problema::escreveResultado(char *dados, char *parametros, ExecInfo *info, char *resultado)
+void Problem::writeResultInFile(char *dados, char *parametros, ExecInfo *info, char *resultado)
 {
 	FILE *f;
 
-	if((f = fopen(resultado, "r+")) != NULL)
+	if(*resultado != '\0')
 	{
-		fseek(f, 0, SEEK_END);
+		if((f = fopen(resultado, "r+")) != NULL)
+		{
+			fseek(f, 0, SEEK_END);
+		}
+		else
+		{
+			f = fopen(resultado, "w");
+
+			fprintf(f, "%*s%*s", -16, "bestFitness", -16, "worstFitness");
+			fprintf(f, "%*s%*s%*s", -16, "numExecs", -16, "diffTime", -24, "expSol");
+			fprintf(f, "%*s%s\n", -24, "dados", "parametros");
+		}
+
+		fprintf(f, "%*d%*d", -16, (int)info->bestFitness, -16, (int)info->worstFitness);
+		fprintf(f, "%*d%*d%*d", -16, info->numExecs, -16, (int)info->diffTime, -24, (int)info->expSol);
+		fprintf(f, "%*s%s\n", -24, dados, parametros);
+
+		fclose(f);
 	}
-	else
-	{
-		f = fopen(resultado, "w");
-
-		fprintf(f, "%*s%*s", -16, "bestFitness", -16, "worstFitness");
-		fprintf(f, "%*s%*s%*s", -16, "numExecs", -16, "diffTime", -24, "expSol");
-		fprintf(f, "%*s%s\n", -24, "dados", "parametros");
-	}
-
-	fprintf(f, "%*d%*d", -16, (int)info->bestFitness, -16, (int)info->worstFitness);
-	fprintf(f, "%*d%*d%*d", -16, info->numExecs, -16, (int)info->diffTime, -24, (int)info->expSol);
-	fprintf(f, "%*s%s\n", -24, dados, parametros);
-
-	fclose(f);
 }
 
-void Problema::alocaMemoria()
+void Problem::alocaMemoria()
 {
 	FlowShop::time = (int**)malloc(FlowShop::njob * sizeof(int*));
 	for(int i = 0; i < FlowShop::njob; i++)
 		FlowShop::time[i] = (int*)malloc(FlowShop::nmaq * sizeof(int));
 }
 
-void Problema::desalocaMemoria()
+void Problem::unloadMemory()
 {
 	for(int i = 0; i < FlowShop::njob; i++)
 		free(FlowShop::time[i]);
@@ -188,7 +180,7 @@ void Problema::desalocaMemoria()
 
 /* Metodos */
 
-FlowShop::FlowShop() : Problema::Problema()
+FlowShop::FlowShop() : Problem::Problem()
 {
 	sol.esc = (short int*)alocaMatriz(1, njob, 1, 1);
 
@@ -207,7 +199,7 @@ FlowShop::FlowShop() : Problema::Problema()
 }
 
 
-FlowShop::FlowShop(short int *prob) : Problema::Problema()
+FlowShop::FlowShop(short int *prob) : Problem::Problem()
 {
 	sol.esc = prob;
 
@@ -219,9 +211,9 @@ FlowShop::FlowShop(short int *prob) : Problema::Problema()
 	exec.annealing = false;
 }
 
-FlowShop::FlowShop(const Problema &prob) : Problema::Problema()
+FlowShop::FlowShop(const Problem &prob) : Problem::Problem()
 {
-	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problema *>(&prob));
+	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problem *>(&prob));
 
 	this->sol.esc = (short int*)alocaMatriz(1, njob, 1, 1);
 	for(int j = 0; j < njob; j++)
@@ -241,9 +233,9 @@ FlowShop::FlowShop(const Problema &prob) : Problema::Problema()
 	exec = prob.exec;
 }
 
-FlowShop::FlowShop(const Problema &prob, int pos1, int pos2) : Problema::Problema()
+FlowShop::FlowShop(const Problem &prob, int pos1, int pos2) : Problem::Problem()
 {
-	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problema *>(&prob));
+	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problem *>(&prob));
 
 	this->sol.esc = (short int*)alocaMatriz(1, njob, 1, 1);
 	for(int j = 0; j < njob; j++)
@@ -355,10 +347,10 @@ inline void FlowShop::imprimir(bool esc)
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */
-inline Problema* FlowShop::vizinho()
+inline Problem* FlowShop::vizinho()
 {
 	int p1 = xRand(0, njob), p2 = xRand(0, njob);
-	Problema *job = NULL;
+	Problem *job = NULL;
 
 	while(p2 == p1)
 		p2 = xRand(0, njob);
@@ -376,15 +368,15 @@ inline Problema* FlowShop::vizinho()
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problema*, InfoTabu*>* >* FlowShop::buscaLocal()
+inline vector<pair<Problem*, InfoTabu*>* >* FlowShop::buscaLocal()
 {
 	if(FlowShop::num_vizinhos > MAX_PERMUTACOES)
 		return buscaLocal((float)MAX_PERMUTACOES/(float)FlowShop::num_vizinhos);
 
-	Problema *job = NULL;
+	Problem *job = NULL;
 	int p1, p2;
-	pair<Problema*, InfoTabu*>* temp;
-	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
+	pair<Problem*, InfoTabu*>* temp;
+	vector<pair<Problem*, InfoTabu*>* >* local = new vector<pair<Problem*, InfoTabu*>* >();
 
 	for(p1 = 0; p1 < njob-1; p1++)
 	{
@@ -393,7 +385,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* FlowShop::buscaLocal()
 			job = new FlowShop(*this, p1, p2);
 			if(job->getFitness() != -1)
 			{
-				temp = new pair<Problema*, InfoTabu*>();
+				temp = new pair<Problem*, InfoTabu*>();
 				temp->first = job;
 				temp->second = new InfoTabu_FlowShop(p1, p2);
 
@@ -413,12 +405,12 @@ inline vector<pair<Problema*, InfoTabu*>* >* FlowShop::buscaLocal()
 }
 
 /* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problema*, InfoTabu*>* >* FlowShop::buscaLocal(float parcela)
+inline vector<pair<Problem*, InfoTabu*>* >* FlowShop::buscaLocal(float parcela)
 {
-	Problema *job = NULL;
+	Problem *job = NULL;
 	int p1, p2;
-	pair<Problema*, InfoTabu*>* temp;
-	vector<pair<Problema*, InfoTabu*>* >* local = new vector<pair<Problema*, InfoTabu*>* >();
+	pair<Problem*, InfoTabu*>* temp;
+	vector<pair<Problem*, InfoTabu*>* >* local = new vector<pair<Problem*, InfoTabu*>* >();
 	int def;
 
 	def = (int)((float)FlowShop::num_vizinhos*parcela);
@@ -436,7 +428,7 @@ inline vector<pair<Problema*, InfoTabu*>* >* FlowShop::buscaLocal(float parcela)
 		job = new FlowShop(*this, p1, p2);
 		if(job->getFitness() != -1)
 		{
-			temp = new pair<Problema*, InfoTabu*>();
+			temp = new pair<Problem*, InfoTabu*>();
 			temp->first = job;
 			temp->second = new InfoTabu_FlowShop(p1, p2);
 
@@ -453,14 +445,14 @@ inline vector<pair<Problema*, InfoTabu*>* >* FlowShop::buscaLocal(float parcela)
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
-inline pair<Problema*, Problema*>* FlowShop::crossOver(const Problema* parceiro, int tamParticao, int strength)
+inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem* parceiro, int tamParticao, int strength)
 {
 	short int *f1 = (short int*)alocaMatriz(1, njob, 1, 1), *f2 = (short int*)alocaMatriz(1, njob, 1, 1);
-	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
+	pair<Problem*, Problem*>* filhos = new pair<Problem*, Problem*>();
 	int particao = tamParticao == 0 ? (FlowShop::njob)/2 : tamParticao;
 	int inicioPart = 0, fimPart = 0;
 
-	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problema *>(parceiro));
+	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problem *>(parceiro));
 
 	inicioPart = xRand(0, njob);
 	fimPart = inicioPart+particao <= njob ? inicioPart+particao : njob;
@@ -475,13 +467,13 @@ inline pair<Problema*, Problema*>* FlowShop::crossOver(const Problema* parceiro,
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
-inline pair<Problema*, Problema*>* FlowShop::crossOver(const Problema* parceiro, int strength)
+inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem* parceiro, int strength)
 {
 	short int *f1 = (short int*)alocaMatriz(1, njob, 1, 1), *f2 = (short int*)alocaMatriz(1, njob, 1, 1);
-	pair<Problema*, Problema*>* filhos = new pair<Problema*, Problema*>();
+	pair<Problem*, Problem*>* filhos = new pair<Problem*, Problem*>();
 	int particao = 0;
 
-	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problema *>(parceiro));
+	FlowShop *other = dynamic_cast<FlowShop *>(const_cast<Problem *>(parceiro));
 
 	particao = xRand(1, njob);
 
@@ -495,10 +487,10 @@ inline pair<Problema*, Problema*>* FlowShop::crossOver(const Problema* parceiro,
 }
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
-inline Problema* FlowShop::mutacao(int mutMax)
+inline Problem* FlowShop::mutacao(int mutMax)
 {
 	short int *mut = (short int*)alocaMatriz(1, njob, 1, 1);
-	Problema* vizinho = NULL, *temp = NULL, *mutacao = NULL;
+	Problem* vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
 	for(int j = 0; j < njob; j++)
 		mut[j] = sol.esc[j];
@@ -617,7 +609,7 @@ inline void desalocaMatriz(int dim, void *MMM, int a, int b)
 }
 
 // comparator function:
-bool fnequal1(Problema* prob1, Problema* prob2)
+bool fnequal1(Problem* prob1, Problem* prob2)
 {
 	FlowShop *p1 = dynamic_cast<FlowShop *>(prob1);
 	FlowShop *p2 = dynamic_cast<FlowShop *>(prob2);
@@ -635,7 +627,7 @@ bool fnequal1(Problema* prob1, Problema* prob2)
 }
 
 // comparator function:
-bool fnequal2(Problema* prob1, Problema* prob2)
+bool fnequal2(Problem* prob1, Problem* prob2)
 {
 	FlowShop *p1 = dynamic_cast<FlowShop *>(prob1);
 	FlowShop *p2 = dynamic_cast<FlowShop *>(prob2);
@@ -644,7 +636,7 @@ bool fnequal2(Problema* prob1, Problema* prob2)
 }
 
 // comparator function:
-bool fncomp1(Problema *prob1, Problema *prob2)
+bool fncomp1(Problem *prob1, Problem *prob2)
 {
 	FlowShop *p1 = dynamic_cast<FlowShop *>(prob1);
 	FlowShop *p2 = dynamic_cast<FlowShop *>(prob2);
@@ -662,7 +654,7 @@ bool fncomp1(Problema *prob1, Problema *prob2)
 }
 
 // comparator function:
-bool fncomp2(Problema *prob1, Problema *prob2)
+bool fncomp2(Problem *prob1, Problem *prob2)
 {
 	FlowShop *p1 = dynamic_cast<FlowShop *>(prob1);
 	FlowShop *p2 = dynamic_cast<FlowShop *>(prob2);
@@ -670,7 +662,7 @@ bool fncomp2(Problema *prob1, Problema *prob2)
 	return p1->sol.fitness < p2->sol.fitness;
 }
 
-inline bool ptcomp(pair<Problema*, InfoTabu*>* p1, pair<Problema*, InfoTabu*>* p2)
+inline bool ptcomp(pair<Problem*, InfoTabu*>* p1, pair<Problem*, InfoTabu*>* p2)
 {
 	return (p1->first->getFitness() > p2->first->getFitness());
 }

@@ -4,7 +4,7 @@ PATH_ROOT = ../
 
 PROJ = GraphColoring
 
-RUN_PARAM = -i $(PATH_PROJ_DADOS)jean.prb -p $(PATH_PROJ_PARAM)DEFAULT.xml -r $(PATH_PROJ_RES)jean.res $(ARG)
+RUN_PARAM = -i $(PATH_PROJ_INPUT)jean.prb -p $(PATH_PROJ_PARAM)DEFAULT.xml -r $(PATH_PROJ_RES)jean.res $(ARG)
 
 
 .PHONY: 				all base run clean purge

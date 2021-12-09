@@ -1,6 +1,6 @@
-#include "Problema.hpp"
+#include "Control.hpp"
 #include "Heuristica.hpp"
-#include "Controle.hpp"
+#include "Problem.hpp"
 
 using namespace std;
 
@@ -19,17 +19,17 @@ public:
 
 	bool setParameter(const char* parameter, const char* value);
 
-	vector<Problema*>* start(set<Problema*, bool(*)(Problema*, Problema*)>* sol, Heuristica_Listener* listener);
+	vector<Problem*>* start(set<Problem*, bool(*)(Problem*, Problem*)>* sol, Heuristica_Listener* listener);
 
 private:
 
-	vector<Problema*>* exec(Problema*, Heuristica_Listener* listener);
+	vector<Problem*>* exec(Problem*, Heuristica_Listener* listener);
 };
 
 bool isTabu(list<InfoTabu*> *listaTabu, InfoTabu *m);
 
 void addTabu(list<InfoTabu*>* listaTabu, InfoTabu *m, int max);
 
-bool aspiracao(double paramAsp, Problema *atual, Problema *local, Problema *global);
+bool aspiracao(double paramAsp, Problem *atual, Problem *local, Problem *global);
 
 #endif
