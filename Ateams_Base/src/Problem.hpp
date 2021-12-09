@@ -60,24 +60,21 @@ public:
 	static void unloadMemory();
 
 	// Alocador generico
-	static Problem* randSoluction();							// Nova solucao aleatoria
+	static Problem* randSoluction();					// Nova solucao aleatoria
 	static Problem* copySoluction(const Problem& prob);	// Copia de prob
 
 	// Calcula a melhora (Resultado Positivo) de newP em relacao a oldP
-	static double melhora(double oldP, double newP)
+	static double improvement(Problem& oldP, Problem& newP)
+	{
+		return improvement(oldP.getFitness(), newP.getFitness());
+	}
+
+	static double improvement(double oldP, double newP)
 	{
 		if(TIPO == MINIMIZACAO)
 			return oldP - newP;
 		else
 			return newP - oldP;
-	}
-
-	static double melhora(Problem& oldP, Problem& newP)
-	{
-		if(TIPO == MINIMIZACAO)
-			return oldP.getFitness() - newP.getFitness();
-		else
-			return newP.getFitness() - oldP.getFitness();
 	}
 
 
@@ -87,21 +84,21 @@ public:
 	Problem() {pthread_mutex_lock(&mutex_cont); numInst++; totalNumInst++; pthread_mutex_unlock(&mutex_cont);}	// numInst++
 	virtual ~Problem() {pthread_mutex_lock(&mutex_cont); numInst--; pthread_mutex_unlock(&mutex_cont);}		// numInst--
 
-	virtual void imprimir(bool esc) = 0;	// Imprime o escalonamento
+	virtual void print(bool esc) = 0;	// Imprime o escalonamento
 
 	/* Retorna um vizinho aleatorio da solucao atual */
-	virtual Problem* vizinho() = 0;
+	virtual Problem* neighbor() = 0;
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual */
-	virtual vector<pair<Problem*, InfoTabu*>* >* buscaLocal() = 0;		// Todos os vizinhos
-	virtual vector<pair<Problem*, InfoTabu*>* >* buscaLocal(float) = 0;	// Uma parcela aleatoria
+	virtual vector<pair<Problem*, InfoTabu*>* >* localSearch() = 0;		// Todos os vizinhos
+	virtual vector<pair<Problem*, InfoTabu*>* >* localSearch(float) = 0;	// Uma parcela aleatoria
 
 	/* Realiza um crossover com uma outra solucao */
 	virtual pair<Problem*, Problem*>* crossOver(const Problem*, int, int) = 0;	// Dois pivos
 	virtual pair<Problem*, Problem*>* crossOver(const Problem*, int) = 0;			// Um pivo
 
 	/* Devolve uma mutacao aleatoria na solucao atual */
-	virtual Problem* mutacao(int) = 0;
+	virtual Problem* mutation(int) = 0;
 
 	/* Devolve o valor da solucao */
 	virtual double getFitness() const = 0;
@@ -111,7 +108,6 @@ public:
 private:
 
 	virtual bool calcFitness(bool esc) = 0;		// Calcula o makespan
-
 
 	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
 	friend bool fnequal2(Problem*, Problem*);	// Comparacao superficial

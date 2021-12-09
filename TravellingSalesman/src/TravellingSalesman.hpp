@@ -72,21 +72,21 @@ public:
 	~TravellingSalesman();
 
 
-	void imprimir(bool esc);		// Imprime o escalonamento atual
+	void print(bool esc);		// Imprime o escalonamento atual
 
 	/* Retorna um novo vizinho aleatorio */
-	Problem* vizinho();
+	Problem* neighbor();
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
-	vector<pair<Problem*, InfoTabu*>* >* buscaLocal();			// Todos os vizinhos
-	vector<pair<Problem*, InfoTabu*>* >* buscaLocal(float);	// Uma parcela aleatoria
+	vector<pair<Problem*, InfoTabu*>* >* localSearch();			// Todos os vizinhos
+	vector<pair<Problem*, InfoTabu*>* >* localSearch(float);	// Uma parcela aleatoria
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
 	pair<Problem*, Problem*>* crossOver(const Problem*, int, int);	// Dois pivos
 	pair<Problem*, Problem*>* crossOver(const Problem*, int);		// Um pivo
 
 	/* Devolve uma mutacao aleatoria na solucao atual */
-	Problem* mutacao(int);
+	Problem* mutation(int);
 
 	/* Devolve o valor da solucao */
 	double getFitness() const;

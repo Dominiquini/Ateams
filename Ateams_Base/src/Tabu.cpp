@@ -153,12 +153,12 @@ vector<Problem*>* Tabu::exec(Problem* init, Heuristica_Listener* listener)
 		if(polExploracao >= 1)
 		{
 			// Pega uma lista de todos os "vizinhos" de maxLocal
-			vizinhanca = maxLocal->buscaLocal();
+			vizinhanca = maxLocal->localSearch();
 		}
 		else
 		{
 			// Pega uma parcela 'polExploracao' dos "vizinhos" de maxLocal
-			vizinhanca = maxLocal->buscaLocal(polExploracao);
+			vizinhanca = maxLocal->localSearch(polExploracao);
 		}
 
 		// Escolhe a solucao de peso minimo
@@ -170,13 +170,13 @@ vector<Problem*>* Tabu::exec(Problem* init, Heuristica_Listener* listener)
 			// Se nao for tabu...
 			if(!isTabu(listaTabu, local->second))
 			{
-				if(Problem::melhora(*maxLocal, *local->first) > 0)
+				if(Problem::improvement(*maxLocal, *local->first) > 0)
 					j = 0;
 
 				delete maxLocal;
 				maxLocal = local->first;
 
-				if(Problem::melhora(*maxGlobal->back(), *local->first) > 0)
+				if(Problem::improvement(*maxGlobal->back(), *local->first) > 0)
 				{
 					maxGlobal->push_back(Problem::copySoluction(*maxLocal));
 				}
@@ -198,7 +198,7 @@ vector<Problem*>* Tabu::exec(Problem* init, Heuristica_Listener* listener)
 					delete maxLocal;
 					maxLocal = local->first;
 
-					if(Problem::melhora(*maxGlobal->back(), *local->first) > 0)
+					if(Problem::improvement(*maxGlobal->back(), *local->first) > 0)
 					{
 						maxGlobal->push_back(Problem::copySoluction(*maxLocal));
 					}
@@ -266,5 +266,5 @@ inline void addTabu(list<InfoTabu*>* listaTabu, InfoTabu *m, int max)
 
 inline bool aspiracao(double paramAsp, Problem *atual, Problem *local, Problem *global)
 {
-	return Problem::melhora(((paramAsp * global->getFitness()) + ((1-paramAsp) * local->getFitness())), atual->getFitness()) >= 0;
+	return Problem::improvement(((paramAsp * global->getFitness()) + ((1-paramAsp) * local->getFitness())), atual->getFitness()) >= 0;
 }

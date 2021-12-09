@@ -308,7 +308,7 @@ inline bool FlowShop::calcFitness(bool esc)
 	return true;
 }
 
-inline void FlowShop::imprimir(bool esc)
+inline void FlowShop::print(bool esc)
 {
 	if(esc == true)
 	{
@@ -347,7 +347,7 @@ inline void FlowShop::imprimir(bool esc)
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */
-inline Problem* FlowShop::vizinho()
+inline Problem* FlowShop::neighbor()
 {
 	int p1 = xRand(0, njob), p2 = xRand(0, njob);
 	Problem *job = NULL;
@@ -368,10 +368,10 @@ inline Problem* FlowShop::vizinho()
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* FlowShop::buscaLocal()
+inline vector<pair<Problem*, InfoTabu*>* >* FlowShop::localSearch()
 {
 	if(FlowShop::num_vizinhos > MAX_PERMUTACOES)
-		return buscaLocal((float)MAX_PERMUTACOES/(float)FlowShop::num_vizinhos);
+		return localSearch((float)MAX_PERMUTACOES/(float)FlowShop::num_vizinhos);
 
 	Problem *job = NULL;
 	int p1, p2;
@@ -405,7 +405,7 @@ inline vector<pair<Problem*, InfoTabu*>* >* FlowShop::buscaLocal()
 }
 
 /* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* FlowShop::buscaLocal(float parcela)
+inline vector<pair<Problem*, InfoTabu*>* >* FlowShop::localSearch(float parcela)
 {
 	Problem *job = NULL;
 	int p1, p2;
@@ -487,7 +487,7 @@ inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem* parceiro, in
 }
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
-inline Problem* FlowShop::mutacao(int mutMax)
+inline Problem* FlowShop::mutation(int mutMax)
 {
 	short int *mut = (short int*)alocaMatriz(1, njob, 1, 1);
 	Problem* vizinho = NULL, *temp = NULL, *mutacao = NULL;
@@ -500,7 +500,7 @@ inline Problem* FlowShop::mutacao(int mutMax)
 
 	while(mutMax-- > 0)
 	{
-		vizinho = temp->vizinho();
+		vizinho = temp->neighbor();
 
 		if(vizinho != NULL)
 		{

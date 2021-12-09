@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 		list<Problem*>* popInicial = Problem::readPopulationFromLog(ctrl->getOutputLogFile());
 
 		/* Inicia a execucao */
-		Problem* best = ctrl->start(popInicial);
+		Problem* bestSolution = ctrl->start(popInicial);
 
 		if(popInicial != NULL)
 		{
@@ -63,12 +63,9 @@ int main(int argc, char *argv[])
 
 		cout << endl << endl << "Solution:" << endl << endl;
 
-		if(findPosArgv(argv, argc, (char*)"-d") != -1)
-			best->imprimir(true);
-		else
-			best->imprimir(false);
+		ctrl->printSolution(bestSolution);
 
-		delete best;
+		delete bestSolution;
 
 		Control::terminate();
 
@@ -82,12 +79,38 @@ int main(int argc, char *argv[])
 		cout << endl;
 	}
 	catch (const char* message) {
-		cout << endl << "Error During Execution: " << capitalize(message, "Unexpected Exception!") << endl << endl;
+		cout << endl << "Error During Execution: " << formatErrorMessage(message, "Unexpected Exception!") << endl << endl;
 
 		exit(1);
 	}
 
 	return 0;
+}
+
+inline string formatErrorMessage(const char *text, string defaultText)
+{
+	if(text != NULL)
+	{
+		string capitalizedText = string(text);
+
+		for (unsigned long x = 0; x < strlen(text); x++)
+		{
+			if (x == 0)
+			{
+				capitalizedText[x] = toupper(text[x]);
+			}
+			else if (text[x - 1] == ' ')
+			{
+				capitalizedText[x] = toupper(text[x]);
+			}
+		}
+
+		return capitalizedText;
+	}
+	else
+	{
+		return defaultText;
+	}
 }
 
 int xRand()

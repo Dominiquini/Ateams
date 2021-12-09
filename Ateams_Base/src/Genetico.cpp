@@ -210,14 +210,14 @@ vector<Problem*>* Genetico::exec(vector<Problem*>* pop, Heuristica_Listener* lis
 
 			if(xRand() < (RAND_MAX*probMutacao/2))
 			{
-				mutante = temp->first->mutacao(xRand(1, (int)(((float)100)*probMutacao)));
+				mutante = temp->first->mutation(xRand(1, (int)(((float)100)*probMutacao)));
 				delete temp->first;
 				temp->first = mutante;
 			}
 
 			if(xRand() < (RAND_MAX*probMutacao/2))
 			{
-				mutante = temp->second->mutacao(xRand(1, (int)(((float)100)*probMutacao)));
+				mutante = temp->second->mutation(xRand(1, (int)(((float)100)*probMutacao)));
 				delete temp->second;
 				temp->second = mutante;
 			}

@@ -409,7 +409,7 @@ inline bool JobShop::calcFitness(bool esc)
 	}
 }
 
-inline void JobShop::imprimir(bool esc)
+inline void JobShop::print(bool esc)
 {
 	if(esc == true)
 	{
@@ -451,7 +451,7 @@ inline void JobShop::imprimir(bool esc)
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */
-inline Problem* JobShop::vizinho()
+inline Problem* JobShop::neighbor()
 {
 	int maq = xRand(0, nmaq), p1 = xRand(0, njob), p2 = xRand(0, njob);
 	Problem *job = NULL;
@@ -472,10 +472,10 @@ inline Problem* JobShop::vizinho()
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* JobShop::buscaLocal()
+inline vector<pair<Problem*, InfoTabu*>* >* JobShop::localSearch()
 {
 	if(JobShop::num_vizinhos > MAX_PERMUTACOES)
-		return buscaLocal((float)MAX_PERMUTACOES/(float)JobShop::num_vizinhos);
+		return localSearch((float)MAX_PERMUTACOES/(float)JobShop::num_vizinhos);
 
 	Problem *job = NULL;
 	int maq, p1, p2;
@@ -512,7 +512,7 @@ inline vector<pair<Problem*, InfoTabu*>* >* JobShop::buscaLocal()
 }
 
 /* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* JobShop::buscaLocal(float parcela)
+inline vector<pair<Problem*, InfoTabu*>* >* JobShop::localSearch(float parcela)
 {
 	Problem *job = NULL;
 	int maq, p1, p2;
@@ -639,7 +639,7 @@ inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem* parceiro, int
 }
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
-inline Problem* JobShop::mutacao(int mutMax)
+inline Problem* JobShop::mutation(int mutMax)
 {
 	short int **mut = (short int**)alocaMatriz(2, nmaq, njob, 1);
 	Problem* vizinho = NULL, *temp = NULL, *mutacao = NULL;
@@ -653,7 +653,7 @@ inline Problem* JobShop::mutacao(int mutMax)
 
 	while(mutMax-- > 0)
 	{
-		vizinho = temp->vizinho();
+		vizinho = temp->neighbor();
 
 		if(vizinho != NULL)
 		{

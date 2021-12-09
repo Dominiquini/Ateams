@@ -436,7 +436,7 @@ inline bool TravellingSalesman::calcFitness(bool esc)
 	return true;
 }
 
-inline void TravellingSalesman::imprimir(bool esc)
+inline void TravellingSalesman::print(bool esc)
 {
 	if(esc == false)
 	{
@@ -459,7 +459,7 @@ inline void TravellingSalesman::imprimir(bool esc)
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */
-inline Problem* TravellingSalesman::vizinho()
+inline Problem* TravellingSalesman::neighbor()
 {
 	int p1 = xRand(0, nnodes+1), p2 = xRand(0, nnodes+1);
 	Problem *prob = NULL;
@@ -480,10 +480,10 @@ inline Problem* TravellingSalesman::vizinho()
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* TravellingSalesman::buscaLocal()
+inline vector<pair<Problem*, InfoTabu*>* >* TravellingSalesman::localSearch()
 {
 	if(TravellingSalesman::num_vizinhos > MAX_PERMUTACOES)
-		return buscaLocal((float)MAX_PERMUTACOES/(float)TravellingSalesman::num_vizinhos);
+		return localSearch((float)MAX_PERMUTACOES/(float)TravellingSalesman::num_vizinhos);
 
 	Problem *prob = NULL;
 	int p1, p2;
@@ -517,7 +517,7 @@ inline vector<pair<Problem*, InfoTabu*>* >* TravellingSalesman::buscaLocal()
 }
 
 /* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* TravellingSalesman::buscaLocal(float parcela)
+inline vector<pair<Problem*, InfoTabu*>* >* TravellingSalesman::localSearch(float parcela)
 {
 	Problem *prob = NULL;
 	int p1, p2;
@@ -599,7 +599,7 @@ inline pair<Problem*, Problem*>* TravellingSalesman::crossOver(const Problem* pa
 }
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
-inline Problem* TravellingSalesman::mutacao(int mutMax)
+inline Problem* TravellingSalesman::mutation(int mutMax)
 {
 	short int *mut = (short int*)malloc((nnodes+1) * sizeof(short int));
 	Problem* vizinho = NULL, *temp = NULL, *mutacao = NULL;
@@ -612,7 +612,7 @@ inline Problem* TravellingSalesman::mutacao(int mutMax)
 
 	while(mutMax-- > 0)
 	{
-		vizinho = temp->vizinho();
+		vizinho = temp->neighbor();
 
 		if(vizinho != NULL)
 		{

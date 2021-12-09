@@ -166,7 +166,7 @@ vector<Problem*>* Annealing::exec(Problem* Si, Heuristica_Listener* listener)
 
 		for(int i = 1; i < L; i++)
 		{
-			Sn = S->vizinho();
+			Sn = S->neighbor();
 
 			if(Sn == NULL)
 			{
@@ -174,13 +174,13 @@ vector<Problem*>* Annealing::exec(Problem* Si, Heuristica_Listener* listener)
 				continue;
 			}
 
-			Ds = Problem::melhora(*S, *Sn);
+			Ds = Problem::improvement(*S, *Sn);
 			if(Ds >= 0 || accept((double)xRand(), Ds, T))
 			{
 				delete S;
 				S = Sn;
 
-				if(Problem::melhora(*Sf->back(), *S) > 0)
+				if(Problem::improvement(*Sf->back(), *S) > 0)
 				{
 					Sf->push_back(Problem::copySoluction(*S));
 				}

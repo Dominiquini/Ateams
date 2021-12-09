@@ -61,6 +61,8 @@ struct ParametrosATEAMS {
 
 enum Heuristicas {SA, BT, AG};
 
+string formatErrorMessage(const char*, string);
+
 int xRand();
 
 int xRand(int min, int max);

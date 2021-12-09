@@ -314,7 +314,7 @@ inline bool GraphColoring::calcFitness(bool esc)
 	return true;
 }
 
-inline void GraphColoring::imprimir(bool esc)
+inline void GraphColoring::print(bool esc)
 {
 	if(esc == true)
 	{
@@ -342,7 +342,7 @@ inline void GraphColoring::imprimir(bool esc)
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */
-inline Problem* GraphColoring::vizinho()
+inline Problem* GraphColoring::neighbor()
 {
 	int p1 = xRand(0, nnodes), p2 = xRand(0, nnodes);
 	Problem *prob = NULL;
@@ -356,10 +356,10 @@ inline Problem* GraphColoring::vizinho()
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* GraphColoring::buscaLocal()
+inline vector<pair<Problem*, InfoTabu*>* >* GraphColoring::localSearch()
 {
 	if(GraphColoring::num_vizinhos > MAX_PERMUTACOES)
-		return buscaLocal((float)MAX_PERMUTACOES/(float)GraphColoring::num_vizinhos);
+		return localSearch((float)MAX_PERMUTACOES/(float)GraphColoring::num_vizinhos);
 
 	Problem *prob = NULL;
 	int p1, p2;
@@ -387,7 +387,7 @@ inline vector<pair<Problem*, InfoTabu*>* >* GraphColoring::buscaLocal()
 }
 
 /* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* GraphColoring::buscaLocal(float parcela)
+inline vector<pair<Problem*, InfoTabu*>* >* GraphColoring::localSearch(float parcela)
 {
 	Problem *prob = NULL;
 	int p1, p2;
@@ -463,7 +463,7 @@ inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem* parceir
 }
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
-inline Problem* GraphColoring::mutacao(int mutMax)
+inline Problem* GraphColoring::mutation(int mutMax)
 {
 	short int *mut = (short int*)malloc(nnodes * sizeof(short int));
 	Problem* vizinho = NULL, *temp = NULL, *mutacao = NULL;
@@ -476,7 +476,7 @@ inline Problem* GraphColoring::mutacao(int mutMax)
 
 	while(mutMax-- > 0)
 	{
-		vizinho = temp->vizinho();
+		vizinho = temp->neighbor();
 
 		delete temp;
 		temp = vizinho;

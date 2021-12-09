@@ -89,6 +89,7 @@ private:
 	int tamPop, iterAteams, tentAteams, maxTime;	// Tamanho da populacao, numero de iteracoes, tentativas sem melhora e tempo maximo de execucao
 	int comparatorMode;								// Criterio de unicidade da populacao adotado
 
+	bool printFullSolution;				// Imprime melhor solucao
 	bool activeListener;				// Informa se as heuristicas serao acompanhadas por um listener
 
 	time_t time1, time2;				// Medidor do tempo inicial e final
@@ -118,7 +119,12 @@ private:
 	void readAdditionalCMDParameters();
 
 	bool setParameter(const char* parameter, const char* value);
-	void setGraphicStatusInfoScreen(bool status);
+
+	void setPrintFullSolution(bool fullPrint);
+	void setGraphicStatusInfoScreen(bool statusInfoScreen);
+
+	/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
+	int findPosArgv(char **in, int num, char *key);
 
 public:
 
@@ -131,6 +137,8 @@ public:
 
 	/* Comeca a execucao do Ateams utilizando os algoritmos disponiveis */
 	Problem* start(list<Problem*>* popInicial);
+
+	void printSolution(Problem*);
 
 	char* getInputDataFile() { return inputDataFile; }
 
@@ -145,44 +153,6 @@ public:
 inline bool cmpAlg(Heuristica *h1, Heuristica *h2)
 {
 	return h1->prob < h2->prob;
-}
-
-/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
-inline int findPosArgv(char **in, int num, char *key)
-{
-	for(int i = 0; i < num; i++)
-	{
-		if(!strcmp(in[i], key))
-			return i+1;
-	}
-
-	return -1;
-}
-
-inline string capitalize(const char *text, string defaultText)
-{
-	if(text != NULL)
-	{
-		string capitalizedText = string(text);
-
-		for (unsigned long x = 0; x < strlen(text); x++)
-		{
-			if (x == 0)
-			{
-				capitalizedText[x] = toupper(text[x]);
-			}
-			else if (text[x - 1] == ' ')
-			{
-				capitalizedText[x] = toupper(text[x]);
-			}
-		}
-
-		return capitalizedText;
-	}
-	else
-	{
-		return defaultText;
-	}
 }
 
 #endif

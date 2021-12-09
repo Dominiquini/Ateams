@@ -395,7 +395,7 @@ inline bool BinPacking::calcFitness(bool esc)
 	return true;
 }
 
-inline void BinPacking::imprimir(bool esc)
+inline void BinPacking::print(bool esc)
 {
 	if(esc == true)
 	{
@@ -430,7 +430,7 @@ inline void BinPacking::imprimir(bool esc)
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */
-inline Problem* BinPacking::vizinho()
+inline Problem* BinPacking::neighbor()
 {
 	int p1 = xRand(0, nitens), p2 = xRand(0, nitens);
 	Problem *prob = NULL;
@@ -444,10 +444,10 @@ inline Problem* BinPacking::vizinho()
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* BinPacking::buscaLocal()
+inline vector<pair<Problem*, InfoTabu*>* >* BinPacking::localSearch()
 {
 	if(BinPacking::num_vizinhos > MAX_PERMUTACOES)
-		return buscaLocal((float)MAX_PERMUTACOES/(float)BinPacking::num_vizinhos);
+		return localSearch((float)MAX_PERMUTACOES/(float)BinPacking::num_vizinhos);
 
 	Problem *prob = NULL;
 	int p1, p2;
@@ -478,7 +478,7 @@ inline vector<pair<Problem*, InfoTabu*>* >* BinPacking::buscaLocal()
 }
 
 /* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* BinPacking::buscaLocal(float parcela)
+inline vector<pair<Problem*, InfoTabu*>* >* BinPacking::localSearch(float parcela)
 {
 	Problem *prob = NULL;
 	int p1, p2;
@@ -554,7 +554,7 @@ inline pair<Problem*, Problem*>* BinPacking::crossOver(const Problem* parceiro, 
 }
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
-inline Problem* BinPacking::mutacao(int mutMax)
+inline Problem* BinPacking::mutation(int mutMax)
 {
 	short int *mut = (short int*)malloc(nitens * sizeof(short int));
 	Problem* vizinho = NULL, *temp = NULL, *mutacao = NULL;
@@ -567,7 +567,7 @@ inline Problem* BinPacking::mutacao(int mutMax)
 
 	while(mutMax-- > 0)
 	{
-		vizinho = temp->vizinho();
+		vizinho = temp->neighbor();
 
 		delete temp;
 		temp = vizinho;

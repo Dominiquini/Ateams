@@ -334,7 +334,7 @@ inline bool KnapSack::calcFitness(bool esc)
 	return true;
 }
 
-inline void KnapSack::imprimir(bool esc)
+inline void KnapSack::print(bool esc)
 {
 	if(esc == true)
 	{
@@ -373,7 +373,7 @@ inline void KnapSack::imprimir(bool esc)
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */
-inline Problem* KnapSack::vizinho()
+inline Problem* KnapSack::neighbor()
 {
 	int p1 = xRand(0, sol.limit), p2 = xRand(sol.limit, nitens);
 	Problem *prob = NULL;
@@ -384,10 +384,10 @@ inline Problem* KnapSack::vizinho()
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* KnapSack::buscaLocal()
+inline vector<pair<Problem*, InfoTabu*>* >* KnapSack::localSearch()
 {
 	if(KnapSack::num_vizinhos > MAX_PERMUTACOES)
-		return buscaLocal((float)MAX_PERMUTACOES/(float)KnapSack::num_vizinhos);
+		return localSearch((float)MAX_PERMUTACOES/(float)KnapSack::num_vizinhos);
 
 	int p1, p2;
 	Problem *prob = NULL;
@@ -415,7 +415,7 @@ inline vector<pair<Problem*, InfoTabu*>* >* KnapSack::buscaLocal()
 }
 
 /* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* KnapSack::buscaLocal(float parcela)
+inline vector<pair<Problem*, InfoTabu*>* >* KnapSack::localSearch(float parcela)
 {
 	Problem *prob = NULL;
 	int p1, p2;
@@ -489,7 +489,7 @@ inline pair<Problem*, Problem*>* KnapSack::crossOver(const Problem* parceiro, in
 }
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
-inline Problem* KnapSack::mutacao(int mutMax)
+inline Problem* KnapSack::mutation(int mutMax)
 {
 	short int *mut = (short int*)malloc(nitens * sizeof(short int));
 	Problem* vizinho = NULL, *temp = NULL, *mutacao = NULL;
@@ -502,7 +502,7 @@ inline Problem* KnapSack::mutacao(int mutMax)
 
 	while(mutMax-- > 0)
 	{
-		vizinho = temp->vizinho();
+		vizinho = temp->neighbor();
 
 		delete temp;
 		temp = vizinho;

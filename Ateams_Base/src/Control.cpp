@@ -107,6 +107,7 @@ Control::Control()
 	this->maxTime = 3600;
 	this->numThreads = 4;
 	this->makespanBest = -1;
+	this->printFullSolution = false;
 	this->activeListener = false;
 
 	this->time1 = this->time2 = 0;
@@ -265,7 +266,7 @@ inline int Control::exec(int idThread)
 
 		double newBest = Problem::best;
 
-		if(Problem::melhora(oldBest, newBest) > 0)
+		if(Problem::improvement(oldBest, newBest) > 0)
 			iterMelhora = 0;
 		else
 			iterMelhora++;
@@ -309,7 +310,7 @@ inline pair<int, int>* Control::addSol(vector<Problem*> *news)
 
 	for(iterNews = news->begin(); iterNews != news->end(); iterNews++)
 	{
-		if(Problem::melhora(**pop->rbegin(), **iterNews) < 0)
+		if(Problem::improvement(**pop->rbegin(), **iterNews) < 0)
 		{
 			delete *iterNews;
 		}
@@ -478,6 +479,7 @@ inline void Control::readCMDParameters()
 		printf("~Log File: ---\n");
 	}
 
+	setPrintFullSolution(findPosArgv(argv, *argc, (char*)"-d") != -1);
 	setGraphicStatusInfoScreen(findPosArgv(argv, *argc, (char*)"-g") != -1);
 }
 
@@ -545,9 +547,25 @@ bool Control::setParameter(const char* parameter, const char* value)
 	return true;
 }
 
-void Control::setGraphicStatusInfoScreen(bool status)
+inline void Control::setPrintFullSolution(bool fullPrint)
 {
-	this->activeListener = status;
+	this->printFullSolution = fullPrint;
+}
+
+inline void Control::setGraphicStatusInfoScreen(bool statusInfoScreen)
+{
+	this->activeListener = statusInfoScreen;
+}
+
+inline int Control::findPosArgv(char **in, int num, char *key)
+{
+	for(int i = 0; i < num; i++)
+	{
+		if(!strcmp(in[i], key))
+			return i+1;
+	}
+
+	return -1;
 }
 
 void Control::addHeuristic(Heuristica* alg)
@@ -677,6 +695,10 @@ Problem* Control::start(list<Problem*>* popInicial)
 		glutDestroyWindow(window);
 
 	return Problem::copySoluction(**(pop->begin()));
+}
+
+void Control::printSolution(Problem *solution) {
+	solution->print(printFullSolution);
 }
 
 
@@ -823,7 +845,7 @@ void* Control::pthrExec(void *obj)
 	{
 		ins = ctr->exec(execAteams);
 
-		if(ctr->iterMelhora > ctr->tentAteams || (ctr->makespanBest != -1 && Problem::melhora(ctr->makespanBest, Problem::best) >= 0))
+		if(ctr->iterMelhora > ctr->tentAteams || (ctr->makespanBest != -1 && Problem::improvement(ctr->makespanBest, Problem::best) >= 0))
 			TERMINATE = true;
 	}
 
