@@ -28,8 +28,13 @@ Problema* Problema::copySoluction(const Problema& prob)
 }
 
 
-void Problema::leProblema(FILE *f)
+void Problema::leProblema(char* input)
 {
+	FILE *f = fopen(input, "r");
+
+	if(f == NULL)
+		exit(1);
+
 	if(!fgets (KnapSack::name, 128, f))
 		exit(1);
 
@@ -91,13 +96,13 @@ list<Problema*>* Problema::lePopulacao(char *log)
 
 		if(!fscanf (f, "%d %d %d %s\n", &npop, &nitens, &nconstraint, format_type))
 		{
-			printf("Arquivo de Log Incorreto - Cabeçallho!\n\n");
+			printf("Wrong Log File!\n\n");
 			exit(1);
 		}
 
 		if(nitens != KnapSack::nitens || nconstraint != KnapSack::ncontraint)
 		{
-			printf("Arquivo de Log Incorreto - Problemas Diferentes!\n\n");
+			printf("Wrong Log File!\n\n");
 			exit(1);
 		}
 
@@ -107,13 +112,13 @@ list<Problema*>* Problema::lePopulacao(char *log)
 
 			if(!fscanf (f, "%d\n", &valorTotal))
 			{
-				printf("Arquivo de Log Incorreto - Fitness!\n\n");
+				printf("Wrong Log File!\n\n");
 				exit(1);
 			}
 
 			if(!fscanf (f, "%d ", &limit))
 			{
-				printf("Arquivo de Log Incorreto - Limite!\n\n");
+				printf("Wrong Log File!\n\n");
 				exit(1);
 			}
 
@@ -121,7 +126,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 			{
 				if(!fscanf (f, "%hd ", &prob[i]))
 				{
-					printf("Arquivo de Log Incorreto - Soluçao!\n\n");
+					printf("Wrong Log File!\n\n");
 					exit(1);
 				}
 			}
@@ -129,7 +134,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 			p = new KnapSack(prob, limit);
 			if(valorTotal != p->getFitness())
 			{
-				printf("Arquivo de Log Incorreto - Fitness Diferentes!\n\n");
+				printf("Wrong Log File!\n\n");
 				exit(1);
 			}
 

@@ -143,7 +143,7 @@ vector<Problema*>* Genetico::exec(vector<Problema*>* pop, Heuristica_Listener* l
 	/* Iteracao principal do AG */
 	for(int i = 0; i < iterGenetico; i++)
 	{
-		if(PARAR == true)
+		if(TERMINATE == true)
 			break;
 
 		if(listener != NULL)

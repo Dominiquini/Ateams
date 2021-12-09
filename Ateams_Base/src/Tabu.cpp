@@ -138,7 +138,7 @@ vector<Problema*>* Tabu::exec(Problema* init, Heuristica_Listener* listener)
 	// Loop principal
 	for(int i = 0, j = 0; i < iterTabu && j < tentSemMelhora; i++, j++)
 	{
-		if(PARAR == true)
+		if(TERMINATE == true)
 			break;
 
 		if(listener != NULL)

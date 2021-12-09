@@ -61,7 +61,6 @@ struct ParametrosATEAMS {
 
 enum Heuristicas {SA, BT, AG};
 
-
 int xRand();
 
 int xRand(int min, int max);

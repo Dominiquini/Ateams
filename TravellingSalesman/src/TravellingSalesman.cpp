@@ -28,8 +28,13 @@ Problema* Problema::copySoluction(const Problema& prob)
 }
 
 
-void Problema::leProblema(FILE *f)
+void Problema::leProblema(char* input)
 {
+	FILE *f = fopen(input, "r");
+
+	if(f == NULL)
+		exit(1);
+
 	char edge_weight_format[32];
 	char *line = NULL;
 	size_t size = 0;
@@ -187,13 +192,13 @@ list<Problema*>* Problema::lePopulacao(char *log)
 
 		if(!fscanf (f, "%d %d", &npop, &nnodes))
 		{
-			printf("Arquivo de log incorreto!\n\n");
+			printf("Wrong Log File!\n\n");
 			exit(1);
 		}
 
 		if(nnodes != TravellingSalesman::nnodes)
 		{
-			printf("Arquivo de log incorreto!\n\n");
+			printf("Wrong Log File!\n\n");
 			exit(1);
 		}
 
@@ -203,7 +208,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 
 			if(!fscanf (f, "%lf", &peso))
 			{
-				printf("Arquivo de log incorreto!\n\n");
+				printf("Wrong Log File!\n\n");
 				exit(1);
 			}
 
@@ -211,7 +216,7 @@ list<Problema*>* Problema::lePopulacao(char *log)
 			{
 				if(!fscanf (f, "%hd", &ordem[j]))
 				{
-					printf("Arquivo de log incorreto!\n\n");
+					printf("Wrong Log File!\n\n");
 					exit(1);
 				}
 			}
@@ -220,12 +225,13 @@ list<Problema*>* Problema::lePopulacao(char *log)
 
 			if(peso != p->getFitness())
 			{
-				printf("Arquivo de log incorreto!\n\n");
+				printf("Wrong Log File!\n\n");
 				exit(1);
 			}
 
 			popInicial->push_back(p);
 		}
+
 		fclose(f);
 
 		return popInicial;

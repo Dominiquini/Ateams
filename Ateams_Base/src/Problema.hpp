@@ -46,7 +46,7 @@ public:
 	static long int totalNumInst;	// Quantidade total de problemas processados
 
 	// Le arquivo de dados de entrada
-	static void leProblema(FILE*);
+	static void leProblema(char*);
 
 	// Le a especificacao do problema
 	static list<Problema*>* lePopulacao(char*);

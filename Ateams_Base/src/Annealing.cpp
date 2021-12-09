@@ -149,7 +149,7 @@ vector<Problema*>* Annealing::exec(Problema* Si, Heuristica_Listener* listener)
 	bool exec = true;
 	while(exec)
 	{
-		if(PARAR == true)
+		if(TERMINATE == true)
 			break;
 
 		if(listener != NULL)

@@ -24,13 +24,17 @@ using namespace std;
 #include "Genetico.hpp"
 #include "Annealing.hpp"
 
-extern volatile bool PARAR;
+extern volatile bool TERMINATE;
 
 class Controle : public DefaultHandler
 {
 private:
 	/* Instancia do controle */
 	static Controle* instance;
+
+	static list<Heuristica_Listener*>* execAlgs;					// Algoritmos executados ate o momento
+	static list<list<Heuristica_Listener*>::iterator >* actAlgs;	// Algoritmos em execucao no momento
+	static int actThreads;											// Threads em execucao no momento
 
 	/* Funcao que executa em multiplas threads e retorna o numero de solucoes inseridas */
 	static void* pthrExec(void *obj);
@@ -71,6 +75,7 @@ public:
 	static list<Problema*>::iterator findSol(list<Problema*> *vect, Problema *p);
 
 private:
+
 	set<Problema*, bool(*)(Problema*, Problema*)>* pop; // Populacao principal
 	vector<Heuristica*>* algs;							// Algoritmos disponiveis
 
@@ -79,17 +84,18 @@ private:
 	int tamPop, iterAteams, tentAteams, maxTempo;	// Tamanho da populacao, numero de iteracoes, tentativas sem melhora e tempo maximo de execucao
 	int critUnicidade;								// Criterio de unicidade da populacao adotado
 
-	/* Parser do arquivo XML de configuracoes */
-	void startElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname, const Attributes& attrs);
-
-	static list<Heuristica_Listener*>* execAlgs;					// Algoritmos executados ate o momento
-	static list<list<Heuristica_Listener*>::iterator >* actAlgs;	// Algoritmos em execucao no momento
-	static int actThreads;											// Threads em execucao no momento
-	bool activeListener;											// Informa se as heuristicas serao acompanhadas por um listener
+	bool activeListener;				// Informa se as heuristicas serao acompanhadas por um listener
 
 	time_t time1, time2;				// Medidor do tempo inicial e final
 	int iterMelhora = 0;				// Ultima iteracao em que houve melhora
 	int execThreads = 0;				// Threads executadas
+
+	Controle();
+
+	~Controle();
+
+	/* Parser do arquivo XML de configuracoes */
+	void startElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname, const Attributes& attrs);
 
 	/* Seleciona um dos algoritmos implementados para executar */
 	int exec(int eID);
@@ -99,10 +105,6 @@ private:
 
 	/* Gera uma populacao inicial aleatoria com 'tamPop' elementos */
 	void geraPop(list<Problema*>* popInicial);
-
-	Controle();
-
-	~Controle();
 
 public:
 
@@ -137,6 +139,72 @@ inline int findPosArgv(char **in, int num, char *key)
 	}
 
 	return -1;
+}
+
+/* Leitura dos parametros passados por linha de comando */
+inline void readCMDParameters(int argc, char** argv, char* inputParameters, char* inputDataFile, char* outputResultFile, char* outputLogFile)
+{
+	int p = -1;
+
+	if((p = findPosArgv(argv, argc, (char*)"-p")) != -1)
+	{
+		strcpy(inputParameters, argv[p]);
+
+		printf("Parameters File: '%s'\n", inputParameters);
+	}
+	else
+	{
+		inputParameters[0] = '\0';
+
+		printf("Parameters File Cannot Be Empty!\n");
+
+		printf("\n./Ateams -i <<INPUT_FILE>> -p <<INPUT_PARAMETERS>> -r <RESULT_FILE> -l <LOG_FILE>\n\n");
+
+		exit(1);
+	}
+
+	if((p = findPosArgv(argv, argc, (char*)"-i")) != -1)
+	{
+		strcpy(inputDataFile, argv[p]);
+
+		printf("Data File: '%s'\n", inputDataFile);
+	}
+	else
+	{
+		inputDataFile[0] = '\0';
+
+		printf("Data File Cannot Be Empty!\n");
+
+		printf("\n./Ateams -i <<INPUT_FILE>> -p <<INPUT_PARAMETERS>> -r <RESULT_FILE> -l <LOG_FILE>\n\n");
+
+		exit(1);
+	}
+
+	if((p = findPosArgv(argv, argc, (char*)"-r")) != -1)
+	{
+		strcpy(outputResultFile, argv[p]);
+
+		printf("Result File: '%s'\n", outputResultFile);
+	}
+	else
+	{
+		outputResultFile[0] = '\0';
+
+		printf("~Result File: ---\n");
+	}
+
+	if((p = findPosArgv(argv, argc, (char*)"-l")) != -1)
+	{
+		strcpy(outputLogFile, argv[p]);
+
+		printf("Log File: '%s'\n", outputLogFile);
+	}
+	else
+	{
+		outputLogFile[0] = '\0';
+
+		printf("~Log File: ---\n");
+	}
 }
 
 inline string capitalize(string text) {
