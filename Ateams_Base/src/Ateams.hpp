@@ -5,9 +5,8 @@
 #include <GL/glu.h>
 #include <stdarg.h>
 #include <signal.h>
-#include <limits.h>
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <math.h>
 
@@ -18,13 +17,19 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <cstdlib>
+#include <cstdint>
+#include <limits>
 #include <vector>
 #include <bitset>
-#include <random>
+#include <string>
+#include <cctype>
 #include <ctime>
 #include <list>
 #include <set>
+
+#include "Utils.hpp"
 
 using namespace std;
 
@@ -60,12 +65,6 @@ struct ParametrosATEAMS {
 };
 
 enum Heuristicas {SA, BT, AG};
-
-string formatErrorMessage(const char*, string);
-
-int xRand();
-
-int xRand(int min, int max);
 
 void terminate(int signal);
 

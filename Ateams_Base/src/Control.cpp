@@ -29,18 +29,7 @@ Control* Control::getInstance(int argc, char** argv)
 	instance->readCMDParameters();
 	instance->readAdditionalCMDParameters();
 
-	try
-	{
-		XMLPlatformUtils::Initialize();
-	}
-	catch (const XMLException& toCatch)
-	{
-		char* message = XMLString::transcode(toCatch.getMessage());
-
-		XMLString::release(&message);
-
-		throw message;
-	}
+	XMLPlatformUtils::Initialize();
 
 	SAX2XMLReader* parser = XMLReaderFactory::createXMLReader();
 	parser->setFeature(XMLUni::fgSAX2CoreValidation, true);
@@ -50,40 +39,10 @@ Control* Control::getInstance(int argc, char** argv)
 	parser->setContentHandler(defaultHandler);
 	parser->setErrorHandler(defaultHandler);
 
-	try
-	{
-		parser->parse(instance->getInputParameters());
-	}
-	catch(const char* toCatch)
-	{
-		throw toCatch;
-	}
-	catch(string& toCatch)
-	{
-		throw toCatch;
-	}
-	catch(const XMLException& toCatch)
-	{
-		char* message = XMLString::transcode(toCatch.getMessage());
-
-		XMLString::release(&message);
-
-		throw message;
-	}
-	catch(const SAXParseException& toCatch)
-	{
-		char* message = XMLString::transcode(toCatch.getMessage());
-
-		XMLString::release(&message);
-
-		throw message;
-	}
-	catch(...)
-	{
-		throw "Unexpected Exception!";
-	}
+	parser->parse(instance->getInputParameters());
 
 	delete parser;
+
 	XMLPlatformUtils::Terminate();
 
 	return instance;

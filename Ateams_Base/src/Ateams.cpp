@@ -21,8 +21,6 @@ int main(int argc, char *argv[])
 		/* Adiciona as heuristicas selecionadas */
 		Control* ctrl = Control::getInstance(argc, argv);
 
-		cout << endl;
-
 		/* Leitura dos dados passados por arquivos */
 		Problem::readProblemFromFile(ctrl->getInputDataFile());
 
@@ -45,7 +43,7 @@ int main(int argc, char *argv[])
 		for(iter1 = pop->begin(); iter1 != pop->end(); iter1++)
 			for(iter2 = iter1; iter2 != pop->end(); iter2++)
 				if((iter1 != iter2) && (fnequal1(*iter1, *iter2) || fncomp1(*iter2, *iter1)))
-					cout << endl << "Incorrect Main Memory!!!" << endl;
+					cout << endl << endl << "Incorrect Main Memory!!!" << endl;
 
 		/* Escreve memoria principal no disco */
 		Problem::dumpCurrentPopulationInLog(ctrl->getOutputLogFile(), pop);
@@ -78,53 +76,17 @@ int main(int argc, char *argv[])
 
 		cout << endl;
 	}
-	catch (const char* message) {
-		cout << endl << "Error During Execution: " << formatErrorMessage(message, "Unexpected Exception!") << endl << endl;
+	catch(...)
+	{
+		exception_ptr exception = current_exception();
+
+		cout << endl << "Error During Execution: ";
+		cerr <<getExceptionMessage(exception) << endl << endl;
 
 		exit(1);
 	}
 
 	return 0;
-}
-
-inline string formatErrorMessage(const char *text, string defaultText)
-{
-	if(text != NULL)
-	{
-		string capitalizedText = string(text);
-
-		for (unsigned long x = 0; x < strlen(text); x++)
-		{
-			if (x == 0)
-			{
-				capitalizedText[x] = toupper(text[x]);
-			}
-			else if (text[x - 1] == ' ')
-			{
-				capitalizedText[x] = toupper(text[x]);
-			}
-		}
-
-		return capitalizedText;
-	}
-	else
-	{
-		return defaultText;
-	}
-}
-
-int xRand()
-{
-	return xRand(0, RAND_MAX);
-}
-
-int xRand(int min, int max)
-{
-	random_device rd;
-    mt19937_64 gen(rd());
-    uniform_int_distribution<int> distr(min, max-1);
-
-	return distr(gen);
 }
 
 void terminate(int signal)

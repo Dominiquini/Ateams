@@ -1,9 +1,3 @@
-#include <unistd.h>
-#include <iostream>
-#include <cstdint>
-#include <string>
-#include <cctype>
-
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax2/DefaultHandler.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>

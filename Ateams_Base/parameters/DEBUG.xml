@@ -2,9 +2,9 @@
 
 <Controller
    iterAteams = "10"
-   tentAteams = "10"
+   tentAteams = "5"
    maxTimeAteams = "3600"
-   numThreads = "2"
+   numThreads = "1"
    tamPopAteams = "100"
    comparatorMode = "1"
    makespanBest = "-1">
