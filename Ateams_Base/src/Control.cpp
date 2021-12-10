@@ -133,13 +133,13 @@ void Control::startElement(const XMLCh *const uri, const XMLCh *const localname,
 		Heuristic *newHeuristic = NULL;
 
 		if (strcasecmp(element, "SimulatedAnnealing") == 0)
-			newHeuristic = new Annealing();
+			newHeuristic = new SimulatedAnnealing();
 
 		if (strcasecmp(element, "TabuSearch") == 0)
-			newHeuristic = new Tabu();
+			newHeuristic = new TabuSearch();
 
 		if (strcasecmp(element, "GeneticAlgorithm") == 0)
-			newHeuristic = new Genetic();
+			newHeuristic = new GeneticAlgorithm();
 
 		if (newHeuristic != NULL) {
 			char *parameter = NULL;

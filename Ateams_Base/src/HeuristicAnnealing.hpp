@@ -7,17 +7,17 @@ using namespace std;
 #ifndef _ANNEALING_
 #define _ANNEALING_
 
-class Annealing: public Heuristic
+class SimulatedAnnealing: public Heuristic
 {
 public:
 
-	int maxIter, choicePolicy, elitismo;
-	float initTemp, fimTemp;
+	int maxIter, choicePolicy, elitism;
+	float startTemp, endTemp;
 	bool restoreSolution;
 	float alfa;
 
-	Annealing();
-	~Annealing();
+	SimulatedAnnealing();
+	~SimulatedAnnealing();
 
 	bool setParameter(const char* parameter, const char* value);
 

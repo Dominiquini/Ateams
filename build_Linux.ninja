@@ -1,8 +1,10 @@
 cxxflags = -Wall -pedantic -O3 -march=native
 ldflags = -lpthread -lglut -lGL -lGLU -lxerces-c
 
+
 pool default_pool
   depth = 16
+
 
 rule compile
   deps = gcc
@@ -21,13 +23,15 @@ rule archive
   description = ARCHIVE $out
   pool = default_pool
 
+
+build Ateams_Base/bin/Utils.o: compile Ateams_Base/src/Utils.cpp
 build Ateams_Base/bin/Ateams.o: compile Ateams_Base/src/Ateams.cpp
 build Ateams_Base/bin/Control.o: compile Ateams_Base/src/Control.cpp
-build Ateams_Base/bin/Tabu.o: compile Ateams_Base/src/Tabu.cpp
-build Ateams_Base/bin/Genetico.o: compile Ateams_Base/src/Genetico.cpp
-build Ateams_Base/bin/Annealing.o: compile Ateams_Base/src/Annealing.cpp
+build Ateams_Base/bin/HeuristicTabu.o: compile Ateams_Base/src/HeuristicTabu.cpp
+build Ateams_Base/bin/HeuristicGenetico.o: compile Ateams_Base/src/HeuristicGenetico.cpp
+build Ateams_Base/bin/HeuristicAnnealing.o: compile Ateams_Base/src/HeuristicAnnealing.cpp
 
-build Ateams_Base/bin/Ateams_Base.a: archive Ateams_Base/bin/Ateams.o Ateams_Base/bin/Control.o Ateams_Base/bin/Tabu.o Ateams_Base/bin/Genetico.o Ateams_Base/bin/Annealing.o
+build Ateams_Base/bin/Ateams_Base.a: archive Ateams_Base/bin/Utils.o Ateams_Base/bin/Ateams.o Ateams_Base/bin/Control.o Ateams_Base/bin/HeuristicTabu.o Ateams_Base/bin/HeuristicGenetico.o Ateams_Base/bin/HeuristicAnnealing.o
 
 build BinPacking/bin/BinPacking.o: compile BinPacking/src/BinPacking.cpp
 build FlowShop/bin/FlowShop.o: compile FlowShop/src/FlowShop.cpp
@@ -42,5 +46,6 @@ build GraphColoring/bin/GraphColoring: link Ateams_Base/bin/Ateams_Base.a GraphC
 build JobShop/bin/JobShop: link Ateams_Base/bin/Ateams_Base.a JobShop/bin/JobShop.o
 build KnapSack/bin/KnapSack: link Ateams_Base/bin/Ateams_Base.a KnapSack/bin/KnapSack.o
 build TravellingSalesman/bin/TravellingSalesman: link Ateams_Base/bin/Ateams_Base.a TravellingSalesman/bin/TravellingSalesman.o
+
 
 default BinPacking/bin/BinPacking FlowShop/bin/FlowShop GraphColoring/bin/GraphColoring JobShop/bin/JobShop KnapSack/bin/KnapSack TravellingSalesman/bin/TravellingSalesman

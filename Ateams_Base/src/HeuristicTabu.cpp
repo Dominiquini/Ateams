@@ -1,8 +1,8 @@
-#include "Tabu.hpp"
+#include "HeuristicTabu.hpp"
 
 using namespace std;
 
-Tabu::Tabu() : Heuristic::Heuristic("DEFAULT_BT") {
+TabuSearch::TabuSearch() : Heuristic::Heuristic("DEFAULT_BT") {
 	executionCounter = 0;
 
 	choiceProbability = 35;
@@ -17,11 +17,11 @@ Tabu::Tabu() : Heuristic::Heuristic("DEFAULT_BT") {
 	Heuristic::heuristicsAvailable += choiceProbability;
 }
 
-Tabu::~Tabu() {
+TabuSearch::~TabuSearch() {
 	Heuristic::heuristicsAvailable -= choiceProbability;
 }
 
-bool Tabu::setParameter(const char *parameter, const char *value) {
+bool TabuSearch::setParameter(const char *parameter, const char *value) {
 	if (Heuristic::setParameter(parameter, value))
 		return true;
 
@@ -51,7 +51,7 @@ bool Tabu::setParameter(const char *parameter, const char *value) {
 }
 
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
-vector<Problem*>* Tabu::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) {
+vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) {
 	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator select;
 	Problem *solBT;
 
@@ -93,7 +93,7 @@ vector<Problem*>* Tabu::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, 
 }
 
 /* Executa uma busca por solucoes a partir de 'init' por 'iterTabu' vezes */
-vector<Problem*>* Tabu::exec(Problem *init, HeuristicListener *listener) {
+vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicListener *listener) {
 	vector<pair<Problem*, InfoTabu*>*> *vizinhanca;
 	pair<Problem*, InfoTabu*> *local;
 

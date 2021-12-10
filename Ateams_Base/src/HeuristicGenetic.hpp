@@ -7,15 +7,15 @@ using namespace std;
 #ifndef _GENETICO_
 #define _GENETICO_
 
-class Genetic : public Heuristic
+class GeneticAlgorithm : public Heuristic
 {
 public:
 
 	int iterGenetico, populationSizeGenetico, tamParticionamento;
 	float crossoverProbability, crossoverPowerAG, probMutacao;
 
-	Genetic();
-	~Genetic();
+	GeneticAlgorithm();
+	~GeneticAlgorithm();
 
 	bool setParameter(const char* parameter, const char* value);
 

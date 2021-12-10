@@ -1,8 +1,8 @@
-#include "Genetic.hpp"
+#include "HeuristicGenetic.hpp"
 
 using namespace std;
 
-Genetic::Genetic() : Heuristic::Heuristic("DEFAULT_AG") {
+GeneticAlgorithm::GeneticAlgorithm() : Heuristic::Heuristic("DEFAULT_AG") {
 	executionCounter = 0;
 
 	choiceProbability = 13;
@@ -17,11 +17,11 @@ Genetic::Genetic() : Heuristic::Heuristic("DEFAULT_AG") {
 	Heuristic::heuristicsAvailable += choiceProbability;
 }
 
-Genetic::~Genetic() {
+GeneticAlgorithm::~GeneticAlgorithm() {
 	Heuristic::heuristicsAvailable -= choiceProbability;
 }
 
-bool Genetic::setParameter(const char *parameter, const char *value) {
+bool GeneticAlgorithm::setParameter(const char *parameter, const char *value) {
 	if (Heuristic::setParameter(parameter, value))
 		return true;
 
@@ -50,7 +50,7 @@ bool Genetic::setParameter(const char *parameter, const char *value) {
 	return true;
 }
 
-vector<Problem*>* Genetic::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) {
+vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) {
 	vector<Problem*> *popAG = new vector<Problem*>();
 	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter = sol->end();
 	int i = 0, j = 0;
@@ -92,7 +92,7 @@ vector<Problem*>* Genetic::start(set<Problem*, bool (*)(Problem*, Problem*)> *so
 	return exec(popAG, listener);
 }
 
-vector<Problem*>* Genetic::exec(vector<Problem*> *pop, HeuristicListener *listener) {
+vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicListener *listener) {
 	Problem *mutante;
 	pair<Problem*, Problem*> *temp;
 	vector<Problem*> *aux_pop = new vector<Problem*>();

@@ -14,9 +14,9 @@ using namespace std;
 #include "Problem.hpp"
 #include "Heuristic.hpp"
 
-#include "Tabu.hpp"
-#include "Genetic.hpp"
-#include "Annealing.hpp"
+#include "HeuristicTabu.hpp"
+#include "HeuristicGenetic.hpp"
+#include "HeuristicAnnealing.hpp"
 
 extern volatile bool TERMINATE;
 

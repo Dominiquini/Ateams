@@ -7,15 +7,15 @@ using namespace std;
 #ifndef _Tabu_
 #define _Tabu_
 
-class Tabu : public Heuristic
+class TabuSearch : public Heuristic
 {
 public:
 
 	int iterTabu, tamListaTabu, tentSemMelhora, elitism;
 	float funcAsp, polExploracao;
 
-	Tabu();
-	~Tabu();
+	TabuSearch();
+	~TabuSearch();
 
 	bool setParameter(const char* parameter, const char* value);
 

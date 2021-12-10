@@ -1,27 +1,27 @@
-#include "Annealing.hpp"
+#include "HeuristicAnnealing.hpp"
 
 using namespace std;
 
-Annealing::Annealing() : Heuristic::Heuristic("DEFAULT_SA") {
+SimulatedAnnealing::SimulatedAnnealing() : Heuristic::Heuristic("DEFAULT_SA") {
 	executionCounter = 0;
 
 	choiceProbability = 52;
 	choicePolicy = 10;
 	maxIter = 250;
-	initTemp = 125;
-	fimTemp = 0.75;
+	startTemp = 125;
+	endTemp = 0.75;
 	restoreSolution = false;
 	alfa = 0.99;
-	elitismo = 20;
+	elitism = 20;
 
 	Heuristic::heuristicsAvailable += choiceProbability;
 }
 
-Annealing::~Annealing() {
+SimulatedAnnealing::~SimulatedAnnealing() {
 	Heuristic::heuristicsAvailable -= choiceProbability;
 }
 
-bool Annealing::setParameter(const char *parameter, const char *value) {
+bool SimulatedAnnealing::setParameter(const char *parameter, const char *value) {
 	if (Heuristic::setParameter(parameter, value))
 		return true;
 
@@ -32,13 +32,13 @@ bool Annealing::setParameter(const char *parameter, const char *value) {
 	} else if (strcasecmp(parameter, "choicePolicySA") == 0) {
 		sscanf(value, "%d", &choicePolicy);
 	} else if (strcasecmp(parameter, "elitismProbabilitySA") == 0) {
-		sscanf(value, "%d", &elitismo);
+		sscanf(value, "%d", &elitism);
 	} else if (strcasecmp(parameter, "maxIterationsSA") == 0) {
 		sscanf(value, "%d", &maxIter);
 	} else if (strcasecmp(parameter, "startTempSA") == 0) {
-		sscanf(value, "%f", &initTemp);
+		sscanf(value, "%f", &startTemp);
 	} else if (strcasecmp(parameter, "endTempSA") == 0) {
-		sscanf(value, "%f", &fimTemp);
+		sscanf(value, "%f", &endTemp);
 	} else if (strcasecmp(parameter, "restoreSolutionSA") == 0) {
 		int temp;
 
@@ -58,7 +58,7 @@ bool Annealing::setParameter(const char *parameter, const char *value) {
 }
 
 /* Executa um Simulated Annealing na populacao com o devido criterio de selecao */
-vector<Problem*>* Annealing::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) {
+vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) {
 	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator select;
 	Problem *solSA;
 
@@ -67,7 +67,7 @@ vector<Problem*>* Annealing::start(set<Problem*, bool (*)(Problem*, Problem*)> *
 	pthread_mutex_lock(&mutex_pop);
 
 	// Escolhe a melhor solucao para ser usada pelo SA
-	if (choicePolicy == 0 || xRand(0, 101) < elitismo) {
+	if (choicePolicy == 0 || xRand(0, 101) < elitism) {
 		select = sol->begin();
 		solSA = Problem::copySolution(**select);
 
@@ -100,15 +100,15 @@ vector<Problem*>* Annealing::start(set<Problem*, bool (*)(Problem*, Problem*)> *
 }
 
 /* Executa uma busca por solucoes a partir de 'init' */
-vector<Problem*>* Annealing::exec(Problem *Si, HeuristicListener *listener) {
+vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicListener *listener) {
 	vector<Problem*> *Sf = new vector<Problem*>();
 	Problem *S, *Sn;
 	double Ti, Tf, T;
 	int L = maxIter;
 	double Ds;
 
-	Ti = initTemp != -1 ? initTemp : (Problem::best - Problem::worst) / log(0.5);
-	Tf = fimTemp > 0 ? fimTemp : 1;
+	Ti = startTemp != -1 ? startTemp : (Problem::best - Problem::worst) / log(0.5);
+	Tf = endTemp > 0 ? endTemp : 1;
 
 	double diff = Ti - Tf;
 
