@@ -93,17 +93,17 @@ private:
 
 	~Control();
 
-	/* Parser do arquivo XML de configuracoes */
-	void startElement(const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs);
-
 	/* Seleciona um dos algoritmos implementados para executar */
-	int exec(int eID);
+	int execute(int eID);
 
 	/* Adiciona um novo conjunto de solucoes a populacao corrente */
-	pair<int, int>* addSol(vector<Problem*> *news);
+	pair<int, int>* addSolutions(vector<Problem*> *news);
 
 	/* Gera uma populacao inicial aleatoria com 'populationSize' elementos */
-	void geraPop(list<Problem*> *popInicial);
+	void generatePopulation(list<Problem*> *popInicial);
+
+	/* Parser do arquivo XML de configuracoes */
+	void startElement(const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs);
 
 	/* Leitura dos parametros passados por linha de comando */
 	void readCMDParameters();
@@ -124,12 +124,16 @@ public:
 	/* Adiciona uma heuristica ao conjunto de algoritmos disponiveis */
 	void addHeuristic(Heuristic *alg);
 
-	list<Problem*>* getPop();		// Retorna a populacao da memoria principal
-	Problem* getSol(int n);		// Retorna a melhor solucao da memoria principal
-	void getInfo(ExecInfo *info);	// Retorna algumas informacoes da ultima execucao
-
 	/* Comeca a execucao do Ateams utilizando os algoritmos disponiveis */
 	Problem* start(list<Problem*> *popInicial);
+
+	/* Retorna a quantidade de algoritimos executados */
+	int getExecutions();
+
+	list<Problem*>* getSolutions();		// Retorna a populacao da memoria principal
+	Problem* getSolution(int n);		// Retorna a solucao n da memoria principal
+	void getInfo(ExecInfo *info);		// Retorna algumas informacoes da ultima execucao
+	void checkSolutions();
 
 	void printSolution(Problem*);
 

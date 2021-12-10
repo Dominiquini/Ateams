@@ -33,19 +33,12 @@ int main(int argc, char *argv[]) {
 			delete popInicial;
 		}
 
-		list<Problem*> *pop = ctrl->getPop();
-		list<Problem*>::const_iterator iter1, iter2;
-
-		/* Testa a memoria principal por solucoes repetidas ou fora de ordem */
-		for (iter1 = pop->begin(); iter1 != pop->end(); iter1++)
-			for (iter2 = iter1; iter2 != pop->end(); iter2++)
-				if ((iter1 != iter2) && (fnequal1(*iter1, *iter2) || fncomp1(*iter2, *iter1)))
-					cout << endl << endl << "Incorrect Main Memory!!!" << endl;
+		list<Problem*> *solutions = ctrl->getSolutions();
 
 		/* Escreve memoria principal no disco */
-		Problem::dumpCurrentPopulationInLog(ctrl->getOutputLogFile(), pop);
+		Problem::dumpCurrentPopulationInLog(ctrl->getOutputLogFile(), solutions);
 
-		delete pop;
+		delete solutions;
 
 		cout << endl << endl << "Worst Final Solution: " << Problem::worst << endl;
 		cout << endl << "Best Final Solution: " << Problem::best << endl;
@@ -62,14 +55,18 @@ int main(int argc, char *argv[]) {
 
 		delete bestSolution;
 
+		cout << endl << endl << "Explored Solutions: " << Problem::totalNumInst << endl;
+
+		cout << endl << endl << "Executions: " << ctrl->getExecutions() << endl << endl;
+
+		ctrl->checkSolutions();
+
 		Control::terminate();
 
 		Problem::deallocateMemory();
 
-		cout << endl << endl << "Explored Solutions: " << Problem::totalNumInst << endl << endl;
-
 		if (Problem::numInst != 0)
-			cout << "Memory Leak! ( " << Problem::numInst << " )" << endl << endl;
+			throw "Memory Leak!";
 
 		cout << endl;
 	} catch (...) {

@@ -87,7 +87,6 @@ Control::~Control() {
 
 	vector<Heuristic*>::reverse_iterator it;
 
-	cout << endl << endl << "Executions: " << execThreads << endl << endl;
 	for (it = algs->rbegin(); it != algs->rend(); it++)
 		delete *it;
 
@@ -109,62 +108,7 @@ Control::~Control() {
 	pthread_mutex_destroy(&mutex_exec);
 }
 
-void Control::startElement(const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) {
-	char *element = XMLString::transcode(localname);
-
-	if (strcasecmp(element, "Controller") == 0) {
-		char *parameter = NULL;
-		char *value = NULL;
-
-		for (unsigned int ix = 0; ix < attrs.getLength(); ++ix) {
-			parameter = XMLString::transcode(attrs.getQName(ix));
-			value = XMLString::transcode(attrs.getValue(ix));
-
-			if (!setParameter(parameter, value)) {
-				throw string("Invalid Parameter: \" ").append(parameter).append(" \"");
-			}
-
-			XMLString::release(&parameter);
-			XMLString::release(&value);
-		}
-	} else if (strcasecmp(element, "Heuristics") == 0) {
-		algs = new vector<Heuristic*>();
-	} else {
-		Heuristic *newHeuristic = NULL;
-
-		if (strcasecmp(element, "SimulatedAnnealing") == 0)
-			newHeuristic = new SimulatedAnnealing();
-
-		if (strcasecmp(element, "TabuSearch") == 0)
-			newHeuristic = new TabuSearch();
-
-		if (strcasecmp(element, "GeneticAlgorithm") == 0)
-			newHeuristic = new GeneticAlgorithm();
-
-		if (newHeuristic != NULL) {
-			char *parameter = NULL;
-			char *value = NULL;
-
-			for (unsigned int ix = 0; ix < attrs.getLength(); ++ix) {
-				parameter = XMLString::transcode(attrs.getQName(ix));
-				value = XMLString::transcode(attrs.getValue(ix));
-
-				if (!newHeuristic->setParameter(parameter, value)) {
-					throw string("Invalid Parameter: \" ").append(parameter).append(" \"");
-				}
-
-				XMLString::release(&parameter);
-				XMLString::release(&value);
-			}
-
-			addHeuristic(newHeuristic);
-		}
-	}
-
-	XMLString::release(&element);
-}
-
-inline int Control::exec(int idThread) {
+inline int Control::execute(int idThread) {
 	list<HeuristicListener*>::iterator listener_iterator;
 	vector<Problem*> *newSoluctions = NULL;
 	HeuristicListener *listener = NULL;
@@ -200,7 +144,7 @@ inline int Control::exec(int idThread) {
 	{
 		double oldBest = Problem::best;
 
-		insert = addSol(newSoluctions);
+		insert = addSolutions(newSoluctions);
 		execThreads++;
 
 		double newBest = Problem::best;
@@ -240,7 +184,7 @@ inline int Control::exec(int idThread) {
 	return contrib;
 }
 
-inline pair<int, int>* Control::addSol(vector<Problem*> *news) {
+inline pair<int, int>* Control::addSolutions(vector<Problem*> *news) {
 	pair<set<Problem*, bool (*)(Problem*, Problem*)>::iterator, bool> ret;
 	vector<Problem*>::const_iterator iterNews;
 	int nins = 0, nret = news->size();
@@ -273,7 +217,7 @@ inline pair<int, int>* Control::addSol(vector<Problem*> *news) {
 	return new pair<int, int>(nret, nins);
 }
 
-inline void Control::geraPop(list<Problem*> *popInicial) {
+inline void Control::generatePopulation(list<Problem*> *popInicial) {
 	pair<set<Problem*, bool (*)(Problem*, Problem*)>::iterator, bool> ret;
 
 	if (popInicial != NULL) {
@@ -328,6 +272,61 @@ inline void Control::geraPop(list<Problem*> *popInicial) {
 	TERMINATE = false;
 
 	return;
+}
+
+inline void Control::startElement(const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) {
+	char *element = XMLString::transcode(localname);
+
+	if (strcasecmp(element, "Controller") == 0) {
+		char *parameter = NULL;
+		char *value = NULL;
+
+		for (unsigned int ix = 0; ix < attrs.getLength(); ++ix) {
+			parameter = XMLString::transcode(attrs.getQName(ix));
+			value = XMLString::transcode(attrs.getValue(ix));
+
+			if (!setParameter(parameter, value)) {
+				throw string("Invalid Parameter: \" ").append(parameter).append(" \"");
+			}
+
+			XMLString::release(&parameter);
+			XMLString::release(&value);
+		}
+	} else if (strcasecmp(element, "Heuristics") == 0) {
+		algs = new vector<Heuristic*>();
+	} else {
+		Heuristic *newHeuristic = NULL;
+
+		if (strcasecmp(element, "SimulatedAnnealing") == 0)
+			newHeuristic = new SimulatedAnnealing();
+
+		if (strcasecmp(element, "TabuSearch") == 0)
+			newHeuristic = new TabuSearch();
+
+		if (strcasecmp(element, "GeneticAlgorithm") == 0)
+			newHeuristic = new GeneticAlgorithm();
+
+		if (newHeuristic != NULL) {
+			char *parameter = NULL;
+			char *value = NULL;
+
+			for (unsigned int ix = 0; ix < attrs.getLength(); ++ix) {
+				parameter = XMLString::transcode(attrs.getQName(ix));
+				value = XMLString::transcode(attrs.getValue(ix));
+
+				if (!newHeuristic->setParameter(parameter, value)) {
+					throw string("Invalid Parameter: \" ").append(parameter).append(" \"");
+				}
+
+				XMLString::release(&parameter);
+				XMLString::release(&value);
+			}
+
+			addHeuristic(newHeuristic);
+		}
+	}
+
+	XMLString::release(&element);
 }
 
 inline void Control::readCMDParameters() {
@@ -455,33 +454,6 @@ void Control::addHeuristic(Heuristic *alg) {
 	sort(algs->begin(), algs->end(), cmpAlg);
 }
 
-list<Problem*>* Control::getPop() {
-	list<Problem*> *sol = new list<Problem*>();
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter;
-
-	for (iter = pop->begin(); iter != pop->end(); iter++)
-		sol->push_back(*iter);
-
-	return sol;
-}
-
-Problem* Control::getSol(int n) {
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter = pop->begin();
-
-	for (int i = 0; i <= n && iter != pop->end(); iter++);
-
-	return Problem::copySolution(**(--iter));
-}
-
-void Control::getInfo(ExecInfo *info) {
-	info->diffTime = difftime(time2, time1);
-	info->numExecs = execThreads;
-
-	info->worstFitness = Problem::worst;
-	info->bestFitness = Problem::best;
-	info->expSol = Problem::totalNumInst;
-}
-
 Problem* Control::start(list<Problem*> *popInicial) {
 	bool (*fn_pt)(Problem*, Problem*) = comparatorMode == 1 ? fncomp1 : fncomp2;
 	pop = new set<Problem*, bool (*)(Problem*, Problem*)>(fn_pt);
@@ -498,7 +470,7 @@ Problem* Control::start(list<Problem*> *popInicial) {
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-	geraPop(popInicial);
+	generatePopulation(popInicial);
 
 	if (pop->size() == 0) {
 		cout << endl << "No Initial Solution Found!" << endl << endl;
@@ -565,6 +537,47 @@ Problem* Control::start(list<Problem*> *popInicial) {
 		glutDestroyWindow(window);
 
 	return Problem::copySolution(**(pop->begin()));
+}
+
+int Control::getExecutions() {
+	return execThreads;
+}
+
+list<Problem*>* Control::getSolutions() {
+	list<Problem*> *sol = new list<Problem*>();
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter;
+
+	for (iter = pop->begin(); iter != pop->end(); iter++)
+		sol->push_back(*iter);
+
+	return sol;
+}
+
+Problem* Control::getSolution(int n) {
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter = pop->begin();
+
+	for (int i = 0; i <= n && iter != pop->end(); iter++);
+
+	return Problem::copySolution(**(--iter));
+}
+
+void Control::getInfo(ExecInfo *info) {
+	info->diffTime = difftime(time2, time1);
+	info->numExecs = execThreads;
+
+	info->worstFitness = Problem::worst;
+	info->bestFitness = Problem::best;
+	info->expSol = Problem::totalNumInst;
+}
+
+void Control::checkSolutions() {
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter1, iter2;
+
+	/* Testa a memoria principal por solucoes repetidas ou fora de ordem */
+	for (iter1 = pop->begin(); iter1 != pop->end(); iter1++)
+		for (iter2 = iter1; iter2 != pop->end(); iter2++)
+			if ((iter1 != iter2) && (fnequal1(*iter1, *iter2) || fncomp1(*iter2, *iter1)))
+				throw "Incorrect Main Memory!";
 }
 
 void Control::printSolution(Problem *solution) {
@@ -694,7 +707,7 @@ void* Control::pthrExec(void *obj) {
 	sem_wait(&semaphore);
 
 	if (TERMINATE != true) {
-		ins = ctr->exec(execAteams);
+		ins = ctr->execute(execAteams);
 
 		if (ctr->iterMelhora > ctr->tentAteams || (ctr->makespanBest != -1 && Problem::improvement(ctr->makespanBest, Problem::best) >= 0))
 			TERMINATE = true;
