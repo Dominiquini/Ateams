@@ -28,10 +28,10 @@ build Ateams_Base/bin/Utils.o: compile Ateams_Base/src/Utils.cpp
 build Ateams_Base/bin/Ateams.o: compile Ateams_Base/src/Ateams.cpp
 build Ateams_Base/bin/Control.o: compile Ateams_Base/src/Control.cpp
 build Ateams_Base/bin/HeuristicTabu.o: compile Ateams_Base/src/HeuristicTabu.cpp
-build Ateams_Base/bin/HeuristicGenetico.o: compile Ateams_Base/src/HeuristicGenetic.cpp
+build Ateams_Base/bin/HeuristicGenetic.o: compile Ateams_Base/src/HeuristicGenetic.cpp
 build Ateams_Base/bin/HeuristicAnnealing.o: compile Ateams_Base/src/HeuristicAnnealing.cpp
 
-build Ateams_Base/bin/Ateams_Base.a: archive Ateams_Base/bin/Utils.o Ateams_Base/bin/Ateams.o Ateams_Base/bin/Control.o Ateams_Base/bin/HeuristicTabu.o Ateams_Base/bin/HeuristicGenetico.o Ateams_Base/bin/HeuristicAnnealing.o
+build Ateams_Base/bin/Ateams_Base.a: archive Ateams_Base/bin/Utils.o Ateams_Base/bin/Ateams.o Ateams_Base/bin/Control.o Ateams_Base/bin/HeuristicTabu.o Ateams_Base/bin/HeuristicGenetic.o Ateams_Base/bin/HeuristicAnnealing.o
 
 build BinPacking/bin/BinPacking.o: compile BinPacking/src/BinPacking.cpp
 build FlowShop/bin/FlowShop.o: compile FlowShop/src/FlowShop.cpp
