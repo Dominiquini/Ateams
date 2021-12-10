@@ -1,15 +1,14 @@
 #include "../../Ateams_Base/src/Problem.hpp"
 
 #define INV_FITNESS 1000000
-#define MAX_PERMUTACOES 10000
+#define MAX_PERMUTATIONS 10000
 
 using namespace std;
 
 #ifndef _KnapSack_
 #define _KnapSack_
 
-class Solucao_KnapSack : public Solucao
-{
+class Solucao_KnapSack: public Solution {
 private:
 
 	short int *ordemItens;		// Solucao
@@ -24,49 +23,44 @@ private:
 	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
 };
 
-class InfoTabu_KnapSack : public InfoTabu
-{
+class InfoTabu_KnapSack: public InfoTabu {
 private:
 
 	short int A, B;
 
 public:
 
-	InfoTabu_KnapSack(int xA, int xB)
-	{
+	InfoTabu_KnapSack(int xA, int xB) {
 		A = xA;
 		B = xB;
 	}
 
 	// Verifica se 't1' eh igual a 't2'
-	bool operator == (InfoTabu& movTabu)
-	{
-		InfoTabu_KnapSack* t = dynamic_cast<InfoTabu_KnapSack *>(&movTabu);
+	bool operator ==(InfoTabu &movTabu) {
+		InfoTabu_KnapSack *t = dynamic_cast<InfoTabu_KnapSack*>(&movTabu);
 
-		if((A == t->A && B == t->B) || (A == t->B && B == t->A))
+		if ((A == t->A && B == t->B) || (A == t->B && B == t->A))
 			return true;
 		else
 			return false;
 	}
 };
 
-class KnapSack : public Problem
-{
+class KnapSack: public Problem {
 private:
 
-	bool calcFitness(bool esc);		// Calcula o makespan
+	bool calcFitness(bool esc);						// Calcula o makespan
 
-	Solucao_KnapSack sol;			// Representacao interna da solucao
+	Solucao_KnapSack solution;						// Representacao interna da solucao
 
 public:
 
-	static char name[128];			// Nome do problema
+	static char name[128];							// Nome do problema
 
 	static double *values, **constraint, *limit;	// Valores, limitacoes da esquerda e direita
 	static int nitens, ncontraint;					// Quantidade de itens e de limitacoes
 
-	static int num_vizinhos;		// Numero de permutacoes possiveis
-
+	static int neighbors;							// Numero de permutacoes possiveis
 
 	KnapSack();												// Nova solucao aleatoria
 	KnapSack(short int *prob);								// Copia de prob
@@ -76,15 +70,14 @@ public:
 
 	~KnapSack();
 
-
 	void print(bool esc);		// Imprime o escalonamento atual
 
 	/* Retorna um novo vizinho aleatorio */
 	Problem* neighbor();
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
-	vector<pair<Problem*, InfoTabu*>* >* localSearch();		// Todos os vizinhos
-	vector<pair<Problem*, InfoTabu*>* >* localSearch(float);	// Uma parcela aleatoria
+	vector<pair<Problem*, InfoTabu*>*>* localSearch();		// Todos os vizinhos
+	vector<pair<Problem*, InfoTabu*>*>* localSearch(float);	// Uma parcela aleatoria
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
 	pair<Problem*, Problem*>* crossOver(const Problem*, int, int);	// Dois pivos
@@ -98,9 +91,8 @@ public:
 	double getFitnessMaximize() const;
 	double getFitnessMinimize() const;
 
-	Solucao_KnapSack& getSoluction()
-	{
-		return sol;
+	Solucao_KnapSack& getSoluction() {
+		return solution;
 	}
 
 	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
@@ -109,7 +101,7 @@ public:
 	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
 };
 
-void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
+void swap_vect(short int *p1, short int *p2, short int *f, int pos, int tam);
 
 bool constraintVerify(int item, vector<double> &constraints);
 

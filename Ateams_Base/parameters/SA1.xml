@@ -5,7 +5,7 @@
    tentAteams = "100"
    maxTimeAteams = "3600"
    numThreads = "4"
-   tamPopAteams = "500"
+   populationSizeAteams = "500"
    comparatorMode = "1"
    makespanBest = "-1">
 
@@ -14,12 +14,12 @@
     <SimulatedAnnealing
        name = "SA1"
        probSA = "35"
-       polEscolhaSA = "250"
-       probElitismoSA = "0.25"
-       maxIterSA = "250"
-       initTempSA = "125"
-       finalTempSA = "0.75"
-       restauraSolSA = "0"
+       choicePolicySA = "250"
+       elitismProbabilitySA = "0.25"
+       maxIterationsSA = "250"
+       startTempSA = "125"
+       endTempSA = "0.75"
+       restoreSolutionSA = "0"
        alphaSA = "0.99">
     </SimulatedAnnealing>
 

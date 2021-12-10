@@ -4,7 +4,7 @@ using namespace std;
 
 /* Static Members */
 
-ProblemType Problem::TIPO = MINIMIZACAO;
+ProblemType Problem::TYPE = MINIMIZACAO;
 
 double Problem::best = 0;
 double Problem::worst = 0;
@@ -15,81 +15,72 @@ char BinPacking::name[128];
 double *BinPacking::sizes = NULL, BinPacking::capacity = 0;
 int BinPacking::nitens = 0;
 
-int BinPacking::num_vizinhos = 0;
+int BinPacking::neighbors = 0;
 
-Problem* Problem::randSoluction()
-{
+Problem* Problem::randomSolution() {
 	return new BinPacking();
 }
 
-Problem* Problem::copySoluction(const Problem& prob)
-{
+Problem* Problem::copySolution(const Problem &prob) {
 	return new BinPacking(prob);
 }
 
-
-void Problem::readProblemFromFile(char* input)
-{
+void Problem::readProblemFromFile(char *input) {
 	FILE *f = fopen(input, "r");
 
-	if(f == NULL)
+	if (f == NULL)
 		throw "Wrong Data File!";
 
-	if(!fgets (BinPacking::name, 128, f))
+	if (!fgets(BinPacking::name, 128, f))
 		throw "Wrong Data File!";
 
-	if(!fscanf (f, "%lf %d %*d\n", &BinPacking::capacity, &BinPacking::nitens))
+	if (!fscanf(f, "%lf %d %*d\n", &BinPacking::capacity, &BinPacking::nitens))
 		throw "Wrong Data File!";
 
-	Problem::alocaMemoria();
+	Problem::allocateMemory();
 
-	for(int i = 0; i < BinPacking::nitens; i++)
-	{
-		if (!fscanf (f, "%lf", &BinPacking::sizes[i]))
+	for (int i = 0; i < BinPacking::nitens; i++) {
+		if (!fscanf(f, "%lf", &BinPacking::sizes[i]))
 			throw "Wrong Data File!";
 	}
 
-	for(int i = 1; i < BinPacking::nitens; i++)
-		BinPacking::num_vizinhos += i;
+	for (int i = 1; i < BinPacking::nitens; i++)
+		BinPacking::neighbors += i;
 
 	return;
 }
 
-list<Problem*>* Problem::readPopulationFromLog(char *log)
-{
+list<Problem*>* Problem::readPopulationFromLog(char *log) {
 	FILE *f = fopen(log, "r");
 
-	if(f != NULL)
-	{
-		list<Problem*>* popInicial = new list<Problem*>();
+	if (f != NULL) {
+		list<Problem*> *popInicial = new list<Problem*>();
 		double capacity;
 		int npop, nitens, nbins;
 		short int *ordem, *bins;
-		Problem* p;
+		Problem *p;
 
-		if(!fscanf (f, "%d %lf %d", &npop, &capacity, &nitens))
+		if (!fscanf(f, "%d %lf %d", &npop, &capacity, &nitens))
 			throw "Wrong Log File!";
 
-		if(capacity != BinPacking::capacity || nitens != BinPacking::nitens)
+		if (capacity != BinPacking::capacity || nitens != BinPacking::nitens)
 			throw "Wrong Log File!";
 
-		for(int i = 0; i < npop; i++)
-		{
-			ordem = (short int*)malloc(nitens * sizeof(short int));
-			bins = (short int*)malloc(nitens * sizeof(short int));
+		for (int i = 0; i < npop; i++) {
+			ordem = (short int*) malloc(nitens * sizeof(short int));
+			bins = (short int*) malloc(nitens * sizeof(short int));
 
-			if(!fscanf (f, "%d", &nbins))
+			if (!fscanf(f, "%d", &nbins))
 				throw "Wrong Log File!";
 
-			for(int j = 0; j < nitens; j++)
-			{
-				if(!fscanf (f, "%hd %hd", &bins[j], &ordem[j]))
+			for (int j = 0; j < nitens; j++) {
+				if (!fscanf(f, "%hd %hd", &bins[j], &ordem[j]))
 					throw "Wrong Log File!";
 			}
 
 			p = new BinPacking(ordem, bins);
 
-			if(nbins != p->getFitness())
+			if (nbins != p->getFitness())
 				throw "Wrong Log File!";
 
 			popInicial->push_back(p);
@@ -98,34 +89,28 @@ list<Problem*>* Problem::readPopulationFromLog(char *log)
 		fclose(f);
 
 		return popInicial;
-	}
-	else
-	{
+	} else {
 		return NULL;
 	}
 }
 
-void Problem::dumpCurrentPopulationInLog(char *log, list<Problem*>* popInicial)
-{
+void Problem::dumpCurrentPopulationInLog(char *log, list<Problem*> *popInicial) {
 	FILE *f = fopen(log, "w");
 
-	if(f != NULL)
-	{
-		int sizePop = (int)popInicial->size();
+	if (f != NULL) {
+		int sizePop = (int) popInicial->size();
 		list<Problem*>::iterator iter;
 		short int *ordem, *bins;
 
 		fprintf(f, "%d %f %d\n\n", sizePop, BinPacking::capacity, BinPacking::nitens);
 
-		for(iter = popInicial->begin(); iter != popInicial->end(); iter++)
-		{
-			ordem = dynamic_cast<BinPacking *>(*iter)->getSoluction().ordemItens;
-			bins = dynamic_cast<BinPacking *>(*iter)->getSoluction().bins;
+		for (iter = popInicial->begin(); iter != popInicial->end(); iter++) {
+			ordem = dynamic_cast<BinPacking*>(*iter)->getSoluction().ordemItens;
+			bins = dynamic_cast<BinPacking*>(*iter)->getSoluction().bins;
 
-			fprintf(f, "%d\n", (int)dynamic_cast<BinPacking *>(*iter)->getSoluction().fitness);
+			fprintf(f, "%d\n", (int) dynamic_cast<BinPacking*>(*iter)->getSoluction().fitness);
 
-			for(int j = 0; j < BinPacking::nitens; j++)
-			{
+			for (int j = 0; j < BinPacking::nitens; j++) {
 				fprintf(f, "%hd %hd ", bins[j], ordem[j]);
 			}
 
@@ -136,115 +121,95 @@ void Problem::dumpCurrentPopulationInLog(char *log, list<Problem*>* popInicial)
 	}
 }
 
-void Problem::writeResultInFile(char *dados, char *parametros, ExecInfo *info, char *resultado)
-{
+void Problem::writeResultInFile(char *dados, char *parametros, ExecInfo *info, char *resultado) {
 	FILE *f;
 
-	if(*resultado != '\0')
-	{
-		if((f = fopen(resultado, "r+")) != NULL)
-		{
+	if (*resultado != '\0') {
+		if ((f = fopen(resultado, "r+")) != NULL) {
 			fseek(f, 0, SEEK_END);
-		}
-		else
-		{
+		} else {
 			f = fopen(resultado, "w");
 
 			fprintf(f, "%*s%*s", -16, "bestFitness", -16, "worstFitness");
-			fprintf(f, "%*s%*s%*s", -16, "numExecs", -16, "diffTime", -24, "expSol");
-			fprintf(f, "%*s%s\n", -24, "dados", "parametros");
+			fprintf(f, "%*s%*s%*s", -16, "executions", -16, "diffTime", -24, "expSol");
+			fprintf(f, "%*s%s\n", -24, "input", "parameters");
 		}
 
-		fprintf(f, "%*d%*d", -16, (int)info->bestFitness, -16, (int)info->worstFitness);
-		fprintf(f, "%*d%*d%*d", -16, info->numExecs, -16, (int)info->diffTime, -24, (int)info->expSol);
+		fprintf(f, "%*d%*d", -16, (int) info->bestFitness, -16, (int) info->worstFitness);
+		fprintf(f, "%*d%*d%*d", -16, info->numExecs, -16, (int) info->diffTime, -24, (int) info->expSol);
 		fprintf(f, "%*s%s\n", -24, dados, parametros);
 
 		fclose(f);
 	}
 }
 
-void Problem::alocaMemoria()
-{
-	BinPacking::sizes = (double*)malloc(BinPacking::nitens * sizeof(double));
+void Problem::allocateMemory() {
+	BinPacking::sizes = (double*) malloc(BinPacking::nitens * sizeof(double));
 }
 
-void Problem::unloadMemory()
-{
+void Problem::deallocateMemory() {
 	free(BinPacking::sizes);
 }
 
-
 /* Metodos */
 
-BinPacking::BinPacking() : Problem::Problem()
-{
-	sol.ordemItens = (short int*)malloc(nitens * sizeof(short int));
+BinPacking::BinPacking() : Problem::Problem() {
+	solution.ordemItens = (short int*) malloc(nitens * sizeof(short int));
 
-	if(Problem::totalNumInst == 1)	// Tenta uma solucao gulosa
-	{
-		double *orderSize = (double*)malloc(nitens * sizeof(double));
+	if (Problem::totalNumInst == 1)	// Tenta uma solucao gulosa
+			{
+		double *orderSize = (double*) malloc(nitens * sizeof(double));
 
-		for(int i = 0; i < nitens; i++)
+		for (int i = 0; i < nitens; i++)
 			orderSize[i] = sizes[i];
 
-		for(int i = 0, posMax = -1; i < nitens; i++)
-		{
+		for (int i = 0, posMax = -1; i < nitens; i++) {
 			double max = 0;
 
-			for(int j = 0; j < nitens; j++)
-			{
-				if(orderSize[j] > max)
-				{
+			for (int j = 0; j < nitens; j++) {
+				if (orderSize[j] > max) {
 					max = orderSize[j];
 					posMax = j;
 				}
 			}
 
 			orderSize[posMax] = -1;
-			sol.ordemItens[i] = posMax;
+			solution.ordemItens[i] = posMax;
 		}
 
-		double *tempValBins = (double*)malloc(nitens * sizeof(double));
-		short int *tempBins = (short int*)malloc(nitens * sizeof(short int));
+		double *tempValBins = (double*) malloc(nitens * sizeof(double));
+		short int *tempBins = (short int*) malloc(nitens * sizeof(short int));
 
-		for(int i = 0; i < nitens; i++)
-		{
-			orderSize[i] = sol.ordemItens[i];
+		for (int i = 0; i < nitens; i++) {
+			orderSize[i] = solution.ordemItens[i];
 			tempValBins[i] = -1;
 		}
 
 		int localFitness = 0;
 
-		for(int i = 0; i < nitens; i++)
-		{
+		for (int i = 0; i < nitens; i++) {
 			bool insert = false;
 
-			for(int j = 0; j < localFitness; j++)
-			{
-				if(sizes[(int)orderSize[i]] + tempValBins[j] < capacity)
-				{
-					tempValBins[j] += sizes[(int)orderSize[i]];
-					tempBins[(int)orderSize[i]] = j;
+			for (int j = 0; j < localFitness; j++) {
+				if (sizes[(int) orderSize[i]] + tempValBins[j] < capacity) {
+					tempValBins[j] += sizes[(int) orderSize[i]];
+					tempBins[(int) orderSize[i]] = j;
 					insert = true;
 					break;
 				}
 			}
 
-			if(insert == false)
-			{
-				tempValBins[localFitness] = sizes[(int)orderSize[i]];
-				tempBins[(int)orderSize[i]] = localFitness;
+			if (insert == false) {
+				tempValBins[localFitness] = sizes[(int) orderSize[i]];
+				tempBins[(int) orderSize[i]] = localFitness;
 				localFitness++;
 			}
 		}
 
-		for(int i = 0, bin = 0; i < localFitness; i++)
-		{
-			for(int j = 0; j < nitens; j++)
-			{
-				if(tempBins[j] == i)
-				{
-					sol.ordemItens[bin++] = j;
+		for (int i = 0, bin = 0; i < localFitness; i++) {
+			for (int j = 0; j < nitens; j++) {
+				if (tempBins[j] == i) {
+					solution.ordemItens[bin++] = j;
 				}
 			}
 		}
@@ -253,189 +218,164 @@ BinPacking::BinPacking() : Problem::Problem()
 		free(tempValBins);
 		free(tempBins);
 
-		sol.bins = NULL;
+		solution.bins = NULL;
 		calcFitness(false);
 
-		if((int)sol.fitness != localFitness)
-		{
+		if ((int) solution.fitness != localFitness) {
 			cout << endl << endl << "Problema na Solução Gulosa!" << endl << endl;
 			exit(1);
 		}
-	}
-	else
-	{
-		for(int i = 0; i < nitens; i++)
-			sol.ordemItens[i] = i;
+	} else {
+		for (int i = 0; i < nitens; i++)
+			solution.ordemItens[i] = i;
 
-		random_shuffle(&sol.ordemItens[0], &sol.ordemItens[nitens]);
+		random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens]);
 
-		sol.bins = NULL;
+		solution.bins = NULL;
 		calcFitness(false);
 	}
 
 	exec.tabu = false;
-	exec.genetico = false;
+	exec.genetic = false;
 	exec.annealing = false;
 }
 
-
-BinPacking::BinPacking(short int *prob) : Problem::Problem()
-{
-	sol.ordemItens = prob;
-	sol.bins = NULL;
+BinPacking::BinPacking(short int *prob) : Problem::Problem() {
+	solution.ordemItens = prob;
+	solution.bins = NULL;
 
 	calcFitness(false);
 
 	exec.tabu = false;
-	exec.genetico = false;
+	exec.genetic = false;
 	exec.annealing = false;
 }
 
-BinPacking::BinPacking(short int *prob, short int *bins) : Problem::Problem()
-{
-	sol.ordemItens = prob;
-	sol.bins = bins;
+BinPacking::BinPacking(short int *prob, short int *bins) : Problem::Problem() {
+	solution.ordemItens = prob;
+	solution.bins = bins;
 
 	calcFitness(false);
 
 	exec.tabu = false;
-	exec.genetico = false;
+	exec.genetic = false;
 	exec.annealing = false;
 }
 
-BinPacking::BinPacking(const Problem &prob) : Problem::Problem()
-{
-	BinPacking *other = dynamic_cast<BinPacking *>(const_cast<Problem *>(&prob));
+BinPacking::BinPacking(const Problem &prob) : Problem::Problem() {
+	BinPacking *other = dynamic_cast<BinPacking*>(const_cast<Problem*>(&prob));
 
-	this->sol.ordemItens = (short int*)malloc(nitens * sizeof(short int));
+	this->solution.ordemItens = (short int*) malloc(nitens * sizeof(short int));
 
-	for(int i = 0; i < nitens; i++)
-		this->sol.ordemItens[i] = other->sol.ordemItens[i];
+	for (int i = 0; i < nitens; i++)
+		this->solution.ordemItens[i] = other->solution.ordemItens[i];
 
-	this->sol.bins = NULL;
-	this->sol.fitness = other->sol.fitness;
+	this->solution.bins = NULL;
+	this->solution.fitness = other->solution.fitness;
 
-	if(other->sol.bins != NULL)
-	{
-		this->sol.bins = (short int*)malloc(nitens * sizeof(short int));
+	if (other->solution.bins != NULL) {
+		this->solution.bins = (short int*) malloc(nitens * sizeof(short int));
 
-		for(int i = 0; i < nitens; i++)
-			this->sol.bins[i] = other->sol.bins[i];
+		for (int i = 0; i < nitens; i++)
+			this->solution.bins[i] = other->solution.bins[i];
 	}
 	exec = prob.exec;
 }
 
-BinPacking::BinPacking(const Problem &prob, int pos1, int pos2) : Problem::Problem()
-{
-	BinPacking *other = dynamic_cast<BinPacking *>(const_cast<Problem *>(&prob));
+BinPacking::BinPacking(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
+	BinPacking *other = dynamic_cast<BinPacking*>(const_cast<Problem*>(&prob));
 
-	this->sol.ordemItens = (short int*)malloc(nitens * sizeof(short int));
+	this->solution.ordemItens = (short int*) malloc(nitens * sizeof(short int));
 
-	for(int i = 0; i < nitens; i++)
-		this->sol.ordemItens[i] = other->sol.ordemItens[i];
+	for (int i = 0; i < nitens; i++)
+		this->solution.ordemItens[i] = other->solution.ordemItens[i];
 
-	short int aux = this->sol.ordemItens[pos1];
-	this->sol.ordemItens[pos1] = this->sol.ordemItens[pos2];
-	this->sol.ordemItens[pos2] = aux;
+	short int aux = this->solution.ordemItens[pos1];
+	this->solution.ordemItens[pos1] = this->solution.ordemItens[pos2];
+	this->solution.ordemItens[pos2] = aux;
 
-	this->sol.bins = NULL;
+	this->solution.bins = NULL;
 
 	calcFitness(false);
 
 	exec.tabu = false;
-	exec.genetico = false;
+	exec.genetic = false;
 	exec.annealing = false;
 }
 
-BinPacking::~BinPacking()
-{
-	if(sol.ordemItens != NULL)
-		free(sol.ordemItens);
+BinPacking::~BinPacking() {
+	if (solution.ordemItens != NULL)
+		free(solution.ordemItens);
 
-	if(sol.bins != NULL)
-		free(sol.bins);
+	if (solution.bins != NULL)
+		free(solution.bins);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
-inline bool BinPacking::calcFitness(bool esc)
-{
-	sol.fitness = 1;
+inline bool BinPacking::calcFitness(bool esc) {
+	solution.fitness = 1;
 
-	if(sol.bins == NULL)
-	{
+	if (solution.bins == NULL) {
 		double sumBinAtual = 0;
 		int anterior = 0;
 
-		short int *aux_bins = (short int*)malloc(nitens * sizeof(short int));
+		short int *aux_bins = (short int*) malloc(nitens * sizeof(short int));
 
-		for(int pos = 0; pos < nitens; pos++)
-		{
-			sumBinAtual += sizes[sol.ordemItens[pos]];
+		for (int pos = 0; pos < nitens; pos++) {
+			sumBinAtual += sizes[solution.ordemItens[pos]];
 
-			if(sumBinAtual > capacity)
-			{
-				sol.fitness++;
-				sumBinAtual = sizes[sol.ordemItens[pos]];
+			if (sumBinAtual > capacity) {
+				solution.fitness++;
+				sumBinAtual = sizes[solution.ordemItens[pos]];
 
-				sort(&sol.ordemItens[anterior], &sol.ordemItens[pos]);
+				sort(&solution.ordemItens[anterior], &solution.ordemItens[pos]);
 				anterior = pos;
 			}
 
-			aux_bins[pos] = sol.fitness;
+			aux_bins[pos] = solution.fitness;
 		}
-		sort(&sol.ordemItens[anterior], &sol.ordemItens[nitens]);
+		sort(&solution.ordemItens[anterior], &solution.ordemItens[nitens]);
 
-		sol.bins = aux_bins;
-	}
-	else
-	{
-		sol.fitness = sol.bins[nitens - 1];
+		solution.bins = aux_bins;
+	} else {
+		solution.fitness = solution.bins[nitens - 1];
 	}
 
 	return true;
 }
 
-inline void BinPacking::print(bool esc)
-{
-	if(esc == true)
-	{
+inline void BinPacking::print(bool esc) {
+	if (esc == true) {
 		calcFitness(esc);
 
-		for(int i = 1; i <= sol.fitness; i++)
-		{
+		for (int i = 1; i <= solution.fitness; i++) {
 			double sumBin = 0;
 			int numItens = 0;
 
 			printf("bin %.2d: ", i);
-			for(int j = 0; j < nitens; j++)
-			{
-				if(sol.bins[j] == i)
-				{
-					printf("|%.4hd|", sol.ordemItens[j]+1);
-					sumBin += sizes[sol.ordemItens[j]];
+			for (int j = 0; j < nitens; j++) {
+				if (solution.bins[j] == i) {
+					printf("|%.4hd|", solution.ordemItens[j] + 1);
+					sumBin += sizes[solution.ordemItens[j]];
 					numItens++;
 				}
 			}
 			printf(" ==> %0.2f (%d)\n", sumBin, numItens);
 		}
-	}
-	else
-	{
-		for(int j = 0; j < nitens; j++)
-		{
-			printf("%d ", sol.ordemItens[j]);
+	} else {
+		for (int j = 0; j < nitens; j++) {
+			printf("%d ", solution.ordemItens[j]);
 		}
 	}
 	printf("\n");
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */
-inline Problem* BinPacking::neighbor()
-{
+inline Problem* BinPacking::neighbor() {
 	int p1 = xRand(0, nitens), p2 = xRand(0, nitens);
 	Problem *prob = NULL;
 
-	while(p2 == p1 || sol.bins[p1] == sol.bins[p2])
+	while (p2 == p1 || solution.bins[p1] == solution.bins[p2])
 		p2 = xRand(0, nitens);
 
 	prob = new BinPacking(*this, p1, p2);
@@ -444,22 +384,18 @@ inline Problem* BinPacking::neighbor()
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* BinPacking::localSearch()
-{
-	if(BinPacking::num_vizinhos > MAX_PERMUTACOES)
-		return localSearch((float)MAX_PERMUTACOES/(float)BinPacking::num_vizinhos);
+inline vector<pair<Problem*, InfoTabu*>*>* BinPacking::localSearch() {
+	if (BinPacking::neighbors > MAX_PERMUTATIONS)
+		return localSearch((float) MAX_PERMUTATIONS / (float) BinPacking::neighbors);
 
 	Problem *prob = NULL;
 	int p1, p2;
-	pair<Problem*, InfoTabu*>* temp;
-	vector<pair<Problem*, InfoTabu*>* >* local = new vector<pair<Problem*, InfoTabu*>* >();
+	pair<Problem*, InfoTabu*> *temp;
+	vector<pair<Problem*, InfoTabu*>*> *local = new vector<pair<Problem*, InfoTabu*>*>();
 
-	for(p1 = 0; p1 < nitens-1; p1++)
-	{
-		for(p2 = p1+1; p2 < nitens; p2++)
-		{
-			if(sol.bins[p1] != sol.bins[p2])
-			{
+	for (p1 = 0; p1 < nitens - 1; p1++) {
+		for (p2 = p1 + 1; p2 < nitens; p2++) {
+			if (solution.bins[p1] != solution.bins[p2]) {
 				prob = new BinPacking(*this, p1, p2);
 
 				temp = new pair<Problem*, InfoTabu*>();
@@ -478,24 +414,22 @@ inline vector<pair<Problem*, InfoTabu*>* >* BinPacking::localSearch()
 }
 
 /* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* BinPacking::localSearch(float parcela)
-{
+inline vector<pair<Problem*, InfoTabu*>*>* BinPacking::localSearch(float parcela) {
 	Problem *prob = NULL;
 	int p1, p2;
-	pair<Problem*, InfoTabu*>* temp;
-	vector<pair<Problem*, InfoTabu*>* >* local = new vector<pair<Problem*, InfoTabu*>* >();
+	pair<Problem*, InfoTabu*> *temp;
+	vector<pair<Problem*, InfoTabu*>*> *local = new vector<pair<Problem*, InfoTabu*>*>();
 	int def;
 
-	def = (int)((float)BinPacking::num_vizinhos*parcela);
+	def = (int) ((float) BinPacking::neighbors * parcela);
 
-	if(def > MAX_PERMUTACOES)
-		def = MAX_PERMUTACOES;
+	if (def > MAX_PERMUTATIONS)
+		def = MAX_PERMUTATIONS;
 
-	for(int i = 0; i < def; i++)
-	{
+	for (int i = 0; i < def; i++) {
 		p1 = xRand(0, nitens), p2 = xRand(0, nitens);
 
-		while(p2 == p1 || sol.bins[p1] == sol.bins[p2])
+		while (p2 == p1 || solution.bins[p1] == solution.bins[p2])
 			p2 = xRand(0, nitens);
 
 		prob = new BinPacking(*this, p1, p2);
@@ -512,20 +446,19 @@ inline vector<pair<Problem*, InfoTabu*>* >* BinPacking::localSearch(float parcel
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
-inline pair<Problem*, Problem*>* BinPacking::crossOver(const Problem* parceiro, int tamParticao, int strength)
-{
-	short int *f1 = (short int*)malloc(nitens * sizeof(short int)), *f2 = (short int*)malloc(nitens * sizeof(short int));
-	pair<Problem*, Problem*>* filhos = new pair<Problem*, Problem*>();
-	int particao = tamParticao == 0 ? (BinPacking::nitens)/2 : tamParticao;
+inline pair<Problem*, Problem*>* BinPacking::crossOver(const Problem *parceiro, int partitionSize, int strength) {
+	short int *f1 = (short int*) malloc(nitens * sizeof(short int)), *f2 = (short int*) malloc(nitens * sizeof(short int));
+	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
+	int particao = partitionSize == 0 ? (BinPacking::nitens) / 2 : partitionSize;
 	int inicioPart = 0, fimPart = 0;
 
-	BinPacking *other = dynamic_cast<BinPacking *>(const_cast<Problem *>(parceiro));
+	BinPacking *other = dynamic_cast<BinPacking*>(const_cast<Problem*>(parceiro));
 
 	inicioPart = xRand(0, nitens);
-	fimPart = inicioPart+particao <= nitens ? inicioPart+particao : nitens;
+	fimPart = inicioPart + particao <= nitens ? inicioPart + particao : nitens;
 
-	swap_vect(this->sol.ordemItens, other->sol.ordemItens, f1, inicioPart, fimPart-inicioPart);
-	swap_vect(other->sol.ordemItens, this->sol.ordemItens, f2, inicioPart, fimPart-inicioPart);
+	swap_vect(this->solution.ordemItens, other->solution.ordemItens, f1, inicioPart, fimPart - inicioPart);
+	swap_vect(other->solution.ordemItens, this->solution.ordemItens, f2, inicioPart, fimPart - inicioPart);
 
 	filhos->first = new BinPacking(f1);
 	filhos->second = new BinPacking(f2);
@@ -534,18 +467,17 @@ inline pair<Problem*, Problem*>* BinPacking::crossOver(const Problem* parceiro, 
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
-inline pair<Problem*, Problem*>* BinPacking::crossOver(const Problem* parceiro, int strength)
-{
-	short int *f1 = (short int*)malloc(nitens * sizeof(short int)), *f2 = (short int*)malloc(nitens * sizeof(short int));
-	pair<Problem*, Problem*>* filhos = new pair<Problem*, Problem*>();
+inline pair<Problem*, Problem*>* BinPacking::crossOver(const Problem *parceiro, int strength) {
+	short int *f1 = (short int*) malloc(nitens * sizeof(short int)), *f2 = (short int*) malloc(nitens * sizeof(short int));
+	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = 0;
 
-	BinPacking *other = dynamic_cast<BinPacking *>(const_cast<Problem *>(parceiro));
+	BinPacking *other = dynamic_cast<BinPacking*>(const_cast<Problem*>(parceiro));
 
 	particao = xRand(1, nitens);
 
-	swap_vect(this->sol.ordemItens, other->sol.ordemItens, f1, 0, particao);
-	swap_vect(other->sol.ordemItens, this->sol.ordemItens, f2, 0, particao);
+	swap_vect(this->solution.ordemItens, other->solution.ordemItens, f1, 0, particao);
+	swap_vect(other->solution.ordemItens, this->solution.ordemItens, f2, 0, particao);
 
 	filhos->first = new BinPacking(f1);
 	filhos->second = new BinPacking(f2);
@@ -554,19 +486,17 @@ inline pair<Problem*, Problem*>* BinPacking::crossOver(const Problem* parceiro, 
 }
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
-inline Problem* BinPacking::mutation(int mutMax)
-{
-	short int *mut = (short int*)malloc(nitens * sizeof(short int));
-	Problem* vizinho = NULL, *temp = NULL, *mutacao = NULL;
+inline Problem* BinPacking::mutation(int mutMax) {
+	short int *mut = (short int*) malloc(nitens * sizeof(short int));
+	Problem *vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
-	for(int j = 0; j < nitens; j++)
-		mut[j] = sol.ordemItens[j];
+	for (int j = 0; j < nitens; j++)
+		mut[j] = solution.ordemItens[j];
 
 	temp = new BinPacking(mut);
 	mutacao = temp;
 
-	while(mutMax-- > 0)
-	{
+	while (mutMax-- > 0) {
 		vizinho = temp->neighbor();
 
 		delete temp;
@@ -576,94 +506,80 @@ inline Problem* BinPacking::mutation(int mutMax)
 	return mutacao;
 }
 
-inline double BinPacking::getFitness() const
-{
-	return sol.fitness;
+inline double BinPacking::getFitness() const {
+	return solution.fitness;
 }
 
-inline double BinPacking::getFitnessMaximize() const
-{
-	return (double)INV_FITNESS/sol.fitness;
+inline double BinPacking::getFitnessMaximize() const {
+	return (double) INV_FITNESS / solution.fitness;
 }
 
-inline double BinPacking::getFitnessMinimize() const
-{
-	return (double)sol.fitness;
+inline double BinPacking::getFitnessMinimize() const {
+	return (double) solution.fitness;
 }
 
 /* Auxiliares */
 
-inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam)
-{
-	for(int i = pos; i < pos+tam; i++)
+inline void swap_vect(short int *p1, short int *p2, short int *f, int pos, int tam) {
+	for (int i = pos; i < pos + tam; i++)
 		f[i] = p1[i];
 
-	for(int i = 0, j = 0; i < BinPacking::nitens && j < BinPacking::nitens; i++)
-	{
-		if(j == pos)
-			j = pos+tam;
+	for (int i = 0, j = 0; i < BinPacking::nitens && j < BinPacking::nitens; i++) {
+		if (j == pos)
+			j = pos + tam;
 
-		if(find(&p1[pos], &p1[pos+tam], p2[i]) == &p1[pos+tam])
+		if (find(&p1[pos], &p1[pos + tam], p2[i]) == &p1[pos + tam])
 			f[j++] = p2[i];
 	}
 	return;
 }
 
 // comparator function:
-bool fnequal1(Problem* prob1, Problem* prob2)
-{
-	BinPacking *p1 = dynamic_cast<BinPacking *>(prob1);
-	BinPacking *p2 = dynamic_cast<BinPacking *>(prob2);
+bool fnequal1(Problem *prob1, Problem *prob2) {
+	BinPacking *p1 = dynamic_cast<BinPacking*>(prob1);
+	BinPacking *p2 = dynamic_cast<BinPacking*>(prob2);
 
-	if(p1->sol.fitness == p2->sol.fitness)
-	{
-		for(int j = 0; j < BinPacking::nitens; j++)
-			if(p1->sol.ordemItens[j] != p2->sol.ordemItens[j])
+	if (p1->solution.fitness == p2->solution.fitness) {
+		for (int j = 0; j < BinPacking::nitens; j++)
+			if (p1->solution.ordemItens[j] != p2->solution.ordemItens[j])
 				return false;
 
 		return true;
-	}
-	else
+	} else
 		return false;
 }
 
 // comparator function:
-bool fnequal2(Problem* prob1, Problem* prob2)
-{
-	BinPacking *p1 = dynamic_cast<BinPacking *>(prob1);
-	BinPacking *p2 = dynamic_cast<BinPacking *>(prob2);
+bool fnequal2(Problem *prob1, Problem *prob2) {
+	BinPacking *p1 = dynamic_cast<BinPacking*>(prob1);
+	BinPacking *p2 = dynamic_cast<BinPacking*>(prob2);
 
-	return p1->sol.fitness == p2->sol.fitness;
+	return p1->solution.fitness == p2->solution.fitness;
 }
 
 // comparator function:
-bool fncomp1(Problem *prob1, Problem *prob2)
-{
-	BinPacking *p1 = dynamic_cast<BinPacking *>(prob1);
-	BinPacking *p2 = dynamic_cast<BinPacking *>(prob2);
+bool fncomp1(Problem *prob1, Problem *prob2) {
+	BinPacking *p1 = dynamic_cast<BinPacking*>(prob1);
+	BinPacking *p2 = dynamic_cast<BinPacking*>(prob2);
 
-	if(p1->sol.fitness == p2->sol.fitness)
-	{
-		for(int j = 0; j < BinPacking::nitens; j++)
-			if(p1->sol.ordemItens[j] != p2->sol.ordemItens[j])
-				return p1->sol.ordemItens[j] < p2->sol.ordemItens[j];
+	if (p1->solution.fitness == p2->solution.fitness) {
+		for (int j = 0; j < BinPacking::nitens; j++)
+			if (p1->solution.ordemItens[j] != p2->solution.ordemItens[j])
+				return p1->solution.ordemItens[j] < p2->solution.ordemItens[j];
 
 		return false;
-	}
-	else
-		return p1->sol.fitness < p2->sol.fitness;
+	} else
+		return p1->solution.fitness < p2->solution.fitness;
 }
 
 // comparator function:
-bool fncomp2(Problem *prob1, Problem *prob2)
-{
-	BinPacking *p1 = dynamic_cast<BinPacking *>(prob1);
-	BinPacking *p2 = dynamic_cast<BinPacking *>(prob2);
+bool fncomp2(Problem *prob1, Problem *prob2) {
+	BinPacking *p1 = dynamic_cast<BinPacking*>(prob1);
+	BinPacking *p2 = dynamic_cast<BinPacking*>(prob2);
 
-	return p1->sol.fitness < p2->sol.fitness;
+	return p1->solution.fitness < p2->solution.fitness;
 }
 
-inline bool ptcomp(pair<Problem*, InfoTabu*>* p1, pair<Problem*, InfoTabu*>* p2)
-{
+inline bool ptcomp(pair<Problem*, InfoTabu*> *p1, pair<Problem*, InfoTabu*> *p2) {
 	return (p1->first->getFitness() > p2->first->getFitness());
 }

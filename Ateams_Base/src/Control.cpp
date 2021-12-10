@@ -9,18 +9,13 @@ pthread_mutex_t mutex_exec;	// Mutex que protege as informacoes de execucao
 
 sem_t semaphore;			// Semaforo que controla o acesso dos algoritmos ao processador
 
-
-Control* Control::getInstance(int argc, char** argv)
-{
+Control* Control::getInstance(int argc, char **argv) {
 	Control::argc = &argc;
 	Control::argv = argv;
 
-	if(instance == NULL)
-	{
+	if (instance == NULL) {
 		instance = new Control();
-	}
-	else
-	{
+	} else {
 		terminate();
 
 		return getInstance(argc, argv);
@@ -31,11 +26,11 @@ Control* Control::getInstance(int argc, char** argv)
 
 	XMLPlatformUtils::Initialize();
 
-	SAX2XMLReader* parser = XMLReaderFactory::createXMLReader();
+	SAX2XMLReader *parser = XMLReaderFactory::createXMLReader();
 	parser->setFeature(XMLUni::fgSAX2CoreValidation, true);
 	parser->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
 
-	DefaultHandler* defaultHandler = instance;
+	DefaultHandler *defaultHandler = instance;
 	parser->setContentHandler(defaultHandler);
 	parser->setErrorHandler(defaultHandler);
 
@@ -48,18 +43,16 @@ Control* Control::getInstance(int argc, char** argv)
 	return instance;
 }
 
-void Control::terminate()
-{
+void Control::terminate() {
 	delete instance;
 	instance = NULL;
 }
 
-Control::Control()
-{
+Control::Control() {
 	this->algs = NULL;
 	this->pop = NULL;
 
-	this->tamPop = 500;
+	this->populationSize = 500;
 	this->comparatorMode = 1;
 	this->iterAteams = 250;
 	this->tentAteams = 100;
@@ -73,8 +66,8 @@ Control::Control()
 	this->iterMelhora = 0;
 	this->execThreads = 0;
 
-	execAlgs = new list<Heuristica_Listener*>;
-	actAlgs = new list<list<Heuristica_Listener*>::iterator >;
+	execAlgs = new list<HeuristicListener*>;
+	actAlgs = new list<list<HeuristicListener*>::iterator>;
 	actThreads = 0;
 
 	pthread_mutex_init(&mutex_pop, NULL);
@@ -83,26 +76,25 @@ Control::Control()
 	pthread_mutex_init(&mutex_exec, NULL);
 }
 
-Control::~Control()
-{
-	set<Problem*, bool(*)(Problem*, Problem*)>::iterator iter;
+Control::~Control() {
+	set<Problem*, bool (*)(Problem*, Problem*)>::iterator iter;
 
-	for(iter = pop->begin(); iter != pop->end(); iter++)
+	for (iter = pop->begin(); iter != pop->end(); iter++)
 		delete *iter;
 
 	pop->clear();
 	delete pop;
 
-	vector<Heuristica*>::reverse_iterator it;
+	vector<Heuristic*>::reverse_iterator it;
 
 	cout << endl << endl << "Executions: " << execThreads << endl << endl;
-	for(it = algs->rbegin(); it != algs->rend(); it++)
+	for (it = algs->rbegin(); it != algs->rend(); it++)
 		delete *it;
 
 	algs->clear();
 	delete algs;
 
-	for(list<Heuristica_Listener*>::iterator it = execAlgs->begin(); it != execAlgs->end(); it++)
+	for (list<HeuristicListener*>::iterator it = execAlgs->begin(); it != execAlgs->end(); it++)
 		delete *it;
 
 	execAlgs->clear();
@@ -117,58 +109,47 @@ Control::~Control()
 	pthread_mutex_destroy(&mutex_exec);
 }
 
-void Control::startElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname, const Attributes& attrs)
-{
-	char* element = XMLString::transcode(localname);
+void Control::startElement(const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) {
+	char *element = XMLString::transcode(localname);
 
-	if(strcasecmp(element, "Controller") == 0)
-	{
-		char* parameter = NULL;
-		char* value = NULL;
+	if (strcasecmp(element, "Controller") == 0) {
+		char *parameter = NULL;
+		char *value = NULL;
 
-		for(unsigned int ix = 0; ix < attrs.getLength(); ++ix)
-		{
+		for (unsigned int ix = 0; ix < attrs.getLength(); ++ix) {
 			parameter = XMLString::transcode(attrs.getQName(ix));
 			value = XMLString::transcode(attrs.getValue(ix));
 
-			if(!setParameter(parameter, value))
-			{
+			if (!setParameter(parameter, value)) {
 				throw string("Invalid Parameter: \" ").append(parameter).append(" \"");
 			}
 
 			XMLString::release(&parameter);
 			XMLString::release(&value);
 		}
-	}
-	else if(strcasecmp(element, "Heuristics") == 0)
-	{
-		algs = new vector<Heuristica*>();
-	}
-	else
-	{
-		Heuristica* newHeuristic = NULL;
+	} else if (strcasecmp(element, "Heuristics") == 0) {
+		algs = new vector<Heuristic*>();
+	} else {
+		Heuristic *newHeuristic = NULL;
 
-		if(strcasecmp(element, "SimulatedAnnealing") == 0)
+		if (strcasecmp(element, "SimulatedAnnealing") == 0)
 			newHeuristic = new Annealing();
 
-		if(strcasecmp(element, "TabuSearch") == 0)
+		if (strcasecmp(element, "TabuSearch") == 0)
 			newHeuristic = new Tabu();
 
-		if(strcasecmp(element, "GeneticAlgorithm") == 0)
-			newHeuristic = new Genetico();
+		if (strcasecmp(element, "GeneticAlgorithm") == 0)
+			newHeuristic = new Genetic();
 
-		if(newHeuristic != NULL)
-		{
-			char* parameter = NULL;
-			char* value = NULL;
+		if (newHeuristic != NULL) {
+			char *parameter = NULL;
+			char *value = NULL;
 
-			for(unsigned int ix = 0; ix < attrs.getLength(); ++ix)
-			{
+			for (unsigned int ix = 0; ix < attrs.getLength(); ++ix) {
 				parameter = XMLString::transcode(attrs.getQName(ix));
 				value = XMLString::transcode(attrs.getValue(ix));
 
-				if(!newHeuristic->setParameter(parameter, value))
-				{
+				if (!newHeuristic->setParameter(parameter, value)) {
 					throw string("Invalid Parameter: \" ").append(parameter).append(" \"");
 				}
 
@@ -183,20 +164,19 @@ void Control::startElement(const XMLCh* const uri, const XMLCh* const localname,
 	XMLString::release(&element);
 }
 
-inline int Control::exec(int idThread)
-{
-	list<Heuristica_Listener*>::iterator listener_iterator;
+inline int Control::exec(int idThread) {
+	list<HeuristicListener*>::iterator listener_iterator;
 	vector<Problem*> *newSoluctions = NULL;
-	Heuristica_Listener* listener = NULL;
-	Heuristica* alg = NULL;
-	pair<int, int>* insert;
+	HeuristicListener *listener = NULL;
+	Heuristic *alg = NULL;
+	pair<int, int> *insert;
 	string execNames;
 	int contrib = 0;
 
 	pthread_mutex_lock(&mutex_info);
 	{
-		alg = selectRouletteWheel(algs, Heuristica::numHeuristic);
-		listener = new Heuristica_Listener(alg, idThread);
+		alg = selectRouletteWheel(algs, Heuristic::heuristicsAvailable);
+		listener = new HeuristicListener(alg, idThread);
 
 		actThreads++;
 
@@ -204,14 +184,14 @@ inline int Control::exec(int idThread)
 		actAlgs->push_back(listener_iterator);
 
 		execNames = "";
-		for(list<list<Heuristica_Listener*>::iterator >::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
+		for (list<list<HeuristicListener*>::iterator>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
 			execNames = execNames + (**it)->info + " ";
 
 		printf(">>> ALG: %s | ..................................................... | QUEUE: (%d : %s)\n", listener->info.c_str(), actThreads, execNames.c_str());
 	}
 	pthread_mutex_unlock(&mutex_info);
 
-	if(this->activeListener)
+	if (this->activeListener)
 		newSoluctions = alg->start(pop, listener);
 	else
 		newSoluctions = alg->start(pop, NULL);
@@ -225,7 +205,7 @@ inline int Control::exec(int idThread)
 
 		double newBest = Problem::best;
 
-		if(Problem::improvement(oldBest, newBest) > 0)
+		if (Problem::improvement(oldBest, newBest) > 0)
 			iterMelhora = 0;
 		else
 			iterMelhora++;
@@ -239,14 +219,14 @@ inline int Control::exec(int idThread)
 	{
 		actThreads--;
 
-		list<list<Heuristica_Listener*>::iterator >::iterator exec = find(actAlgs->begin(), actAlgs->end(), listener_iterator);
+		list<list<HeuristicListener*>::iterator>::iterator exec = find(actAlgs->begin(), actAlgs->end(), listener_iterator);
 
 		actAlgs->erase(exec);
 
-		printf("<<< ALG: %s | ITER: %.3d | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d", listener->info.c_str(), execThreads, (int)Problem::best, (int)Problem::worst, insert->first, insert->second);
+		printf("<<< ALG: %s | ITER: %.3d | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d", listener->info.c_str(), execThreads, (int) Problem::best, (int) Problem::worst, insert->first, insert->second);
 
 		execNames = "";
-		for(list<list<Heuristica_Listener*>::iterator >::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
+		for (list<list<HeuristicListener*>::iterator>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
 			execNames = execNames + (**it)->info + " ";
 
 		printf(" | QUEUE: (%d : %s)\n", actThreads, execNames.c_str());
@@ -260,37 +240,28 @@ inline int Control::exec(int idThread)
 	return contrib;
 }
 
-inline pair<int, int>* Control::addSol(vector<Problem*> *news)
-{
-	pair<set<Problem*, bool(*)(Problem*, Problem*)>::iterator, bool> ret;
+inline pair<int, int>* Control::addSol(vector<Problem*> *news) {
+	pair<set<Problem*, bool (*)(Problem*, Problem*)>::iterator, bool> ret;
 	vector<Problem*>::const_iterator iterNews;
 	int nins = 0, nret = news->size();
-	Problem* pointSol = NULL;
+	Problem *pointSol = NULL;
 
-	for(iterNews = news->begin(); iterNews != news->end(); iterNews++)
-	{
-		if(Problem::improvement(**pop->rbegin(), **iterNews) < 0)
-		{
+	for (iterNews = news->begin(); iterNews != news->end(); iterNews++) {
+		if (Problem::improvement(**pop->rbegin(), **iterNews) < 0) {
 			delete *iterNews;
-		}
-		else
-		{
+		} else {
 			ret = pop->insert(*iterNews);
 
-			if(ret.second == true)
-			{
+			if (ret.second == true) {
 				nins++;
 
-				if((int)pop->size() > tamPop)
-				{
+				if ((int) pop->size() > populationSize) {
 					pointSol = *pop->rbegin();
 
 					pop->erase(pointSol);
 					delete pointSol;
 				}
-			}
-			else
-			{
+			} else {
 				delete *iterNews;
 			}
 		}
@@ -302,64 +273,50 @@ inline pair<int, int>* Control::addSol(vector<Problem*> *news)
 	return new pair<int, int>(nret, nins);
 }
 
-inline void Control::geraPop(list<Problem*>* popInicial)
-{
-	pair<set<Problem*, bool(*)(Problem*, Problem*)>::iterator, bool> ret;
+inline void Control::geraPop(list<Problem*> *popInicial) {
+	pair<set<Problem*, bool (*)(Problem*, Problem*)>::iterator, bool> ret;
 
-	if(popInicial != NULL)
-	{
-		for(list<Problem*>::iterator iter = popInicial->begin(); iter != popInicial->end(); iter++)
-		{
-			if((int)pop->size() < tamPop)
-			{
+	if (popInicial != NULL) {
+		for (list<Problem*>::iterator iter = popInicial->begin(); iter != popInicial->end(); iter++) {
+			if ((int) pop->size() < populationSize) {
 				ret = pop->insert(*iter);
-				if(!ret.second)
+				if (!ret.second)
 					delete *iter;
-			}
-			else
-			{
+			} else {
 				delete *iter;
 			}
 		}
 	}
 
-	unsigned long int limit = pow(tamPop, 3), iter = 0;
-	Problem* soluction = NULL;
+	unsigned long int limit = pow(populationSize, 3), iter = 0;
+	Problem *soluction = NULL;
 
 	cout << endl << "LOADING: " << flush;
 
-	int loadingMax = 100, loading = ceil((int)pop->size()*loadingMax/tamPop);
+	int loadingMax = 100, loading = ceil((int) pop->size() * loadingMax / populationSize);
 
-	for(int i = 0; i < loading; i++)
+	for (int i = 0; i < loading; i++)
 		cout << '*' << flush;
 
-	while((int)pop->size() < tamPop && iter < limit && TERMINATE == false)
-	{
-		soluction = Problem::randSoluction();
+	while ((int) pop->size() < populationSize && iter < limit && TERMINATE == false) {
+		soluction = Problem::randomSolution();
 
-		if(soluction->getFitness() != -1)
-		{
+		if (soluction->getFitness() != -1) {
 			ret = pop->insert(soluction);
-			if(!ret.second)
-			{
+			if (!ret.second) {
 				iter++;
 
 				delete soluction;
-			}
-			else
-			{
-				if((ceil((int)pop->size()*loadingMax/tamPop) - loading) == 1)
-				{
+			} else {
+				if ((ceil((int) pop->size() * loadingMax / populationSize) - loading) == 1) {
 					cout << '#' << flush;
 					loading++;
 				}
 
-				if(iter > 0)
+				if (iter > 0)
 					iter--;
 			}
-		}
-		else
-		{
+		} else {
 			iter++;
 
 			delete soluction;
@@ -373,19 +330,14 @@ inline void Control::geraPop(list<Problem*>* popInicial)
 	return;
 }
 
-
-inline void Control::readCMDParameters()
-{
+inline void Control::readCMDParameters() {
 	int p = -1;
 
-	if((p = findPosArgv(argv, *argc, (char*)"-p")) != -1)
-	{
+	if ((p = findPosArgv(argv, *argc, (char*) "-p")) != -1) {
 		strcpy(inputParameters, argv[p]);
 
 		printf("Parameters File: '%s'\n", inputParameters);
-	}
-	else
-	{
+	} else {
 		inputParameters[0] = '\0';
 
 		printf("Parameters File Cannot Be Empty!\n");
@@ -395,14 +347,11 @@ inline void Control::readCMDParameters()
 		exit(1);
 	}
 
-	if((p = findPosArgv(argv, *argc, (char*)"-i")) != -1)
-	{
+	if ((p = findPosArgv(argv, *argc, (char*) "-i")) != -1) {
 		strcpy(inputDataFile, argv[p]);
 
 		printf("Data File: '%s'\n", inputDataFile);
-	}
-	else
-	{
+	} else {
 		inputDataFile[0] = '\0';
 
 		printf("Data File Cannot Be Empty!\n");
@@ -412,150 +361,119 @@ inline void Control::readCMDParameters()
 		exit(1);
 	}
 
-	if((p = findPosArgv(argv, *argc, (char*)"-r")) != -1)
-	{
+	if ((p = findPosArgv(argv, *argc, (char*) "-r")) != -1) {
 		strcpy(outputResultFile, argv[p]);
 
 		printf("Result File: '%s'\n", outputResultFile);
-	}
-	else
-	{
+	} else {
 		outputResultFile[0] = '\0';
 
 		printf("~Result File: ---\n");
 	}
 
-	if((p = findPosArgv(argv, *argc, (char*)"-l")) != -1)
-	{
+	if ((p = findPosArgv(argv, *argc, (char*) "-l")) != -1) {
 		strcpy(outputLogFile, argv[p]);
 
 		printf("Log File: '%s'\n", outputLogFile);
-	}
-	else
-	{
+	} else {
 		outputLogFile[0] = '\0';
 
 		printf("~Log File: ---\n");
 	}
 
-	setPrintFullSolution(findPosArgv(argv, *argc, (char*)"-d") != -1);
-	setGraphicStatusInfoScreen(findPosArgv(argv, *argc, (char*)"-g") != -1);
+	setPrintFullSolution(findPosArgv(argv, *argc, (char*) "-d") != -1);
+	setGraphicStatusInfoScreen(findPosArgv(argv, *argc, (char*) "-g") != -1);
 }
 
-void Control::readAdditionalCMDParameters()
-{
+void Control::readAdditionalCMDParameters() {
 	int p = -1;
 
-	if((p = findPosArgv(argv, *argc, (char*)"--iterAteams")) != -1)
+	if ((p = findPosArgv(argv, *argc, (char*) "--iterAteams")) != -1)
 		setParameter("iterAteams", argv[p]);
 
-	if((p = findPosArgv(argv, *argc, (char*)"--numThreads")) != -1)
+	if ((p = findPosArgv(argv, *argc, (char*) "--numThreads")) != -1)
 		setParameter("numThreads", argv[p]);
 
-	if((p = findPosArgv(argv, *argc, (char*)"--tentAteams")) != -1)
+	if ((p = findPosArgv(argv, *argc, (char*) "--tentAteams")) != -1)
 		setParameter("tentAteams", argv[p]);
 
-	if((p = findPosArgv(argv, *argc, (char*)"--maxTimeAteams")) != -1)
+	if ((p = findPosArgv(argv, *argc, (char*) "--maxTimeAteams")) != -1)
 		setParameter("maxTimeAteams", argv[p]);
 
-	if((p = findPosArgv(argv, *argc, (char*)"--tamPopAteams")) != -1)
-		setParameter("tamPopAteams", argv[p]);
+	if ((p = findPosArgv(argv, *argc, (char*) "--populationSizeAteams")) != -1)
+		setParameter("populationSizeAteams", argv[p]);
 
-	if((p = findPosArgv(argv, *argc, (char*)"--comparatorMode")) != -1)
+	if ((p = findPosArgv(argv, *argc, (char*) "--comparatorMode")) != -1)
 		setParameter("comparatorMode", argv[p]);
 
-	if((p = findPosArgv(argv, *argc, (char*)"--makespanBest")) != -1)
+	if ((p = findPosArgv(argv, *argc, (char*) "--makespanBest")) != -1)
 		setParameter("makespanBest", argv[p]);
 }
 
-bool Control::setParameter(const char* parameter, const char* value)
-{
-	if(strcasecmp(parameter, "iterAteams") == 0)
-	{
+bool Control::setParameter(const char *parameter, const char *value) {
+	if (strcasecmp(parameter, "iterAteams") == 0) {
 		sscanf(value, "%d", &iterAteams);
-	}
-	else if(strcasecmp(parameter, "tentAteams") == 0)
-	{
+	} else if (strcasecmp(parameter, "tentAteams") == 0) {
 		sscanf(value, "%d", &tentAteams);
-	}
-	else if(strcasecmp(parameter, "maxTimeAteams") == 0)
-	{
+	} else if (strcasecmp(parameter, "maxTimeAteams") == 0) {
 		sscanf(value, "%d", &maxTime);
-	}
-	else if(strcasecmp(parameter, "numThreads") == 0)
-	{
+	} else if (strcasecmp(parameter, "numThreads") == 0) {
 		sscanf(value, "%d", &numThreads);
-	}
-	else if(strcasecmp(parameter, "tamPopAteams") == 0)
-	{
-		sscanf(value, "%d", &tamPop);
-	}
-	else if(strcasecmp(parameter, "comparatorMode") == 0)
-	{
+	} else if (strcasecmp(parameter, "populationSizeAteams") == 0) {
+		sscanf(value, "%d", &populationSize);
+	} else if (strcasecmp(parameter, "comparatorMode") == 0) {
 		sscanf(value, "%d", &comparatorMode);
-	}
-	else if(strcasecmp(parameter, "makespanBest") == 0)
-	{
+	} else if (strcasecmp(parameter, "makespanBest") == 0) {
 		sscanf(value, "%d", &makespanBest);
-	}
-	else
-	{
+	} else {
 		return false;
 	}
 
 	return true;
 }
 
-inline void Control::setPrintFullSolution(bool fullPrint)
-{
+inline void Control::setPrintFullSolution(bool fullPrint) {
 	this->printFullSolution = fullPrint;
 }
 
-inline void Control::setGraphicStatusInfoScreen(bool statusInfoScreen)
-{
+inline void Control::setGraphicStatusInfoScreen(bool statusInfoScreen) {
 	this->activeListener = statusInfoScreen;
 }
 
-inline int Control::findPosArgv(char **in, int num, char *key)
-{
-	for(int i = 0; i < num; i++)
-	{
-		if(!strcmp(in[i], key))
-			return i+1;
+inline int Control::findPosArgv(char **in, int num, char *key) {
+	for (int i = 0; i < num; i++) {
+		if (!strcmp(in[i], key))
+			return i + 1;
 	}
 
 	return -1;
 }
 
-void Control::addHeuristic(Heuristica* alg)
-{
+void Control::addHeuristic(Heuristic *alg) {
 	algs->push_back(alg);
 
 	sort(algs->begin(), algs->end(), cmpAlg);
 }
 
-list<Problem*>* Control::getPop()
-{
-	list<Problem*>* sol = new list<Problem*>();
-	set<Problem*, bool(*)(Problem*, Problem*)>::const_iterator iter;
+list<Problem*>* Control::getPop() {
+	list<Problem*> *sol = new list<Problem*>();
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter;
 
-	for(iter = pop->begin(); iter != pop->end(); iter++)
+	for (iter = pop->begin(); iter != pop->end(); iter++)
 		sol->push_back(*iter);
 
 	return sol;
 }
 
-Problem* Control::getSol(int n)
-{
-	set<Problem*, bool(*)(Problem*, Problem*)>::const_iterator iter = pop->begin();
+Problem* Control::getSol(int n) {
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter = pop->begin();
 
-	for(int i = 0; i <= n && iter != pop->end(); iter++);
+	for (int i = 0; i <= n && iter != pop->end(); iter++);
 
-	return Problem::copySoluction(**(--iter));
+	return Problem::copySolution(**(--iter));
 }
 
-void Control::getInfo(ExecInfo *info)
-{
+void Control::getInfo(ExecInfo *info) {
 	info->diffTime = difftime(time2, time1);
 	info->numExecs = execThreads;
 
@@ -564,18 +482,17 @@ void Control::getInfo(ExecInfo *info)
 	info->expSol = Problem::totalNumInst;
 }
 
-Problem* Control::start(list<Problem*>* popInicial)
-{
-	bool(*fn_pt)(Problem*, Problem*) = comparatorMode == 1 ? fncomp1 : fncomp2;
-	pop = new set<Problem*, bool(*)(Problem*, Problem*)>(fn_pt);
+Problem* Control::start(list<Problem*> *popInicial) {
+	bool (*fn_pt)(Problem*, Problem*) = comparatorMode == 1 ? fncomp1 : fncomp2;
+	pop = new set<Problem*, bool (*)(Problem*, Problem*)>(fn_pt);
 
 	sem_init(&semaphore, 0, numThreads);
 
 	time(&time1);
 
-	pthread_t *threads = (pthread_t*)malloc(iterAteams * sizeof(pthread_t));
+	pthread_t *threads = (pthread_t*) malloc(iterAteams * sizeof(pthread_t));
 	pthread_t threadTime;
-	void* temp = NULL;
+	void *temp = NULL;
 
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
@@ -583,8 +500,7 @@ Problem* Control::start(list<Problem*>* popInicial)
 
 	geraPop(popInicial);
 
-	if(pop->size() == 0)
-	{
+	if (pop->size() == 0) {
 		cout << endl << "No Initial Solution Found!" << endl << endl;
 
 		exit(1);
@@ -598,12 +514,11 @@ Problem* Control::start(list<Problem*>* popInicial)
 	cout << endl << "Worst Initial Solution: " << Problem::worst << endl << endl;
 	cout << "Best Initial Solution: " << Problem::best << endl << endl << endl;
 
-	pair<int, Control*>* par = NULL;
+	pair<int, Control*> *par = NULL;
 	long int ins = 0;
 	execThreads = 0;
 
-	if(activeListener)
-	{
+	if (activeListener) {
 		pthread_t threadAnimation;
 
 		pthread_attr_t attr;
@@ -613,29 +528,25 @@ Problem* Control::start(list<Problem*>* popInicial)
 		pthread_create(&threadAnimation, &attr, pthrAnimation, NULL);
 	}
 
-	if(pthread_create(&threadTime, &attr, pthrTime, (void*)this) != 0)
-	{
+	if (pthread_create(&threadTime, &attr, pthrTime, (void*) this) != 0) {
 		cout << endl << endl << "Thread Creation Error! (pthrTime)" << endl << endl;
 		exit(1);
 	}
 
-	for(int execAteams = 0; execAteams < iterAteams; execAteams++)
-	{
+	for (int execAteams = 0; execAteams < iterAteams; execAteams++) {
 		par = new pair<int, Control*>();
-		par->first = execAteams+1;
+		par->first = execAteams + 1;
 		par->second = this;
 
-		if(pthread_create(&threads[execAteams], &attr, pthrExec, (void*)par) != 0)
-		{
+		if (pthread_create(&threads[execAteams], &attr, pthrExec, (void*) par) != 0) {
 			cout << endl << endl << "Thread Creation Error! (pthrExec)" << endl << endl;
 			exit(1);
 		}
 	}
 
-	for(int execAteams = 0; execAteams < iterAteams; execAteams++)
-	{
+	for (int execAteams = 0; execAteams < iterAteams; execAteams++) {
 		pthread_join(threads[execAteams], &temp);
-		ins += (uintptr_t)temp;
+		ins += (uintptr_t) temp;
 	}
 
 	TERMINATE = true;
@@ -650,103 +561,90 @@ Problem* Control::start(list<Problem*>* popInicial)
 
 	time(&time2);
 
-	if(activeListener)
+	if (activeListener)
 		glutDestroyWindow(window);
 
-	return Problem::copySoluction(**(pop->begin()));
+	return Problem::copySolution(**(pop->begin()));
 }
 
 void Control::printSolution(Problem *solution) {
 	solution->print(printFullSolution);
 }
 
-
-double Control::sumFitnessMaximize(set<Problem*, bool(*)(Problem*, Problem*)> *probs, int n)
-{
-	set<Problem*, bool(*)(Problem*, Problem*)>::const_iterator iter;
+double Control::sumFitnessMaximize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n) {
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter;
 	double sum = 0, i = 0;
 
-	for(i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
+	for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
 		sum += (*iter)->getFitnessMaximize();
 
 	return sum;
 }
 
-double Control::sumFitnessMaximize(vector<Problem*> *probs, int n)
-{
+double Control::sumFitnessMaximize(vector<Problem*> *probs, int n) {
 	vector<Problem*>::const_iterator iter;
 	double sum = 0, i = 0;
 
-	for(i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
+	for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
 		sum += (*iter)->getFitnessMaximize();
 
 	return sum;
 }
 
-double Control::sumFitnessMinimize(set<Problem*, bool(*)(Problem*, Problem*)> *probs, int n)
-{
-	set<Problem*, bool(*)(Problem*, Problem*)>::const_iterator iter;
+double Control::sumFitnessMinimize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n) {
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter;
 	double sum = 0, i = 0;
 
-	for(i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
+	for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
 		sum += (*iter)->getFitnessMinimize();
 
 	return sum;
 }
 
-double Control::sumFitnessMinimize(vector<Problem*> *probs, int n)
-{
+double Control::sumFitnessMinimize(vector<Problem*> *probs, int n) {
 	vector<Problem*>::const_iterator iter;
 	double sum = 0, i = 0;
 
-	for(i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
+	for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
 		sum += (*iter)->getFitnessMinimize();
 
 	return sum;
 }
 
-set<Problem*, bool(*)(Problem*, Problem*)>::iterator Control::selectRouletteWheel(set<Problem*, bool(*)(Problem*, Problem*)>* probs, double fitTotal)
-{
+set<Problem*, bool (*)(Problem*, Problem*)>::iterator Control::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *probs, double fitTotal) {
 	// Armazena o fitness total da populacao
-	unsigned int sum = (unsigned int)fitTotal;
+	unsigned int sum = (unsigned int) fitTotal;
 	// Um numero entre zero e "sum" e sorteado
-	unsigned int randWheel = xRand(0, sum+1);
+	unsigned int randWheel = xRand(0, sum + 1);
 
-	set<Problem*, bool(*)(Problem*, Problem*)>::iterator iter;
-	for(iter = probs->begin(); iter != probs->end(); iter++)
-	{
-		sum -= (int)(*iter)->getFitnessMaximize();
-		if(sum <= randWheel)
-		{
+	set<Problem*, bool (*)(Problem*, Problem*)>::iterator iter;
+	for (iter = probs->begin(); iter != probs->end(); iter++) {
+		sum -= (int) (*iter)->getFitnessMaximize();
+		if (sum <= randWheel) {
 			return iter;
 		}
 	}
 	return (probs->begin());
 }
 
-vector<Problem*>::iterator Control::selectRouletteWheel(vector<Problem*>* probs, double fitTotal)
-{
+vector<Problem*>::iterator Control::selectRouletteWheel(vector<Problem*> *probs, double fitTotal) {
 	// Armazena o fitness total da populacao
-	unsigned int sum = (unsigned int)fitTotal;
+	unsigned int sum = (unsigned int) fitTotal;
 	// Um numero entre zero e "sum" e sorteado
-	unsigned int randWheel = xRand(0, sum+1);
+	unsigned int randWheel = xRand(0, sum + 1);
 
 	vector<Problem*>::iterator iter;
-	for(iter = probs->begin(); iter != probs->end(); iter++)
-	{
-		sum -= (int)(*iter)->getFitnessMaximize();
-		if(sum <= randWheel)
-		{
+	for (iter = probs->begin(); iter != probs->end(); iter++) {
+		sum -= (int) (*iter)->getFitnessMaximize();
+		if (sum <= randWheel) {
 			return iter;
 		}
 	}
 	return probs->begin();
 }
 
-Heuristica* Control::selectRouletteWheel(vector<Heuristica*>* heuristic, unsigned int probTotal)
-{
-	if(heuristic == NULL || heuristic->size() == 0)
-	{
+Heuristic* Control::selectRouletteWheel(vector<Heuristic*> *heuristic, unsigned int probTotal) {
+	if (heuristic == NULL || heuristic->size() == 0) {
 		cout << "No Heuristics Defined!" << endl << endl;
 
 		exit(1);
@@ -755,43 +653,38 @@ Heuristica* Control::selectRouletteWheel(vector<Heuristica*>* heuristic, unsigne
 	// Armazena o fitness total da populacao
 	unsigned int sum = probTotal;
 	// Um numero entre zero e "sum" e sorteado
-	unsigned int randWheel = xRand(0, sum+1);
+	unsigned int randWheel = xRand(0, sum + 1);
 
-	for(int i = 0; i < (int)heuristic->size(); i++)
-	{
-		sum -= heuristic->at(i)->prob;
-		if(sum <= randWheel)
-		{
+	for (int i = 0; i < (int) heuristic->size(); i++) {
+		sum -= heuristic->at(i)->choiceProbability;
+		if (sum <= randWheel) {
 			return heuristic->at(i);
 		}
 	}
 	return heuristic->at(0);
 }
 
-vector<Problem*>::iterator Control::selectRandom(vector<Problem*>* probs)
-{
+vector<Problem*>::iterator Control::selectRandom(vector<Problem*> *probs) {
 	unsigned int randWheel = xRand(0, probs->size());
 
 	vector<Problem*>::iterator iter = probs->begin();
-	for(unsigned long i = 0; iter != probs->end() && i < randWheel; iter++, i++);
+	for (unsigned long i = 0; iter != probs->end() && i < randWheel; iter++, i++);
 
 	return iter;
 }
 
-list<Problem*>::iterator Control::findSol(list<Problem*> *vect, Problem *p)
-{
+list<Problem*>::iterator Control::findSol(list<Problem*> *vect, Problem *p) {
 	list<Problem*>::iterator iter;
 
-	for(iter = vect->begin(); iter != vect->end(); iter++)
-		if(fnequal1((*iter), p))
+	for (iter = vect->begin(); iter != vect->end(); iter++)
+		if (fnequal1((*iter), p))
 			return iter;
 
 	return iter;
 }
 
-void* Control::pthrExec(void *obj)
-{
-	pair<int, Control*>* in = (pair<int, Control*>*)obj;
+void* Control::pthrExec(void *obj) {
+	pair<int, Control*> *in = (pair<int, Control*>*) obj;
 	int execAteams = in->first;
 	Control *ctr = in->second;
 	intptr_t ins = 0;
@@ -800,29 +693,26 @@ void* Control::pthrExec(void *obj)
 
 	sem_wait(&semaphore);
 
-	if(TERMINATE != true)
-	{
+	if (TERMINATE != true) {
 		ins = ctr->exec(execAteams);
 
-		if(ctr->iterMelhora > ctr->tentAteams || (ctr->makespanBest != -1 && Problem::improvement(ctr->makespanBest, Problem::best) >= 0))
+		if (ctr->iterMelhora > ctr->tentAteams || (ctr->makespanBest != -1 && Problem::improvement(ctr->makespanBest, Problem::best) >= 0))
 			TERMINATE = true;
 	}
 
 	sem_post(&semaphore);
 
-	return (void*)ins; 		//	pthread_exit((void*)ins);
+	return (void*) ins; 		//	pthread_exit((void*)ins);
 }
 
-void* Control::pthrTime(void *obj)
-{
-	Control *ctr = (Control*)obj;
+void* Control::pthrTime(void *obj) {
+	Control *ctr = (Control*) obj;
 	time_t rawtime;
 
-	while(TERMINATE == false)
-	{
+	while (TERMINATE == false) {
 		time(&rawtime);
 
-		if((int)difftime(rawtime, ctr->time1) > ctr->maxTime)
+		if ((int) difftime(rawtime, ctr->time1) > ctr->maxTime)
 			TERMINATE = true;
 
 		sleep(1);
@@ -831,8 +721,7 @@ void* Control::pthrTime(void *obj)
 	return NULL;			//	pthread_exit(NULL);
 }
 
-void* Control::pthrAnimation(void* in)
-{
+void* Control::pthrAnimation(void *in) {
 	/* Cria a tela */
 	glutInit(Control::argc, Control::argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -856,8 +745,7 @@ void* Control::pthrAnimation(void* in)
 	return NULL;			//	pthread_exit(NULL);
 }
 
-void Control::display()
-{
+void Control::display() {
 	/* Limpa buffer */
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -868,26 +756,24 @@ void Control::display()
 	glLoadIdentity();
 
 	/* Restaura a posicao da camera */
-	gluLookAt (0, 0, 5, 0, 0, 0, 0, 1, 0);
+	gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
 
 	/* Desenha as informacoes na tela */
 	float linha = 1.4;
 	float coluna = -5;
-	for(list<list<Heuristica_Listener*>::iterator >::iterator iter = actAlgs->begin(); iter != actAlgs->end(); iter++)
-	{
+	for (list<list<HeuristicListener*>::iterator>::iterator iter = actAlgs->begin(); iter != actAlgs->end(); iter++) {
 		glColor3f(1.0f, 0.0f, 0.0f);
-		Control::drawstr(coluna, linha+0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (**iter)->info.c_str(), (**iter)->status);
+		Control::drawstr(coluna, linha + 0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (**iter)->info.c_str(), (**iter)->status);
 
 		glColor3f(0.0f, 1.0f, 0.0f);
-		Control::drawstr(coluna, linha+0.2, GLUT_BITMAP_HELVETICA_12, "Best Initial Solution: %.0f\t | \tBest Current Solution: %.0f\n\n", (**iter)->bestInitialFitness, (**iter)->bestActualFitness);
+		Control::drawstr(coluna, linha + 0.2, GLUT_BITMAP_HELVETICA_12, "Best Initial Solution: %.0f\t | \tBest Current Solution: %.0f\n\n", (**iter)->bestInitialFitness, (**iter)->bestActualFitness);
 
 		glColor3f(0.0f, 0.0f, 1.0f);
 		Control::drawstr(coluna, linha, GLUT_BITMAP_9_BY_15, (**iter)->getInfo());
 
 		coluna += 3.4;
 
-		if(coluna > 1.8)
-		{
+		if (coluna > 1.8) {
 			coluna = -5;
 			linha -= 1;
 		}
@@ -898,22 +784,20 @@ void Control::display()
 	usleep(250000);
 }
 
-void Control::reshape(int width, int height)
-{
+void Control::reshape(int width, int height) {
 	glViewport(0, 0, width, height);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0, (float)width/height, 0.025, 25.0);
+	gluPerspective(45.0, (float) width / height, 0.025, 25.0);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
 }
 
-void Control::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, const char* format, ...)
-{
-	if(format == NULL)
+void Control::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, const char *format, ...) {
+	if (format == NULL)
 		return;
 
 	va_list args;
@@ -926,19 +810,18 @@ void Control::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, const char* form
 	glRasterPos2f(x, y);
 
 	for (s = buffer; *s; s++)
-	  glutBitmapCharacter(font_style, *s);
+		glutBitmapCharacter(font_style, *s);
 }
 
+Control *Control::instance = NULL;
 
-Control* Control::instance = NULL;
-
-list<Heuristica_Listener*>* Control::execAlgs = NULL;
-list<list<Heuristica_Listener*>::iterator >* Control::actAlgs = NULL;
+list<HeuristicListener*> *Control::execAlgs = NULL;
+list<list<HeuristicListener*>::iterator> *Control::actAlgs = NULL;
 int Control::actThreads = 0;
 
-int* Control::argc = NULL;
-char** Control::argv = NULL;
+int *Control::argc = NULL;
+char **Control::argv = NULL;
 
 int Control::window = 0;
 
-int Heuristica::numHeuristic = 0;
+int Heuristic::heuristicsAvailable = 0;

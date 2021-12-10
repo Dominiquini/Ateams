@@ -1,15 +1,14 @@
 #include "../../Ateams_Base/src/Problem.hpp"
 
 #define INV_FITNESS 1000000
-#define MAX_PERMUTACOES 10000
+#define MAX_PERMUTATIONS 10000
 
 using namespace std;
 
 #ifndef _JobShop_
 #define _JobShop_
 
-class Solucao_JobShop : public Solucao
-{
+class Solution_JobShop: public Solution {
 private:
 
 	short int **esc;		// Solucao
@@ -24,40 +23,36 @@ private:
 	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
 };
 
-class InfoTabu_JobShop : public InfoTabu
-{
+class InfoTabu_JobShop: public InfoTabu {
 private:
 
 	short int maq, A, B;
 
 public:
 
-	InfoTabu_JobShop(int xmaq, int xA, int xB)
-	{
+	InfoTabu_JobShop(int xmaq, int xA, int xB) {
 		maq = xmaq;
 		A = xA;
 		B = xB;
 	}
 
 	// Verifica se 't1' eh igual a 't2'
-	bool operator == (InfoTabu& movTabu)
-	{
-		InfoTabu_JobShop* t = dynamic_cast<InfoTabu_JobShop *>(&movTabu);
+	bool operator ==(InfoTabu &movTabu) {
+		InfoTabu_JobShop *t = dynamic_cast<InfoTabu_JobShop*>(&movTabu);
 
-		if((maq == t->maq) && ((A == t->A && B == t->B) || (A == t->B && B == t->A)))
+		if ((maq == t->maq) && ((A == t->A && B == t->B) || (A == t->B && B == t->A)))
 			return true;
 		else
 			return false;
 	}
 };
 
-class JobShop : public Problem
-{
+class JobShop: public Problem {
 private:
 
 	bool calcFitness(bool esc);		// Calcula o makespan
 
-	Solucao_JobShop sol;			// Representacao interna da solucao
+	Solution_JobShop solution;		// Representacao interna da solucao
 
 public:
 
@@ -66,8 +61,7 @@ public:
 	static int **maq, **time;		// Matriz de maquinas e de tempos
 	static int njob, nmaq;			// Quantidade de jobs e de maquinas
 
-	static int num_vizinhos;		// Numero de permutacoes possiveis
-
+	static int neighbors;			// Numero de permutacoes possiveis
 
 	JobShop();													// Nova solucao aleatoria
 	JobShop(short int **prob);									// Copia de prob
@@ -76,15 +70,14 @@ public:
 
 	~JobShop();
 
-
 	void print(bool esc);		// Imprime o escalonamento atual
 
 	/* Retorna um novo vizinho aleatorio */
 	Problem* neighbor();
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
-	vector<pair<Problem*, InfoTabu*>* >* localSearch();		// Todos os vizinhos
-	vector<pair<Problem*, InfoTabu*>* >* localSearch(float);	// Uma parcela aleatoria
+	vector<pair<Problem*, InfoTabu*>*>* localSearch();		// Todos os vizinhos
+	vector<pair<Problem*, InfoTabu*>*>* localSearch(float);	// Uma parcela aleatoria
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
 	pair<Problem*, Problem*>* crossOver(const Problem*, int, int);	// Dois pivos
@@ -98,9 +91,8 @@ public:
 	double getFitnessMaximize() const;
 	double getFitnessMinimize() const;
 
-	Solucao_JobShop& getSoluction()
-	{
-		return sol;
+	Solution_JobShop& getSoluction() {
+		return solution;
 	}
 
 	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
@@ -109,9 +101,9 @@ public:
 	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
 };
 
-void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
+void swap_vect(short int *p1, short int *p2, short int *f, int pos, int tam);
 
-int findOrdem(int M, int maq, int* job);
+int findOrdem(int M, int maq, int *job);
 
 void* alocaMatriz(int, int, int, int);
 

@@ -1,5 +1,5 @@
 #include "Control.hpp"
-#include "Heuristica.hpp"
+#include "Heuristic.hpp"
 #include "Problem.hpp"
 
 using namespace std;
@@ -7,11 +7,11 @@ using namespace std;
 #ifndef _Tabu_
 #define _Tabu_
 
-class Tabu : public Heuristica
+class Tabu : public Heuristic
 {
 public:
 
-	int iterTabu, tamListaTabu, tentSemMelhora, elitismo;
+	int iterTabu, tamListaTabu, tentSemMelhora, elitism;
 	float funcAsp, polExploracao;
 
 	Tabu();
@@ -19,11 +19,11 @@ public:
 
 	bool setParameter(const char* parameter, const char* value);
 
-	vector<Problem*>* start(set<Problem*, bool(*)(Problem*, Problem*)>* sol, Heuristica_Listener* listener);
+	vector<Problem*>* start(set<Problem*, bool(*)(Problem*, Problem*)>* sol, HeuristicListener* listener);
 
 private:
 
-	vector<Problem*>* exec(Problem*, Heuristica_Listener* listener);
+	vector<Problem*>* exec(Problem*, HeuristicListener* listener);
 };
 
 bool isTabu(list<InfoTabu*> *listaTabu, InfoTabu *m);

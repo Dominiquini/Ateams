@@ -7,23 +7,23 @@ extern pthread_mutex_t mutex_exec;
 
 extern volatile bool TERMINATE;
 
-#ifndef _HEURISTICA_
-#define _HEURISTICA_
+#ifndef _HEURISTIC_
+#define _HEURISTIC_
 
-class Heuristica_Listener;
+class HeuristicListener;
 
-class Heuristica
+class Heuristic
 {
 public:
 
-	static int numHeuristic;
+	static int heuristicsAvailable;
 
-	int numExec;
 	string name;
-	int prob, polEscolha;
+	int executionCounter = 0;
+	int choiceProbability = 0, choicePolicy = 0;
 
-	Heuristica(string heuristicName) {name = heuristicName;}
-	virtual ~Heuristica() {cout << name << ": " << numExec << endl;}
+	Heuristic(string heuristicName) {name = heuristicName;}
+	virtual ~Heuristic() {cout << name << ": " << executionCounter << endl;}
 
 	virtual bool setParameter(const char* parameter, const char* value)
 	{
@@ -35,22 +35,25 @@ public:
 		return true;
 	}
 
-	virtual vector<Problem*>* start(set<Problem*, bool(*)(Problem*, Problem*)>* sol, Heuristica_Listener* listener) = 0;
+	virtual vector<Problem*>* start(set<Problem*, bool(*)(Problem*, Problem*)>* sol, HeuristicListener* listener) = 0;
 };
 
-class Heuristica_Listener
+class HeuristicListener
 {
 public:
 
 	double bestInitialFitness, bestActualFitness;
-	Heuristica* heuristica;
+	Heuristic* heuristica;
 	char* execInfo;
 	double status;
 	string info;
 	int id;
 
-	Heuristica_Listener(Heuristica* alg, int threadId)
+	HeuristicListener(Heuristic* alg, int threadId)
 	{
+		this->bestInitialFitness = 0;
+		this->bestActualFitness = 0;
+
 		this->heuristica = alg;
 
 		char infoThread[16];
@@ -64,7 +67,7 @@ public:
 		this->status = -1;
 	}
 
-	~Heuristica_Listener()
+	~HeuristicListener()
 	{
 		if(execInfo != NULL)
 			delete[] execInfo;

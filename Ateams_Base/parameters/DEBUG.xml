@@ -5,7 +5,7 @@
    tentAteams = "5"
    maxTimeAteams = "3600"
    numThreads = "1"
-   tamPopAteams = "100"
+   populationSizeAteams = "100"
    comparatorMode = "1"
    makespanBest = "-1">
 
@@ -14,37 +14,37 @@
     <SimulatedAnnealing
        name = "SA"
        probSA = "33"
-       polEscolhaSA = "100"
-       probElitismoSA = "0.25"
-       maxIterSA = "50"
-       initTempSA = "50"
-       finalTempSA = "1"
-       restauraSolSA = "0"
+       choicePolicySA = "100"
+       elitismProbabilitySA = "0.25"
+       maxIterationsSA = "50"
+       startTempSA = "50"
+       endTempSA = "1"
+       restoreSolutionSA = "0"
        alphaSA = "0.9">
     </SimulatedAnnealing>
 
     <TabuSearch
        name = "BT"
        probBT = "33"
-       polEscolhaBT = "100"
-       probElitismoBT = "0.1"
-       funcAspiracaoBT = "0.5"
-       iterBT = "50"
-       tentSemMelhoraBT = "25"
-       tamListaBT = "10"
-       polExplorBT = "0.5">
+       choicePolicyTS = "100"
+       elitismProbabilityTS = "0.1"
+       aspirationCriteriaTS = "0.5"
+       iterationsTS = "50"
+       attemptsWithoutImprovementTS = "25"
+       listSizeTS = "10"
+       explorationPolicyTS = "0.5">
     </TabuSearch>
 
     <GeneticAlgorithm
        name = "AG"
        probAG = "33"
-       polEscolhaAG = "-1"
-       iterAG = "50"
-       tamPopAG = "100"
-       tamParticaoAG = "-1"
-       probCrossOverAG = "0.8"
-       powerCrossOver = "0.25"
-       probMutacaoAG = "0.08">
+       choicePolicyGA = "-1"
+       iterationsGA = "50"
+       populationSizeAG = "100"
+       partitionSizeAG = "-1"
+       crossoverProbabilityAG = "0.8"
+       crossoverPowerAG = "0.25"
+       mutationProbabilityAG = "0.08">
     </GeneticAlgorithm>
 
   </Heuristics>

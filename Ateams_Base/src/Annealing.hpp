@@ -1,5 +1,5 @@
 #include "Control.hpp"
-#include "Heuristica.hpp"
+#include "Heuristic.hpp"
 #include "Problem.hpp"
 
 using namespace std;
@@ -7,13 +7,13 @@ using namespace std;
 #ifndef _ANNEALING_
 #define _ANNEALING_
 
-class Annealing: public Heuristica
+class Annealing: public Heuristic
 {
 public:
 
-	int maxIter, polEscolha, elitismo;
+	int maxIter, choicePolicy, elitismo;
 	float initTemp, fimTemp;
-	bool restauraSol;
+	bool restoreSolution;
 	float alfa;
 
 	Annealing();
@@ -21,11 +21,11 @@ public:
 
 	bool setParameter(const char* parameter, const char* value);
 
-	vector<Problem*>* start(set<Problem*, bool(*)(Problem*, Problem*)>* sol, Heuristica_Listener* listener);
+	vector<Problem*>* start(set<Problem*, bool(*)(Problem*, Problem*)>* sol, HeuristicListener* listener);
 
 private:
 
-	vector<Problem*>* exec(Problem*, Heuristica_Listener* listener);
+	vector<Problem*>* exec(Problem*, HeuristicListener* listener);
 };
 
 bool accept(double rand, double Ds, double T);

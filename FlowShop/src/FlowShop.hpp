@@ -1,15 +1,14 @@
 #include "../../Ateams_Base/src/Problem.hpp"
 
 #define INV_FITNESS 1000000
-#define MAX_PERMUTACOES 10000
+#define MAX_PERMUTATIONS 10000
 
 using namespace std;
 
 #ifndef _FlowShop_
 #define _FlowShop_
 
-class Solucao_FlowShop : public Solucao
-{
+class Solution_FlowShop: public Solution {
 	short int *esc;			// Solucao
 	short int ***escalon;	// Escalonamento nas maquinas - Grafico de Gant
 
@@ -22,38 +21,34 @@ class Solucao_FlowShop : public Solucao
 	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
 };
 
-class InfoTabu_FlowShop : public InfoTabu
-{
+class InfoTabu_FlowShop: public InfoTabu {
 private:
 
 	short int A, B;
 
 public:
-	InfoTabu_FlowShop(int xA, int xB)
-	{
+	InfoTabu_FlowShop(int xA, int xB) {
 		A = xA;
 		B = xB;
 	}
 
 	// Verifica se 't1' eh igual a 't2'
-	bool operator == (InfoTabu& movTabu)
-	{
-		InfoTabu_FlowShop* t = dynamic_cast<InfoTabu_FlowShop *>(&movTabu);
+	bool operator ==(InfoTabu &movTabu) {
+		InfoTabu_FlowShop *t = dynamic_cast<InfoTabu_FlowShop*>(&movTabu);
 
-		if((A == t->A && B == t->B) || (A == t->B && B == t->A))
+		if ((A == t->A && B == t->B) || (A == t->B && B == t->A))
 			return true;
 		else
 			return false;
 	}
 };
 
-class FlowShop : public Problem
-{
+class FlowShop: public Problem {
 private:
 
 	bool calcFitness(bool esc);		// Calcula o makespan
 
-	Solucao_FlowShop sol;			// Representacao interna da solucao
+	Solution_FlowShop solution;		// Representacao interna da solucao
 
 public:
 
@@ -62,8 +57,7 @@ public:
 	static int **time;				// Matriz de maquinas e de tempos
 	static int njob, nmaq;			// Quantidade de jobs e de maquinas
 
-	static int num_vizinhos;		// Numero de permutacoes possiveis
-
+	static int neighbors;			// Numero de permutacoes possiveis
 
 	FlowShop();											// Nova solucao aleatoria
 	FlowShop(short int *prob);							// Copia de prob
@@ -72,15 +66,14 @@ public:
 
 	~FlowShop();
 
-
 	void print(bool esc);		// Imprime o escalonamento atual
 
 	/* Retorna um novo vizinho aleatorio */
 	Problem* neighbor();
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
-	vector<pair<Problem*, InfoTabu*>* >* localSearch();			// Todos os vizinhos
-	vector<pair<Problem*, InfoTabu*>* >* localSearch(float);	// Uma parcela aleatoria
+	vector<pair<Problem*, InfoTabu*>*>* localSearch();			// Todos os vizinhos
+	vector<pair<Problem*, InfoTabu*>*>* localSearch(float);	// Uma parcela aleatoria
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
 	pair<Problem*, Problem*>* crossOver(const Problem*, int, int);	// Dois pivos
@@ -94,9 +87,8 @@ public:
 	double getFitnessMaximize() const;
 	double getFitnessMinimize() const;
 
-	Solucao_FlowShop& getSoluction()
-	{
-		return sol;
+	Solution_FlowShop& getSoluction() {
+		return solution;
 	}
 
 	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
@@ -105,7 +97,7 @@ public:
 	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
 };
 
-void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
+void swap_vect(short int *p1, short int *p2, short int *f, int pos, int tam);
 
 void* alocaMatriz(int, int, int, int);
 

@@ -4,7 +4,7 @@ using namespace std;
 
 /* Static Members */
 
-ProblemType Problem::TIPO = MINIMIZACAO;
+ProblemType Problem::TYPE = MINIMIZACAO;
 
 double Problem::best = 0;
 double Problem::worst = 0;
@@ -15,40 +15,33 @@ char GraphColoring::name[128];
 vector<int> **GraphColoring::edges = NULL;
 int GraphColoring::nedges = 0, GraphColoring::nnodes = 0;
 
-int GraphColoring::num_vizinhos = 0;
+int GraphColoring::neighbors = 0;
 
-Problem* Problem::randSoluction()
-{
+Problem* Problem::randomSolution() {
 	return new GraphColoring();
 }
 
-Problem* Problem::copySoluction(const Problem& prob)
-{
+Problem* Problem::copySolution(const Problem &prob) {
 	return new GraphColoring(prob);
 }
 
-
-void Problem::readProblemFromFile(char* input)
-{
+void Problem::readProblemFromFile(char *input) {
 	FILE *f = fopen(input, "r");
 
-	if(f == NULL)
+	if (f == NULL)
 		throw "Wrong Data File!";
 
 	char tempLine[256];
 	int n1, n2;
 
-	while(fgets(tempLine, 128, f))
-	{
-		if(tempLine[0] == 'p')
-		{
+	while (fgets(tempLine, 128, f)) {
+		if (tempLine[0] == 'p') {
 			sscanf(tempLine, "%*c %s %d %d\n", GraphColoring::name, &GraphColoring::nnodes, &GraphColoring::nedges);
 
-			Problem::alocaMemoria();
+			Problem::allocateMemory();
 		}
 
-		if(tempLine[0] == 'e')
-		{
+		if (tempLine[0] == 'e') {
 			sscanf(tempLine, "%*c %d %d", &n1, &n2);
 
 			GraphColoring::edges[n1]->push_back(n2);
@@ -56,45 +49,41 @@ void Problem::readProblemFromFile(char* input)
 		}
 	}
 
-	for(int i = 1; i < GraphColoring::nnodes; i++)
-		GraphColoring::num_vizinhos += i;
+	for (int i = 1; i < GraphColoring::nnodes; i++)
+		GraphColoring::neighbors += i;
 
 	return;
 }
 
-list<Problem*>* Problem::readPopulationFromLog(char *log)
-{
+list<Problem*>* Problem::readPopulationFromLog(char *log) {
 	FILE *f = fopen(log, "r");
 
-	if(f != NULL)
-	{
-		list<Problem*>* popInicial = new list<Problem*>();
+	if (f != NULL) {
+		list<Problem*> *popInicial = new list<Problem*>();
 		int npop, nnodes, nedges, ncolors;
 		short int *ordem;
-		Problem* p;
+		Problem *p;
 
-		if(!fscanf (f, "%d %d %d", &npop, &nnodes, &nedges))
+		if (!fscanf(f, "%d %d %d", &npop, &nnodes, &nedges))
 			throw "Wrong Log File!";
 
-		if(nnodes != GraphColoring::nnodes || nedges != GraphColoring::nedges)
+		if (nnodes != GraphColoring::nnodes || nedges != GraphColoring::nedges)
 			throw "Wrong Log File!";
 
-		for(int i = 0; i < npop; i++)
-		{
-			ordem = (short int*)malloc(nnodes * sizeof(short int));
+		for (int i = 0; i < npop; i++) {
+			ordem = (short int*) malloc(nnodes * sizeof(short int));
 
-			if(!fscanf (f, "%d", &ncolors))
+			if (!fscanf(f, "%d", &ncolors))
 				throw "Wrong Log File!";
 
-			for(int j = 0; j < nnodes; j++)
-			{
-				if(!fscanf (f, "%hd", &ordem[j]))
+			for (int j = 0; j < nnodes; j++) {
+				if (!fscanf(f, "%hd", &ordem[j]))
 					throw "Wrong Log File!";
 			}
 
 			p = new GraphColoring(ordem);
 
-			if(ncolors != p->getFitness())
+			if (ncolors != p->getFitness())
 				throw "Wrong Log File!";
 
 			popInicial->push_back(p);
@@ -103,33 +92,27 @@ list<Problem*>* Problem::readPopulationFromLog(char *log)
 		fclose(f);
 
 		return popInicial;
-	}
-	else
-	{
+	} else {
 		return NULL;
 	}
 }
 
-void Problem::dumpCurrentPopulationInLog(char *log, list<Problem*>* popInicial)
-{
+void Problem::dumpCurrentPopulationInLog(char *log, list<Problem*> *popInicial) {
 	FILE *f = fopen(log, "w");
 
-	if(f != NULL)
-	{
-		int sizePop = (int)popInicial->size();
+	if (f != NULL) {
+		int sizePop = (int) popInicial->size();
 		list<Problem*>::iterator iter;
 		short int *ordem;
 
 		fprintf(f, "%d %d %d\n\n", sizePop, GraphColoring::nnodes, GraphColoring::nedges);
 
-		for(iter = popInicial->begin(); iter != popInicial->end(); iter++)
-		{
-			ordem = dynamic_cast<GraphColoring *>(*iter)->getSoluction().ordemNodes;
+		for (iter = popInicial->begin(); iter != popInicial->end(); iter++) {
+			ordem = dynamic_cast<GraphColoring*>(*iter)->getSoluction().ordemNodes;
 
-			fprintf(f, "%d\n", (int)dynamic_cast<GraphColoring *>(*iter)->getSoluction().fitness);
+			fprintf(f, "%d\n", (int) dynamic_cast<GraphColoring*>(*iter)->getSoluction().fitness);
 
-			for(int j = 0; j < GraphColoring::nnodes; j++)
-			{
+			for (int j = 0; j < GraphColoring::nnodes; j++) {
 				fprintf(f, "%hd ", ordem[j]);
 			}
 
@@ -140,18 +123,13 @@ void Problem::dumpCurrentPopulationInLog(char *log, list<Problem*>* popInicial)
 	}
 }
 
-void Problem::writeResultInFile(char *dados, char *parametros, ExecInfo *info, char *resultado)
-{
+void Problem::writeResultInFile(char *dados, char *parametros, ExecInfo *info, char *resultado) {
 	FILE *f;
 
-	if(*resultado != '\0')
-	{
-		if((f = fopen(resultado, "r+")) != NULL)
-		{
+	if (*resultado != '\0') {
+		if ((f = fopen(resultado, "r+")) != NULL) {
 			fseek(f, 0, SEEK_END);
-		}
-		else
-		{
+		} else {
 			f = fopen(resultado, "w");
 
 			fprintf(f, "%*s%*s", -16, "bestFitness", -16, "worstFitness");
@@ -159,121 +137,110 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecInfo *info, c
 			fprintf(f, "%*s%s\n", -24, "dados", "parametros");
 		}
 
-		fprintf(f, "%*d%*d", -16, (int)info->bestFitness, -16, (int)info->worstFitness);
-		fprintf(f, "%*d%*d%*d", -16, info->numExecs, -16, (int)info->diffTime, -24, (int)info->expSol);
+		fprintf(f, "%*d%*d", -16, (int) info->bestFitness, -16, (int) info->worstFitness);
+		fprintf(f, "%*d%*d%*d", -16, info->numExecs, -16, (int) info->diffTime, -24, (int) info->expSol);
 		fprintf(f, "%*s%s\n", -24, dados, parametros);
 
 		fclose(f);
 	}
 }
 
-void Problem::alocaMemoria()
-{
-	GraphColoring::edges = (vector<int>**)malloc((1 + GraphColoring::nnodes) * sizeof(vector<int>*));
+void Problem::allocateMemory() {
+	GraphColoring::edges = (vector<int>**) malloc((1 + GraphColoring::nnodes) * sizeof(vector<int>*));
 
-	for(int i = 1; i <= GraphColoring::nnodes; i++)
+	for (int i = 1; i <= GraphColoring::nnodes; i++)
 		GraphColoring::edges[i] = new vector<int>();
 }
 
-void Problem::unloadMemory()
-{
-	for(int i = 1; i <= GraphColoring::nnodes; i++)
-			delete GraphColoring::edges[i];
+void Problem::deallocateMemory() {
+	for (int i = 1; i <= GraphColoring::nnodes; i++)
+		delete GraphColoring::edges[i];
 
 	free(GraphColoring::edges);
 }
 
-
 /* Metodos */
 
-GraphColoring::GraphColoring() : Problem::Problem()
-{
-	sol.ordemNodes = (short int*)malloc(nnodes * sizeof(short int));
+GraphColoring::GraphColoring() : Problem::Problem() {
+	solution.ordemNodes = (short int*) malloc(nnodes * sizeof(short int));
 
-	for(int i = 0; i < nnodes; i++)
-		sol.ordemNodes[i] = i + 1;
+	for (int i = 0; i < nnodes; i++)
+		solution.ordemNodes[i] = i + 1;
 
-	random_shuffle(&sol.ordemNodes[0], &sol.ordemNodes[nnodes]);
+	random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes]);
 
-	sol.colors = NULL;
+	solution.colors = NULL;
 	calcFitness(false);
 
 	exec.tabu = false;
-	exec.genetico = false;
+	exec.genetic = false;
 	exec.annealing = false;
 }
 
+GraphColoring::GraphColoring(short int *prob) : Problem::Problem() {
+	solution.ordemNodes = prob;
 
-GraphColoring::GraphColoring(short int *prob) : Problem::Problem()
-{
-	sol.ordemNodes = prob;
-
-	sol.colors = NULL;
+	solution.colors = NULL;
 	calcFitness(false);
 
 	exec.tabu = false;
-	exec.genetico = false;
+	exec.genetic = false;
 	exec.annealing = false;
 }
 
-GraphColoring::GraphColoring(const Problem &prob) : Problem::Problem()
-{
-	GraphColoring *other = dynamic_cast<GraphColoring *>(const_cast<Problem *>(&prob));
+GraphColoring::GraphColoring(const Problem &prob) : Problem::Problem() {
+	GraphColoring *other = dynamic_cast<GraphColoring*>(const_cast<Problem*>(&prob));
 
-	this->sol.ordemNodes = (short int*)malloc(nnodes * sizeof(short int));
+	this->solution.ordemNodes = (short int*) malloc(nnodes * sizeof(short int));
 
-	for(int i = 0; i < nnodes; i++)
-		this->sol.ordemNodes[i] = other->sol.ordemNodes[i];
+	for (int i = 0; i < nnodes; i++)
+		this->solution.ordemNodes[i] = other->solution.ordemNodes[i];
 
-	this->sol.colors = NULL;
-	this->sol.fitness = other->sol.fitness;
+	this->solution.colors = NULL;
+	this->solution.fitness = other->solution.fitness;
 
-	if(other->sol.colors != NULL)
-	{
-		this->sol.colors = (short int*)malloc(nnodes * sizeof(short int));
+	if (other->solution.colors != NULL) {
+		this->solution.colors = (short int*) malloc(nnodes * sizeof(short int));
 
-		for(int i = 0; i < nnodes; i++)
-			this->sol.colors[i] = other->sol.colors[i];
+		for (int i = 0; i < nnodes; i++)
+			this->solution.colors[i] = other->solution.colors[i];
 	}
 	exec = prob.exec;
 }
 
-GraphColoring::GraphColoring(const Problem &prob, int pos1, int pos2) : Problem::Problem()
-{
-	GraphColoring *other = dynamic_cast<GraphColoring *>(const_cast<Problem *>(&prob));
+GraphColoring::GraphColoring(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
+	GraphColoring *other = dynamic_cast<GraphColoring*>(const_cast<Problem*>(&prob));
 
-	this->sol.ordemNodes = (short int*)malloc(nnodes * sizeof(short int));
+	this->solution.ordemNodes = (short int*) malloc(nnodes * sizeof(short int));
 
-	for(int i = 0; i < nnodes; i++)
-		this->sol.ordemNodes[i] = other->sol.ordemNodes[i];
+	for (int i = 0; i < nnodes; i++)
+		this->solution.ordemNodes[i] = other->solution.ordemNodes[i];
 
-	short int aux = this->sol.ordemNodes[pos1];
-	this->sol.ordemNodes[pos1] = this->sol.ordemNodes[pos2];
-	this->sol.ordemNodes[pos2] = aux;
+	short int aux = this->solution.ordemNodes[pos1];
+	this->solution.ordemNodes[pos1] = this->solution.ordemNodes[pos2];
+	this->solution.ordemNodes[pos2] = aux;
 
-	this->sol.colors = NULL;
+	this->solution.colors = NULL;
 	calcFitness(false);
 
 	exec.tabu = false;
-	exec.genetico = false;
+	exec.genetic = false;
 	exec.annealing = false;
 }
 
-GraphColoring::~GraphColoring()
-{
-	if(sol.ordemNodes != NULL)
-		free(sol.ordemNodes);
+GraphColoring::~GraphColoring() {
+	if (solution.ordemNodes != NULL)
+		free(solution.ordemNodes);
 
-	if(sol.colors != NULL)
-		free(sol.colors);
+	if (solution.colors != NULL)
+		free(solution.colors);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
-inline bool GraphColoring::calcFitness(bool esc)
-{
-	short int *aux_colors = (short int*)malloc((nnodes + 1) * sizeof(short int));
+inline bool GraphColoring::calcFitness(bool esc) {
+	short int *aux_colors = (short int*) malloc((nnodes + 1) * sizeof(short int));
 
-	for(int i = 1; i <= nnodes; i++)
+	for (int i = 1; i <= nnodes; i++)
 		aux_colors[i] = 0;
 
 	int minColor = 1;
@@ -281,73 +248,62 @@ inline bool GraphColoring::calcFitness(bool esc)
 
 	int noCorrente, corCorrente;
 	vector<int>::iterator vizinhos;
-	for(int n = 0; n < nnodes; n++)
-	{
-		noCorrente = sol.ordemNodes[n];
+	for (int n = 0; n < nnodes; n++) {
+		noCorrente = solution.ordemNodes[n];
 		corCorrente = -1;
 
-		for(int c = 1; c <= minColor; c++)
-		{
-			for(vizinhos = edges[noCorrente]->begin(); vizinhos != edges[noCorrente]->end() && aux_colors[*vizinhos] != c; vizinhos++);
+		for (int c = 1; c <= minColor; c++) {
+			for (vizinhos = edges[noCorrente]->begin(); vizinhos != edges[noCorrente]->end() && aux_colors[*vizinhos] != c; vizinhos++);
 
-			if(vizinhos == edges[noCorrente]->end())
-			{
+			if (vizinhos == edges[noCorrente]->end()) {
 				corCorrente = c;
 				break;
 			}
 		}
 
-		if(corCorrente < 0)
+		if (corCorrente < 0)
 			corCorrente = ++minColor;
 
 		aux_colors[noCorrente] = corCorrente;
 	}
 
 	aux_colors[0] = minColor;
-	sol.fitness = minColor;
+	solution.fitness = minColor;
 
-	if(esc == false)
+	if (esc == false)
 		free(aux_colors);
 	else
-		sol.colors = aux_colors;
+		solution.colors = aux_colors;
 
 	return true;
 }
 
-inline void GraphColoring::print(bool esc)
-{
-	if(esc == true)
-	{
+inline void GraphColoring::print(bool esc) {
+	if (esc == true) {
 		calcFitness(esc);
 
-		for(int i = 1; i <= sol.fitness; i++)
-		{
+		for (int i = 1; i <= solution.fitness; i++) {
 			printf("color %.2d: ", i);
-			for(int j = 1; j <= nnodes; j++)
-			{
-				if(sol.colors[j] == i)
+			for (int j = 1; j <= nnodes; j++) {
+				if (solution.colors[j] == i)
 					printf("|%d|", j);
 			}
 			printf("\n");
 		}
-	}
-	else
-	{
-		for(int j = 0; j < nnodes; j++)
-		{
-			printf("%d ", sol.ordemNodes[j]);
+	} else {
+		for (int j = 0; j < nnodes; j++) {
+			printf("%d ", solution.ordemNodes[j]);
 		}
 	}
 	printf("\n");
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */
-inline Problem* GraphColoring::neighbor()
-{
+inline Problem* GraphColoring::neighbor() {
 	int p1 = xRand(0, nnodes), p2 = xRand(0, nnodes);
 	Problem *prob = NULL;
 
-	while(p2 == p1)
+	while (p2 == p1)
 		p2 = xRand(0, nnodes);
 
 	prob = new GraphColoring(*this, p1, p2);
@@ -356,20 +312,17 @@ inline Problem* GraphColoring::neighbor()
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* GraphColoring::localSearch()
-{
-	if(GraphColoring::num_vizinhos > MAX_PERMUTACOES)
-		return localSearch((float)MAX_PERMUTACOES/(float)GraphColoring::num_vizinhos);
+inline vector<pair<Problem*, InfoTabu*>*>* GraphColoring::localSearch() {
+	if (GraphColoring::neighbors > MAX_PERMUTATIONS)
+		return localSearch((float) MAX_PERMUTATIONS / (float) GraphColoring::neighbors);
 
 	Problem *prob = NULL;
 	int p1, p2;
-	pair<Problem*, InfoTabu*>* temp;
-	vector<pair<Problem*, InfoTabu*>* >* local = new vector<pair<Problem*, InfoTabu*>* >();
+	pair<Problem*, InfoTabu*> *temp;
+	vector<pair<Problem*, InfoTabu*>*> *local = new vector<pair<Problem*, InfoTabu*>*>();
 
-	for(p1 = 0; p1 < nnodes-1; p1++)
-	{
-		for(p2 = p1+1; p2 < nnodes; p2++)
-		{
+	for (p1 = 0; p1 < nnodes - 1; p1++) {
+		for (p2 = p1 + 1; p2 < nnodes; p2++) {
 			prob = new GraphColoring(*this, p1, p2);
 
 			temp = new pair<Problem*, InfoTabu*>();
@@ -387,24 +340,22 @@ inline vector<pair<Problem*, InfoTabu*>* >* GraphColoring::localSearch()
 }
 
 /* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* GraphColoring::localSearch(float parcela)
-{
+inline vector<pair<Problem*, InfoTabu*>*>* GraphColoring::localSearch(float parcela) {
 	Problem *prob = NULL;
 	int p1, p2;
-	pair<Problem*, InfoTabu*>* temp;
-	vector<pair<Problem*, InfoTabu*>* >* local = new vector<pair<Problem*, InfoTabu*>* >();
+	pair<Problem*, InfoTabu*> *temp;
+	vector<pair<Problem*, InfoTabu*>*> *local = new vector<pair<Problem*, InfoTabu*>*>();
 	int def;
 
-	def = (int)((float)GraphColoring::num_vizinhos*parcela);
+	def = (int) ((float) GraphColoring::neighbors * parcela);
 
-	if(def > MAX_PERMUTACOES)
-		def = MAX_PERMUTACOES;
+	if (def > MAX_PERMUTATIONS)
+		def = MAX_PERMUTATIONS;
 
-	for(int i = 0; i < def; i++)
-	{
+	for (int i = 0; i < def; i++) {
 		p1 = xRand(0, nnodes), p2 = xRand(0, nnodes);
 
-		while(p2 == p1)
+		while (p2 == p1)
 			p2 = xRand(0, nnodes);
 
 		prob = new GraphColoring(*this, p1, p2);
@@ -421,20 +372,19 @@ inline vector<pair<Problem*, InfoTabu*>* >* GraphColoring::localSearch(float par
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
-inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem* parceiro, int tamParticao, int strength)
-{
-	short int *f1 = (short int*)malloc(nnodes * sizeof(short int)), *f2 = (short int*)malloc(nnodes * sizeof(short int));
-	pair<Problem*, Problem*>* filhos = new pair<Problem*, Problem*>();
-	int particao = tamParticao == 0 ? (GraphColoring::nnodes)/2 : tamParticao;
+inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem *parceiro, int partitionSize, int strength) {
+	short int *f1 = (short int*) malloc(nnodes * sizeof(short int)), *f2 = (short int*) malloc(nnodes * sizeof(short int));
+	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
+	int particao = partitionSize == 0 ? (GraphColoring::nnodes) / 2 : partitionSize;
 	int inicioPart = 0, fimPart = 0;
 
-	GraphColoring *other = dynamic_cast<GraphColoring *>(const_cast<Problem *>(parceiro));
+	GraphColoring *other = dynamic_cast<GraphColoring*>(const_cast<Problem*>(parceiro));
 
 	inicioPart = xRand(0, nnodes);
-	fimPart = inicioPart+particao <= nnodes ? inicioPart+particao : nnodes;
+	fimPart = inicioPart + particao <= nnodes ? inicioPart + particao : nnodes;
 
-	swap_vect(this->sol.ordemNodes, other->sol.ordemNodes, f1, inicioPart, fimPart-inicioPart);
-	swap_vect(other->sol.ordemNodes, this->sol.ordemNodes, f2, inicioPart, fimPart-inicioPart);
+	swap_vect(this->solution.ordemNodes, other->solution.ordemNodes, f1, inicioPart, fimPart - inicioPart);
+	swap_vect(other->solution.ordemNodes, this->solution.ordemNodes, f2, inicioPart, fimPart - inicioPart);
 
 	filhos->first = new GraphColoring(f1);
 	filhos->second = new GraphColoring(f2);
@@ -443,18 +393,17 @@ inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem* parceir
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
-inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem* parceiro, int strength)
-{
-	short int *f1 = (short int*)malloc(nnodes * sizeof(short int)), *f2 = (short int*)malloc(nnodes * sizeof(short int));
-	pair<Problem*, Problem*>* filhos = new pair<Problem*, Problem*>();
+inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem *parceiro, int strength) {
+	short int *f1 = (short int*) malloc(nnodes * sizeof(short int)), *f2 = (short int*) malloc(nnodes * sizeof(short int));
+	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = 0;
 
-	GraphColoring *other = dynamic_cast<GraphColoring *>(const_cast<Problem *>(parceiro));
+	GraphColoring *other = dynamic_cast<GraphColoring*>(const_cast<Problem*>(parceiro));
 
 	particao = xRand(1, nnodes);
 
-	swap_vect(this->sol.ordemNodes, other->sol.ordemNodes, f1, 0, particao);
-	swap_vect(other->sol.ordemNodes, this->sol.ordemNodes, f2, 0, particao);
+	swap_vect(this->solution.ordemNodes, other->solution.ordemNodes, f1, 0, particao);
+	swap_vect(other->solution.ordemNodes, this->solution.ordemNodes, f2, 0, particao);
 
 	filhos->first = new GraphColoring(f1);
 	filhos->second = new GraphColoring(f2);
@@ -463,19 +412,17 @@ inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem* parceir
 }
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
-inline Problem* GraphColoring::mutation(int mutMax)
-{
-	short int *mut = (short int*)malloc(nnodes * sizeof(short int));
-	Problem* vizinho = NULL, *temp = NULL, *mutacao = NULL;
+inline Problem* GraphColoring::mutation(int mutMax) {
+	short int *mut = (short int*) malloc(nnodes * sizeof(short int));
+	Problem *vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
-	for(int j = 0; j < nnodes; j++)
-		mut[j] = sol.ordemNodes[j];
+	for (int j = 0; j < nnodes; j++)
+		mut[j] = solution.ordemNodes[j];
 
 	temp = new GraphColoring(mut);
 	mutacao = temp;
 
-	while(mutMax-- > 0)
-	{
+	while (mutMax-- > 0) {
 		vizinho = temp->neighbor();
 
 		delete temp;
@@ -485,94 +432,80 @@ inline Problem* GraphColoring::mutation(int mutMax)
 	return mutacao;
 }
 
-inline double GraphColoring::getFitness() const
-{
-	return sol.fitness;
+inline double GraphColoring::getFitness() const {
+	return solution.fitness;
 }
 
-inline double GraphColoring::getFitnessMaximize() const
-{
-	return (double)INV_FITNESS/sol.fitness;
+inline double GraphColoring::getFitnessMaximize() const {
+	return (double) INV_FITNESS / solution.fitness;
 }
 
-inline double GraphColoring::getFitnessMinimize() const
-{
-	return (double)sol.fitness;
+inline double GraphColoring::getFitnessMinimize() const {
+	return (double) solution.fitness;
 }
 
 /* Auxiliares */
 
-inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam)
-{
-	for(int i = pos; i < pos+tam; i++)
+inline void swap_vect(short int *p1, short int *p2, short int *f, int pos, int tam) {
+	for (int i = pos; i < pos + tam; i++)
 		f[i] = p1[i];
 
-	for(int i = 0, j = 0; i < GraphColoring::nnodes && j < GraphColoring::nnodes; i++)
-	{
-		if(j == pos)
-			j = pos+tam;
+	for (int i = 0, j = 0; i < GraphColoring::nnodes && j < GraphColoring::nnodes; i++) {
+		if (j == pos)
+			j = pos + tam;
 
-		if(find(&p1[pos], &p1[pos+tam], p2[i]) == &p1[pos+tam])
+		if (find(&p1[pos], &p1[pos + tam], p2[i]) == &p1[pos + tam])
 			f[j++] = p2[i];
 	}
 	return;
 }
 
 // comparator function:
-bool fnequal1(Problem* prob1, Problem* prob2)
-{
-	GraphColoring *p1 = dynamic_cast<GraphColoring *>(prob1);
-	GraphColoring *p2 = dynamic_cast<GraphColoring *>(prob2);
+bool fnequal1(Problem *prob1, Problem *prob2) {
+	GraphColoring *p1 = dynamic_cast<GraphColoring*>(prob1);
+	GraphColoring *p2 = dynamic_cast<GraphColoring*>(prob2);
 
-	if(p1->sol.fitness == p2->sol.fitness)
-	{
-		for(int j = 0; j < GraphColoring::nnodes; j++)
-			if(p1->sol.ordemNodes[j] != p2->sol.ordemNodes[j])
+	if (p1->solution.fitness == p2->solution.fitness) {
+		for (int j = 0; j < GraphColoring::nnodes; j++)
+			if (p1->solution.ordemNodes[j] != p2->solution.ordemNodes[j])
 				return false;
 
 		return true;
-	}
-	else
+	} else
 		return false;
 }
 
 // comparator function:
-bool fnequal2(Problem* prob1, Problem* prob2)
-{
-	GraphColoring *p1 = dynamic_cast<GraphColoring *>(prob1);
-	GraphColoring *p2 = dynamic_cast<GraphColoring *>(prob2);
+bool fnequal2(Problem *prob1, Problem *prob2) {
+	GraphColoring *p1 = dynamic_cast<GraphColoring*>(prob1);
+	GraphColoring *p2 = dynamic_cast<GraphColoring*>(prob2);
 
-	return p1->sol.fitness == p2->sol.fitness;
+	return p1->solution.fitness == p2->solution.fitness;
 }
 
 // comparator function:
-bool fncomp1(Problem *prob1, Problem *prob2)
-{
-	GraphColoring *p1 = dynamic_cast<GraphColoring *>(prob1);
-	GraphColoring *p2 = dynamic_cast<GraphColoring *>(prob2);
+bool fncomp1(Problem *prob1, Problem *prob2) {
+	GraphColoring *p1 = dynamic_cast<GraphColoring*>(prob1);
+	GraphColoring *p2 = dynamic_cast<GraphColoring*>(prob2);
 
-	if(p1->sol.fitness == p2->sol.fitness)
-	{
-		for(int j = 0; j < GraphColoring::nnodes; j++)
-			if(p1->sol.ordemNodes[j] != p2->sol.ordemNodes[j])
-				return p1->sol.ordemNodes[j] < p2->sol.ordemNodes[j];
+	if (p1->solution.fitness == p2->solution.fitness) {
+		for (int j = 0; j < GraphColoring::nnodes; j++)
+			if (p1->solution.ordemNodes[j] != p2->solution.ordemNodes[j])
+				return p1->solution.ordemNodes[j] < p2->solution.ordemNodes[j];
 
 		return false;
-	}
-	else
-		return p1->sol.fitness < p2->sol.fitness;
+	} else
+		return p1->solution.fitness < p2->solution.fitness;
 }
 
 // comparator function:
-bool fncomp2(Problem *prob1, Problem *prob2)
-{
-	GraphColoring *p1 = dynamic_cast<GraphColoring *>(prob1);
-	GraphColoring *p2 = dynamic_cast<GraphColoring *>(prob2);
+bool fncomp2(Problem *prob1, Problem *prob2) {
+	GraphColoring *p1 = dynamic_cast<GraphColoring*>(prob1);
+	GraphColoring *p2 = dynamic_cast<GraphColoring*>(prob2);
 
-	return p1->sol.fitness < p2->sol.fitness;
+	return p1->solution.fitness < p2->solution.fitness;
 }
 
-inline bool ptcomp(pair<Problem*, InfoTabu*>* p1, pair<Problem*, InfoTabu*>* p2)
-{
+inline bool ptcomp(pair<Problem*, InfoTabu*> *p1, pair<Problem*, InfoTabu*> *p2) {
 	return (p1->first->getFitness() > p2->first->getFitness());
 }

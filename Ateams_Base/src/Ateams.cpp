@@ -7,42 +7,39 @@ using namespace std;
 
 volatile bool TERMINATE = false;
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	/* Interrompe o programa ao se pessionar 'ctrl-c' */
 	signal(SIGINT, terminate);
 
 	srand(unsigned(time(NULL)));
 
-	try
-	{
+	try {
 		cout << endl;
 
 		/* Adiciona as heuristicas selecionadas */
-		Control* ctrl = Control::getInstance(argc, argv);
+		Control *ctrl = Control::getInstance(argc, argv);
 
 		/* Leitura dos dados passados por arquivos */
 		Problem::readProblemFromFile(ctrl->getInputDataFile());
 
 		/* Le memoria prinipal do disco, se especificado */
-		list<Problem*>* popInicial = Problem::readPopulationFromLog(ctrl->getOutputLogFile());
+		list<Problem*> *popInicial = Problem::readPopulationFromLog(ctrl->getOutputLogFile());
 
 		/* Inicia a execucao */
-		Problem* bestSolution = ctrl->start(popInicial);
+		Problem *bestSolution = ctrl->start(popInicial);
 
-		if(popInicial != NULL)
-		{
+		if (popInicial != NULL) {
 			popInicial->clear();
 			delete popInicial;
 		}
 
-		list<Problem*>* pop = ctrl->getPop();
+		list<Problem*> *pop = ctrl->getPop();
 		list<Problem*>::const_iterator iter1, iter2;
 
 		/* Testa a memoria principal por solucoes repetidas ou fora de ordem */
-		for(iter1 = pop->begin(); iter1 != pop->end(); iter1++)
-			for(iter2 = iter1; iter2 != pop->end(); iter2++)
-				if((iter1 != iter2) && (fnequal1(*iter1, *iter2) || fncomp1(*iter2, *iter1)))
+		for (iter1 = pop->begin(); iter1 != pop->end(); iter1++)
+			for (iter2 = iter1; iter2 != pop->end(); iter2++)
+				if ((iter1 != iter2) && (fnequal1(*iter1, *iter2) || fncomp1(*iter2, *iter1)))
 					cout << endl << endl << "Incorrect Main Memory!!!" << endl;
 
 		/* Escreve memoria principal no disco */
@@ -67,21 +64,19 @@ int main(int argc, char *argv[])
 
 		Control::terminate();
 
-		Problem::unloadMemory();
+		Problem::deallocateMemory();
 
 		cout << endl << endl << "Explored Solutions: " << Problem::totalNumInst << endl << endl;
 
-		if(Problem::numInst != 0)
+		if (Problem::numInst != 0)
 			cout << "Memory Leak! ( " << Problem::numInst << " )" << endl << endl;
 
 		cout << endl;
-	}
-	catch(...)
-	{
+	} catch (...) {
 		exception_ptr exception = current_exception();
 
 		cout << endl << "Error During Execution: ";
-		cerr <<getExceptionMessage(exception) << endl << endl;
+		cerr << getExceptionMessage(exception) << endl << endl;
 
 		exit(1);
 	}
@@ -89,7 +84,6 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-void terminate(int signal)
-{
+void terminate(int signal) {
 	TERMINATE = true;
 }

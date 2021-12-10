@@ -1,15 +1,14 @@
 #include "../../Ateams_Base/src/Problem.hpp"
 
 #define INV_FITNESS 1000000
-#define MAX_PERMUTACOES 10000
+#define MAX_PERMUTATIONS 10000
 
 using namespace std;
 
 #ifndef _TravellingSalesman_
 #define _TravellingSalesman_
 
-class Solucao_TravellingSalesman : public Solucao
-{
+class Solution_TravellingSalesman: public Solution {
 	short int *ordemNodes;		// Ordem em que os itens serao alocados nas bolsas
 
 	friend class Problem;
@@ -21,48 +20,43 @@ class Solucao_TravellingSalesman : public Solucao
 	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
 };
 
-class InfoTabu_TravellingSalesman : public InfoTabu
-{
+class InfoTabu_TravellingSalesman: public InfoTabu {
 private:
 
 	short int A, B;
 
 public:
-	InfoTabu_TravellingSalesman(int xA, int xB)
-	{
+	InfoTabu_TravellingSalesman(int xA, int xB) {
 		A = xA;
 		B = xB;
 	}
 
 	// Verifica se 't1' eh igual a 't2'
-	bool operator == (InfoTabu& movTabu)
-	{
-		InfoTabu_TravellingSalesman* t = dynamic_cast<InfoTabu_TravellingSalesman *>(&movTabu);
+	bool operator ==(InfoTabu &movTabu) {
+		InfoTabu_TravellingSalesman *t = dynamic_cast<InfoTabu_TravellingSalesman*>(&movTabu);
 
-		if((A == t->A && B == t->B) || (A == t->B && B == t->A))
+		if ((A == t->A && B == t->B) || (A == t->B && B == t->A))
 			return true;
 		else
 			return false;
 	}
 };
 
-class TravellingSalesman : public Problem
-{
+class TravellingSalesman: public Problem {
 private:
 
-	bool calcFitness(bool esc);		// Calcula o makespan
+	bool calcFitness(bool esc);				// Calcula o makespan
 
-	Solucao_TravellingSalesman sol;			// Representacao interna da solucao
+	Solution_TravellingSalesman solution;	// Representacao interna da solucao
 
 public:
 
-	static char name[128];			// Nome do problema
+	static char name[128];					// Nome do problema
 
-	static double **edges;			// Peso das arestas que ligam os nos
-	static int nnodes;				// Quantidade de nos
+	static double **edges;					// Peso das arestas que ligam os nos
+	static int nnodes;						// Quantidade de nos
 
-	static int num_vizinhos;		// Numero de permutacoes possiveis
-
+	static int neighbors;					// Numero de permutacoes possiveis
 
 	TravellingSalesman();											// Nova solucao aleatoria
 	TravellingSalesman(short int *prob);							// Copia de prob
@@ -71,15 +65,14 @@ public:
 
 	~TravellingSalesman();
 
-
 	void print(bool esc);		// Imprime o escalonamento atual
 
 	/* Retorna um novo vizinho aleatorio */
 	Problem* neighbor();
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
-	vector<pair<Problem*, InfoTabu*>* >* localSearch();			// Todos os vizinhos
-	vector<pair<Problem*, InfoTabu*>* >* localSearch(float);	// Uma parcela aleatoria
+	vector<pair<Problem*, InfoTabu*>*>* localSearch();			// Todos os vizinhos
+	vector<pair<Problem*, InfoTabu*>*>* localSearch(float);	// Uma parcela aleatoria
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
 	pair<Problem*, Problem*>* crossOver(const Problem*, int, int);	// Dois pivos
@@ -93,9 +86,8 @@ public:
 	double getFitnessMaximize() const;
 	double getFitnessMinimize() const;
 
-	Solucao_TravellingSalesman& getSoluction()
-	{
-		return sol;
+	Solution_TravellingSalesman& getSoluction() {
+		return solution;
 	}
 
 	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
@@ -104,7 +96,7 @@ public:
 	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
 };
 
-void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
+void swap_vect(short int *p1, short int *p2, short int *f, int pos, int tam);
 
 bool ptcomp(pair<Problem*, InfoTabu*>*, pair<Problem*, InfoTabu*>*);
 
@@ -120,30 +112,24 @@ bool find(vector<Problem*> *vect, Problem *p);
 #define SSIZE_MAX (SIZE_MAX >> 1)
 #endif
 
-ssize_t getline(char **pline_buf, size_t *pn, FILE *fin)
-{
+ssize_t getline(char **pline_buf, size_t *pn, FILE *fin) {
 	const size_t INITALLOC = 16;
 	const size_t ALLOCSTEP = 16;
 	size_t num_read = 0;
 
 	/* First check that none of our input pointers are NULL. */
-	if ((NULL == pline_buf) || (NULL == pn) || (NULL == fin))
-	{
+	if ((NULL == pline_buf) || (NULL == pn) || (NULL == fin)) {
 		errno = EINVAL;
 		return -1;
 	}
 
 	/* If output buffer is NULL, then allocate a buffer. */
-	if (NULL == *pline_buf)
-	{
-		*pline_buf = (char *)malloc(INITALLOC);
-		if (NULL == *pline_buf)
-		{
+	if (NULL == *pline_buf) {
+		*pline_buf = (char*) malloc(INITALLOC);
+		if (NULL == *pline_buf) {
 			/* Can't allocate memory. */
 			return -1;
-		}
-		else
-		{
+		} else {
 			/* Note how big the buffer is at this time. */
 			*pn = INITALLOC;
 		}
@@ -153,31 +139,25 @@ ssize_t getline(char **pline_buf, size_t *pn, FILE *fin)
 
 	{
 		int c;
-		while (EOF != (c = getc(fin)))
-		{
+		while (EOF != (c = getc(fin))) {
 			/* Note we read a character. */
 			num_read++;
 
 			/* Reallocate the buffer if we need more room */
-			if (num_read >= *pn)
-			{
+			if (num_read >= *pn) {
 				size_t n_realloc = *pn + ALLOCSTEP;
-				char * tmp = (char *)realloc(*pline_buf, n_realloc + 1); /* +1 for the trailing NUL. */
-				if (NULL != tmp)
-				{
+				char *tmp = (char*) realloc(*pline_buf, n_realloc + 1); /* +1 for the trailing NUL. */
+				if (NULL != tmp) {
 					/* Use the new buffer and note the new buffer size. */
 					*pline_buf = tmp;
 					*pn = n_realloc;
-				}
-				else
-				{
+				} else {
 					/* Exit with error and let the caller free the buffer. */
 					return -1;
 				}
 
 				/* Test for overflow. */
-				if (SSIZE_MAX < *pn)
-				{
+				if (SSIZE_MAX < *pn) {
 					errno = ERANGE;
 					return -1;
 				}
@@ -187,15 +167,13 @@ ssize_t getline(char **pline_buf, size_t *pn, FILE *fin)
 			(*pline_buf)[num_read - 1] = (char) c;
 
 			/* Break from the loop if we hit the ending character. */
-			if (c == '\n')
-			{
+			if (c == '\n') {
 				break;
 			}
 		}
 
 		/* Note if we hit EOF. */
-		if (EOF == c)
-		{
+		if (EOF == c) {
 			errno = 0;
 			return -1;
 		}

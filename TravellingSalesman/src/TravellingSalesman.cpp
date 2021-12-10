@@ -4,7 +4,7 @@ using namespace std;
 
 /* Static Members */
 
-ProblemType Problem::TIPO = MINIMIZACAO;
+ProblemType Problem::TYPE = MINIMIZACAO;
 
 double Problem::best = 0;
 double Problem::worst = 0;
@@ -15,74 +15,63 @@ char TravellingSalesman::name[128];
 double **TravellingSalesman::edges = NULL;
 int TravellingSalesman::nnodes = 0;
 
-int TravellingSalesman::num_vizinhos = 0;
+int TravellingSalesman::neighbors = 0;
 
-Problem* Problem::randSoluction()
-{
+Problem* Problem::randomSolution() {
 	return new TravellingSalesman();
 }
 
-Problem* Problem::copySoluction(const Problem& prob)
-{
+Problem* Problem::copySolution(const Problem &prob) {
 	return new TravellingSalesman(prob);
 }
 
-
-void Problem::readProblemFromFile(char* input)
-{
+void Problem::readProblemFromFile(char *input) {
 	FILE *f = fopen(input, "r");
 
-	if(f == NULL)
+	if (f == NULL)
 		throw "Wrong Data File!";
 
 	char edge_weight_format[32];
 	char *line = NULL;
 	size_t size = 0;
 
-	while((getline(&line, &size, f)) != -1)
-	{
-		if(strstr(line, "NAME: "))
+	while ((getline(&line, &size, f)) != -1) {
+		if (strstr(line, "NAME: "))
 			sscanf(line + strlen("NAME: "), "%s", TravellingSalesman::name);
 
-		if(strstr(line, "DIMENSION: "))
+		if (strstr(line, "DIMENSION: "))
 			sscanf(line + strlen("DIMENSION: "), "%d", &TravellingSalesman::nnodes);
 
-		if(strstr(line, "EDGE_WEIGHT_TYPE: "))
+		if (strstr(line, "EDGE_WEIGHT_TYPE: "))
 			sscanf(line + strlen("EDGE_WEIGHT_TYPE: "), "%s", edge_weight_format);
 
-		if(strstr(line, "EDGE_WEIGHT_FORMAT: "))
+		if (strstr(line, "EDGE_WEIGHT_FORMAT: "))
 			sscanf(line + strlen("EDGE_WEIGHT_FORMAT: "), "%s", edge_weight_format);
 
-		if(strstr(line, "EDGE_WEIGHT_SECTION") || strstr(line, "NODE_COORD_SECTION"))
+		if (strstr(line, "EDGE_WEIGHT_SECTION") || strstr(line, "NODE_COORD_SECTION"))
 			break;
 	}
 
-	Problem::alocaMemoria();
+	Problem::allocateMemory();
 
-	if(!strcmp(edge_weight_format, "FULL_MATRIX"))
-	{
-		for(int i = 0; i < TravellingSalesman::nnodes; i++)
-		{
-			for(int j = 0; j < TravellingSalesman::nnodes; j++)
-			{
-				if(!fscanf (f, "%lf", &TravellingSalesman::edges[i][j]))
+	if (!strcmp(edge_weight_format, "FULL_MATRIX")) {
+		for (int i = 0; i < TravellingSalesman::nnodes; i++) {
+			for (int j = 0; j < TravellingSalesman::nnodes; j++) {
+				if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
 					throw "Wrong Data File!";
 
-				if(i == j)
+				if (i == j)
 					TravellingSalesman::edges[i][j] = -1;
 			}
 		}
 	}
 
-	if(!strcmp(edge_weight_format, "UPPER_ROW"))
-	{
-		for(int i = 0; i < TravellingSalesman::nnodes; i++)
-		{
+	if (!strcmp(edge_weight_format, "UPPER_ROW")) {
+		for (int i = 0; i < TravellingSalesman::nnodes; i++) {
 			TravellingSalesman::edges[i][i] = -1;
 
-			for(int j = i+1; j < TravellingSalesman::nnodes; j++)
-			{
-				if(!fscanf (f, "%lf", &TravellingSalesman::edges[i][j]))
+			for (int j = i + 1; j < TravellingSalesman::nnodes; j++) {
+				if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
 					throw "Wrong Data File!";
 
 				TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
@@ -90,32 +79,26 @@ void Problem::readProblemFromFile(char* input)
 		}
 	}
 
-	if(!strcmp(edge_weight_format, "UPPER_DIAG_ROW"))
-	{
-		for(int i = 0; i < TravellingSalesman::nnodes; i++)
-		{
-			for(int j = i; j < TravellingSalesman::nnodes; j++)
-			{
-				if(!fscanf (f, "%lf", &TravellingSalesman::edges[i][j]))
+	if (!strcmp(edge_weight_format, "UPPER_DIAG_ROW")) {
+		for (int i = 0; i < TravellingSalesman::nnodes; i++) {
+			for (int j = i; j < TravellingSalesman::nnodes; j++) {
+				if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
 					throw "Wrong Data File!";
 
 				TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
 
-				if(i == j)
+				if (i == j)
 					TravellingSalesman::edges[i][j] = -1;
 			}
 		}
 	}
 
-	if(!strcmp(edge_weight_format, "LOWER_ROW"))
-	{
-		for(int i = 0; i < TravellingSalesman::nnodes; i++)
-		{
+	if (!strcmp(edge_weight_format, "LOWER_ROW")) {
+		for (int i = 0; i < TravellingSalesman::nnodes; i++) {
 			TravellingSalesman::edges[i][i] = -1;
 
-			for(int j = 0; j < i; j++)
-			{
-				if(!fscanf (f, "%lf", &TravellingSalesman::edges[i][j]))
+			for (int j = 0; j < i; j++) {
+				if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
 					throw "Wrong Data File!";
 
 				TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
@@ -123,44 +106,37 @@ void Problem::readProblemFromFile(char* input)
 		}
 	}
 
-	if(!strcmp(edge_weight_format, "LOWER_DIAG_ROW"))
-	{
-		for(int i = 0; i < TravellingSalesman::nnodes; i++)
-		{
-			for(int j = 0; j <= i; j++)
-			{
-				if(!fscanf (f, "%lf", &TravellingSalesman::edges[i][j]))
+	if (!strcmp(edge_weight_format, "LOWER_DIAG_ROW")) {
+		for (int i = 0; i < TravellingSalesman::nnodes; i++) {
+			for (int j = 0; j <= i; j++) {
+				if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
 					throw "Wrong Data File!";
 
 				TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
 
-				if(i == j)
+				if (i == j)
 					TravellingSalesman::edges[i][j] = -1;
 			}
 		}
 	}
 
-	if(!strcmp(edge_weight_format, "EUC_2D"))
-	{
-		double *X = (double*)malloc(TravellingSalesman::nnodes * sizeof(double));
-		double *Y = (double*)malloc(TravellingSalesman::nnodes * sizeof(double));
+	if (!strcmp(edge_weight_format, "EUC_2D")) {
+		double *X = (double*) malloc(TravellingSalesman::nnodes * sizeof(double));
+		double *Y = (double*) malloc(TravellingSalesman::nnodes * sizeof(double));
 		int no = 0;
 
-		for(int i = 0; i < TravellingSalesman::nnodes; i++)
-		{
-			if(!fscanf (f, "%d %lf %lf", &no, &X[i], &Y[i]))
+		for (int i = 0; i < TravellingSalesman::nnodes; i++) {
+			if (!fscanf(f, "%d %lf %lf", &no, &X[i], &Y[i]))
 				throw "Wrong Data File!";
 
-			if(i+1 != no)
+			if (i + 1 != no)
 				throw "Wrong Data File!";
 		}
 
 		double xd, yd;
 
-		for(int i = 0; i < TravellingSalesman::nnodes; i++)
-		{
-			for(int j = 0; j < TravellingSalesman::nnodes; j++)
-			{
+		for (int i = 0; i < TravellingSalesman::nnodes; i++) {
+			for (int j = 0; j < TravellingSalesman::nnodes; j++) {
 				xd = X[i] - X[j];
 				yd = Y[i] - Y[j];
 
@@ -172,46 +148,42 @@ void Problem::readProblemFromFile(char* input)
 		free(Y);
 	}
 
-	for(int i = 1; i <= TravellingSalesman::nnodes; i++)
-		TravellingSalesman::num_vizinhos += i;
+	for (int i = 1; i <= TravellingSalesman::nnodes; i++)
+		TravellingSalesman::neighbors += i;
 
 	return;
 }
 
-list<Problem*>* Problem::readPopulationFromLog(char *log)
-{
+list<Problem*>* Problem::readPopulationFromLog(char *log) {
 	FILE *f = fopen(log, "r");
 
-	if(f != NULL)
-	{
-		list<Problem*>* popInicial = new list<Problem*>();
+	if (f != NULL) {
+		list<Problem*> *popInicial = new list<Problem*>();
 		double peso;
 		int npop, nnodes;
 		short int *ordem;
-		Problem* p;
+		Problem *p;
 
-		if(!fscanf (f, "%d %d", &npop, &nnodes))
+		if (!fscanf(f, "%d %d", &npop, &nnodes))
 			throw "Wrong Log File!";
 
-		if(nnodes != TravellingSalesman::nnodes)
+		if (nnodes != TravellingSalesman::nnodes)
 			throw "Wrong Log File!";
 
-		for(int i = 0; i < npop; i++)
-		{
-			ordem = (short int*)malloc((nnodes+1) * sizeof(short int));
+		for (int i = 0; i < npop; i++) {
+			ordem = (short int*) malloc((nnodes + 1) * sizeof(short int));
 
-			if(!fscanf (f, "%lf", &peso))
+			if (!fscanf(f, "%lf", &peso))
 				throw "Wrong Log File!";
 
-			for(int j = 0; j <= nnodes; j++)
-			{
-				if(!fscanf (f, "%hd", &ordem[j]))
+			for (int j = 0; j <= nnodes; j++) {
+				if (!fscanf(f, "%hd", &ordem[j]))
 					throw "Wrong Log File!";
 			}
 
 			p = new TravellingSalesman(ordem);
 
-			if(peso != p->getFitness())
+			if (peso != p->getFitness())
 				throw "Wrong Log File!";
 
 			popInicial->push_back(p);
@@ -220,33 +192,27 @@ list<Problem*>* Problem::readPopulationFromLog(char *log)
 		fclose(f);
 
 		return popInicial;
-	}
-	else
-	{
+	} else {
 		return NULL;
 	}
 }
 
-void Problem::dumpCurrentPopulationInLog(char *log, list<Problem*>* popInicial)
-{
+void Problem::dumpCurrentPopulationInLog(char *log, list<Problem*> *popInicial) {
 	FILE *f = fopen(log, "w");
 
-	if(f != NULL)
-	{
-		int sizePop = (int)popInicial->size();
+	if (f != NULL) {
+		int sizePop = (int) popInicial->size();
 		list<Problem*>::iterator iter;
 		short int *ordem;
 
 		fprintf(f, "%d %d\n\n", sizePop, TravellingSalesman::nnodes);
 
-		for(iter = popInicial->begin(); iter != popInicial->end(); iter++)
-		{
-			ordem = dynamic_cast<TravellingSalesman *>(*iter)->getSoluction().ordemNodes;
+		for (iter = popInicial->begin(); iter != popInicial->end(); iter++) {
+			ordem = dynamic_cast<TravellingSalesman*>(*iter)->getSoluction().ordemNodes;
 
-			fprintf(f, "%d\n", (int)dynamic_cast<TravellingSalesman *>(*iter)->getSoluction().fitness);
+			fprintf(f, "%d\n", (int) dynamic_cast<TravellingSalesman*>(*iter)->getSoluction().fitness);
 
-			for(int j = 0; j <= TravellingSalesman::nnodes; j++)
-			{
+			for (int j = 0; j <= TravellingSalesman::nnodes; j++) {
 				fprintf(f, "%hd ", ordem[j]);
 			}
 
@@ -257,18 +223,13 @@ void Problem::dumpCurrentPopulationInLog(char *log, list<Problem*>* popInicial)
 	}
 }
 
-void Problem::writeResultInFile(char *dados, char *parametros, ExecInfo *info, char *resultado)
-{
+void Problem::writeResultInFile(char *dados, char *parametros, ExecInfo *info, char *resultado) {
 	FILE *f;
 
-	if(*resultado != '\0')
-	{
-		if((f = fopen(resultado, "r+")) != NULL)
-		{
+	if (*resultado != '\0') {
+		if ((f = fopen(resultado, "r+")) != NULL) {
 			fseek(f, 0, SEEK_END);
-		}
-		else
-		{
+		} else {
 			f = fopen(resultado, "w");
 
 			fprintf(f, "%*s%*s", -16, "bestFitness", -16, "worstFitness");
@@ -276,235 +237,202 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecInfo *info, c
 			fprintf(f, "%*s%s\n", -24, "dados", "parametros");
 		}
 
-		fprintf(f, "%*d%*d", -16, (int)info->bestFitness, -16, (int)info->worstFitness);
-		fprintf(f, "%*d%*d%*d", -16, info->numExecs, -16, (int)info->diffTime, -24, (int)info->expSol);
+		fprintf(f, "%*d%*d", -16, (int) info->bestFitness, -16, (int) info->worstFitness);
+		fprintf(f, "%*d%*d%*d", -16, info->numExecs, -16, (int) info->diffTime, -24, (int) info->expSol);
 		fprintf(f, "%*s%s\n", -24, dados, parametros);
 
 		fclose(f);
 	}
 }
 
-void Problem::alocaMemoria()
-{
-	TravellingSalesman::edges = (double**)malloc(TravellingSalesman::nnodes * sizeof(double*));
-	for(int i = 0; i < TravellingSalesman::nnodes; i++)
-		TravellingSalesman::edges[i] = (double*)malloc(TravellingSalesman::nnodes * sizeof(double));
+void Problem::allocateMemory() {
+	TravellingSalesman::edges = (double**) malloc(TravellingSalesman::nnodes * sizeof(double*));
+	for (int i = 0; i < TravellingSalesman::nnodes; i++)
+		TravellingSalesman::edges[i] = (double*) malloc(TravellingSalesman::nnodes * sizeof(double));
 }
 
-void Problem::unloadMemory()
-{
+void Problem::deallocateMemory() {
 	free(TravellingSalesman::edges);
 }
 
-
 /* Metodos */
 
-TravellingSalesman::TravellingSalesman() : Problem::Problem()
-{
-	sol.ordemNodes = (short int*)malloc((nnodes+1) * sizeof(short int));
-	sol.fitness = -1;
+TravellingSalesman::TravellingSalesman() : Problem::Problem() {
+	solution.ordemNodes = (short int*) malloc((nnodes + 1) * sizeof(short int));
+	solution.fitness = -1;
 
-	if(xRand(0, 5) == 0)	// Tenta uma solucao gulosa
-	{
+	if (xRand(0, 5) == 0)	// Tenta uma solucao gulosa
+			{
 		int noAtual = xRand(0, nnodes);
 		int proxNo = 0;
 		int pos = 0;
 		double d = 0;
 
-		sol.ordemNodes[pos++] = noAtual;
-		for(int i = 0; i < nnodes; i++)
-		{
+		solution.ordemNodes[pos++] = noAtual;
+		for (int i = 0; i < nnodes; i++) {
 			proxNo = -1;
 			d = INT_MAX;
 
-			for(int j = 0; j < nnodes && i != nnodes-1; j++)
-			{
-				if(edges[noAtual][j] != -1 && edges[noAtual][j] < d && find(&sol.ordemNodes[0], &sol.ordemNodes[pos], j) == &sol.ordemNodes[pos])
-				{
+			for (int j = 0; j < nnodes && i != nnodes - 1; j++) {
+				if (edges[noAtual][j] != -1 && edges[noAtual][j] < d && find(&solution.ordemNodes[0], &solution.ordemNodes[pos], j) == &solution.ordemNodes[pos]) {
 					proxNo = j;
 					d = edges[noAtual][proxNo];
 				}
 			}
 
-			if(proxNo == -1)
-			{
-				if(i == nnodes-1)
-					proxNo = sol.ordemNodes[0];
+			if (proxNo == -1) {
+				if (i == nnodes - 1)
+					proxNo = solution.ordemNodes[0];
 				else
 					return;
 			}
 
-			sol.ordemNodes[pos++] = proxNo;
+			solution.ordemNodes[pos++] = proxNo;
 			noAtual = proxNo;
 		}
-	}
-	else
-	{
-		for(int i = 0; i < nnodes; i++)
-			sol.ordemNodes[i] = i;
+	} else {
+		for (int i = 0; i < nnodes; i++)
+			solution.ordemNodes[i] = i;
 
-		random_shuffle(&sol.ordemNodes[0], &sol.ordemNodes[nnodes]);
-		sol.ordemNodes[nnodes] = sol.ordemNodes[0];
+		random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes]);
+		solution.ordemNodes[nnodes] = solution.ordemNodes[0];
 	}
 
 	calcFitness(false);
 
 	exec.tabu = false;
-	exec.genetico = false;
+	exec.genetic = false;
 	exec.annealing = false;
 }
 
-
-TravellingSalesman::TravellingSalesman(short int *prob) : Problem::Problem()
-{
-	sol.ordemNodes = prob;
-	sol.fitness = -1;
+TravellingSalesman::TravellingSalesman(short int *prob) : Problem::Problem() {
+	solution.ordemNodes = prob;
+	solution.fitness = -1;
 
 	calcFitness(false);
 
 	exec.tabu = false;
-	exec.genetico = false;
+	exec.genetic = false;
 	exec.annealing = false;
 }
 
-TravellingSalesman::TravellingSalesman(const Problem &prob) : Problem::Problem()
-{
-	TravellingSalesman *other = dynamic_cast<TravellingSalesman *>(const_cast<Problem *>(&prob));
+TravellingSalesman::TravellingSalesman(const Problem &prob) : Problem::Problem() {
+	TravellingSalesman *other = dynamic_cast<TravellingSalesman*>(const_cast<Problem*>(&prob));
 
-	this->sol.ordemNodes = (short int*)malloc((nnodes+1) * sizeof(short int));
+	this->solution.ordemNodes = (short int*) malloc((nnodes + 1) * sizeof(short int));
 
-	for(int i = 0; i <= nnodes; i++)
-		this->sol.ordemNodes[i] = other->sol.ordemNodes[i];
+	for (int i = 0; i <= nnodes; i++)
+		this->solution.ordemNodes[i] = other->solution.ordemNodes[i];
 
-	this->sol.fitness = other->sol.fitness;
+	this->solution.fitness = other->solution.fitness;
 
 	exec = prob.exec;
 }
 
-TravellingSalesman::TravellingSalesman(const Problem &prob, int pos1, int pos2) : Problem::Problem()
-{
-	TravellingSalesman *other = dynamic_cast<TravellingSalesman *>(const_cast<Problem *>(&prob));
+TravellingSalesman::TravellingSalesman(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
+	TravellingSalesman *other = dynamic_cast<TravellingSalesman*>(const_cast<Problem*>(&prob));
 
-	this->sol.ordemNodes = (short int*)malloc((nnodes+1) * sizeof(short int));
+	this->solution.ordemNodes = (short int*) malloc((nnodes + 1) * sizeof(short int));
 
-	for(int i = 0; i <= nnodes; i++)
-		this->sol.ordemNodes[i] = other->sol.ordemNodes[i];
+	for (int i = 0; i <= nnodes; i++)
+		this->solution.ordemNodes[i] = other->solution.ordemNodes[i];
 
-	short int aux = this->sol.ordemNodes[pos1];
-	this->sol.ordemNodes[pos1] = this->sol.ordemNodes[pos2];
-	this->sol.ordemNodes[pos2] = aux;
+	short int aux = this->solution.ordemNodes[pos1];
+	this->solution.ordemNodes[pos1] = this->solution.ordemNodes[pos2];
+	this->solution.ordemNodes[pos2] = aux;
 
-	if(pos1 == 0 || pos2 == 0)
-		sol.ordemNodes[nnodes] = sol.ordemNodes[0];
-	else if(pos1 == nnodes || pos2 == nnodes)
-		sol.ordemNodes[0] = sol.ordemNodes[nnodes];
+	if (pos1 == 0 || pos2 == 0)
+		solution.ordemNodes[nnodes] = solution.ordemNodes[0];
+	else if (pos1 == nnodes || pos2 == nnodes)
+		solution.ordemNodes[0] = solution.ordemNodes[nnodes];
 
-	sol.fitness = -1;
+	solution.fitness = -1;
 	calcFitness(false);
 
 	exec.tabu = false;
-	exec.genetico = false;
+	exec.genetic = false;
 	exec.annealing = false;
 }
 
-TravellingSalesman::~TravellingSalesman()
-{
-	if(sol.ordemNodes != NULL)
-		free(sol.ordemNodes);
+TravellingSalesman::~TravellingSalesman() {
+	if (solution.ordemNodes != NULL)
+		free(solution.ordemNodes);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
-inline bool TravellingSalesman::calcFitness(bool esc)
-{
+inline bool TravellingSalesman::calcFitness(bool esc) {
 	double sumEdges = 0;
 
 	double d;
 	int c1, c2;
-	for(int c = 0; c < nnodes; c++)
-	{
-		c1 = sol.ordemNodes[c];
-		c2 = sol.ordemNodes[c+1];
+	for (int c = 0; c < nnodes; c++) {
+		c1 = solution.ordemNodes[c];
+		c2 = solution.ordemNodes[c + 1];
 
-		if((d = edges[c1][c2]) != -1)
+		if ((d = edges[c1][c2]) != -1)
 			sumEdges += d;
 		else
 			return false;
 	}
 
-	sol.fitness = sumEdges;
+	solution.fitness = sumEdges;
 
 	return true;
 }
 
-inline void TravellingSalesman::print(bool esc)
-{
-	if(esc == false)
-	{
-		for(int j = 0; j <= nnodes; j++)
-		{
-			printf("%d ", sol.ordemNodes[j]);
+inline void TravellingSalesman::print(bool esc) {
+	if (esc == false) {
+		for (int j = 0; j <= nnodes; j++) {
+			printf("%d ", solution.ordemNodes[j]);
 		}
 
 		printf("\n");
-	}
-	else
-	{
+	} else {
 		printf("|--> ");
-		for(int j = 0; j < nnodes; j++)
-		{
-			printf("%d -> ", sol.ordemNodes[j]+1);
+		for (int j = 0; j < nnodes; j++) {
+			printf("%d -> ", solution.ordemNodes[j] + 1);
 		}
-		printf("%d |\n", sol.ordemNodes[nnodes]+1);
+		printf("%d |\n", solution.ordemNodes[nnodes] + 1);
 	}
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */
-inline Problem* TravellingSalesman::neighbor()
-{
-	int p1 = xRand(0, nnodes+1), p2 = xRand(0, nnodes+1);
+inline Problem* TravellingSalesman::neighbor() {
+	int p1 = xRand(0, nnodes + 1), p2 = xRand(0, nnodes + 1);
 	Problem *prob = NULL;
 
-	while(p2 == p1)
-		p2 = xRand(0, nnodes+1);
+	while (p2 == p1)
+		p2 = xRand(0, nnodes + 1);
 
 	prob = new TravellingSalesman(*this, p1, p2);
-	if(prob->getFitness() != -1)
-	{
+	if (prob->getFitness() != -1) {
 		return prob;
-	}
-	else
-	{
+	} else {
 		delete prob;
 		return NULL;
 	}
 }
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* TravellingSalesman::localSearch()
-{
-	if(TravellingSalesman::num_vizinhos > MAX_PERMUTACOES)
-		return localSearch((float)MAX_PERMUTACOES/(float)TravellingSalesman::num_vizinhos);
+inline vector<pair<Problem*, InfoTabu*>*>* TravellingSalesman::localSearch() {
+	if (TravellingSalesman::neighbors > MAX_PERMUTATIONS)
+		return localSearch((float) MAX_PERMUTATIONS / (float) TravellingSalesman::neighbors);
 
 	Problem *prob = NULL;
 	int p1, p2;
-	pair<Problem*, InfoTabu*>* temp;
-	vector<pair<Problem*, InfoTabu*>* >* local = new vector<pair<Problem*, InfoTabu*>* >();
+	pair<Problem*, InfoTabu*> *temp;
+	vector<pair<Problem*, InfoTabu*>*> *local = new vector<pair<Problem*, InfoTabu*>*>();
 
-	for(p1 = 0; p1 < nnodes; p1++)
-	{
-		for(p2 = p1+1; p2 <= nnodes; p2++)
-		{
+	for (p1 = 0; p1 < nnodes; p1++) {
+		for (p2 = p1 + 1; p2 <= nnodes; p2++) {
 			prob = new TravellingSalesman(*this, p1, p2);
-			if(prob->getFitness() != -1)
-			{
+			if (prob->getFitness() != -1) {
 				temp = new pair<Problem*, InfoTabu*>();
 				temp->first = prob;
 				temp->second = new InfoTabu_TravellingSalesman(p1, p2);
 
 				local->push_back(temp);
-			}
-			else
-			{
+			} else {
 				delete prob;
 			}
 		}
@@ -517,37 +445,32 @@ inline vector<pair<Problem*, InfoTabu*>* >* TravellingSalesman::localSearch()
 }
 
 /* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
-inline vector<pair<Problem*, InfoTabu*>* >* TravellingSalesman::localSearch(float parcela)
-{
+inline vector<pair<Problem*, InfoTabu*>*>* TravellingSalesman::localSearch(float parcela) {
 	Problem *prob = NULL;
 	int p1, p2;
-	pair<Problem*, InfoTabu*>* temp;
-	vector<pair<Problem*, InfoTabu*>* >* local = new vector<pair<Problem*, InfoTabu*>* >();
+	pair<Problem*, InfoTabu*> *temp;
+	vector<pair<Problem*, InfoTabu*>*> *local = new vector<pair<Problem*, InfoTabu*>*>();
 	int def;
 
-	def = (int)((float)TravellingSalesman::num_vizinhos*parcela);
+	def = (int) ((float) TravellingSalesman::neighbors * parcela);
 
-	if(def > MAX_PERMUTACOES)
-		def = MAX_PERMUTACOES;
+	if (def > MAX_PERMUTATIONS)
+		def = MAX_PERMUTATIONS;
 
-	for(int i = 0; i < def; i++)
-	{
-		p1 = xRand(0, nnodes+1), p2 = xRand(0, nnodes+1);
+	for (int i = 0; i < def; i++) {
+		p1 = xRand(0, nnodes + 1), p2 = xRand(0, nnodes + 1);
 
-		while(p2 == p1)
-			p2 = xRand(0, nnodes+1);
+		while (p2 == p1)
+			p2 = xRand(0, nnodes + 1);
 
 		prob = new TravellingSalesman(*this, p1, p2);
-		if(prob->getFitness() != -1)
-		{
+		if (prob->getFitness() != -1) {
 			temp = new pair<Problem*, InfoTabu*>();
 			temp->first = prob;
 			temp->second = new InfoTabu_TravellingSalesman(p1, p2);
 
 			local->push_back(temp);
-		}
-		else
-		{
+		} else {
 			delete prob;
 		}
 	}
@@ -557,20 +480,19 @@ inline vector<pair<Problem*, InfoTabu*>* >* TravellingSalesman::localSearch(floa
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
-inline pair<Problem*, Problem*>* TravellingSalesman::crossOver(const Problem* parceiro, int tamParticao, int strength)
-{
-	short int *f1 = (short int*)malloc((nnodes+1) * sizeof(short int)), *f2 = (short int*)malloc((nnodes+1) * sizeof(short int));
-	pair<Problem*, Problem*>* filhos = new pair<Problem*, Problem*>();
-	int particao = tamParticao == 0 ? (TravellingSalesman::nnodes)/2 : tamParticao;
+inline pair<Problem*, Problem*>* TravellingSalesman::crossOver(const Problem *parceiro, int partitionSize, int strength) {
+	short int *f1 = (short int*) malloc((nnodes + 1) * sizeof(short int)), *f2 = (short int*) malloc((nnodes + 1) * sizeof(short int));
+	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
+	int particao = partitionSize == 0 ? (TravellingSalesman::nnodes) / 2 : partitionSize;
 	int inicioPart = 0, fimPart = 0;
 
-	TravellingSalesman *other = dynamic_cast<TravellingSalesman *>(const_cast<Problem *>(parceiro));
+	TravellingSalesman *other = dynamic_cast<TravellingSalesman*>(const_cast<Problem*>(parceiro));
 
 	inicioPart = xRand(0, nnodes);
-	fimPart = inicioPart+particao <= nnodes ? inicioPart+particao : nnodes;
+	fimPart = inicioPart + particao <= nnodes ? inicioPart + particao : nnodes;
 
-	swap_vect(this->sol.ordemNodes, other->sol.ordemNodes, f1, inicioPart, fimPart-inicioPart);
-	swap_vect(other->sol.ordemNodes, this->sol.ordemNodes, f2, inicioPart, fimPart-inicioPart);
+	swap_vect(this->solution.ordemNodes, other->solution.ordemNodes, f1, inicioPart, fimPart - inicioPart);
+	swap_vect(other->solution.ordemNodes, this->solution.ordemNodes, f2, inicioPart, fimPart - inicioPart);
 
 	filhos->first = new TravellingSalesman(f1);
 	filhos->second = new TravellingSalesman(f2);
@@ -579,18 +501,17 @@ inline pair<Problem*, Problem*>* TravellingSalesman::crossOver(const Problem* pa
 }
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
-inline pair<Problem*, Problem*>* TravellingSalesman::crossOver(const Problem* parceiro, int strength)
-{
-	short int *f1 = (short int*)malloc((nnodes+1) * sizeof(short int)), *f2 = (short int*)malloc((nnodes+1) * sizeof(short int));
-	pair<Problem*, Problem*>* filhos = new pair<Problem*, Problem*>();
+inline pair<Problem*, Problem*>* TravellingSalesman::crossOver(const Problem *parceiro, int strength) {
+	short int *f1 = (short int*) malloc((nnodes + 1) * sizeof(short int)), *f2 = (short int*) malloc((nnodes + 1) * sizeof(short int));
+	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = 0;
 
-	TravellingSalesman *other = dynamic_cast<TravellingSalesman *>(const_cast<Problem *>(parceiro));
+	TravellingSalesman *other = dynamic_cast<TravellingSalesman*>(const_cast<Problem*>(parceiro));
 
 	particao = xRand(1, nnodes);
 
-	swap_vect(this->sol.ordemNodes, other->sol.ordemNodes, f1, 0, particao);
-	swap_vect(other->sol.ordemNodes, this->sol.ordemNodes, f2, 0, particao);
+	swap_vect(this->solution.ordemNodes, other->solution.ordemNodes, f1, 0, particao);
+	swap_vect(other->solution.ordemNodes, this->solution.ordemNodes, f2, 0, particao);
 
 	filhos->first = new TravellingSalesman(f1);
 	filhos->second = new TravellingSalesman(f2);
@@ -599,23 +520,20 @@ inline pair<Problem*, Problem*>* TravellingSalesman::crossOver(const Problem* pa
 }
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
-inline Problem* TravellingSalesman::mutation(int mutMax)
-{
-	short int *mut = (short int*)malloc((nnodes+1) * sizeof(short int));
-	Problem* vizinho = NULL, *temp = NULL, *mutacao = NULL;
+inline Problem* TravellingSalesman::mutation(int mutMax) {
+	short int *mut = (short int*) malloc((nnodes + 1) * sizeof(short int));
+	Problem *vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
-	for(int j = 0; j <= nnodes; j++)
-		mut[j] = sol.ordemNodes[j];
+	for (int j = 0; j <= nnodes; j++)
+		mut[j] = solution.ordemNodes[j];
 
 	temp = new TravellingSalesman(mut);
 	mutacao = temp;
 
-	while(mutMax-- > 0)
-	{
+	while (mutMax-- > 0) {
 		vizinho = temp->neighbor();
 
-		if(vizinho != NULL)
-		{
+		if (vizinho != NULL) {
 			delete temp;
 			temp = vizinho;
 			mutacao = temp;
@@ -624,34 +542,29 @@ inline Problem* TravellingSalesman::mutation(int mutMax)
 	return mutacao;
 }
 
-inline double TravellingSalesman::getFitness() const
-{
-	return sol.fitness;
+inline double TravellingSalesman::getFitness() const {
+	return solution.fitness;
 }
 
-inline double TravellingSalesman::getFitnessMaximize() const
-{
-	return (double)INV_FITNESS/sol.fitness;
+inline double TravellingSalesman::getFitnessMaximize() const {
+	return (double) INV_FITNESS / solution.fitness;
 }
 
-inline double TravellingSalesman::getFitnessMinimize() const
-{
-	return (double)sol.fitness;
+inline double TravellingSalesman::getFitnessMinimize() const {
+	return (double) solution.fitness;
 }
 
 /* Auxiliares */
 
-inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam)
-{
-	for(int i = pos; i < pos+tam; i++)
+inline void swap_vect(short int *p1, short int *p2, short int *f, int pos, int tam) {
+	for (int i = pos; i < pos + tam; i++)
 		f[i] = p1[i];
 
-	for(int i = 0, j = 0; i < TravellingSalesman::nnodes && j < TravellingSalesman::nnodes; i++)
-	{
-		if(j == pos)
-			j = pos+tam;
+	for (int i = 0, j = 0; i < TravellingSalesman::nnodes && j < TravellingSalesman::nnodes; i++) {
+		if (j == pos)
+			j = pos + tam;
 
-		if(find(&p1[pos], &p1[pos+tam], p2[i]) == &p1[pos+tam])
+		if (find(&p1[pos], &p1[pos + tam], p2[i]) == &p1[pos + tam])
 			f[j++] = p2[i];
 	}
 
@@ -661,60 +574,51 @@ inline void swap_vect(short int* p1, short int* p2, short int* f, int pos, int t
 }
 
 // comparator function:
-bool fnequal1(Problem* prob1, Problem* prob2)
-{
-	TravellingSalesman *p1 = dynamic_cast<TravellingSalesman *>(prob1);
-	TravellingSalesman *p2 = dynamic_cast<TravellingSalesman *>(prob2);
+bool fnequal1(Problem *prob1, Problem *prob2) {
+	TravellingSalesman *p1 = dynamic_cast<TravellingSalesman*>(prob1);
+	TravellingSalesman *p2 = dynamic_cast<TravellingSalesman*>(prob2);
 
-	if(p1->sol.fitness == p2->sol.fitness)
-	{
-		for(int j = 0; j <= TravellingSalesman::nnodes; j++)
-			if(p1->sol.ordemNodes[j] != p2->sol.ordemNodes[j])
+	if (p1->solution.fitness == p2->solution.fitness) {
+		for (int j = 0; j <= TravellingSalesman::nnodes; j++)
+			if (p1->solution.ordemNodes[j] != p2->solution.ordemNodes[j])
 				return false;
 
 		return true;
-	}
-	else
+	} else
 		return false;
 }
 
 // comparator function:
-bool fnequal2(Problem* prob1, Problem* prob2)
-{
-	TravellingSalesman *p1 = dynamic_cast<TravellingSalesman *>(prob1);
-	TravellingSalesman *p2 = dynamic_cast<TravellingSalesman *>(prob2);
+bool fnequal2(Problem *prob1, Problem *prob2) {
+	TravellingSalesman *p1 = dynamic_cast<TravellingSalesman*>(prob1);
+	TravellingSalesman *p2 = dynamic_cast<TravellingSalesman*>(prob2);
 
-	return p1->sol.fitness == p2->sol.fitness;
+	return p1->solution.fitness == p2->solution.fitness;
 }
 
 // comparator function:
-bool fncomp1(Problem *prob1, Problem *prob2)
-{
-	TravellingSalesman *p1 = dynamic_cast<TravellingSalesman *>(prob1);
-	TravellingSalesman *p2 = dynamic_cast<TravellingSalesman *>(prob2);
+bool fncomp1(Problem *prob1, Problem *prob2) {
+	TravellingSalesman *p1 = dynamic_cast<TravellingSalesman*>(prob1);
+	TravellingSalesman *p2 = dynamic_cast<TravellingSalesman*>(prob2);
 
-	if(p1->sol.fitness == p2->sol.fitness)
-	{
-		for(int j = 0; j <= TravellingSalesman::nnodes; j++)
-			if(p1->sol.ordemNodes[j] != p2->sol.ordemNodes[j])
-				return p1->sol.ordemNodes[j] < p2->sol.ordemNodes[j];
+	if (p1->solution.fitness == p2->solution.fitness) {
+		for (int j = 0; j <= TravellingSalesman::nnodes; j++)
+			if (p1->solution.ordemNodes[j] != p2->solution.ordemNodes[j])
+				return p1->solution.ordemNodes[j] < p2->solution.ordemNodes[j];
 
 		return false;
-	}
-	else
-		return p1->sol.fitness < p2->sol.fitness;
+	} else
+		return p1->solution.fitness < p2->solution.fitness;
 }
 
 // comparator function:
-bool fncomp2(Problem *prob1, Problem *prob2)
-{
-	TravellingSalesman *p1 = dynamic_cast<TravellingSalesman *>(prob1);
-	TravellingSalesman *p2 = dynamic_cast<TravellingSalesman *>(prob2);
+bool fncomp2(Problem *prob1, Problem *prob2) {
+	TravellingSalesman *p1 = dynamic_cast<TravellingSalesman*>(prob1);
+	TravellingSalesman *p2 = dynamic_cast<TravellingSalesman*>(prob2);
 
-	return p1->sol.fitness < p2->sol.fitness;
+	return p1->solution.fitness < p2->solution.fitness;
 }
 
-inline bool ptcomp(pair<Problem*, InfoTabu*>* p1, pair<Problem*, InfoTabu*>* p2)
-{
+inline bool ptcomp(pair<Problem*, InfoTabu*> *p1, pair<Problem*, InfoTabu*> *p2) {
 	return (p1->first->getFitness() > p2->first->getFitness());
 }

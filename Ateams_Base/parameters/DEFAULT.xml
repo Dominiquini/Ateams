@@ -5,7 +5,7 @@
    tentAteams = "100"
    maxTimeAteams = "3600"
    numThreads = "8"
-   tamPopAteams = "500"
+   populationSizeAteams = "500"
    comparatorMode = "1"
    makespanBest = "-1">
 
@@ -14,97 +14,97 @@
     <SimulatedAnnealing
        name = "SA1"
        probSA = "35"
-       polEscolhaSA = "250"
-       probElitismoSA = "0.25"
-       maxIterSA = "250"
-       initTempSA = "125"
-       finalTempSA = "0.75"
-       restauraSolSA = "0"
+       choicePolicySA = "250"
+       elitismProbabilitySA = "0.25"
+       maxIterationsSA = "250"
+       startTempSA = "125"
+       endTempSA = "0.75"
+       restoreSolutionSA = "0"
        alphaSA = "0.99">
     </SimulatedAnnealing>
 
     <SimulatedAnnealing
        name = "SA2"
        probSA = "6"
-       polEscolhaSA = "10"
-       probElitismoSA = "0.25"
-       maxIterSA = "250"
-       initTempSA = "125"
-       finalTempSA = "0.75"
-       restauraSolSA = "0"
+       choicePolicySA = "10"
+       elitismProbabilitySA = "0.25"
+       maxIterationsSA = "250"
+       startTempSA = "125"
+       endTempSA = "0.75"
+       restoreSolutionSA = "0"
        alphaSA = "0.999">
     </SimulatedAnnealing>
 
     <SimulatedAnnealing
        name = "SA3"
        probSA = "6"
-       polEscolhaSA = "10"
-       probElitismoSA = "0.25"
-       maxIterSA = "25000"
-       initTempSA = "125"
-       finalTempSA = "0.75"
-       restauraSolSA = "0"
+       choicePolicySA = "10"
+       elitismProbabilitySA = "0.25"
+       maxIterationsSA = "25000"
+       startTempSA = "125"
+       endTempSA = "0.75"
+       restoreSolutionSA = "0"
        alphaSA = "0.9">
     </SimulatedAnnealing>
 
     <TabuSearch
        name = "BT1"
        probBT = "20"
-       polEscolhaBT = "500"
-       probElitismoBT = "0.25"
-       funcAspiracaoBT = "0.5"
-       iterBT = "750"
-       tentSemMelhoraBT = "500"
-       tamListaBT = "10"
-       polExplorBT = "0.5">
+       choicePolicyTS = "500"
+       elitismProbabilityTS = "0.25"
+       aspirationCriteriaTS = "0.5"
+       iterationsTS = "750"
+       attemptsWithoutImprovementTS = "500"
+       listSizeTS = "10"
+       explorationPolicyTS = "0.5">
     </TabuSearch>
 
     <TabuSearch
        name = "BT2"
        probBT = "10"
-       polEscolhaBT = "50"
-       probElitismoBT = "0.1"
-       funcAspiracaoBT = "0.5"
-       iterBT = "750"
-       tentSemMelhoraBT = "750"
-       tamListaBT = "25"
-       polExplorBT = "1">
+       choicePolicyTS = "50"
+       elitismProbabilityTS = "0.1"
+       aspirationCriteriaTS = "0.5"
+       iterationsTS = "750"
+       attemptsWithoutImprovementTS = "750"
+       listSizeTS = "25"
+       explorationPolicyTS = "1">
     </TabuSearch>
 
     <TabuSearch
        name = "BT3"
        probBT = "10"
-       polEscolhaBT = "250"
-       probElitismoBT = "0.2"
-       funcAspiracaoBT = "0.5"
-       iterBT = "750"
-       tentSemMelhoraBT = "750"
-       tamListaBT = "250"
-       polExplorBT = "0.25">
+       choicePolicyTS = "250"
+       elitismProbabilityTS = "0.2"
+       aspirationCriteriaTS = "0.5"
+       iterationsTS = "750"
+       attemptsWithoutImprovementTS = "750"
+       listSizeTS = "250"
+       explorationPolicyTS = "0.25">
     </TabuSearch>
 
     <GeneticAlgorithm
        name = "AG1"
        probAG = "9"
-       polEscolhaAG = "-1"
-       iterAG = "500"
-       tamPopAG = "250"
-       tamParticaoAG = "-1"
-       probCrossOverAG = "0.8"
-       powerCrossOver = "0.25"
-       probMutacaoAG = "0.08">
+       choicePolicyGA = "-1"
+       iterationsGA = "500"
+       populationSizeAG = "250"
+       partitionSizeAG = "-1"
+       crossoverProbabilityAG = "0.8"
+       crossoverPowerAG = "0.25"
+       mutationProbabilityAG = "0.08">
     </GeneticAlgorithm>
 
     <GeneticAlgorithm
        name = "AG2"
        probAG = "4"
-       polEscolhaAG = "-1"
-       iterAG = "1000"
-       tamPopAG = "500"
-       tamParticaoAG = "0"
-       probCrossOverAG = "0.8"
-       powerCrossOver = "1"
-       probMutacaoAG = "0.2">
+       choicePolicyGA = "-1"
+       iterationsGA = "1000"
+       populationSizeAG = "500"
+       partitionSizeAG = "0"
+       crossoverProbabilityAG = "0.8"
+       crossoverPowerAG = "1"
+       mutationProbabilityAG = "0.2">
     </GeneticAlgorithm>
 
   </Heuristics>

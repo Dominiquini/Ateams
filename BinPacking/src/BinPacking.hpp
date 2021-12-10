@@ -1,15 +1,14 @@
 #include "../../Ateams_Base/src/Problem.hpp"
 
 #define INV_FITNESS 1000000
-#define MAX_PERMUTACOES 10000
+#define MAX_PERMUTATIONS 10000
 
 using namespace std;
 
 #ifndef _BinPacking_
 #define _BinPacking_
 
-class Solucao_BinPacking : public Solucao
-{
+class Solution_BinPacking: public Solution {
 	short int *ordemItens;		// Ordem em que os itens serao alocados nas bolsas
 	short int *bins;			// Itens para cada uma das bolsas
 
@@ -22,48 +21,43 @@ class Solucao_BinPacking : public Solucao
 	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
 };
 
-class InfoTabu_BinPacking : public InfoTabu
-{
+class InfoTabu_BinPacking: public InfoTabu {
 private:
 
 	short int A, B;
 
 public:
-	InfoTabu_BinPacking(int xA, int xB)
-	{
+	InfoTabu_BinPacking(int xA, int xB) {
 		A = xA;
 		B = xB;
 	}
 
 	// Verifica se 't1' eh igual a 't2'
-	bool operator == (InfoTabu& movTabu)
-	{
-		InfoTabu_BinPacking* t = dynamic_cast<InfoTabu_BinPacking *>(&movTabu);
+	bool operator ==(InfoTabu &movTabu) {
+		InfoTabu_BinPacking *t = dynamic_cast<InfoTabu_BinPacking*>(&movTabu);
 
-		if((A == t->A && B == t->B) || (A == t->B && B == t->A))
+		if ((A == t->A && B == t->B) || (A == t->B && B == t->A))
 			return true;
 		else
 			return false;
 	}
 };
 
-class BinPacking : public Problem
-{
+class BinPacking: public Problem {
 private:
 
-	bool calcFitness(bool esc);		// Calcula o makespan
+	bool calcFitness(bool esc);			// Calcula o makespan
 
-	Solucao_BinPacking sol;			// Representacao interna da solucao
+	Solution_BinPacking solution;		// Representacao interna da solucao
 
 public:
 
-	static char name[128];			// Nome do problema
+	static char name[128];				// Nome do problema
 
-	static double *sizes, capacity;	// Tamanho dos ítens e capacidade de cada uma das bolsas
-	static int nitens;				// Quantidade de jobs e de maquinas
+	static double *sizes, capacity;		// Tamanho dos itens e capacidade de cada uma das bolsas
+	static int nitens;					// Quantidade de jobs e de maquinas
 
-	static int num_vizinhos;		// Numero de permutacoes possiveis
-
+	static int neighbors;				// Numero de permutacoes possiveis
 
 	BinPacking();											// Nova solucao aleatoria
 	BinPacking(short int *prob);							// Copia de prob
@@ -73,15 +67,14 @@ public:
 
 	~BinPacking();
 
-
 	void print(bool esc);		// Imprime o escalonamento atual
 
 	/* Retorna um novo vizinho aleatorio */
 	Problem* neighbor();
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
-	vector<pair<Problem*, InfoTabu*>* >* localSearch();			// Todos os vizinhos
-	vector<pair<Problem*, InfoTabu*>* >* localSearch(float);	// Uma parcela aleatoria
+	vector<pair<Problem*, InfoTabu*>*>* localSearch();			// Todos os vizinhos
+	vector<pair<Problem*, InfoTabu*>*>* localSearch(float);	// Uma parcela aleatoria
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
 	pair<Problem*, Problem*>* crossOver(const Problem*, int, int);	// Dois pivos
@@ -95,9 +88,8 @@ public:
 	double getFitnessMaximize() const;
 	double getFitnessMinimize() const;
 
-	Solucao_BinPacking& getSoluction()
-	{
-		return sol;
+	Solution_BinPacking& getSoluction() {
+		return solution;
 	}
 
 	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
@@ -106,7 +98,7 @@ public:
 	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
 };
 
-void swap_vect(short int* p1, short int* p2, short int* f, int pos, int tam);
+void swap_vect(short int *p1, short int *p2, short int *f, int pos, int tam);
 
 bool ptcomp(pair<Problem*, InfoTabu*>*, pair<Problem*, InfoTabu*>*);
 

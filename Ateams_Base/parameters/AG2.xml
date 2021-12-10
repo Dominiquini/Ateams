@@ -5,7 +5,7 @@
    tentAteams = "100"
    maxTimeAteams = "3600"
    numThreads = "4"
-   tamPopAteams = "500"
+   populationSizeAteams = "500"
    comparatorMode = "1"
    makespanBest = "-1">
 
@@ -14,13 +14,13 @@
     <GeneticAlgorithm
        name = "AG2"
        probAG = "4"
-       polEscolhaAG = "-1"
-       iterAG = "1000"
-       tamPopAG = "500"
-       tamParticaoAG = "0"
-       probCrossOverAG = "0.8"
-       powerCrossOver = "1"
-       probMutacaoAG = "0.2">
+       choicePolicyGA = "-1"
+       iterationsGA = "1000"
+       populationSizeAG = "500"
+       partitionSizeAG = "0"
+       crossoverProbabilityAG = "0.8"
+       crossoverPowerAG = "1"
+       mutationProbabilityAG = "0.2">
     </GeneticAlgorithm>
 
   </Heuristics>
