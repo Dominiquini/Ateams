@@ -4,7 +4,7 @@ using namespace std;
 
 /* Static Members */
 
-ProblemType Problem::TYPE = MINIMIZACAO;
+ProblemType Problem::TYPE = MINIMIZATION;
 
 double Problem::best = 0;
 double Problem::worst = 0;
@@ -94,7 +94,7 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 	}
 }
 
-void Problem::dumpCurrentPopulationInLog(char *log, list<Problem*> *popInicial) {
+void Problem::writeCurrentPopulationInLog(char *log, list<Problem*> *popInicial) {
 	FILE *f = fopen(log, "w");
 
 	if (f != NULL) {
@@ -120,7 +120,7 @@ void Problem::dumpCurrentPopulationInLog(char *log, list<Problem*> *popInicial) 
 	}
 }
 
-void Problem::writeResultInFile(char *dados, char *parametros, ExecInfo *info, char *resultado) {
+void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo *info, char *resultado) {
 	FILE *f;
 
 	if (*resultado != '\0') {
@@ -135,7 +135,7 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecInfo *info, c
 		}
 
 		fprintf(f, "%*d%*d", -16, (int) info->bestFitness, -16, (int) info->worstFitness);
-		fprintf(f, "%*d%*d%*d", -16, info->numExecs, -16, (int) info->diffTime, -24, (int) info->expSol);
+		fprintf(f, "%*d%*d%*d", -16, info->executionCount, -16, (int) info->executionTime, -24, (int) info->exploredSolutions);
 		fprintf(f, "%*s%s\n", -24, dados, parametros);
 
 		fclose(f);

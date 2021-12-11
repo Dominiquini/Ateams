@@ -8,6 +8,8 @@ extern pthread_mutex_t mutex_cont;
 #ifndef _PROBLEM_
 #define _PROBLEM_
 
+struct ExecutionInfo;
+
 class Problem;
 class InfoTabu;
 class Solution;
@@ -51,8 +53,8 @@ public:
 	static list<Problem*>* readPopulationFromLog(char*);
 
 	// Imprime em um arquivo os resultados da execucao
-	static void dumpCurrentPopulationInLog(char*, list<Problem*>*);
-	static void writeResultInFile(char*, char*, ExecInfo*, char*);
+	static void writeCurrentPopulationInLog(char*, list<Problem*>*);
+	static void writeResultInFile(char*, char*, ExecutionInfo*, char*);
 
 	// Aloca e Desaloca as estruturas do problema
 	static void allocateMemory();
@@ -68,7 +70,7 @@ public:
 	}
 
 	static double improvement(double oldP, double newP) {
-		if (TYPE == MINIMIZACAO)
+		if (TYPE == MINIMIZATION)
 			return oldP - newP;
 		else
 			return newP - oldP;

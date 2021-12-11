@@ -8,6 +8,7 @@ using namespace std;
 volatile bool TERMINATE = false;
 
 int main(int argc, char *argv[]) {
+
 	/* Interrompe o programa ao se pessionar 'ctrl-c' */
 	signal(SIGINT, terminate);
 
@@ -36,15 +37,14 @@ int main(int argc, char *argv[]) {
 		list<Problem*> *solutions = ctrl->getSolutions();
 
 		/* Escreve memoria principal no disco */
-		Problem::dumpCurrentPopulationInLog(ctrl->getOutputLogFile(), solutions);
+		Problem::writeCurrentPopulationInLog(ctrl->getOutputLogFile(), solutions);
 
 		delete solutions;
 
 		cout << endl << endl << "Worst Final Solution: " << Problem::worst << endl;
 		cout << endl << "Best Final Solution: " << Problem::best << endl;
 
-		ExecInfo info;
-		ctrl->getInfo(&info);
+		ExecutionInfo info = ctrl->getExecutionInfo();
 
 		/* Escreve solucao em arquivo no disco */
 		Problem::writeResultInFile(ctrl->getInputDataFile(), ctrl->getInputParameters(), &info, ctrl->getOutputResultFile());
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
 		cout << endl << endl << "Explored Solutions: " << Problem::totalNumInst << endl;
 
-		cout << endl << endl << "Executions: " << ctrl->getExecutions() << endl << endl;
+		cout << endl << endl << "Executions: " << info.executionCount << endl << endl;
 
 		ctrl->checkSolutions();
 

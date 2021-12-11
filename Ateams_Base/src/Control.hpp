@@ -20,14 +20,33 @@ using namespace std;
 
 extern volatile bool TERMINATE;
 
+struct ExecutionInfo {
+	double executionTime;
+	int executionCount;
+	long int exploredSolutions;
+	double worstFitness;
+	double bestFitness;
+};
+
+struct ParametersAteams {
+	int populationSize;
+	int comparatorMode;
+	int iterations;
+	int numThreads;
+	int attemptsWithoutImprovement;
+	int maxExecutionTime;
+	int bestKnownFitness;
+};
+
 class Control: public DefaultHandler {
+
 private:
 	/* Instancia do controle */
 	static Control *instance;
 
 	static list<HeuristicListener*> *execAlgs;					// Algoritmos executados ate o momento
 	static list<list<HeuristicListener*>::iterator> *actAlgs;	// Algoritmos em execucao no momento
-	static int actThreads;											// Threads em execucao no momento
+	static int actThreads;										// Threads em execucao no momento
 
 	/* Funcao que executa em multiplas threads e retorna o numero de solucoes inseridas */
 	static void* pthrExec(void *obj);
@@ -74,20 +93,23 @@ private:
 	char outputResultFile[64];
 	char outputLogFile[64];
 
-	set<Problem*, bool (*)(Problem*, Problem*)> *pop; // Populacao principal
-	vector<Heuristic*> *algs;							// Algoritmos disponiveis
+	set<Problem*, bool (*)(Problem*, Problem*)> *solutions; 		// Populacao principal
+	vector<Heuristic*> *heuristics;									// Algoritmos disponiveis
 
-	int numThreads;									// Numero de threads que podem rodar ao mesmo tempo
-	int makespanBest;								// Melhor makespan conhecido
-	int populationSize, iterAteams, tentAteams, maxTime;	// Tamanho da populacao, numero de iteracoes, tentativas sem melhora e tempo maximo de execucao
-	int comparatorMode;								// Criterio de unicidade da populacao adotado
+	int numThreads;						// Numero de threads que podem rodar ao mesmo tempo
+	int bestKnownFitness;				// Melhor makespan conhecido
+	int populationSize;					// Tamanho da populacao
+	int iterations; 					// Numero de iteracoes
+	int attemptsWithoutImprovement; 	// Tentativas sem melhora
+	int maxExecutionTime;				// Tempo maximo de execucao
+	int comparatorMode;					// Criterio de unicidade da populacao adotado
 
 	bool printFullSolution;				// Imprime melhor solucao
-	bool activeListener;				// Informa se as heuristicas serao acompanhadas por um listener
+	bool heuristicListener;				// Informa se as heuristicas serao acompanhadas por um listener
 
-	time_t time1, time2;				// Medidor do tempo inicial e final
-	int iterMelhora = 0;				// Ultima iteracao em que houve melhora
-	int execThreads = 0;				// Threads executadas
+	time_t startTime, endTime;			// Medidor do tempo inicial e final
+	int lastImprovedIteration = 0;		// Ultima iteracao em que houve melhora
+	int executionCount = 0;				// Threads executadas
 
 	Control();
 
@@ -106,7 +128,7 @@ private:
 	void startElement(const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs);
 
 	/* Leitura dos parametros passados por linha de comando */
-	void readCMDParameters();
+	void readMainCMDParameters();
 
 	/* Le parametros adicionais passados por linha de comando (Sobrepujam as lidas no arquivo de configuracao) */
 	void readAdditionalCMDParameters();
@@ -127,13 +149,11 @@ public:
 	/* Comeca a execucao do Ateams utilizando os algoritmos disponiveis */
 	Problem* start(list<Problem*> *popInicial);
 
-	/* Retorna a quantidade de algoritimos executados */
-	int getExecutions();
-
 	list<Problem*>* getSolutions();		// Retorna a populacao da memoria principal
 	Problem* getSolution(int n);		// Retorna a solucao n da memoria principal
-	void getInfo(ExecInfo *info);		// Retorna algumas informacoes da ultima execucao
 	void checkSolutions();
+
+	ExecutionInfo getExecutionInfo();		// Retorna algumas informacoes da ultima execucao
 
 	void printSolution(Problem*);
 

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Controller
-   iterAteams = "250"
-   tentAteams = "100"
-   maxTimeAteams = "3600"
+   iterations = "250"
+   attemptsWithoutImprovement = "100"
+   maxExecutionTime = "3600"
    numThreads = "8"
    populationSizeAteams = "500"
    comparatorMode = "1"
-   makespanBest = "-1">
+   bestKnownFitness = "-1">
 
   <Heuristics>
 

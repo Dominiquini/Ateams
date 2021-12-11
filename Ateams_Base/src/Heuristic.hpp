@@ -2,13 +2,13 @@
 
 using namespace std;
 
+#ifndef _HEURISTIC_
+#define _HEURISTIC_
+
 extern pthread_mutex_t mutex_pop;
 extern pthread_mutex_t mutex_exec;
 
 extern volatile bool TERMINATE;
-
-#ifndef _HEURISTIC_
-#define _HEURISTIC_
 
 class HeuristicListener;
 

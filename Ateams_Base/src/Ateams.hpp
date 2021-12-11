@@ -36,36 +36,18 @@ using namespace std;
 #ifndef _ATEAMS_
 #define _ATEAMS_
 
-typedef enum ProblemType {
-	MINIMIZACAO, MAXIMIZACAO
-} ProblemType;
+enum ProblemType {
+	MINIMIZATION, MAXIMIZATION
+};
+
+enum Heuristics {
+	SA, BT, AG
+};
 
 struct ExecHeuristicsInfo {
 	bool tabu;
 	bool genetic;
 	bool annealing;
-};
-
-struct ExecInfo {
-	double diffTime;
-	int numExecs;
-	long int expSol;
-	double worstFitness;
-	double bestFitness;
-};
-
-struct ParametersAteams {
-	int populationSizeAteams;
-	int comparatorMode;
-	int iterAteams;
-	int numThreads;
-	int tentAteams;
-	int maxTimeAteams;
-	int makespanBest;
-};
-
-enum Heuristics {
-	SA, BT, AG
 };
 
 void terminate(int signal);

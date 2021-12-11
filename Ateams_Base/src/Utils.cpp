@@ -1,17 +1,20 @@
 #include "Utils.hpp"
 
+#include "Control.hpp"
+
 using namespace std;
+
+static random_device randomDevice;
 
 int xRand() {
 	return xRand(0, RAND_MAX);
 }
 
 int xRand(int min, int max) {
-	random_device rd;
-	mt19937_64 gen(rd());
-	uniform_int_distribution<int> distr(min, max - 1);
+	mt19937_64 randomNumberGenerator(randomDevice());
+	uniform_int_distribution<int> randomDistribution(min, max - 1);
 
-	return distr(gen);
+	return randomDistribution(randomNumberGenerator);
 }
 
 string getExceptionMessage(exception_ptr &eptr) {
