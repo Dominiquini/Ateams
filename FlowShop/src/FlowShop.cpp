@@ -349,7 +349,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* FlowShop::localSearch() {
 	return local;
 }
 
-/* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
+/* Retorna um conjunto de uma parcela das solucoes viaveis vizinhas da atual. */
 inline vector<pair<Problem*, InfoTabu*>*>* FlowShop::localSearch(float parcela) {
 	Problem *job = NULL;
 	int p1, p2;
@@ -379,6 +379,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* FlowShop::localSearch(float parcela) 
 			delete job;
 		}
 	}
+
 	sort(local->begin(), local->end(), ptcomp);
 
 	return local;

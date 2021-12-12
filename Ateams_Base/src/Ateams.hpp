@@ -36,10 +36,6 @@ using namespace std;
 #ifndef _ATEAMS_
 #define _ATEAMS_
 
-enum ProblemType {
-	MINIMIZATION, MAXIMIZATION
-};
-
 enum Heuristics {
 	SA, BT, AG
 };

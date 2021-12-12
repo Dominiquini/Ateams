@@ -13,7 +13,7 @@
 
     <SimulatedAnnealing
        name = "SA1"
-       probSA = "35"
+       probSA = "24"
        choicePolicySA = "250"
        elitismProbabilitySA = "0.25"
        maxIterationsSA = "250"
@@ -25,7 +25,7 @@
 
     <SimulatedAnnealing
        name = "SA2"
-       probSA = "6"
+       probSA = "10"
        choicePolicySA = "10"
        elitismProbabilitySA = "0.25"
        maxIterationsSA = "250"
@@ -37,7 +37,7 @@
 
     <SimulatedAnnealing
        name = "SA3"
-       probSA = "6"
+       probSA = "5"
        choicePolicySA = "10"
        elitismProbabilitySA = "0.25"
        maxIterationsSA = "25000"
@@ -49,7 +49,7 @@
 
     <TabuSearch
        name = "BT1"
-       probBT = "20"
+       probBT = "22"
        choicePolicyTS = "500"
        elitismProbabilityTS = "0.25"
        aspirationCriteriaTS = "0.5"
@@ -73,7 +73,7 @@
 
     <TabuSearch
        name = "BT3"
-       probBT = "10"
+       probBT = "8"
        choicePolicyTS = "250"
        elitismProbabilityTS = "0.2"
        aspirationCriteriaTS = "0.5"
@@ -85,7 +85,7 @@
 
     <GeneticAlgorithm
        name = "AG1"
-       probAG = "9"
+       probAG = "12"
        choicePolicyGA = "-1"
        iterationsGA = "500"
        populationSizeAG = "250"
@@ -97,14 +97,26 @@
 
     <GeneticAlgorithm
        name = "AG2"
-       probAG = "4"
+       probAG = "6"
        choicePolicyGA = "-1"
-       iterationsGA = "1000"
+       iterationsGA = "750"
        populationSizeAG = "500"
        partitionSizeAG = "0"
        crossoverProbabilityAG = "0.8"
-       crossoverPowerAG = "1"
+       crossoverPowerAG = "0.5"
        mutationProbabilityAG = "0.2">
+    </GeneticAlgorithm>
+    
+    <GeneticAlgorithm
+       name = "AG3"
+       probAG = "3"
+       choicePolicyGA = "-1"
+       iterationsGA = "1000"
+       populationSizeAG = "750"
+       partitionSizeAG = "0"
+       crossoverProbabilityAG = "0.99"
+       crossoverPowerAG = "1"
+       mutationProbabilityAG = "0.8">
     </GeneticAlgorithm>
 
   </Heuristics>

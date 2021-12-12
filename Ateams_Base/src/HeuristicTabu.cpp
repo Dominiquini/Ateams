@@ -122,7 +122,7 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicListener *listener) {
 			listener->setInfo("Iteration: %d", i + 1);
 		}
 
-		if (polExploracao >= 1) {
+		if (polExploracao <= 0 || polExploracao >= 1) {
 			// Pega uma lista de todos os "vizinhos" de maxLocal
 			vizinhanca = maxLocal->localSearch();
 		} else {

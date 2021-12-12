@@ -26,6 +26,17 @@ private:
 	vector<Problem*>* exec(Problem*, HeuristicListener* listener);
 };
 
+class InfoTabu {
+public:
+
+	virtual bool operator ==(InfoTabu&) = 0;
+
+	InfoTabu() {
+	}
+	virtual ~InfoTabu() {
+	}
+};
+
 bool isTabu(list<InfoTabu*> *listaTabu, InfoTabu *m);
 
 void addTabu(list<InfoTabu*>* listaTabu, InfoTabu *m, int max);

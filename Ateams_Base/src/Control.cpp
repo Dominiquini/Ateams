@@ -1,5 +1,6 @@
 #include "Control.hpp"
 
+using namespace xercesc;
 using namespace std;
 
 pthread_mutex_t mutex_pop;	// Mutex que protege a populacao principal
@@ -67,9 +68,9 @@ Control::Control() {
 	this->lastImprovedIteration = 0;
 	this->executionCount = 0;
 
-	execAlgs = new list<HeuristicListener*>;
-	actAlgs = new list<list<HeuristicListener*>::iterator>;
-	actThreads = 0;
+	executedHeuristics = new list<HeuristicListener*>;
+	runningHeuristics = new list<list<HeuristicListener*>::iterator>;
+	runningThreads = 0;
 
 	pthread_mutex_init(&mutex_pop, NULL);
 	pthread_mutex_init(&mutex_cont, NULL);
@@ -94,14 +95,14 @@ Control::~Control() {
 	heuristics->clear();
 	delete heuristics;
 
-	for (list<HeuristicListener*>::iterator it = execAlgs->begin(); it != execAlgs->end(); it++)
+	for (list<HeuristicListener*>::iterator it = executedHeuristics->begin(); it != executedHeuristics->end(); it++)
 		delete *it;
 
-	execAlgs->clear();
-	delete execAlgs;
+	executedHeuristics->clear();
+	delete executedHeuristics;
 
-	actAlgs->clear();
-	delete actAlgs;
+	runningHeuristics->clear();
+	delete runningHeuristics;
 
 	pthread_mutex_destroy(&mutex_pop);
 	pthread_mutex_destroy(&mutex_cont);
@@ -109,37 +110,37 @@ Control::~Control() {
 	pthread_mutex_destroy(&mutex_exec);
 }
 
-inline int Control::execute(int idThread) {
+int Control::execute(int idThread) {
 	list<HeuristicListener*>::iterator listener_iterator;
 	vector<Problem*> *newSoluctions = NULL;
 	HeuristicListener *listener = NULL;
-	Heuristic *alg = NULL;
+	Heuristic *algorithm = NULL;
 	pair<int, int> *insert;
 	string execNames;
 	int contrib = 0;
 
 	pthread_mutex_lock(&mutex_info);
 	{
-		alg = selectRouletteWheel(heuristics, Heuristic::heuristicsAvailable);
-		listener = new HeuristicListener(alg, idThread);
+		algorithm = selectRouletteWheel(heuristics, Heuristic::heuristicsAvailable);
+		listener = new HeuristicListener(algorithm, idThread);
 
-		actThreads++;
+		runningThreads++;
 
-		listener_iterator = execAlgs->insert(execAlgs->begin(), listener);
-		actAlgs->push_back(listener_iterator);
+		listener_iterator = executedHeuristics->insert(executedHeuristics->begin(), listener);
+		runningHeuristics->push_back(listener_iterator);
 
 		execNames = "";
-		for (list<list<HeuristicListener*>::iterator>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
+		for (list<list<HeuristicListener*>::iterator>::iterator it = runningHeuristics->begin(); it != runningHeuristics->end(); it++)
 			execNames = execNames + (**it)->info + " ";
 
-		printf(">>> ALG: %s | ..................................................... | QUEUE: (%d : %s)\n", listener->info.c_str(), actThreads, execNames.c_str());
+		printf(">>> ALG: %s | ..................................................... | QUEUE: (%d : %s)\n", listener->info.c_str(), runningThreads, execNames.c_str());
 	}
 	pthread_mutex_unlock(&mutex_info);
 
 	if (this->heuristicListener)
-		newSoluctions = alg->start(solutions, listener);
+		newSoluctions = algorithm->start(solutions, listener);
 	else
-		newSoluctions = alg->start(solutions, NULL);
+		newSoluctions = algorithm->start(solutions, NULL);
 
 	pthread_mutex_lock(&mutex_pop);
 	{
@@ -162,19 +163,17 @@ inline int Control::execute(int idThread) {
 
 	pthread_mutex_lock(&mutex_info);
 	{
-		actThreads--;
+		runningThreads--;
 
-		list<list<HeuristicListener*>::iterator>::iterator exec = find(actAlgs->begin(), actAlgs->end(), listener_iterator);
+		list<list<HeuristicListener*>::iterator>::iterator exec = find(runningHeuristics->begin(), runningHeuristics->end(), listener_iterator);
 
-		actAlgs->erase(exec);
-
-		printf("<<< ALG: %s | ITER: %.3d | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d", listener->info.c_str(), executionCount, (int) Problem::best, (int) Problem::worst, insert->first, insert->second);
+		runningHeuristics->erase(exec);
 
 		execNames = "";
-		for (list<list<HeuristicListener*>::iterator>::iterator it = actAlgs->begin(); it != actAlgs->end(); it++)
+		for (list<list<HeuristicListener*>::iterator>::iterator it = runningHeuristics->begin(); it != runningHeuristics->end(); it++)
 			execNames = execNames + (**it)->info + " ";
 
-		printf(" | QUEUE: (%d : %s)\n", actThreads, execNames.c_str());
+		printf("<<< ALG: %s | ITER: %.3d | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d | QUEUE: (%d : %s)\n", listener->info.c_str(), executionCount, (int) Problem::best, (int) Problem::worst, insert->first, insert->second, runningThreads, execNames.c_str());
 	}
 	pthread_mutex_unlock(&mutex_info);
 
@@ -185,7 +184,7 @@ inline int Control::execute(int idThread) {
 	return contrib;
 }
 
-inline pair<int, int>* Control::addSolutions(vector<Problem*> *news) {
+pair<int, int>* Control::addSolutions(vector<Problem*> *news) {
 	pair<set<Problem*, bool (*)(Problem*, Problem*)>::iterator, bool> ret;
 	vector<Problem*>::const_iterator iterNews;
 	int nins = 0, nret = news->size();
@@ -218,7 +217,7 @@ inline pair<int, int>* Control::addSolutions(vector<Problem*> *news) {
 	return new pair<int, int>(nret, nins);
 }
 
-inline void Control::generatePopulation(list<Problem*> *popInicial) {
+void Control::generatePopulation(list<Problem*> *popInicial) {
 	pair<set<Problem*, bool (*)(Problem*, Problem*)>::iterator, bool> ret;
 
 	if (popInicial != NULL) {
@@ -275,7 +274,7 @@ inline void Control::generatePopulation(list<Problem*> *popInicial) {
 	return;
 }
 
-inline void Control::startElement(const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) {
+void Control::startElement(const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) {
 	char *element = XMLString::transcode(localname);
 
 	if (strcasecmp(element, "Controller") == 0) {
@@ -330,7 +329,7 @@ inline void Control::startElement(const XMLCh *const uri, const XMLCh *const loc
 	XMLString::release(&element);
 }
 
-inline void Control::readMainCMDParameters() {
+void Control::readMainCMDParameters() {
 	int p = -1;
 
 	if ((p = findPosArgv(argv, *argc, (char*) "-p")) != -1) {
@@ -455,7 +454,7 @@ inline int Control::findPosArgv(char **in, int num, char *key) {
 void Control::addHeuristic(Heuristic *alg) {
 	heuristics->push_back(alg);
 
-	sort(heuristics->begin(), heuristics->end(), cmpAlg);
+	sort(heuristics->begin(), heuristics->end(), Heuristic::comparator);
 }
 
 Problem* Control::start(list<Problem*> *popInicial) {
@@ -661,11 +660,8 @@ vector<Problem*>::iterator Control::selectRouletteWheel(vector<Problem*> *probs,
 }
 
 Heuristic* Control::selectRouletteWheel(vector<Heuristic*> *heuristic, unsigned int probTotal) {
-	if (heuristic == NULL || heuristic->size() == 0) {
-		cout << "No Heuristics Defined!" << endl << endl;
-
-		exit(1);
-	}
+	if (heuristic == NULL || heuristic->size() == 0)
+		throw "No Heuristics Defined!";
 
 	// Armazena o fitness total da populacao
 	unsigned int sum = probTotal;
@@ -678,6 +674,7 @@ Heuristic* Control::selectRouletteWheel(vector<Heuristic*> *heuristic, unsigned 
 			return heuristic->at(i);
 		}
 	}
+
 	return heuristic->at(0);
 }
 
@@ -781,7 +778,7 @@ void Control::display() {
 	/* Desenha as informacoes na tela */
 	float linha = 1.4;
 	float coluna = -5;
-	for (list<list<HeuristicListener*>::iterator>::iterator iter = actAlgs->begin(); iter != actAlgs->end(); iter++) {
+	for (list<list<HeuristicListener*>::iterator>::iterator iter = runningHeuristics->begin(); iter != runningHeuristics->end(); iter++) {
 		glColor3f(1.0f, 0.0f, 0.0f);
 		Control::drawstr(coluna, linha + 0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (**iter)->info.c_str(), (**iter)->status);
 
@@ -835,9 +832,9 @@ void Control::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, const char *form
 
 Control *Control::instance = NULL;
 
-list<HeuristicListener*> *Control::execAlgs = NULL;
-list<list<HeuristicListener*>::iterator> *Control::actAlgs = NULL;
-int Control::actThreads = 0;
+list<HeuristicListener*> *Control::executedHeuristics = NULL;
+list<list<HeuristicListener*>::iterator> *Control::runningHeuristics = NULL;
+int Control::runningThreads = 0;
 
 int *Control::argc = NULL;
 char **Control::argv = NULL;

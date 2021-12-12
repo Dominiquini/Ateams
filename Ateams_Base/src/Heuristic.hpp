@@ -18,6 +18,10 @@ public:
 
 	static int heuristicsAvailable;
 
+	static bool comparator(Heuristic *h1, Heuristic *h2){
+		return h1->choiceProbability < h2->choiceProbability;
+	}
+
 	string name;
 	int executionCounter = 0;
 	int choiceProbability = 0, choicePolicy = 0;

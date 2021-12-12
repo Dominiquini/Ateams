@@ -339,7 +339,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* GraphColoring::localSearch() {
 	return local;
 }
 
-/* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
+/* Retorna um conjunto de uma parcela das solucoes viaveis vizinhas da atual. */
 inline vector<pair<Problem*, InfoTabu*>*>* GraphColoring::localSearch(float parcela) {
 	Problem *prob = NULL;
 	int p1, p2;
@@ -366,6 +366,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* GraphColoring::localSearch(float parc
 
 		local->push_back(temp);
 	}
+
 	sort(local->begin(), local->end(), ptcomp);
 
 	return local;

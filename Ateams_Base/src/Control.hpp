@@ -2,6 +2,7 @@
 #include <xercesc/sax2/DefaultHandler.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/Attributes.hpp>
+#include <xercesc/util/XercesDefs.hpp>
 #include <xercesc/util/XMLString.hpp>
 
 using namespace xercesc;
@@ -28,25 +29,15 @@ struct ExecutionInfo {
 	double bestFitness;
 };
 
-struct ParametersAteams {
-	int populationSize;
-	int comparatorMode;
-	int iterations;
-	int numThreads;
-	int attemptsWithoutImprovement;
-	int maxExecutionTime;
-	int bestKnownFitness;
-};
-
 class Control: public DefaultHandler {
 
 private:
 	/* Instancia do controle */
 	static Control *instance;
 
-	static list<HeuristicListener*> *execAlgs;					// Algoritmos executados ate o momento
-	static list<list<HeuristicListener*>::iterator> *actAlgs;	// Algoritmos em execucao no momento
-	static int actThreads;										// Threads em execucao no momento
+	static list<HeuristicListener*> *executedHeuristics;				// Algoritmos executados ate o momento
+	static list<list<HeuristicListener*>::iterator> *runningHeuristics;	// Algoritmos em execucao no momento
+	static int runningThreads;											// Threads em execucao no momento
 
 	/* Funcao que executa em multiplas threads e retorna o numero de solucoes inseridas */
 	static void* pthrExec(void *obj);
@@ -173,9 +164,5 @@ public:
 		return outputResultFile;
 	}
 };
-
-inline bool cmpAlg(Heuristic *h1, Heuristic *h2) {
-	return h1->choiceProbability < h2->choiceProbability;
-}
 
 #endif

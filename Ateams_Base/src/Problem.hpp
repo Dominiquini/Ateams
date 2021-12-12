@@ -10,30 +10,16 @@ extern pthread_mutex_t mutex_cont;
 
 struct ExecutionInfo;
 
-class Problem;
 class InfoTabu;
-class Solution;
 
-bool fncomp1(Problem*, Problem*);	//Se P1 for menor que P2
-bool fncomp2(Problem*, Problem*); 	//Se P1 for menor que P2, considerando apenas o fitness
-bool fnequal1(Problem*, Problem*);	//Se P1 for igual a P2
-bool fnequal2(Problem*, Problem*);	//Se P1 for igual a P2, considerando apenas o fitness
+enum ProblemType {
+	MINIMIZATION, MAXIMIZATION
+};
 
 class Solution {
 protected:
 
 	double fitness;		// Fitness da solucao
-};
-
-class InfoTabu {
-public:
-
-	virtual bool operator ==(InfoTabu&) = 0;
-
-	InfoTabu() {
-	}
-	virtual ~InfoTabu() {
-	}
 };
 
 class Problem {
@@ -121,5 +107,10 @@ private:
 	friend bool fncomp1(Problem*, Problem*);	// Comparacao profunda
 	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
 };
+
+bool fncomp1(Problem*, Problem*);	//Se P1 for menor que P2
+bool fncomp2(Problem*, Problem*); 	//Se P1 for menor que P2, considerando apenas o fitness
+bool fnequal1(Problem*, Problem*);	//Se P1 for igual a P2
+bool fnequal2(Problem*, Problem*);	//Se P1 for igual a P2, considerando apenas o fitness
 
 #endif

@@ -430,13 +430,14 @@ inline vector<pair<Problem*, InfoTabu*>*>* JobShop::localSearch() {
 			}
 		}
 	}
+
 	random_shuffle(local->begin(), local->end());
 	sort(local->begin(), local->end(), ptcomp);
 
 	return local;
 }
 
-/* Retorna um conjunto de com uma parcela das solucoes viaveis vizinhas da atual. */
+/* Retorna um conjunto de uma parcela das solucoes viaveis vizinhas da atual. */
 inline vector<pair<Problem*, InfoTabu*>*>* JobShop::localSearch(float parcela) {
 	Problem *job = NULL;
 	int maq, p1, p2;
@@ -467,6 +468,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* JobShop::localSearch(float parcela) {
 			delete job;
 		}
 	}
+
 	sort(local->begin(), local->end(), ptcomp);
 
 	return local;
