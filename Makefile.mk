@@ -5,15 +5,15 @@ AR = ar
 RANLIB = ranlib
 
 ifdef DEBUG
-  CXXFLAGS = -Wall -pedantic -Og -g3 -march=native
+  CXXFLAGS = -Wall -pedantic -Og -g3 -march=native -mtune=native
 else ifdef PROFILE
-  CXXFLAGS = -Wall -pedantic -O2 -pg -march=native
+  CXXFLAGS = -Wall -pedantic -O2 -pg -march=native -mtune=native
 else
-  CXXFLAGS = -Wall -pedantic -O3 -march=native
+  CXXFLAGS = -Wall -pedantic -O3 -march=native -mtune=native
 endif
 
 ifeq ($(OS), Windows_NT)
-  LDFLAGS = -lmingw32 -lpthread -lfreeglut -lopengl32 -lGLU32 -lxerces-c
+  LDFLAGS = -lpthread -lfreeglut -lopengl32 -lGLU32 -lxerces-c
 else
   LDFLAGS = -lpthread -lglut -lGL -lGLU -lxerces-c
 endif

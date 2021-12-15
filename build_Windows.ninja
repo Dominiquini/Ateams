@@ -1,5 +1,5 @@
-cxxflags = -Wall -pedantic -O3 -march=native
-ldflags = -lmingw32 -lpthread -lfreeglut -lopengl32 -lGLU32 -lxerces-c
+cxxflags = -Wall -pedantic -O3 -march=native -mtune=native
+ldflags = -lpthread -lfreeglut -lopengl32 -lGLU32 -lxerces-c
 
 
 pool default_pool
