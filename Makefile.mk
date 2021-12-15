@@ -69,6 +69,8 @@ RUN_PARAM = -p $(PATH_PROJ_PARAM)DEFAULT.xml
 
 NINJA_OUTPUTS = .ninja_deps .ninja_log
 
+PROFILE_OUTPUT = gmon.out
+
 MKDIR = mkdir -p
 RM = rm -rf
 

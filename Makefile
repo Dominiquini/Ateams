@@ -43,6 +43,7 @@ clean:				--delete
 purge:				COMMAND=purge
 purge:				--delete
 					$(RM) $(NINJA_OUTPUTS)
+					$(RM) $(PROFILE_OUTPUT)
 
 --delete:
 					$(MAKE) -s $(COMMAND) -C $(PATH_BASE)
