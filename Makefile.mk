@@ -51,11 +51,13 @@ BASE_SRCS = $(wildcard $(PATH_BASE_SRC)*.cpp)
 BASE_HEADERS = $(wildcard $(PATH_BASE_SRC)*.hpp)
 BASE_OBJS = $(subst $(PATH_BASE_SRC),$(PATH_BASE_BIN),$(subst .cpp,.o,$(BASE_SRCS)))
 BASE_LIB = $(PATH_BASE_BIN)Ateams_Base.a
+BASE_DEPS = $(BASE_OBJS:.o=.o.d)
 
 PROJ_SRCS = $(wildcard $(PATH_PROJ_SRC)*.cpp)
 PROJ_HEADERS = $(wildcard $(PATH_PROJ_SRC)*.hpp)
 PROJ_OBJS = $(subst $(PATH_PROJ_SRC),$(PATH_PROJ_BIN),$(subst .cpp,.o,$(PROJ_SRCS)))
 PROJ_BIN = $(PATH_PROJ_BIN)$(PROJ)$(BIN_EXT)
+PROJ_DEPS = $(PROJ_OBJS:.o=.o.d)
 
 PATTERN_BASE_SRCS = $(PATH_BASE_SRC)%.cpp
 PATTERN_BASE_HEADERS = $(PATH_BASE_SRC)%.hpp

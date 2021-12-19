@@ -1,5 +1,7 @@
 include ../Makefile.mk
 
+-include $(PROJ_DEPS)
+
 PATH_ROOT = ../
 
 PROJ = KnapSack
@@ -18,7 +20,7 @@ run:					$(PATH_PROJ_RES) all
 						$(PROJ_BIN) $(RUN_PARAM)
 
 clean:
-						$(RM) $(PROJ_OBJS) $(PROJ_BIN) $(PATH_PROJ_BIN)
+						$(RM) $(PROJ_OBJS) $(PROJ_DEPS) $(PROJ_BIN) $(PATH_PROJ_BIN)
 
 purge:					clean
 						$(RM) $(PATH_PROJ_RES)
@@ -33,7 +35,7 @@ $(BASE_LIB):			$(BASE_SRCS) $(BASE_HEADERS)
 						$(MAKE) -C $(PATH_BASE)
 
 $(PATTERN_PROJ_OBJS):	$(PATTERN_PROJ_SRCS) $(PROJ_HEADERS)
-						$(CC) $(CXXFLAGS) -c $< -o $@
+						$(CC) $(CXXFLAGS) -MMD -MF $(patsubst %.o,%.o.d,$@) -c $< -o $@
 
 $(PROJ_BIN):			$(BASE_LIB) $(PROJ_OBJS)
 						$(CC) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)

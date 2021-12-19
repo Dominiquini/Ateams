@@ -9,7 +9,7 @@ pool default_pool
 rule compile
   deps = gcc
   depfile = $out.d
-  command = g++ -MD -MF $out.d $cxxflags -c -o $out $in $ldflags
+  command = g++ -MMD -MF $out.d $cxxflags -c -o $out $in $ldflags
   description = COMPILE $out
   pool = default_pool
 
