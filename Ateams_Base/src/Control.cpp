@@ -380,7 +380,7 @@ void Control::readMainCMDParameters() {
 		printf("~Log File: ---\n");
 	}
 
-	setPrintFullSolution(findPosArgv(argv, *argc, (char*) "-d") != -1);
+	setPrintFullSolution(findPosArgv(argv, *argc, (char*) "-s") != -1);
 	setGraphicStatusInfoScreen(findPosArgv(argv, *argc, (char*) "-g") != -1);
 }
 
@@ -407,31 +407,28 @@ void Control::readAdditionalCMDParameters() {
 
 	if ((p = findPosArgv(argv, *argc, (char*) "--bestKnownFitness")) != -1)
 		setParameter("bestKnownFitness", argv[p]);
-
-	if ((p = findPosArgv(argv, *argc, (char*) "--randomSeed")) != -1)
-		setParameter("randomSeed", argv[p]);
 }
 
 bool Control::setParameter(const char *parameter, const char *value) {
+	int read = EOF;
+
 	if (strcasecmp(parameter, "iterations") == 0) {
-		sscanf(value, "%d", &iterations);
+		read = sscanf(value, "%d", &iterations);
 	} else if (strcasecmp(parameter, "attemptsWithoutImprovement") == 0) {
-		sscanf(value, "%d", &attemptsWithoutImprovement);
+		read = sscanf(value, "%d", &attemptsWithoutImprovement);
 	} else if (strcasecmp(parameter, "maxExecutionTime") == 0) {
-		sscanf(value, "%d", &maxExecutionTime);
+		read = sscanf(value, "%d", &maxExecutionTime);
 	} else if (strcasecmp(parameter, "numThreads") == 0) {
-		sscanf(value, "%d", &numThreads);
+		read = sscanf(value, "%d", &numThreads);
 	} else if (strcasecmp(parameter, "populationSizeAteams") == 0) {
-		sscanf(value, "%d", &populationSize);
+		read = sscanf(value, "%d", &populationSize);
 	} else if (strcasecmp(parameter, "comparatorMode") == 0) {
-		sscanf(value, "%d", &comparatorMode);
+		read = sscanf(value, "%d", &comparatorMode);
 	} else if (strcasecmp(parameter, "bestKnownFitness") == 0) {
-		sscanf(value, "%d", &bestKnownFitness);
-	} else {
-		return false;
+		read = sscanf(value, "%d", &bestKnownFitness);
 	}
 
-	return true;
+	return read != EOF;
 }
 
 inline void Control::setPrintFullSolution(bool fullPrint) {

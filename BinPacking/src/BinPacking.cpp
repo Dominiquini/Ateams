@@ -367,7 +367,6 @@ inline void BinPacking::print(bool esc) {
 			printf("%d ", solution.ordemItens[j]);
 		}
 	}
-	printf("\n");
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */

@@ -325,7 +325,6 @@ inline void KnapSack::print(bool esc) {
 		for (int i = 0; i < nitens; i++)
 			printf("%d ", solution.ordemItens[i]);
 	}
-	printf("\n");
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */

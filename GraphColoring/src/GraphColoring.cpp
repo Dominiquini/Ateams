@@ -295,7 +295,6 @@ inline void GraphColoring::print(bool esc) {
 			printf("%d ", solution.ordemNodes[j]);
 		}
 	}
-	printf("\n");
 }
 
 /* Retorna um vizinho aleatorio da solucao atual. */

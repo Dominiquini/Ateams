@@ -371,7 +371,8 @@ inline void JobShop::print(bool esc) {
 			}
 			printf("\n");
 		}
-		printf("\n\nLegenda:\n\n");
+
+		printf("\n\nLabels:\n\n");
 
 		for (int i = 0; i < njob; i++)
 			printf("%c: job %d\n", ((char) i) + 'a', i);
