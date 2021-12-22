@@ -68,7 +68,7 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 			throw "Wrong Log File!";
 
 		for (int i = 0; i < nprob; i++) {
-			prob = (short int*) alocaMatriz(1, njob, 1, 1);
+			prob = (short int*) allocateMatrix(1, njob, 1, 1);
 
 			if (!fscanf(f, "%d", &makespan))
 				throw "Wrong Log File!";
@@ -144,6 +144,7 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo *in
 
 void Problem::allocateMemory() {
 	FlowShop::time = (int**) malloc(FlowShop::njob * sizeof(int*));
+
 	for (int i = 0; i < FlowShop::njob; i++)
 		FlowShop::time[i] = (int*) malloc(FlowShop::nmaq * sizeof(int));
 }
@@ -151,13 +152,14 @@ void Problem::allocateMemory() {
 void Problem::deallocateMemory() {
 	for (int i = 0; i < FlowShop::njob; i++)
 		free(FlowShop::time[i]);
+
 	free(FlowShop::time);
 }
 
 /* Metodos */
 
 FlowShop::FlowShop() : Problem::Problem() {
-	solution.esc = (short int*) alocaMatriz(1, njob, 1, 1);
+	solution.esc = (short int*) allocateMatrix(1, njob, 1, 1);
 
 	for (int j = 0; j < njob; j++) {
 		solution.esc[j] = j;
@@ -186,7 +188,7 @@ FlowShop::FlowShop(short int *prob) : Problem::Problem() {
 FlowShop::FlowShop(const Problem &prob) : Problem::Problem() {
 	FlowShop *other = dynamic_cast<FlowShop*>(const_cast<Problem*>(&prob));
 
-	this->solution.esc = (short int*) alocaMatriz(1, njob, 1, 1);
+	this->solution.esc = (short int*) allocateMatrix(1, njob, 1, 1);
 	for (int j = 0; j < njob; j++)
 		this->solution.esc[j] = other->solution.esc[j];
 
@@ -194,19 +196,20 @@ FlowShop::FlowShop(const Problem &prob) : Problem::Problem() {
 	this->solution.fitness = other->solution.fitness;
 
 	if (other->solution.escalon != NULL) {
-		this->solution.escalon = (short int***) alocaMatriz(3, nmaq, njob, 3);
+		this->solution.escalon = (short int***) allocateMatrix(3, nmaq, njob, 3);
 		for (int i = 0; i < nmaq; i++)
 			for (int j = 0; j < njob; j++)
 				for (int k = 0; k < 3; k++)
 					this->solution.escalon[i][j][k] = other->solution.escalon[i][j][k];
 	}
+
 	exec = prob.exec;
 }
 
 FlowShop::FlowShop(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
 	FlowShop *other = dynamic_cast<FlowShop*>(const_cast<Problem*>(&prob));
 
-	this->solution.esc = (short int*) alocaMatriz(1, njob, 1, 1);
+	this->solution.esc = (short int*) allocateMatrix(1, njob, 1, 1);
 	for (int j = 0; j < njob; j++)
 		this->solution.esc[j] = other->solution.esc[j];
 
@@ -224,16 +227,16 @@ FlowShop::FlowShop(const Problem &prob, int pos1, int pos2) : Problem::Problem()
 
 FlowShop::~FlowShop() {
 	if (solution.esc != NULL)
-		desalocaMatriz(1, solution.esc, 1, 1);
+		deallocateMatrix(1, solution.esc, 1, 1);
 
 	if (solution.escalon != NULL)
-		desalocaMatriz(3, solution.escalon, FlowShop::nmaq, FlowShop::njob);
+		deallocateMatrix(3, solution.escalon, FlowShop::nmaq, FlowShop::njob);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 inline bool FlowShop::calcFitness(bool esc) {
-	short int ***aux_esc = (short int***) alocaMatriz(3, nmaq, njob, 3);
-	short int *pos = (short int*) alocaMatriz(1, nmaq, 1, 1);
+	short int ***aux_esc = (short int***) allocateMatrix(3, nmaq, njob, 3);
+	short int *pos = (short int*) allocateMatrix(1, nmaq, 1, 1);
 	int sum_time = 0;
 
 	for (int m = 0; m < nmaq; m++)
@@ -259,11 +262,11 @@ inline bool FlowShop::calcFitness(bool esc) {
 	}
 
 	if (esc == false)
-		desalocaMatriz(3, aux_esc, nmaq, njob);
+		deallocateMatrix(3, aux_esc, nmaq, njob);
 	else
 		solution.escalon = aux_esc;
 
-	desalocaMatriz(1, pos, 1, 1);
+	deallocateMatrix(1, pos, 1, 1);
 
 	solution.fitness = sum_time;
 
@@ -388,7 +391,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* FlowShop::localSearch(float parcela) 
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
 inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem *parceiro, int partitionSize, int strength) {
-	short int *f1 = (short int*) alocaMatriz(1, njob, 1, 1), *f2 = (short int*) alocaMatriz(1, njob, 1, 1);
+	short int *f1 = (short int*) allocateMatrix(1, njob, 1, 1), *f2 = (short int*) allocateMatrix(1, njob, 1, 1);
 	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = partitionSize == 0 ? (FlowShop::njob) / 2 : partitionSize;
 	int inicioPart = 0, fimPart = 0;
@@ -409,7 +412,7 @@ inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem *parceiro, in
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
 inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem *parceiro, int strength) {
-	short int *f1 = (short int*) alocaMatriz(1, njob, 1, 1), *f2 = (short int*) alocaMatriz(1, njob, 1, 1);
+	short int *f1 = (short int*) allocateMatrix(1, njob, 1, 1), *f2 = (short int*) allocateMatrix(1, njob, 1, 1);
 	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = 0;
 
@@ -428,7 +431,7 @@ inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem *parceiro, in
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
 inline Problem* FlowShop::mutation(int mutMax) {
-	short int *mut = (short int*) alocaMatriz(1, njob, 1, 1);
+	short int *mut = (short int*) allocateMatrix(1, njob, 1, 1);
 	Problem *vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
 	for (int j = 0; j < njob; j++)
@@ -473,54 +476,6 @@ inline void swap_vect(short int *p1, short int *p2, short int *f, int pos, int t
 
 		if (find(&p1[pos], &p1[pos + tam], p2[i]) == &p1[pos + tam])
 			f[j++] = p2[i];
-	}
-	return;
-}
-
-inline void* alocaMatriz(int dim, int a, int b, int c) {
-	if (dim == 1) {
-		short int *M = (short int*) malloc(a * sizeof(short int));
-
-		return (void*) M;
-	} else if (dim == 2) {
-		short int **M = (short int**) malloc(a * sizeof(short int*));
-		for (int i = 0; i < a; i++)
-			M[i] = (short int*) malloc(b * sizeof(short int));
-
-		return (void*) M;
-	} else if (dim == 3) {
-		short int ***M = (short int***) malloc(a * sizeof(short int**));
-		for (int i = 0; i < a; i++) {
-			M[i] = (short int**) malloc(b * sizeof(short int*));
-			for (int j = 0; j < b; j++)
-				M[i][j] = (short int*) malloc(c * sizeof(short int));
-		}
-
-		return (void*) M;
-	} else
-		return NULL;
-}
-
-inline void desalocaMatriz(int dim, void *MMM, int a, int b) {
-	if (dim == 1) {
-		short int *M = (short int*) MMM;
-
-		free(M);
-	} else if (dim == 2) {
-		short int **M = (short int**) MMM;
-
-		for (int i = 0; i < a; i++)
-			free(M[i]);
-		free(M);
-	} else if (dim == 3) {
-		short int ***M = (short int***) MMM;
-
-		for (int i = 0; i < a; i++) {
-			for (int j = 0; j < b; j++)
-				free(M[i][j]);
-			free(M[i]);
-		}
-		free(M);
 	}
 	return;
 }

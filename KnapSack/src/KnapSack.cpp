@@ -173,6 +173,7 @@ void Problem::allocateMemory() {
 	KnapSack::limit = (double*) malloc(KnapSack::ncontraint * sizeof(double));
 
 	KnapSack::constraint = (double**) malloc(KnapSack::nitens * sizeof(double*));
+
 	for (int i = 0; i < KnapSack::nitens; i++)
 		KnapSack::constraint[i] = (double*) malloc(KnapSack::ncontraint * sizeof(double));
 }
@@ -184,6 +185,7 @@ void Problem::deallocateMemory() {
 
 	for (int i = 0; i < KnapSack::ncontraint; i++)
 		free(KnapSack::constraint[i]);
+
 	free(KnapSack::constraint);
 }
 
@@ -238,6 +240,7 @@ KnapSack::KnapSack(const Problem &prob) : Problem::Problem() {
 	this->solution.limit = other->solution.limit;
 
 	this->solution.fitness = other->solution.fitness;
+
 	exec = prob.exec;
 }
 

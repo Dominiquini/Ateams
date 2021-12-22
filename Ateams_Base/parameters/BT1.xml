@@ -13,7 +13,7 @@
 
     <TabuSearch
        name = "BT1"
-       probBT = "20"
+       probBT = "22"
        choicePolicyTS = "500"
        elitismProbabilityTS = "0.25"
        aspirationCriteriaTS = "0.5"

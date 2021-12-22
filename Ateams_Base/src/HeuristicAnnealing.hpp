@@ -11,7 +11,7 @@ class SimulatedAnnealing: public Heuristic
 {
 public:
 
-	int maxIter, choicePolicy, elitism;
+	int maxIter, elitism;
 	float startTemp, endTemp;
 	bool restoreSolution;
 	float alfa;

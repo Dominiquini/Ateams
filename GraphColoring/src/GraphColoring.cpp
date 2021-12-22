@@ -205,6 +205,7 @@ GraphColoring::GraphColoring(const Problem &prob) : Problem::Problem() {
 		for (int i = 0; i < nnodes; i++)
 			this->solution.colors[i] = other->solution.colors[i];
 	}
+
 	exec = prob.exec;
 }
 

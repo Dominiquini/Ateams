@@ -52,7 +52,7 @@ bool GeneticAlgorithm::setParameter(const char *parameter, const char *value) {
 
 vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) {
 	vector<Problem*> *popAG = new vector<Problem*>();
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter = sol->end();
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter = sol->begin();
 	int i = 0, j = 0;
 
 	if (populationSizeGenetico > (int) sol->size())
@@ -72,17 +72,17 @@ vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Probl
 
 		for (i = 1; i < populationSizeGenetico; i++) {
 			/* Evita a escolha de individuos repetidos */
-			while ((iter == sol->end() || (*iter)->exec.genetic == true) && (j++ < populationSizeGenetico))
+			while ((iter == sol->begin() || (*iter)->exec.genetic == true) && (j++ < populationSizeGenetico))
 				iter = Control::selectRouletteWheel(sol, visao);
 
 			j = 0;
+
 			(*iter)->exec.genetic = true;
 			popAG->push_back(Problem::copySolution(**iter));
 		}
-		popAG->push_back(Problem::copySolution(**sol->begin()));
 
-		for (iter = sol->begin(); iter != sol->end(); iter++)
-			(*iter)->exec.genetic = false;
+		(*sol->begin())->exec.genetic = true;
+		popAG->push_back(Problem::copySolution(**sol->begin()));
 
 		sort(popAG->begin(), popAG->end(), fncomp2);
 	}

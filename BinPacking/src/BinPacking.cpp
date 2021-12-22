@@ -279,6 +279,7 @@ BinPacking::BinPacking(const Problem &prob) : Problem::Problem() {
 		for (int i = 0; i < nitens; i++)
 			this->solution.bins[i] = other->solution.bins[i];
 	}
+
 	exec = prob.exec;
 }
 

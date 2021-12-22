@@ -103,12 +103,6 @@ public:
 
 void swap_vect(short int *p1, short int *p2, short int *f, int pos, int tam);
 
-int findOrdem(int M, int maq, int *job);
-
-void* alocaMatriz(int, int, int, int);
-
-void desalocaMatriz(int, void*, int, int);
-
 bool ptcomp(pair<Problem*, InfoTabu*>*, pair<Problem*, InfoTabu*>*);
 
 bool find(vector<Problem*> *vect, Problem *p);

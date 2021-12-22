@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Controller
-   iterations = "250"
-   attemptsWithoutImprovement = "100"
+   iterations = "25"
+   attemptsWithoutImprovement = "10"
    maxExecutionTime = "3600"
    numThreads = "8"
    populationSizeAteams = "500"
@@ -88,7 +88,7 @@
        probAG = "12"
        choicePolicyGA = "-1"
        iterationsGA = "500"
-       populationSizeAG = "250"
+       populationSizeAG = "50"
        partitionSizeAG = "-1"
        crossoverProbabilityAG = "0.8"
        crossoverPowerAG = "0.25"
@@ -100,11 +100,11 @@
        probAG = "6"
        choicePolicyGA = "-1"
        iterationsGA = "750"
-       populationSizeAG = "500"
+       populationSizeAG = "100"
        partitionSizeAG = "0"
        crossoverProbabilityAG = "0.8"
        crossoverPowerAG = "0.5"
-       mutationProbabilityAG = "0.2">
+       mutationProbabilityAG = "0.14">
     </GeneticAlgorithm>
     
     <GeneticAlgorithm
@@ -112,11 +112,11 @@
        probAG = "3"
        choicePolicyGA = "-1"
        iterationsGA = "1000"
-       populationSizeAG = "750"
+       populationSizeAG = "250"
        partitionSizeAG = "0"
        crossoverProbabilityAG = "0.99"
-       crossoverPowerAG = "1"
-       mutationProbabilityAG = "0.8">
+       crossoverPowerAG = "0.75"
+       mutationProbabilityAG = "0.2">
     </GeneticAlgorithm>
 
   </Heuristics>

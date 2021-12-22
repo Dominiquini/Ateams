@@ -13,9 +13,9 @@ else
 endif
 
 ifeq ($(OS), Windows_NT)
-  LDFLAGS = -lpthread -lfreeglut -lopengl32 -lGLU32 -lxerces-c
+  LDFLAGS = -lpthread -lopengl32 -lGLU32 -lfreeglut -lxerces-c
 else
-  LDFLAGS = -lpthread -lglut -lGL -lGLU -lxerces-c
+  LDFLAGS = -lpthread -lGL -lGLU -lglut -lxerces-c
 endif
 
 ARFLAGS = -rsc

@@ -113,4 +113,53 @@ bool fncomp2(Problem*, Problem*); 	//Se P1 for menor que P2, considerando apenas
 bool fnequal1(Problem*, Problem*);	//Se P1 for igual a P2
 bool fnequal2(Problem*, Problem*);	//Se P1 for igual a P2, considerando apenas o fitness
 
+
+inline void* allocateMatrix(int dim, int a, int b, int c) {
+	if (dim == 1) {
+		short int *M = (short int*) malloc(a * sizeof(short int));
+
+		return (void*) M;
+	} else if (dim == 2) {
+		short int **M = (short int**) malloc(a * sizeof(short int*));
+		for (int i = 0; i < a; i++)
+			M[i] = (short int*) malloc(b * sizeof(short int));
+
+		return (void*) M;
+	} else if (dim == 3) {
+		short int ***M = (short int***) malloc(a * sizeof(short int**));
+		for (int i = 0; i < a; i++) {
+			M[i] = (short int**) malloc(b * sizeof(short int*));
+			for (int j = 0; j < b; j++)
+				M[i][j] = (short int*) malloc(c * sizeof(short int));
+		}
+
+		return (void*) M;
+	} else
+		return NULL;
+}
+
+inline void deallocateMatrix(int dim, void *MMM, int a, int b) {
+	if (dim == 1) {
+		short int *M = (short int*) MMM;
+
+		free(M);
+	} else if (dim == 2) {
+		short int **M = (short int**) MMM;
+
+		for (int i = 0; i < a; i++)
+			free(M[i]);
+		free(M);
+	} else if (dim == 3) {
+		short int ***M = (short int***) MMM;
+
+		for (int i = 0; i < a; i++) {
+			for (int j = 0; j < b; j++)
+				free(M[i][j]);
+			free(M[i]);
+		}
+		free(M);
+	}
+	return;
+}
+
 #endif

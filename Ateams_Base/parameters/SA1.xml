@@ -13,7 +13,7 @@
 
     <SimulatedAnnealing
        name = "SA1"
-       probSA = "35"
+       probSA = "24"
        choicePolicySA = "250"
        elitismProbabilitySA = "0.25"
        maxIterationsSA = "250"

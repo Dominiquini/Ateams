@@ -12,15 +12,15 @@
   <Heuristics>
 
     <GeneticAlgorithm
-       name = "AG2"
-       probAG = "6"
+       name = "AG3"
+       probAG = "3"
        choicePolicyGA = "-1"
-       iterationsGA = "750"
-       populationSizeAG = "100"
+       iterationsGA = "1000"
+       populationSizeAG = "250"
        partitionSizeAG = "0"
-       crossoverProbabilityAG = "0.8"
-       crossoverPowerAG = "0.5"
-       mutationProbabilityAG = "0.14">
+       crossoverProbabilityAG = "0.99"
+       crossoverPowerAG = "0.75"
+       mutationProbabilityAG = "0.2">
     </GeneticAlgorithm>
 
   </Heuristics>

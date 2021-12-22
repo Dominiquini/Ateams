@@ -34,10 +34,6 @@ using namespace std;
 #ifndef _ATEAMS_
 #define _ATEAMS_
 
-enum Heuristics {
-	SA, BT, AG
-};
-
 struct ExecHeuristicsInfo {
 	bool tabu;
 	bool genetic;
