@@ -49,7 +49,7 @@ public:
 class KnapSack: public Problem {
 private:
 
-	bool calcFitness(bool esc);						// Calcula o makespan
+	bool calcFitness();								// Calcula o makespan
 
 	Solucao_KnapSack solution;						// Representacao interna da solucao
 

@@ -4,7 +4,7 @@
    iterations = "250"
    attemptsWithoutImprovement = "100"
    maxExecutionTime = "3600"
-   numThreads = "4"
+   numThreads = "8"
    populationSizeAteams = "500"
    comparatorMode = "1"
    bestKnownFitness = "-1">

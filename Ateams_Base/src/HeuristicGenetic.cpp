@@ -220,7 +220,8 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicListene
 		sort(pop->begin(), pop->end(), fncomp2);
 
 		/* Mantem a populacao auxiliar sob controle */
-		random_shuffle(bad_pop->begin(), bad_pop->end());
+		random_shuffle(bad_pop->begin(), bad_pop->end(), pointer_to_unary_function<int, int>(xRand));
+
 		while ((int) bad_pop->size() > 10 * populationSizeGenetico) {
 			delete bad_pop->back();
 			bad_pop->pop_back();

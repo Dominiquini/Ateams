@@ -265,44 +265,44 @@ TravellingSalesman::TravellingSalesman() : Problem::Problem() {
 	solution.ordemNodes = (short int*) malloc((nnodes + 1) * sizeof(short int));
 	solution.fitness = -1;
 
-	if (xRand(0, 5) == 0)	// Tenta uma solucao gulosa
-			{
-		int noAtual = xRand(0, nnodes);
-		int proxNo = 0;
-		int pos = 0;
+	if (xRand(0, 5) == 0) { // Tenta uma solucao gulosa
+		int currentNode = xRand(0, nnodes);
+		int nextNode = 0;
+		int position = 0;
 		double d = 0;
 
-		solution.ordemNodes[pos++] = noAtual;
+		solution.ordemNodes[position++] = currentNode;
 		for (int i = 0; i < nnodes; i++) {
-			proxNo = -1;
+			nextNode = -1;
 			d = INT_MAX;
 
 			for (int j = 0; j < nnodes && i != nnodes - 1; j++) {
-				if (edges[noAtual][j] != -1 && edges[noAtual][j] < d && find(&solution.ordemNodes[0], &solution.ordemNodes[pos], j) == &solution.ordemNodes[pos]) {
-					proxNo = j;
-					d = edges[noAtual][proxNo];
+				if (edges[currentNode][j] != -1 && edges[currentNode][j] < d && find(&solution.ordemNodes[0], &solution.ordemNodes[position], j) == &solution.ordemNodes[position]) {
+					nextNode = j;
+					d = edges[currentNode][nextNode];
 				}
 			}
 
-			if (proxNo == -1) {
+			if (nextNode == -1) {
 				if (i == nnodes - 1)
-					proxNo = solution.ordemNodes[0];
+					nextNode = solution.ordemNodes[0];
 				else
 					return;
 			}
 
-			solution.ordemNodes[pos++] = proxNo;
-			noAtual = proxNo;
+			solution.ordemNodes[position++] = nextNode;
+			currentNode = nextNode;
 		}
 	} else {
-		for (int i = 0; i < nnodes; i++)
+		for (int i = 0; i < nnodes; i++) {
 			solution.ordemNodes[i] = i;
+		}
 
-		random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes]);
+		random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], pointer_to_unary_function<int, int>(xRand));
 		solution.ordemNodes[nnodes] = solution.ordemNodes[0];
 	}
 
-	calcFitness(false);
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -313,7 +313,7 @@ TravellingSalesman::TravellingSalesman(short int *prob) : Problem::Problem() {
 	solution.ordemNodes = prob;
 	solution.fitness = -1;
 
-	calcFitness(false);
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -323,7 +323,7 @@ TravellingSalesman::TravellingSalesman(short int *prob) : Problem::Problem() {
 TravellingSalesman::TravellingSalesman(const Problem &prob) : Problem::Problem() {
 	TravellingSalesman *other = dynamic_cast<TravellingSalesman*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemNodes = (short int*) malloc((nnodes + 1) * sizeof(short int));
+	this->solution.ordemNodes = (short int*) allocateMatrix(1, nnodes + 1, 1, 1);
 
 	for (int i = 0; i <= nnodes; i++)
 		this->solution.ordemNodes[i] = other->solution.ordemNodes[i];
@@ -336,7 +336,7 @@ TravellingSalesman::TravellingSalesman(const Problem &prob) : Problem::Problem()
 TravellingSalesman::TravellingSalesman(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
 	TravellingSalesman *other = dynamic_cast<TravellingSalesman*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemNodes = (short int*) malloc((nnodes + 1) * sizeof(short int));
+	this->solution.ordemNodes = (short int*) allocateMatrix(1, nnodes + 1, 1, 1);
 
 	for (int i = 0; i <= nnodes; i++)
 		this->solution.ordemNodes[i] = other->solution.ordemNodes[i];
@@ -351,7 +351,7 @@ TravellingSalesman::TravellingSalesman(const Problem &prob, int pos1, int pos2) 
 		solution.ordemNodes[0] = solution.ordemNodes[nnodes];
 
 	solution.fitness = -1;
-	calcFitness(false);
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -359,12 +359,11 @@ TravellingSalesman::TravellingSalesman(const Problem &prob, int pos1, int pos2) 
 }
 
 TravellingSalesman::~TravellingSalesman() {
-	if (solution.ordemNodes != NULL)
-		free(solution.ordemNodes);
+	deallocateMatrix(1, solution.ordemNodes, nnodes + 1, 1);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
-inline bool TravellingSalesman::calcFitness(bool esc) {
+inline bool TravellingSalesman::calcFitness() {
 	double sumEdges = 0;
 
 	double d;
@@ -442,7 +441,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* TravellingSalesman::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end());
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(xRand));
 	sort(local->begin(), local->end(), ptcomp);
 
 	return local;

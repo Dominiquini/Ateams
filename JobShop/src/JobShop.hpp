@@ -11,8 +11,8 @@ using namespace std;
 class Solution_JobShop: public Solution {
 private:
 
-	short int **esc;		// Solucao
-	short int ***escalon;	// Escalonamento nas maquinas - Grafico de Gant
+	short int **scaling;		// Solucao
+	short int ***staggering;	// Escalonamento nas maquinas - Grafico de Gant
 
 	friend class Problem;
 	friend class JobShop;
@@ -50,7 +50,7 @@ public:
 class JobShop: public Problem {
 private:
 
-	bool calcFitness(bool esc);		// Calcula o makespan
+	bool calcFitness();				// Calcula o makespan
 
 	Solution_JobShop solution;		// Representacao interna da solucao
 

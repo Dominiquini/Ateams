@@ -15,25 +15,15 @@ using namespace std;
 #endif
 
 int xRand() {
-	return xRand(0, RAND_MAX);
+	return xRand(RAND_MAX);
+}
+
+int xRand(int max) {
+	return xRand(0, max);
 }
 
 int xRand(int min, int max) {
 	uniform_int_distribution<int> randomDistribution(min, max - 1);
 
 	return randomDistribution(randomEngine);
-}
-
-string getExceptionMessage(exception_ptr &eptr) {
-	try {
-		rethrow_exception(eptr);
-	} catch (const exception &e) {
-		return e.what();
-	} catch (const string &e) {
-		return e;
-	} catch (const char *e) {
-		return e;
-	} catch (...) {
-		return (current_exception() ? current_exception().__cxa_exception_type()->name() : "Unexpected Exception!");
-	}
 }

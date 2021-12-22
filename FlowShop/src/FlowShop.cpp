@@ -105,7 +105,7 @@ void Problem::writeCurrentPopulationInLog(char *log, list<Problem*> *popInicial)
 		fprintf(f, "%d %d %d\n\n", sizePop, FlowShop::nmaq, FlowShop::njob);
 
 		for (iter = popInicial->begin(); iter != popInicial->end(); iter++) {
-			prob = dynamic_cast<FlowShop*>(*iter)->getSoluction().esc;
+			prob = dynamic_cast<FlowShop*>(*iter)->getSoluction().scaling;
 
 			fprintf(f, "%d\n", (int) dynamic_cast<FlowShop*>(*iter)->getSoluction().fitness);
 
@@ -159,15 +159,16 @@ void Problem::deallocateMemory() {
 /* Metodos */
 
 FlowShop::FlowShop() : Problem::Problem() {
-	solution.esc = (short int*) allocateMatrix(1, njob, 1, 1);
+	solution.scaling = (short int*) allocateMatrix(1, njob, 1, 1);
 
 	for (int j = 0; j < njob; j++) {
-		solution.esc[j] = j;
+		solution.scaling[j] = j;
 	}
-	random_shuffle(&solution.esc[0], &solution.esc[njob]);
 
-	solution.escalon = NULL;
-	calcFitness(false);
+	random_shuffle(&solution.scaling[0], &solution.scaling[njob], pointer_to_unary_function<int, int>(xRand));
+
+	solution.staggering = NULL;
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -175,10 +176,10 @@ FlowShop::FlowShop() : Problem::Problem() {
 }
 
 FlowShop::FlowShop(short int *prob) : Problem::Problem() {
-	solution.esc = prob;
+	solution.scaling = prob;
 
-	solution.escalon = NULL;
-	calcFitness(false);
+	solution.staggering = NULL;
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -188,19 +189,19 @@ FlowShop::FlowShop(short int *prob) : Problem::Problem() {
 FlowShop::FlowShop(const Problem &prob) : Problem::Problem() {
 	FlowShop *other = dynamic_cast<FlowShop*>(const_cast<Problem*>(&prob));
 
-	this->solution.esc = (short int*) allocateMatrix(1, njob, 1, 1);
+	this->solution.scaling = (short int*) allocateMatrix(1, njob, 1, 1);
 	for (int j = 0; j < njob; j++)
-		this->solution.esc[j] = other->solution.esc[j];
+		this->solution.scaling[j] = other->solution.scaling[j];
 
-	this->solution.escalon = NULL;
+	this->solution.staggering = NULL;
 	this->solution.fitness = other->solution.fitness;
 
-	if (other->solution.escalon != NULL) {
-		this->solution.escalon = (short int***) allocateMatrix(3, nmaq, njob, 3);
+	if (other->solution.staggering != NULL) {
+		this->solution.staggering = (short int***) allocateMatrix(3, nmaq, njob, 3);
 		for (int i = 0; i < nmaq; i++)
 			for (int j = 0; j < njob; j++)
 				for (int k = 0; k < 3; k++)
-					this->solution.escalon[i][j][k] = other->solution.escalon[i][j][k];
+					this->solution.staggering[i][j][k] = other->solution.staggering[i][j][k];
 	}
 
 	exec = prob.exec;
@@ -209,16 +210,16 @@ FlowShop::FlowShop(const Problem &prob) : Problem::Problem() {
 FlowShop::FlowShop(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
 	FlowShop *other = dynamic_cast<FlowShop*>(const_cast<Problem*>(&prob));
 
-	this->solution.esc = (short int*) allocateMatrix(1, njob, 1, 1);
+	this->solution.scaling = (short int*) allocateMatrix(1, njob, 1, 1);
 	for (int j = 0; j < njob; j++)
-		this->solution.esc[j] = other->solution.esc[j];
+		this->solution.scaling[j] = other->solution.scaling[j];
 
-	short int aux = this->solution.esc[pos1];
-	this->solution.esc[pos1] = this->solution.esc[pos2];
-	this->solution.esc[pos2] = aux;
+	short int aux = this->solution.scaling[pos1];
+	this->solution.scaling[pos1] = this->solution.scaling[pos2];
+	this->solution.scaling[pos2] = aux;
 
-	this->solution.escalon = NULL;
-	calcFitness(false);
+	this->solution.staggering = NULL;
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -226,15 +227,15 @@ FlowShop::FlowShop(const Problem &prob, int pos1, int pos2) : Problem::Problem()
 }
 
 FlowShop::~FlowShop() {
-	if (solution.esc != NULL)
-		deallocateMatrix(1, solution.esc, 1, 1);
+	deallocateMatrix(1, solution.scaling, 1, 1);
 
-	if (solution.escalon != NULL)
-		deallocateMatrix(3, solution.escalon, FlowShop::nmaq, FlowShop::njob);
+	deallocateMatrix(3, solution.staggering, FlowShop::nmaq, FlowShop::njob);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
-inline bool FlowShop::calcFitness(bool esc) {
+inline bool FlowShop::calcFitness() {
+	deallocateMatrix(3, solution.staggering, nmaq, njob);
+
 	short int ***aux_esc = (short int***) allocateMatrix(3, nmaq, njob, 3);
 	short int *pos = (short int*) allocateMatrix(1, nmaq, 1, 1);
 	int sum_time = 0;
@@ -244,15 +245,15 @@ inline bool FlowShop::calcFitness(bool esc) {
 
 	for (int j = 0; j < njob; j++) {
 		for (int m = 0; m < nmaq; m++) {
-			aux_esc[m][j][0] = solution.esc[j];
+			aux_esc[m][j][0] = solution.scaling[j];
 
 			if (m == 0) {
 				aux_esc[m][j][1] = pos[m];
-				aux_esc[m][j][2] = aux_esc[m][j][1] + time[solution.esc[j]][m];
+				aux_esc[m][j][2] = aux_esc[m][j][1] + time[solution.scaling[j]][m];
 				pos[m] = aux_esc[m][j][2];
 			} else {
 				aux_esc[m][j][1] = aux_esc[m - 1][j][2] > pos[m] ? aux_esc[m - 1][j][2] : pos[m];
-				aux_esc[m][j][2] = aux_esc[m][j][1] + time[solution.esc[j]][m];
+				aux_esc[m][j][2] = aux_esc[m][j][1] + time[solution.scaling[j]][m];
 				pos[m] = aux_esc[m][j][2];
 			}
 
@@ -261,33 +262,29 @@ inline bool FlowShop::calcFitness(bool esc) {
 		}
 	}
 
-	if (esc == false)
-		deallocateMatrix(3, aux_esc, nmaq, njob);
-	else
-		solution.escalon = aux_esc;
+	solution.staggering = aux_esc;
+	solution.fitness = sum_time;
 
 	deallocateMatrix(1, pos, 1, 1);
-
-	solution.fitness = sum_time;
 
 	return true;
 }
 
 inline void FlowShop::print(bool esc) {
 	if (esc == true) {
-		calcFitness(esc);
+		calcFitness();
 
 		for (int i = 0; i < nmaq; i++) {
 			printf("maq %d: ", i);
 			for (int j = 0; j < njob; j++) {
-				int k = solution.escalon[i][j][2] - solution.escalon[i][j][1];
-				int spc = j == 0 ? solution.escalon[i][j][1] : solution.escalon[i][j][1] - solution.escalon[i][j - 1][2];
+				int k = solution.staggering[i][j][2] - solution.staggering[i][j][1];
+				int spc = j == 0 ? solution.staggering[i][j][1] : solution.staggering[i][j][1] - solution.staggering[i][j - 1][2];
 
 				while (spc--)
 					printf(" ");
 
 				while (k--)
-					printf("%c", ((char) solution.escalon[i][j][0]) + 'a');
+					printf("%c", ((char) solution.staggering[i][j][0]) + 'a');
 			}
 			printf("\n");
 		}
@@ -298,7 +295,7 @@ inline void FlowShop::print(bool esc) {
 			printf("%c: job %d\n", ((char) i) + 'a', i);
 	} else {
 		for (int j = 0; j < njob; j++) {
-			printf("%.2d ", solution.esc[j]);
+			printf("%.2d ", solution.scaling[j]);
 		}
 		printf("\n");
 	}
@@ -347,7 +344,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* FlowShop::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end());
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(xRand));
 	sort(local->begin(), local->end(), ptcomp);
 
 	return local;
@@ -401,8 +398,8 @@ inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem *parceiro, in
 	inicioPart = xRand(0, njob);
 	fimPart = inicioPart + particao <= njob ? inicioPart + particao : njob;
 
-	swap_vect(this->solution.esc, other->solution.esc, f1, inicioPart, fimPart - inicioPart);
-	swap_vect(other->solution.esc, this->solution.esc, f2, inicioPart, fimPart - inicioPart);
+	swap_vect(this->solution.scaling, other->solution.scaling, f1, inicioPart, fimPart - inicioPart);
+	swap_vect(other->solution.scaling, this->solution.scaling, f2, inicioPart, fimPart - inicioPart);
 
 	filhos->first = new FlowShop(f1);
 	filhos->second = new FlowShop(f2);
@@ -420,8 +417,8 @@ inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem *parceiro, in
 
 	particao = xRand(1, njob);
 
-	swap_vect(this->solution.esc, other->solution.esc, f1, 0, particao);
-	swap_vect(other->solution.esc, this->solution.esc, f2, 0, particao);
+	swap_vect(this->solution.scaling, other->solution.scaling, f1, 0, particao);
+	swap_vect(other->solution.scaling, this->solution.scaling, f2, 0, particao);
 
 	filhos->first = new FlowShop(f1);
 	filhos->second = new FlowShop(f2);
@@ -435,7 +432,7 @@ inline Problem* FlowShop::mutation(int mutMax) {
 	Problem *vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
 	for (int j = 0; j < njob; j++)
-		mut[j] = solution.esc[j];
+		mut[j] = solution.scaling[j];
 
 	temp = new FlowShop(mut);
 	mutacao = temp;
@@ -487,7 +484,7 @@ bool fnequal1(Problem *prob1, Problem *prob2) {
 
 	if (p1->solution.fitness == p2->solution.fitness) {
 		for (int j = 0; j < FlowShop::njob; j++)
-			if (p1->solution.esc[j] != p2->solution.esc[j])
+			if (p1->solution.scaling[j] != p2->solution.scaling[j])
 				return false;
 
 		return true;
@@ -510,8 +507,8 @@ bool fncomp1(Problem *prob1, Problem *prob2) {
 
 	if (p1->solution.fitness == p2->solution.fitness) {
 		for (int j = 0; j < FlowShop::njob; j++)
-			if (p1->solution.esc[j] != p2->solution.esc[j])
-				return p1->solution.esc[j] < p2->solution.esc[j];
+			if (p1->solution.scaling[j] != p2->solution.scaling[j])
+				return p1->solution.scaling[j] < p2->solution.scaling[j];
 
 		return false;
 	} else

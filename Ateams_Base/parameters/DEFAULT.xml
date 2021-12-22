@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Controller
-   iterations = "25"
-   attemptsWithoutImprovement = "10"
+   iterations = "250"
+   attemptsWithoutImprovement = "100"
    maxExecutionTime = "3600"
    numThreads = "8"
    populationSizeAteams = "500"

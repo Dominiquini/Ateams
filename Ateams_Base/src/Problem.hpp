@@ -19,7 +19,7 @@ enum ProblemType {
 class Solution {
 protected:
 
-	double fitness;		// Fitness da solucao
+	double fitness = -1;			// Fitness da solucao
 };
 
 class Problem {
@@ -100,7 +100,7 @@ public:
 
 private:
 
-	virtual bool calcFitness(bool esc) = 0;		// Calcula o makespan
+	bool calcFitness();							// Calcula o makespan
 
 	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
 	friend bool fnequal2(Problem*, Problem*);	// Comparacao superficial
@@ -139,26 +139,29 @@ inline void* allocateMatrix(int dim, int a, int b, int c) {
 }
 
 inline void deallocateMatrix(int dim, void *MMM, int a, int b) {
-	if (dim == 1) {
-		short int *M = (short int*) MMM;
+	if(MMM != NULL) {
+		if (dim == 1) {
+			short int *M = (short int*) MMM;
 
-		free(M);
-	} else if (dim == 2) {
-		short int **M = (short int**) MMM;
+			free(M);
+		} else if (dim == 2) {
+			short int **M = (short int**) MMM;
 
-		for (int i = 0; i < a; i++)
-			free(M[i]);
-		free(M);
-	} else if (dim == 3) {
-		short int ***M = (short int***) MMM;
+			for (int i = 0; i < a; i++)
+				free(M[i]);
+			free(M);
+		} else if (dim == 3) {
+			short int ***M = (short int***) MMM;
 
-		for (int i = 0; i < a; i++) {
-			for (int j = 0; j < b; j++)
-				free(M[i][j]);
-			free(M[i]);
+			for (int i = 0; i < a; i++) {
+				for (int j = 0; j < b; j++)
+					free(M[i][j]);
+				free(M[i]);
+			}
+			free(M);
 		}
-		free(M);
 	}
+
 	return;
 }
 

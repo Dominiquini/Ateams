@@ -109,7 +109,7 @@ void Problem::writeCurrentPopulationInLog(char *log, list<Problem*> *popInicial)
 		fprintf(f, "%d %d %d\n\n", sizePop, JobShop::nmaq, JobShop::njob);
 
 		for (iter = popInicial->begin(); iter != popInicial->end(); iter++) {
-			prob = dynamic_cast<JobShop*>(*iter)->getSoluction().esc;
+			prob = dynamic_cast<JobShop*>(*iter)->getSoluction().scaling;
 
 			fprintf(f, "%d\n", (int) dynamic_cast<JobShop*>(*iter)->getSoluction().fitness);
 
@@ -175,9 +175,9 @@ void Problem::deallocateMemory() {
 /* Metodos */
 
 JobShop::JobShop() : Problem::Problem() {
-	solution.esc = (short int**) allocateMatrix(2, nmaq, njob, 1);
+	solution.scaling = (short int**) allocateMatrix(2, nmaq, njob, 1);
 
-	if (xRand(0, 2) == 0) {
+	if (xRand(0, 2) == 0) { // Tenta uma solucao gulosa
 		short int *aux_vet = (short int*) allocateMatrix(1, njob, 1, 1);
 		short int *aux_maq = (short int*) allocateMatrix(1, nmaq, 1, 1);
 
@@ -188,9 +188,9 @@ JobShop::JobShop() : Problem::Problem() {
 			aux_vet[i] = i;
 
 		for (int i = 0; i < nmaq; i++) {
-			random_shuffle(&aux_vet[0], &aux_vet[njob]);
+			random_shuffle(&aux_vet[0], &aux_vet[njob], pointer_to_unary_function<int, int>(xRand));
 			for (int j = 0; j < njob; j++) {
-				solution.esc[maq[aux_vet[j]][i]][aux_maq[maq[aux_vet[j]][i]]] = aux_vet[j];
+				solution.scaling[maq[aux_vet[j]][i]][aux_maq[maq[aux_vet[j]][i]]] = aux_vet[j];
 				aux_maq[maq[aux_vet[j]][i]] += 1;
 			}
 		}
@@ -200,14 +200,15 @@ JobShop::JobShop() : Problem::Problem() {
 	} else {
 		for (int i = 0; i < nmaq; i++) {
 			for (int j = 0; j < njob; j++) {
-				solution.esc[i][j] = j;
+				solution.scaling[i][j] = j;
 			}
-			random_shuffle(&solution.esc[i][0], &solution.esc[i][njob]);
+
+			random_shuffle(&solution.scaling[i][0], &solution.scaling[i][njob], pointer_to_unary_function<int, int>(xRand));
 		}
 	}
 
-	solution.escalon = NULL;
-	calcFitness(false);
+	solution.staggering = NULL;
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -215,10 +216,10 @@ JobShop::JobShop() : Problem::Problem() {
 }
 
 JobShop::JobShop(short int **prob) : Problem::Problem() {
-	solution.esc = prob;
+	solution.scaling = prob;
 
-	solution.escalon = NULL;
-	calcFitness(false);
+	solution.staggering = NULL;
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -228,20 +229,20 @@ JobShop::JobShop(short int **prob) : Problem::Problem() {
 JobShop::JobShop(const Problem &prob) : Problem::Problem() {
 	JobShop *other = dynamic_cast<JobShop*>(const_cast<Problem*>(&prob));
 
-	this->solution.esc = (short int**) allocateMatrix(2, nmaq, njob, 1);
+	this->solution.scaling = (short int**) allocateMatrix(2, nmaq, njob, 1);
 	for (int i = 0; i < nmaq; i++)
 		for (int j = 0; j < njob; j++)
-			this->solution.esc[i][j] = other->solution.esc[i][j];
+			this->solution.scaling[i][j] = other->solution.scaling[i][j];
 
-	this->solution.escalon = NULL;
+	this->solution.staggering = NULL;
 	this->solution.fitness = other->solution.fitness;
 
-	if (other->solution.escalon != NULL) {
-		this->solution.escalon = (short int***) allocateMatrix(3, nmaq, njob, 3);
+	if (other->solution.staggering != NULL) {
+		this->solution.staggering = (short int***) allocateMatrix(3, nmaq, njob, 3);
 		for (int i = 0; i < nmaq; i++)
 			for (int j = 0; j < njob; j++)
 				for (int k = 0; k < 3; k++)
-					this->solution.escalon[i][j][k] = other->solution.escalon[i][j][k];
+					this->solution.staggering[i][j][k] = other->solution.staggering[i][j][k];
 	}
 
 	exec = prob.exec;
@@ -250,17 +251,17 @@ JobShop::JobShop(const Problem &prob) : Problem::Problem() {
 JobShop::JobShop(const Problem &prob, int maq, int pos1, int pos2) : Problem::Problem() {
 	JobShop *other = dynamic_cast<JobShop*>(const_cast<Problem*>(&prob));
 
-	this->solution.esc = (short int**) allocateMatrix(2, nmaq, njob, 1);
+	this->solution.scaling = (short int**) allocateMatrix(2, nmaq, njob, 1);
 	for (int i = 0; i < nmaq; i++)
 		for (int j = 0; j < njob; j++)
-			this->solution.esc[i][j] = other->solution.esc[i][j];
+			this->solution.scaling[i][j] = other->solution.scaling[i][j];
 
-	short int aux = this->solution.esc[maq][pos1];
-	this->solution.esc[maq][pos1] = this->solution.esc[maq][pos2];
-	this->solution.esc[maq][pos2] = aux;
+	short int aux = this->solution.scaling[maq][pos1];
+	this->solution.scaling[maq][pos1] = this->solution.scaling[maq][pos2];
+	this->solution.scaling[maq][pos2] = aux;
 
-	this->solution.escalon = NULL;
-	calcFitness(false);
+	this->solution.staggering = NULL;
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -268,15 +269,15 @@ JobShop::JobShop(const Problem &prob, int maq, int pos1, int pos2) : Problem::Pr
 }
 
 JobShop::~JobShop() {
-	if (this->solution.esc != NULL)
-		deallocateMatrix(2, this->solution.esc, JobShop::nmaq, 1);
+	deallocateMatrix(2, solution.scaling, nmaq, 1);
 
-	if (this->solution.escalon != NULL)
-		deallocateMatrix(3, this->solution.escalon, JobShop::nmaq, JobShop::njob);
+	deallocateMatrix(3, solution.staggering, nmaq, njob);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
-inline bool JobShop::calcFitness(bool esc) {
+inline bool JobShop::calcFitness() {
+	deallocateMatrix(3, solution.staggering, nmaq, njob);
+
 	int max, cont = 0;
 	short int ***aux_esc, **tmp, *pos;
 	int ajob, apos, ainic, afim, sum_time;
@@ -303,7 +304,7 @@ inline bool JobShop::calcFitness(bool esc) {
 	i = 0, k = 0;
 	while ((cont < max) && k <= njob) {
 		if (pos[i] != -1) {
-			ajob = solution.esc[i][pos[i]];
+			ajob = solution.scaling[i][pos[i]];
 			apos = -1;
 			for (int z = 0; z < nmaq; z++)
 				if (maq[ajob][z] == i)
@@ -344,38 +345,37 @@ inline bool JobShop::calcFitness(bool esc) {
 		deallocateMatrix(2, tmp, njob, 1);
 		deallocateMatrix(1, pos, 1, 1);
 
-		if (esc == false)
-			deallocateMatrix(3, aux_esc, nmaq, njob);
-		else
-			solution.escalon = aux_esc;
-
+		solution.staggering = aux_esc;
 		solution.fitness = sum_time;
+
 		return true;
 	} else {
 		deallocateMatrix(3, aux_esc, nmaq, njob);
 		deallocateMatrix(2, tmp, njob, 0);
 		deallocateMatrix(1, pos, 0, 0);
 
+		deallocateMatrix(3, solution.staggering, nmaq, njob);
 		solution.fitness = -1;
+
 		return false;
 	}
 }
 
 inline void JobShop::print(bool esc) {
 	if (esc == true) {
-		calcFitness(esc);
+		calcFitness();
 
 		for (int i = 0; i < nmaq; i++) {
 			printf("maq %d: ", i);
 			for (int j = 0; j < njob; j++) {
-				int k = solution.escalon[i][j][2] - solution.escalon[i][j][1];
-				int spc = j == 0 ? solution.escalon[i][j][1] : solution.escalon[i][j][1] - solution.escalon[i][j - 1][2];
+				int k = solution.staggering[i][j][2] - solution.staggering[i][j][1];
+				int spc = j == 0 ? solution.staggering[i][j][1] : solution.staggering[i][j][1] - solution.staggering[i][j - 1][2];
 
 				while (spc--)
 					printf(" ");
 
 				while (k--)
-					printf("%c", ((char) solution.escalon[i][j][0]) + 'a');
+					printf("%c", ((char) solution.staggering[i][j][0]) + 'a');
 			}
 			printf("\n");
 		}
@@ -387,7 +387,7 @@ inline void JobShop::print(bool esc) {
 	} else {
 		for (int i = 0; i < nmaq; i++) {
 			for (int j = 0; j < njob; j++) {
-				printf("%.2d ", solution.esc[i][j]);
+				printf("%.2d ", solution.scaling[i][j]);
 			}
 			printf("\n");
 		}
@@ -440,7 +440,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* JobShop::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end());
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(xRand));
 	sort(local->begin(), local->end(), ptcomp);
 
 	return local;
@@ -497,7 +497,7 @@ inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem *parceiro, int
 	for (int i = 0; i < nmaq; i++)
 		maqs[i] = i;
 
-	random_shuffle(&maqs[0], &maqs[nmaq]);
+	random_shuffle(&maqs[0], &maqs[nmaq], pointer_to_unary_function<int, int>(xRand));
 
 	for (int i = 0, j; i < nmaq; i++) {
 		j = maqs[i];
@@ -506,11 +506,11 @@ inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem *parceiro, int
 			inicioPart = xRand(0, njob);
 			fimPart = inicioPart + particao <= njob ? inicioPart + particao : njob;
 
-			swap_vect(this->solution.esc[j], other->solution.esc[j], f1[j], inicioPart, fimPart - inicioPart);
-			swap_vect(other->solution.esc[j], this->solution.esc[j], f2[j], inicioPart, fimPart - inicioPart);
+			swap_vect(this->solution.scaling[j], other->solution.scaling[j], f1[j], inicioPart, fimPart - inicioPart);
+			swap_vect(other->solution.scaling[j], this->solution.scaling[j], f2[j], inicioPart, fimPart - inicioPart);
 		} else {
-			copy(&(this->solution.esc[j][0]), &(this->solution.esc[j][njob]), &(f1[j][0]));
-			copy(&(other->solution.esc[j][0]), &(other->solution.esc[j][njob]), &(f2[j][0]));
+			copy(&(this->solution.scaling[j][0]), &(this->solution.scaling[j][njob]), &(f1[j][0]));
+			copy(&(other->solution.scaling[j][0]), &(other->solution.scaling[j][njob]), &(f2[j][0]));
 		}
 	}
 
@@ -535,7 +535,7 @@ inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem *parceiro, int
 	for (int i = 0; i < nmaq; i++)
 		maqs[i] = i;
 
-	random_shuffle(&maqs[0], &maqs[nmaq]);
+	random_shuffle(&maqs[0], &maqs[nmaq], pointer_to_unary_function<int, int>(xRand));
 
 	for (int i = 0, j; i < nmaq; i++) {
 		j = maqs[i];
@@ -543,11 +543,11 @@ inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem *parceiro, int
 		if (i < numberCrossOver) {
 			particao = xRand(1, njob);
 
-			swap_vect(this->solution.esc[j], other->solution.esc[j], f1[j], 0, particao);
-			swap_vect(other->solution.esc[j], this->solution.esc[j], f2[j], 0, particao);
+			swap_vect(this->solution.scaling[j], other->solution.scaling[j], f1[j], 0, particao);
+			swap_vect(other->solution.scaling[j], this->solution.scaling[j], f2[j], 0, particao);
 		} else {
-			copy(&(this->solution.esc[j][0]), &(this->solution.esc[j][njob]), &(f1[j][0]));
-			copy(&(other->solution.esc[j][0]), &(other->solution.esc[j][njob]), &(f2[j][0]));
+			copy(&(this->solution.scaling[j][0]), &(this->solution.scaling[j][njob]), &(f1[j][0]));
+			copy(&(other->solution.scaling[j][0]), &(other->solution.scaling[j][njob]), &(f2[j][0]));
 		}
 	}
 
@@ -566,7 +566,7 @@ inline Problem* JobShop::mutation(int mutMax) {
 
 	for (int i = 0; i < nmaq; i++)
 		for (int j = 0; j < njob; j++)
-			mut[i][j] = solution.esc[i][j];
+			mut[i][j] = solution.scaling[i][j];
 
 	temp = new JobShop(mut);
 	mutacao = temp;
@@ -619,7 +619,7 @@ bool fnequal1(Problem *prob1, Problem *prob2) {
 	if (p1->solution.fitness == p2->solution.fitness) {
 		for (int i = 0; i < JobShop::nmaq; i++)
 			for (int j = 0; j < JobShop::njob; j++)
-				if (p1->solution.esc[i][j] != p2->solution.esc[i][j])
+				if (p1->solution.scaling[i][j] != p2->solution.scaling[i][j])
 					return false;
 
 		return true;
@@ -643,8 +643,8 @@ bool fncomp1(Problem *prob1, Problem *prob2) {
 	if (p1->solution.fitness == p2->solution.fitness) {
 		for (int i = 0; i < JobShop::nmaq; i++)
 			for (int j = 0; j < JobShop::njob; j++)
-				if (p1->solution.esc[i][j] != p2->solution.esc[i][j])
-					return p1->solution.esc[i][j] < p2->solution.esc[i][j];
+				if (p1->solution.scaling[i][j] != p2->solution.scaling[i][j])
+					return p1->solution.scaling[i][j] < p2->solution.scaling[i][j];
 
 		return false;
 	} else

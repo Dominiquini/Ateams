@@ -9,6 +9,8 @@ using namespace std;
 #define _GraphColoring_
 
 class Solution_GraphColoring: public Solution {
+private:
+
 	short int *ordemNodes;		// Ordem em que os nos serao coloridos
 	short int *colors;			// Cores de cada um dos nos
 
@@ -46,7 +48,7 @@ public:
 class GraphColoring: public Problem {
 private:
 
-	bool calcFitness(bool esc);			// Calcula o makespan
+	bool calcFitness();					// Calcula o makespan
 
 	Solution_GraphColoring solution;	// Representacao interna da solucao
 

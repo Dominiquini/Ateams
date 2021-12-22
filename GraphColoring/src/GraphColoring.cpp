@@ -162,15 +162,16 @@ void Problem::deallocateMemory() {
 /* Metodos */
 
 GraphColoring::GraphColoring() : Problem::Problem() {
-	solution.ordemNodes = (short int*) malloc(nnodes * sizeof(short int));
+	solution.ordemNodes = (short int*) allocateMatrix(1, nnodes, 1, 1);
 
-	for (int i = 0; i < nnodes; i++)
+	for (int i = 0; i < nnodes; i++) {
 		solution.ordemNodes[i] = i + 1;
+	}
 
-	random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes]);
+	random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], pointer_to_unary_function<int, int>(xRand));
 
 	solution.colors = NULL;
-	calcFitness(false);
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -181,7 +182,7 @@ GraphColoring::GraphColoring(short int *prob) : Problem::Problem() {
 	solution.ordemNodes = prob;
 
 	solution.colors = NULL;
-	calcFitness(false);
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -191,7 +192,7 @@ GraphColoring::GraphColoring(short int *prob) : Problem::Problem() {
 GraphColoring::GraphColoring(const Problem &prob) : Problem::Problem() {
 	GraphColoring *other = dynamic_cast<GraphColoring*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemNodes = (short int*) malloc(nnodes * sizeof(short int));
+	this->solution.ordemNodes = (short int*) allocateMatrix(1, nnodes, 1, 1);
 
 	for (int i = 0; i < nnodes; i++)
 		this->solution.ordemNodes[i] = other->solution.ordemNodes[i];
@@ -200,9 +201,9 @@ GraphColoring::GraphColoring(const Problem &prob) : Problem::Problem() {
 	this->solution.fitness = other->solution.fitness;
 
 	if (other->solution.colors != NULL) {
-		this->solution.colors = (short int*) malloc(nnodes * sizeof(short int));
+		this->solution.colors = (short int*) allocateMatrix(1, nnodes + 1, 1, 1);
 
-		for (int i = 0; i < nnodes; i++)
+		for (int i = 0; i <= nnodes; i++)
 			this->solution.colors[i] = other->solution.colors[i];
 	}
 
@@ -212,7 +213,7 @@ GraphColoring::GraphColoring(const Problem &prob) : Problem::Problem() {
 GraphColoring::GraphColoring(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
 	GraphColoring *other = dynamic_cast<GraphColoring*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemNodes = (short int*) malloc(nnodes * sizeof(short int));
+	this->solution.ordemNodes = (short int*) allocateMatrix(1, nnodes, 1, 1);
 
 	for (int i = 0; i < nnodes; i++)
 		this->solution.ordemNodes[i] = other->solution.ordemNodes[i];
@@ -222,7 +223,7 @@ GraphColoring::GraphColoring(const Problem &prob, int pos1, int pos2) : Problem:
 	this->solution.ordemNodes[pos2] = aux;
 
 	this->solution.colors = NULL;
-	calcFitness(false);
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -230,16 +231,16 @@ GraphColoring::GraphColoring(const Problem &prob, int pos1, int pos2) : Problem:
 }
 
 GraphColoring::~GraphColoring() {
-	if (solution.ordemNodes != NULL)
-		free(solution.ordemNodes);
+	deallocateMatrix(1, solution.ordemNodes, nnodes, 1);
 
-	if (solution.colors != NULL)
-		free(solution.colors);
+	deallocateMatrix(1, solution.colors, nnodes + 1, 1);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
-inline bool GraphColoring::calcFitness(bool esc) {
-	short int *aux_colors = (short int*) malloc((nnodes + 1) * sizeof(short int));
+inline bool GraphColoring::calcFitness() {
+	deallocateMatrix(1, solution.colors, nnodes + 1, 1);
+
+	short int *aux_colors = (short int*) allocateMatrix(1, nnodes + 1, 1, 1);
 
 	for (int i = 1; i <= nnodes; i++)
 		aux_colors[i] = 0;
@@ -269,19 +270,16 @@ inline bool GraphColoring::calcFitness(bool esc) {
 	}
 
 	aux_colors[0] = minColor;
-	solution.fitness = minColor;
 
-	if (esc == false)
-		free(aux_colors);
-	else
-		solution.colors = aux_colors;
+	solution.colors = aux_colors;
+	solution.fitness = minColor;
 
 	return true;
 }
 
 inline void GraphColoring::print(bool esc) {
 	if (esc == true) {
-		calcFitness(esc);
+		calcFitness();
 
 		for (int i = 1; i <= solution.fitness; i++) {
 			printf("color %.2d: ", i);
@@ -333,7 +331,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* GraphColoring::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end());
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(xRand));
 	sort(local->begin(), local->end(), ptcomp);
 
 	return local;

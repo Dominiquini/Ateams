@@ -9,8 +9,10 @@ using namespace std;
 #define _FlowShop_
 
 class Solution_FlowShop: public Solution {
-	short int *esc;			// Solucao
-	short int ***escalon;	// Escalonamento nas maquinas - Grafico de Gant
+private:
+
+	short int *scaling;			// Solucao
+	short int ***staggering;	// Escalonamento nas maquinas - Grafico de Gant
 
 	friend class Problem;
 	friend class FlowShop;
@@ -46,7 +48,7 @@ public:
 class FlowShop: public Problem {
 private:
 
-	bool calcFitness(bool esc);		// Calcula o makespan
+	bool calcFitness();				// Calcula o makespan
 
 	Solution_FlowShop solution;		// Representacao interna da solucao
 

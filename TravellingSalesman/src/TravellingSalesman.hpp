@@ -9,6 +9,8 @@ using namespace std;
 #define _TravellingSalesman_
 
 class Solution_TravellingSalesman: public Solution {
+private:
+
 	short int *ordemNodes;		// Ordem em que os itens serao alocados nas bolsas
 
 	friend class Problem;
@@ -45,7 +47,7 @@ public:
 class TravellingSalesman: public Problem {
 private:
 
-	bool calcFitness(bool esc);				// Calcula o makespan
+	bool calcFitness();						// Calcula o makespan
 
 	Solution_TravellingSalesman solution;	// Representacao interna da solucao
 

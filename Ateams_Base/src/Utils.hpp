@@ -18,8 +18,8 @@ using namespace std;
 
 int xRand();
 
-int xRand(int min, int max);
+int xRand(int max);
 
-string getExceptionMessage(exception_ptr &eptr);
+int xRand(int min, int max);
 
 #endif

@@ -154,10 +154,9 @@ void Problem::deallocateMemory() {
 /* Metodos */
 
 BinPacking::BinPacking() : Problem::Problem() {
-	solution.ordemItens = (short int*) malloc(nitens * sizeof(short int));
+	solution.ordemItens = (short int*) allocateMatrix(1, nitens, 1, 1);
 
-	if (Problem::totalNumInst == 1)	// Tenta uma solucao gulosa
-			{
+	if (Problem::totalNumInst == 1) { // Tenta uma solucao gulosa
 		double *orderSize = (double*) malloc(nitens * sizeof(double));
 
 		for (int i = 0; i < nitens; i++)
@@ -217,23 +216,16 @@ BinPacking::BinPacking() : Problem::Problem() {
 		free(orderSize);
 		free(tempValBins);
 		free(tempBins);
-
-		solution.bins = NULL;
-		calcFitness(false);
-
-		if ((int) solution.fitness != localFitness) {
-			cout << endl << endl << "Problema na Solução Gulosa!" << endl << endl;
-			exit(1);
-		}
 	} else {
-		for (int i = 0; i < nitens; i++)
+		for (int i = 0; i < nitens; i++) {
 			solution.ordemItens[i] = i;
+		}
 
-		random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens]);
-
-		solution.bins = NULL;
-		calcFitness(false);
+		random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens], pointer_to_unary_function<int, int>(xRand));
 	}
+
+	solution.bins = NULL;
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -244,7 +236,7 @@ BinPacking::BinPacking(short int *prob) : Problem::Problem() {
 	solution.ordemItens = prob;
 	solution.bins = NULL;
 
-	calcFitness(false);
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -255,7 +247,7 @@ BinPacking::BinPacking(short int *prob, short int *bins) : Problem::Problem() {
 	solution.ordemItens = prob;
 	solution.bins = bins;
 
-	calcFitness(false);
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -265,7 +257,7 @@ BinPacking::BinPacking(short int *prob, short int *bins) : Problem::Problem() {
 BinPacking::BinPacking(const Problem &prob) : Problem::Problem() {
 	BinPacking *other = dynamic_cast<BinPacking*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemItens = (short int*) malloc(nitens * sizeof(short int));
+	this->solution.ordemItens = (short int*) allocateMatrix(1, nitens, 1, 1);
 
 	for (int i = 0; i < nitens; i++)
 		this->solution.ordemItens[i] = other->solution.ordemItens[i];
@@ -274,7 +266,7 @@ BinPacking::BinPacking(const Problem &prob) : Problem::Problem() {
 	this->solution.fitness = other->solution.fitness;
 
 	if (other->solution.bins != NULL) {
-		this->solution.bins = (short int*) malloc(nitens * sizeof(short int));
+		this->solution.bins = (short int*) allocateMatrix(1, nitens, 1, 1);
 
 		for (int i = 0; i < nitens; i++)
 			this->solution.bins[i] = other->solution.bins[i];
@@ -286,7 +278,7 @@ BinPacking::BinPacking(const Problem &prob) : Problem::Problem() {
 BinPacking::BinPacking(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
 	BinPacking *other = dynamic_cast<BinPacking*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemItens = (short int*) malloc(nitens * sizeof(short int));
+	this->solution.ordemItens = (short int*) allocateMatrix(1, nitens, 1, 1);
 
 	for (int i = 0; i < nitens; i++)
 		this->solution.ordemItens[i] = other->solution.ordemItens[i];
@@ -296,8 +288,7 @@ BinPacking::BinPacking(const Problem &prob, int pos1, int pos2) : Problem::Probl
 	this->solution.ordemItens[pos2] = aux;
 
 	this->solution.bins = NULL;
-
-	calcFitness(false);
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -305,68 +296,69 @@ BinPacking::BinPacking(const Problem &prob, int pos1, int pos2) : Problem::Probl
 }
 
 BinPacking::~BinPacking() {
-	if (solution.ordemItens != NULL)
-		free(solution.ordemItens);
+	deallocateMatrix(1, solution.ordemItens, nitens, 1);
 
-	if (solution.bins != NULL)
-		free(solution.bins);
+	deallocateMatrix(1, solution.bins, nitens, 1);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
-inline bool BinPacking::calcFitness(bool esc) {
-	solution.fitness = 1;
+inline bool BinPacking::calcFitness() {
+	deallocateMatrix(1, solution.bins, nitens, 1);
 
-	if (solution.bins == NULL) {
-		double sumBinAtual = 0;
-		int anterior = 0;
+	double sumBinAtual = 0;
+	int anterior = 0;
+	int bins = 1;
 
-		short int *aux_bins = (short int*) malloc(nitens * sizeof(short int));
+	short int *aux_bins = (short int*) allocateMatrix(1, nitens, 1, 1);
 
-		for (int pos = 0; pos < nitens; pos++) {
-			sumBinAtual += sizes[solution.ordemItens[pos]];
+	for (int pos = 0; pos < nitens; pos++) {
+		sumBinAtual += sizes[solution.ordemItens[pos]];
 
-			if (sumBinAtual > capacity) {
-				solution.fitness++;
-				sumBinAtual = sizes[solution.ordemItens[pos]];
+		if (sumBinAtual > capacity) {
+			bins++;
+			sumBinAtual = sizes[solution.ordemItens[pos]];
 
-				sort(&solution.ordemItens[anterior], &solution.ordemItens[pos]);
-				anterior = pos;
-			}
-
-			aux_bins[pos] = solution.fitness;
+			sort(&solution.ordemItens[anterior], &solution.ordemItens[pos]);
+			anterior = pos;
 		}
-		sort(&solution.ordemItens[anterior], &solution.ordemItens[nitens]);
 
-		solution.bins = aux_bins;
-	} else {
-		solution.fitness = solution.bins[nitens - 1];
+		aux_bins[pos] = bins;
 	}
+
+	sort(&solution.ordemItens[anterior], &solution.ordemItens[nitens]);
+
+	solution.bins = aux_bins;
+	solution.fitness = bins;
 
 	return true;
 }
 
 inline void BinPacking::print(bool esc) {
 	if (esc == true) {
-		calcFitness(esc);
+		calcFitness();
 
 		for (int i = 1; i <= solution.fitness; i++) {
+			double size = 0;
 			double sumBin = 0;
 			int numItens = 0;
 
 			printf("bin %.2d: ", i);
 			for (int j = 0; j < nitens; j++) {
 				if (solution.bins[j] == i) {
-					printf("|%.4hd|", solution.ordemItens[j] + 1);
-					sumBin += sizes[solution.ordemItens[j]];
+					size = sizes[solution.ordemItens[j]];
+					sumBin += size;
 					numItens++;
+
+					printf("|%.2f (%.4hd)|", size, solution.ordemItens[j] + 1);
 				}
 			}
-			printf(" ==> %0.2f (%d)\n", sumBin, numItens);
+			printf(" ==> %.2f (%d)\n", sumBin, numItens);
 		}
 	} else {
 		for (int j = 0; j < nitens; j++) {
 			printf("%d ", solution.ordemItens[j]);
 		}
+		printf("\n");
 	}
 }
 
@@ -407,7 +399,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* BinPacking::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end());
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(xRand));
 	sort(local->begin(), local->end(), ptcomp);
 
 	return local;

@@ -192,16 +192,16 @@ void Problem::deallocateMemory() {
 /* Metodos */
 
 KnapSack::KnapSack() : Problem::Problem() {
-	solution.ordemItens = (short int*) malloc(nitens * sizeof(short int));
+	solution.ordemItens = (short int*) allocateMatrix(1, nitens, 1, 1);
 
-	for (int i = 0; i < nitens; i++)
+	for (int i = 0; i < nitens; i++) {
 		solution.ordemItens[i] = i;
+	}
 
-	random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens]);
+	random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens], pointer_to_unary_function<int, int>(xRand));
 
 	solution.limit = -1;
-
-	calcFitness(false);
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -212,7 +212,7 @@ KnapSack::KnapSack(short int *prob) : Problem::Problem() {
 	solution.ordemItens = prob;
 	solution.limit = -1;
 
-	calcFitness(false);
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -223,7 +223,7 @@ KnapSack::KnapSack(short int *prob, int limit) : Problem::Problem() {
 	solution.ordemItens = prob;
 	solution.limit = limit;
 
-	calcFitness(false);
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -233,7 +233,7 @@ KnapSack::KnapSack(short int *prob, int limit) : Problem::Problem() {
 KnapSack::KnapSack(const Problem &prob) : Problem::Problem() {
 	KnapSack *other = dynamic_cast<KnapSack*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemItens = (short int*) malloc(nitens * sizeof(short int));
+	this->solution.ordemItens = (short int*) allocateMatrix(1, nitens, 1, 1);
 	for (int i = 0; i < nitens; i++)
 		this->solution.ordemItens[i] = other->solution.ordemItens[i];
 
@@ -247,7 +247,7 @@ KnapSack::KnapSack(const Problem &prob) : Problem::Problem() {
 KnapSack::KnapSack(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
 	KnapSack *other = dynamic_cast<KnapSack*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemItens = (short int*) malloc(nitens * sizeof(short int));
+	this->solution.ordemItens = (short int*) allocateMatrix(1, nitens, 1, 1);
 	for (int i = 0; i < nitens; i++)
 		this->solution.ordemItens[i] = other->solution.ordemItens[i];
 
@@ -257,7 +257,7 @@ KnapSack::KnapSack(const Problem &prob, int pos1, int pos2) : Problem::Problem()
 
 	solution.limit = -1;
 
-	calcFitness(false);
+	calcFitness();
 
 	exec.tabu = false;
 	exec.genetic = false;
@@ -265,36 +265,29 @@ KnapSack::KnapSack(const Problem &prob, int pos1, int pos2) : Problem::Problem()
 }
 
 KnapSack::~KnapSack() {
-	if (this->solution.ordemItens != NULL)
-		free(this->solution.ordemItens);
+	deallocateMatrix(1, solution.ordemItens, nitens, 1);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
-inline bool KnapSack::calcFitness(bool esc) {
-	if (solution.limit == -1) {
-		vector<double> tempConstraints(ncontraint, 0);
+inline bool KnapSack::calcFitness() {
+	vector<double> tempConstraints(ncontraint, 0);
 
-		double fitness = 0;
-		int item = 0, limit = 0;
-		for (limit = 0; limit < nitens; limit++) {
-			item = solution.ordemItens[limit];
+	double fitness = 0;
+	int item = 0, limit = 0;
+	for (limit = 0; limit < nitens; limit++) {
+		item = solution.ordemItens[limit];
 
-			if (!constraintVerify(item, tempConstraints))
-				break;
+		if (!constraintVerify(item, tempConstraints))
+			break;
 
-			fitness += values[item];
-		}
-
-		sort(&solution.ordemItens[0], &solution.ordemItens[limit]);
-		sort(&solution.ordemItens[limit], &solution.ordemItens[nitens]);
-
-		solution.fitness = fitness;
-		solution.limit = limit;
-	} else {
-		solution.fitness = 0;
-		for (int i = 0; i < solution.limit; i++)
-			solution.fitness += values[solution.ordemItens[i]];
+		fitness += values[item];
 	}
+
+	sort(&solution.ordemItens[0], &solution.ordemItens[limit]);
+	sort(&solution.ordemItens[limit], &solution.ordemItens[nitens]);
+
+	solution.fitness = fitness;
+	solution.limit = limit;
 
 	return true;
 }
@@ -362,7 +355,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* KnapSack::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end());
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(xRand));
 	sort(local->begin(), local->end(), ptcomp);
 
 	return local;

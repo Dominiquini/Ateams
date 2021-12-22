@@ -9,6 +9,8 @@ using namespace std;
 #define _BinPacking_
 
 class Solution_BinPacking: public Solution {
+private:
+
 	short int *ordemItens;		// Ordem em que os itens serao alocados nas bolsas
 	short int *bins;			// Itens para cada uma das bolsas
 
@@ -46,7 +48,7 @@ public:
 class BinPacking: public Problem {
 private:
 
-	bool calcFitness(bool esc);			// Calcula o makespan
+	bool calcFitness();					// Calcula o makespan
 
 	Solution_BinPacking solution;		// Representacao interna da solucao
 

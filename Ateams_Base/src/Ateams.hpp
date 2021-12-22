@@ -42,4 +42,18 @@ struct ExecHeuristicsInfo {
 
 void terminate(int signal);
 
+inline string getExceptionMessage(exception_ptr &eptr) {
+	try {
+		rethrow_exception(eptr);
+	} catch (const exception &e) {
+		return e.what();
+	} catch (const string &e) {
+		return e;
+	} catch (const char *e) {
+		return e;
+	} catch (...) {
+		return (current_exception() ? current_exception().__cxa_exception_type()->name() : "Unexpected Exception!");
+	}
+}
+
 #endif
