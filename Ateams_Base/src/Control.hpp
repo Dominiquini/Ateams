@@ -11,6 +11,10 @@ using namespace std;
 #ifndef _Control_
 #define _Control_
 
+#define WINDOW_WIDTH 1250
+#define WINDOW_HEIGHT 500
+#define WINDOWS_UPDATE_INTERVAL 100000
+
 #include "Ateams.hpp"
 #include "Problem.hpp"
 #include "Heuristic.hpp"
@@ -49,10 +53,8 @@ private:
 	static void* pthrAnimation(void *in);
 
 	static void display();                                      		//Desenha a tela
-	static void reshape(int, int);                             	 		//Redesenha a tela
+	static void reshape(GLint, GLint);                             	 	//Redesenha a tela
 	static void drawstr(GLfloat, GLfloat, GLvoid*, const char*, ...); 	//Desenha uma string na tela
-
-	static int window;
 
 public:
 	static int *argc;
@@ -79,10 +81,10 @@ public:
 
 private:
 
-	char inputParameters[64];
-	char inputDataFile[64];
-	char outputResultFile[64];
-	char outputLogFile[64];
+	char inputParameters[128];
+	char inputDataFile[128];
+	char outputResultFile[128];
+	char outputLogFile[128];
 
 	set<Problem*, bool (*)(Problem*, Problem*)> *solutions; 		// Populacao principal
 	vector<Heuristic*> *heuristics;									// Algoritmos disponiveis

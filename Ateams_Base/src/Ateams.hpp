@@ -1,8 +1,6 @@
+#include <GL/freeglut.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <GL/glut.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <stdarg.h>
 #include <signal.h>
 #include <stdlib.h>

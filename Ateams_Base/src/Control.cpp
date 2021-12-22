@@ -108,6 +108,10 @@ Control::~Control() {
 	pthread_mutex_destroy(&mutex_cont);
 	pthread_mutex_destroy(&mutex_info);
 	pthread_mutex_destroy(&mutex_exec);
+
+	int window = glutGetWindow();
+	if (window != 0)
+		glutDestroyWindow(window);
 }
 
 int Control::execute(int idThread) {
@@ -370,7 +374,7 @@ void Control::readMainCMDParameters() {
 		printf("~Result File: ---\n");
 	}
 
-	if ((p = findPosArgv(argv, *argc, (char*) "-l")) != -1) {
+	if ((p = findPosArgv(argv, *argc, (char*) "-t")) != -1) {
 		strcpy(outputLogFile, argv[p]);
 
 		printf("Log File: '%s'\n", outputLogFile);
@@ -532,9 +536,6 @@ Problem* Control::start(list<Problem*> *popInicial) {
 	pthread_attr_destroy(&attr);
 
 	time(&endTime);
-
-	if (heuristicListener)
-		glutDestroyWindow(window);
 
 	return Problem::copySolution(**(solutions->begin()));
 }
@@ -739,18 +740,22 @@ void* Control::pthrAnimation(void *in) {
 	/* Cria a tela */
 	glutInit(Control::argc, Control::argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(1250, 500);
+	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	glutInitWindowPosition(0, 0);
-	window = glutCreateWindow(Control::argv[0]);
+
+	glutCreateWindow(Control::argv[0]);
 
 	/* Define as funcoes de desenho */
 	glutDisplayFunc(Control::display);
 	glutIdleFunc(Control::display);
 	glutReshapeFunc(Control::reshape);
 
+	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
+	glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
 	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_BLEND);
 	glLineWidth(2.0);
 
 	/* Loop principal do programa */
@@ -762,9 +767,6 @@ void* Control::pthrAnimation(void *in) {
 void Control::display() {
 	/* Limpa buffer */
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	/* Define a posicao da camera */
-	gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
 	/* Reinicia o sistema de coordenadas */
 	glLoadIdentity();
@@ -795,10 +797,12 @@ void Control::display() {
 
 	glutSwapBuffers();
 
-	usleep(250000);
+	 usleep(WINDOWS_UPDATE_INTERVAL);
 }
 
-void Control::reshape(int width, int height) {
+void Control::reshape(GLint width, GLint height) {
+	glutReshapeWindow(WINDOW_WIDTH, WINDOW_HEIGHT);
+
 	glViewport(0, 0, width, height);
 
 	glMatrixMode(GL_PROJECTION);
@@ -835,7 +839,5 @@ int Control::runningThreads = 0;
 
 int *Control::argc = NULL;
 char **Control::argv = NULL;
-
-int Control::window = 0;
 
 int Heuristic::heuristicsAvailable = 0;
