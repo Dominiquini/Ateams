@@ -114,55 +114,67 @@ bool fnequal1(Problem*, Problem*);	//Se P1 for igual a P2
 bool fnequal2(Problem*, Problem*);	//Se P1 for igual a P2, considerando apenas o fitness
 
 
-inline void* allocateMatrix(int dim, int a, int b, int c) {
+template <typename T>
+T* allocateMatrix(int dim, int a, int b, int c) {
 	if (dim == 1) {
-		short int *M = (short int*) malloc(a * sizeof(short int));
+		T *M = (T*) malloc(a * sizeof(T));
 
-		return (void*) M;
+		return (T*) M;
 	} else if (dim == 2) {
-		short int **M = (short int**) malloc(a * sizeof(short int*));
-		for (int i = 0; i < a; i++)
-			M[i] = (short int*) malloc(b * sizeof(short int));
+		T **M = (T**) malloc(a * sizeof(T*));
 
-		return (void*) M;
-	} else if (dim == 3) {
-		short int ***M = (short int***) malloc(a * sizeof(short int**));
 		for (int i = 0; i < a; i++) {
-			M[i] = (short int**) malloc(b * sizeof(short int*));
-			for (int j = 0; j < b; j++)
-				M[i][j] = (short int*) malloc(c * sizeof(short int));
+			M[i] = (T*) malloc(b * sizeof(T));
 		}
 
-		return (void*) M;
+		return (T*) M;
+	} else if (dim == 3) {
+		T ***M = (T***) malloc(a * sizeof(T**));
+
+		for (int i = 0; i < a; i++) {
+			M[i] = (T**) malloc(b * sizeof(T*));
+			for (int j = 0; j < b; j++) {
+				M[i][j] = (T*) malloc(c * sizeof(T));
+			}
+		}
+
+		return (T*) M;
 	} else
 		return NULL;
 }
 
-inline void deallocateMatrix(int dim, void *MMM, int a, int b) {
+template <typename T>
+void deallocateMatrix(int dim, void *MMM, int a, int b) {
 	if(MMM != NULL) {
 		if (dim == 1) {
-			short int *M = (short int*) MMM;
+			T *M = (T*) MMM;
 
 			free(M);
 		} else if (dim == 2) {
-			short int **M = (short int**) MMM;
-
-			for (int i = 0; i < a; i++)
-				free(M[i]);
-			free(M);
-		} else if (dim == 3) {
-			short int ***M = (short int***) MMM;
+			T **M = (T**) MMM;
 
 			for (int i = 0; i < a; i++) {
-				for (int j = 0; j < b; j++)
-					free(M[i][j]);
 				free(M[i]);
 			}
+
+			free(M);
+		} else if (dim == 3) {
+			T ***M = (T***) MMM;
+
+			for (int i = 0; i < a; i++) {
+				for (int j = 0; j < b; j++) {
+					free(M[i][j]);
+				}
+
+				free(M[i]);
+			}
+
 			free(M);
 		}
 	}
 
 	return;
 }
+
 
 #endif

@@ -70,7 +70,7 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 			throw "Wrong Log File!";
 
 		for (int i = 0; i < nprob; i++) {
-			prob = (short int**) allocateMatrix(2, nmaq, njob, 1);
+			prob = (short int**) allocateMatrix<short int>(2, nmaq, njob, 1);
 
 			if (!fscanf(f, "%d", &makespan))
 				throw "Wrong Log File!";
@@ -175,11 +175,11 @@ void Problem::deallocateMemory() {
 /* Metodos */
 
 JobShop::JobShop() : Problem::Problem() {
-	solution.scaling = (short int**) allocateMatrix(2, nmaq, njob, 1);
+	solution.scaling = (short int**) allocateMatrix<short int>(2, nmaq, njob, 1);
 
 	if (xRand(0, 2) == 0) { // Tenta uma solucao gulosa
-		short int *aux_vet = (short int*) allocateMatrix(1, njob, 1, 1);
-		short int *aux_maq = (short int*) allocateMatrix(1, nmaq, 1, 1);
+		short int *aux_vet = (short int*) allocateMatrix<short int>(1, njob, 1, 1);
+		short int *aux_maq = (short int*) allocateMatrix<short int>(1, nmaq, 1, 1);
 
 		for (int i = 0; i < nmaq; i++)
 			aux_maq[i] = 0;
@@ -195,8 +195,8 @@ JobShop::JobShop() : Problem::Problem() {
 			}
 		}
 
-		deallocateMatrix(1, aux_vet, 1, 1);
-		deallocateMatrix(1, aux_maq, 1, 1);
+		deallocateMatrix<short int>(1, aux_vet, 1, 1);
+		deallocateMatrix<short int>(1, aux_maq, 1, 1);
 	} else {
 		for (int i = 0; i < nmaq; i++) {
 			for (int j = 0; j < njob; j++) {
@@ -229,7 +229,7 @@ JobShop::JobShop(short int **prob) : Problem::Problem() {
 JobShop::JobShop(const Problem &prob) : Problem::Problem() {
 	JobShop *other = dynamic_cast<JobShop*>(const_cast<Problem*>(&prob));
 
-	this->solution.scaling = (short int**) allocateMatrix(2, nmaq, njob, 1);
+	this->solution.scaling = (short int**) allocateMatrix<short int>(2, nmaq, njob, 1);
 	for (int i = 0; i < nmaq; i++)
 		for (int j = 0; j < njob; j++)
 			this->solution.scaling[i][j] = other->solution.scaling[i][j];
@@ -238,7 +238,7 @@ JobShop::JobShop(const Problem &prob) : Problem::Problem() {
 	this->solution.fitness = other->solution.fitness;
 
 	if (other->solution.staggering != NULL) {
-		this->solution.staggering = (short int***) allocateMatrix(3, nmaq, njob, 3);
+		this->solution.staggering = (short int***) allocateMatrix<short int>(3, nmaq, njob, 3);
 		for (int i = 0; i < nmaq; i++)
 			for (int j = 0; j < njob; j++)
 				for (int k = 0; k < 3; k++)
@@ -251,7 +251,7 @@ JobShop::JobShop(const Problem &prob) : Problem::Problem() {
 JobShop::JobShop(const Problem &prob, int maq, int pos1, int pos2) : Problem::Problem() {
 	JobShop *other = dynamic_cast<JobShop*>(const_cast<Problem*>(&prob));
 
-	this->solution.scaling = (short int**) allocateMatrix(2, nmaq, njob, 1);
+	this->solution.scaling = (short int**) allocateMatrix<short int>(2, nmaq, njob, 1);
 	for (int i = 0; i < nmaq; i++)
 		for (int j = 0; j < njob; j++)
 			this->solution.scaling[i][j] = other->solution.scaling[i][j];
@@ -269,22 +269,22 @@ JobShop::JobShop(const Problem &prob, int maq, int pos1, int pos2) : Problem::Pr
 }
 
 JobShop::~JobShop() {
-	deallocateMatrix(2, solution.scaling, nmaq, 1);
+	deallocateMatrix<short int>(2, solution.scaling, nmaq, 1);
 
-	deallocateMatrix(3, solution.staggering, nmaq, njob);
+	deallocateMatrix<short int>(3, solution.staggering, nmaq, njob);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 inline bool JobShop::calcFitness() {
-	deallocateMatrix(3, solution.staggering, nmaq, njob);
+	deallocateMatrix<short int>(3, solution.staggering, nmaq, njob);
 
 	int max, cont = 0;
 	short int ***aux_esc, **tmp, *pos;
 	int ajob, apos, ainic, afim, sum_time;
 
-	pos = (short int*) allocateMatrix(1, nmaq, 1, 1);
-	tmp = (short int**) allocateMatrix(2, njob, nmaq + 1, 1);
-	aux_esc = (short int***) allocateMatrix(3, nmaq, njob, 3);
+	pos = (short int*) allocateMatrix<short int>(1, nmaq, 1, 1);
+	tmp = (short int**) allocateMatrix<short int>(2, njob, nmaq + 1, 1);
+	aux_esc = (short int***) allocateMatrix<short int>(3, nmaq, njob, 3);
 
 	int i, j, k;
 
@@ -342,19 +342,19 @@ inline bool JobShop::calcFitness() {
 			if (tmp[i][nmaq] > sum_time)
 				sum_time = tmp[i][nmaq];
 		}
-		deallocateMatrix(2, tmp, njob, 1);
-		deallocateMatrix(1, pos, 1, 1);
+		deallocateMatrix<short int>(2, tmp, njob, 1);
+		deallocateMatrix<short int>(1, pos, 1, 1);
 
 		solution.staggering = aux_esc;
 		solution.fitness = sum_time;
 
 		return true;
 	} else {
-		deallocateMatrix(3, aux_esc, nmaq, njob);
-		deallocateMatrix(2, tmp, njob, 0);
-		deallocateMatrix(1, pos, 0, 0);
+		deallocateMatrix<short int>(3, aux_esc, nmaq, njob);
+		deallocateMatrix<short int>(2, tmp, njob, 0);
+		deallocateMatrix<short int>(1, pos, 0, 0);
 
-		deallocateMatrix(3, solution.staggering, nmaq, njob);
+		deallocateMatrix<short int>(3, solution.staggering, nmaq, njob);
 		solution.fitness = -1;
 
 		return false;
@@ -485,12 +485,12 @@ inline vector<pair<Problem*, InfoTabu*>*>* JobShop::localSearch(float parcela) {
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
 inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem *parceiro, int partitionSize, int strength) {
-	short int **f1 = (short int**) allocateMatrix(2, nmaq, njob, 1), **f2 = (short int**) allocateMatrix(2, nmaq, njob, 1);
+	short int **f1 = (short int**) allocateMatrix<short int>(2, nmaq, njob, 1), **f2 = (short int**) allocateMatrix<short int>(2, nmaq, njob, 1);
 	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = partitionSize == 0 ? (JobShop::njob) / 2 : partitionSize;
 	int numberCrossOver = (int) ceil((float) (strength * nmaq) / 100);
 	int inicioPart = 0, fimPart = 0;
-	short int *maqs = (short int*) allocateMatrix(1, nmaq, 1, 1);
+	short int *maqs = (short int*) allocateMatrix<short int>(1, nmaq, 1, 1);
 
 	JobShop *other = dynamic_cast<JobShop*>(const_cast<Problem*>(parceiro));
 
@@ -514,7 +514,7 @@ inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem *parceiro, int
 		}
 	}
 
-	deallocateMatrix(1, maqs, nmaq, 1);
+	deallocateMatrix<short int>(1, maqs, nmaq, 1);
 
 	filhos->first = new JobShop(f1);
 	filhos->second = new JobShop(f2);
@@ -524,10 +524,10 @@ inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem *parceiro, int
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
 inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem *parceiro, int strength) {
-	short int **f1 = (short int**) allocateMatrix(2, nmaq, njob, 1), **f2 = (short int**) allocateMatrix(2, nmaq, njob, 1);
+	short int **f1 = (short int**) allocateMatrix<short int>(2, nmaq, njob, 1), **f2 = (short int**) allocateMatrix<short int>(2, nmaq, njob, 1);
 	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int numberCrossOver = (int) ceil((float) (strength * nmaq) / 100);
-	short int *maqs = (short int*) allocateMatrix(1, nmaq, 1, 1);
+	short int *maqs = (short int*) allocateMatrix<short int>(1, nmaq, 1, 1);
 	int particao = 0;
 
 	JobShop *other = dynamic_cast<JobShop*>(const_cast<Problem*>(parceiro));
@@ -551,7 +551,7 @@ inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem *parceiro, int
 		}
 	}
 
-	deallocateMatrix(1, maqs, nmaq, 1);
+	deallocateMatrix<short int>(1, maqs, nmaq, 1);
 
 	filhos->first = new JobShop(f1);
 	filhos->second = new JobShop(f2);
@@ -561,7 +561,7 @@ inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem *parceiro, int
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
 inline Problem* JobShop::mutation(int mutMax) {
-	short int **mut = (short int**) allocateMatrix(2, nmaq, njob, 1);
+	short int **mut = (short int**) allocateMatrix<short int>(2, nmaq, njob, 1);
 	Problem *vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
 	for (int i = 0; i < nmaq; i++)

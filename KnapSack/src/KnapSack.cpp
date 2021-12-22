@@ -44,9 +44,7 @@ void Problem::readProblemFromFile(char *input) {
 			throw "Wrong Data File!";
 	}
 
-	double **constraints = (double**) malloc(KnapSack::ncontraint * sizeof(double*));
-	for (int i = 0; i < KnapSack::ncontraint; i++)
-		constraints[i] = (double*) malloc(KnapSack::nitens * sizeof(double));
+	double **constraints = (double**) allocateMatrix<double>(2, KnapSack::ncontraint, KnapSack::nitens, 1);
 
 	for (int i = 0; i < KnapSack::ncontraint; i++) {
 		for (int j = 0; j < KnapSack::nitens; j++) {
@@ -59,10 +57,7 @@ void Problem::readProblemFromFile(char *input) {
 		for (int j = 0; j < KnapSack::ncontraint; j++)
 			KnapSack::constraint[i][j] = constraints[j][i];
 
-	for (int i = 0; i < KnapSack::ncontraint; i++)
-		free(constraints[i]);
-
-	free(constraints);
+	deallocateMatrix<double>(2, constraints, KnapSack::ncontraint, KnapSack::nitens);
 
 	for (int i = 0; i < KnapSack::ncontraint; i++) {
 		if (!fscanf(f, "%lf", &KnapSack::limit[i]))
@@ -92,7 +87,7 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 			throw "Wrong Log File!";
 
 		for (int s = 0; s < npop; s++) {
-			prob = (short int*) malloc(nitens * sizeof(short int));
+			prob = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 
 			if (!fscanf(f, "%d\n", &valorTotal))
 				throw "Wrong Log File!";
@@ -192,7 +187,7 @@ void Problem::deallocateMemory() {
 /* Metodos */
 
 KnapSack::KnapSack() : Problem::Problem() {
-	solution.ordemItens = (short int*) allocateMatrix(1, nitens, 1, 1);
+	solution.ordemItens = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 
 	for (int i = 0; i < nitens; i++) {
 		solution.ordemItens[i] = i;
@@ -233,7 +228,7 @@ KnapSack::KnapSack(short int *prob, int limit) : Problem::Problem() {
 KnapSack::KnapSack(const Problem &prob) : Problem::Problem() {
 	KnapSack *other = dynamic_cast<KnapSack*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemItens = (short int*) allocateMatrix(1, nitens, 1, 1);
+	this->solution.ordemItens = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 	for (int i = 0; i < nitens; i++)
 		this->solution.ordemItens[i] = other->solution.ordemItens[i];
 
@@ -247,7 +242,7 @@ KnapSack::KnapSack(const Problem &prob) : Problem::Problem() {
 KnapSack::KnapSack(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
 	KnapSack *other = dynamic_cast<KnapSack*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemItens = (short int*) allocateMatrix(1, nitens, 1, 1);
+	this->solution.ordemItens = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 	for (int i = 0; i < nitens; i++)
 		this->solution.ordemItens[i] = other->solution.ordemItens[i];
 
@@ -265,7 +260,7 @@ KnapSack::KnapSack(const Problem &prob, int pos1, int pos2) : Problem::Problem()
 }
 
 KnapSack::~KnapSack() {
-	deallocateMatrix(1, solution.ordemItens, nitens, 1);
+	deallocateMatrix<short int>(1, solution.ordemItens, nitens, 1);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
@@ -394,7 +389,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* KnapSack::localSearch(float parcela) 
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
 inline pair<Problem*, Problem*>* KnapSack::crossOver(const Problem *parceiro, int partitionSize, int strength) {
-	short int *f1 = (short int*) malloc(nitens * sizeof(short int)), *f2 = (short int*) malloc(nitens * sizeof(short int));
+	short int *f1 = (short int*) allocateMatrix<short int>(1, nitens, 1, 1), *f2 = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = partitionSize == 0 ? (nitens) / 2 : partitionSize;
 	int inicioPart = 0, fimPart = 0;
@@ -415,7 +410,7 @@ inline pair<Problem*, Problem*>* KnapSack::crossOver(const Problem *parceiro, in
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
 inline pair<Problem*, Problem*>* KnapSack::crossOver(const Problem *parceiro, int strength) {
-	short int *f1 = (short int*) malloc(nitens * sizeof(short int)), *f2 = (short int*) malloc(nitens * sizeof(short int));
+	short int *f1 = (short int*) allocateMatrix<short int>(1, nitens, 1, 1), *f2 = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = 0;
 
@@ -434,7 +429,7 @@ inline pair<Problem*, Problem*>* KnapSack::crossOver(const Problem *parceiro, in
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
 inline Problem* KnapSack::mutation(int mutMax) {
-	short int *mut = (short int*) malloc(nitens * sizeof(short int));
+	short int *mut = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 	Problem *vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
 	for (int i = 0; i < nitens; i++)

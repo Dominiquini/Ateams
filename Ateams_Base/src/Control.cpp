@@ -271,7 +271,7 @@ void Control::generatePopulation(list<Problem*> *popInicial) {
 		}
 	}
 
-	cout << " " << loading << "%" << endl << endl;
+	cout << " (" << solutions->size() << ") " << endl;
 
 	TERMINATE = false;
 
@@ -467,58 +467,56 @@ Problem* Control::start(list<Problem*> *popInicial) {
 	time(&startTime);
 
 	pthread_t *threads = (pthread_t*) malloc(iterations * sizeof(pthread_t));
+	pthread_t threadAnimation;
 	pthread_t threadTime;
-	void *temp = NULL;
 
 	pthread_attr_t attr;
+
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
 	generatePopulation(popInicial);
 
-	if (solutions->size() == 0) {
-		cout << endl << "No Initial Solution Found!" << endl << endl;
-
-		exit(1);
-	}
+	if (solutions->size() == 0)
+		throw "No Initial Solution Found!";
 
 	lastImprovedIteration = 0;
 
 	Problem::best = (*solutions->begin())->getFitness();
 	Problem::worst = (*solutions->rbegin())->getFitness();
 
-	cout << endl << "Worst Initial Solution: " << Problem::worst << endl << endl;
-	cout << "Best Initial Solution: " << Problem::best << endl << endl << endl;
+	cout << endl << "Worst Initial Solution: " << Problem::worst << endl;
+	cout << endl << "Best Initial Solution: " << Problem::best << endl;
+
+	cout << endl;
 
 	pair<int, Control*> *par = NULL;
 	long int ins = 0;
 	executionCount = 0;
 
 	if (heuristicListener) {
-		pthread_t threadAnimation;
+		pthread_attr_t animationAttr;
 
-		pthread_attr_t attr;
-		pthread_attr_init(&attr);
-		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+		pthread_attr_init(&animationAttr);
+		pthread_attr_setdetachstate(&animationAttr, PTHREAD_CREATE_DETACHED);
 
-		pthread_create(&threadAnimation, &attr, pthrAnimation, NULL);
+		if (pthread_create(&threadAnimation, &animationAttr, pthrAnimation, NULL) != 0)
+			throw "Thread Creation Error! (pthrAnimation)";
 	}
 
-	if (pthread_create(&threadTime, &attr, pthrTime, (void*) this) != 0) {
-		cout << endl << endl << "Thread Creation Error! (pthrTime)" << endl << endl;
-		exit(1);
-	}
+	if (pthread_create(&threadTime, &attr, pthrTime, (void*) this) != 0)
+		throw "Thread Creation Error! (pthrTime)";
 
 	for (int execAteams = 0; execAteams < iterations; execAteams++) {
 		par = new pair<int, Control*>();
 		par->first = execAteams + 1;
 		par->second = this;
 
-		if (pthread_create(&threads[execAteams], &attr, pthrExec, (void*) par) != 0) {
-			cout << endl << endl << "Thread Creation Error! (pthrExec)" << endl << endl;
-			exit(1);
-		}
+		if (pthread_create(&threads[execAteams], &attr, pthrExec, (void*) par) != 0)
+			throw "Thread Creation Error! (pthrExec)";
 	}
+
+	void *temp = NULL;
 
 	for (int execAteams = 0; execAteams < iterations; execAteams++) {
 		pthread_join(threads[execAteams], &temp);
@@ -529,7 +527,13 @@ Problem* Control::start(list<Problem*> *popInicial) {
 
 	pthread_join(threadTime, NULL);
 
+	cout << endl;
+
+	cout << endl << "Explored Solutions: " << Problem::totalNumInst << endl;
 	cout << endl << "Swapped Solutions: " << ins << endl;
+
+	cout << endl << "Worst Final Solution: " << Problem::worst << endl;
+	cout << endl << "Best Final Solution: " << Problem::best << endl;
 
 	free(threads);
 
@@ -797,7 +801,7 @@ void Control::display() {
 
 	glutSwapBuffers();
 
-	 usleep(WINDOWS_UPDATE_INTERVAL);
+	usleep(WINDOWS_UPDATE_INTERVAL);
 }
 
 void Control::reshape(GLint width, GLint height) {

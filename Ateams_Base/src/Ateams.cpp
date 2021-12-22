@@ -41,9 +41,6 @@ int main(int argc, char *argv[]) {
 
 		delete solutions;
 
-		cout << endl << endl << "Worst Final Solution: " << Problem::worst << endl;
-		cout << endl << "Best Final Solution: " << Problem::best << endl;
-
 		ExecutionInfo info = ctrl->getExecutionInfo();
 
 		/* Escreve solucao em arquivo no disco */
@@ -54,8 +51,6 @@ int main(int argc, char *argv[]) {
 		ctrl->printSolution(bestSolution);
 
 		delete bestSolution;
-
-		cout << endl << endl << "Explored Solutions: " << Problem::totalNumInst << endl;
 
 		cout << endl << endl << "Executions: " << info.executionCount << endl << endl;
 

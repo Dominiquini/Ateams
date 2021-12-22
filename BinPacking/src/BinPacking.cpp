@@ -67,8 +67,8 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 			throw "Wrong Log File!";
 
 		for (int i = 0; i < npop; i++) {
-			ordem = (short int*) malloc(nitens * sizeof(short int));
-			bins = (short int*) malloc(nitens * sizeof(short int));
+			ordem = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
+			bins = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 
 			if (!fscanf(f, "%d", &nbins))
 				throw "Wrong Log File!";
@@ -154,10 +154,10 @@ void Problem::deallocateMemory() {
 /* Metodos */
 
 BinPacking::BinPacking() : Problem::Problem() {
-	solution.ordemItens = (short int*) allocateMatrix(1, nitens, 1, 1);
+	solution.ordemItens = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 
 	if (Problem::totalNumInst == 1) { // Tenta uma solucao gulosa
-		double *orderSize = (double*) malloc(nitens * sizeof(double));
+		double *orderSize = (double*) allocateMatrix<double>(1, nitens, 1, 1);
 
 		for (int i = 0; i < nitens; i++)
 			orderSize[i] = sizes[i];
@@ -176,8 +176,8 @@ BinPacking::BinPacking() : Problem::Problem() {
 			solution.ordemItens[i] = posMax;
 		}
 
-		double *tempValBins = (double*) malloc(nitens * sizeof(double));
-		short int *tempBins = (short int*) malloc(nitens * sizeof(short int));
+		double *tempValBins = (double*) allocateMatrix<double>(1, nitens, 1, 1);
+		short int *tempBins = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 
 		for (int i = 0; i < nitens; i++) {
 			orderSize[i] = solution.ordemItens[i];
@@ -213,9 +213,9 @@ BinPacking::BinPacking() : Problem::Problem() {
 			}
 		}
 
-		free(orderSize);
-		free(tempValBins);
-		free(tempBins);
+		deallocateMatrix<double>(1, orderSize, nitens, 1);
+		deallocateMatrix<double>(1, tempValBins, nitens, 1);
+		deallocateMatrix<short int>(1, tempBins, nitens, 1);
 	} else {
 		for (int i = 0; i < nitens; i++) {
 			solution.ordemItens[i] = i;
@@ -257,7 +257,7 @@ BinPacking::BinPacking(short int *prob, short int *bins) : Problem::Problem() {
 BinPacking::BinPacking(const Problem &prob) : Problem::Problem() {
 	BinPacking *other = dynamic_cast<BinPacking*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemItens = (short int*) allocateMatrix(1, nitens, 1, 1);
+	this->solution.ordemItens = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 
 	for (int i = 0; i < nitens; i++)
 		this->solution.ordemItens[i] = other->solution.ordemItens[i];
@@ -266,7 +266,7 @@ BinPacking::BinPacking(const Problem &prob) : Problem::Problem() {
 	this->solution.fitness = other->solution.fitness;
 
 	if (other->solution.bins != NULL) {
-		this->solution.bins = (short int*) allocateMatrix(1, nitens, 1, 1);
+		this->solution.bins = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 
 		for (int i = 0; i < nitens; i++)
 			this->solution.bins[i] = other->solution.bins[i];
@@ -278,7 +278,7 @@ BinPacking::BinPacking(const Problem &prob) : Problem::Problem() {
 BinPacking::BinPacking(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
 	BinPacking *other = dynamic_cast<BinPacking*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemItens = (short int*) allocateMatrix(1, nitens, 1, 1);
+	this->solution.ordemItens = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 
 	for (int i = 0; i < nitens; i++)
 		this->solution.ordemItens[i] = other->solution.ordemItens[i];
@@ -296,20 +296,20 @@ BinPacking::BinPacking(const Problem &prob, int pos1, int pos2) : Problem::Probl
 }
 
 BinPacking::~BinPacking() {
-	deallocateMatrix(1, solution.ordemItens, nitens, 1);
+	deallocateMatrix<short int>(1, solution.ordemItens, nitens, 1);
 
-	deallocateMatrix(1, solution.bins, nitens, 1);
+	deallocateMatrix<short int>(1, solution.bins, nitens, 1);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 inline bool BinPacking::calcFitness() {
-	deallocateMatrix(1, solution.bins, nitens, 1);
+	deallocateMatrix<short int>(1, solution.bins, nitens, 1);
 
 	double sumBinAtual = 0;
 	int anterior = 0;
 	int bins = 1;
 
-	short int *aux_bins = (short int*) allocateMatrix(1, nitens, 1, 1);
+	short int *aux_bins = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 
 	for (int pos = 0; pos < nitens; pos++) {
 		sumBinAtual += sizes[solution.ordemItens[pos]];
@@ -440,7 +440,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* BinPacking::localSearch(float parcela
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
 inline pair<Problem*, Problem*>* BinPacking::crossOver(const Problem *parceiro, int partitionSize, int strength) {
-	short int *f1 = (short int*) malloc(nitens * sizeof(short int)), *f2 = (short int*) malloc(nitens * sizeof(short int));
+	short int *f1 = (short int*) allocateMatrix<short int>(1, nitens, 1, 1), *f2 = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = partitionSize == 0 ? (BinPacking::nitens) / 2 : partitionSize;
 	int inicioPart = 0, fimPart = 0;
@@ -461,7 +461,7 @@ inline pair<Problem*, Problem*>* BinPacking::crossOver(const Problem *parceiro, 
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
 inline pair<Problem*, Problem*>* BinPacking::crossOver(const Problem *parceiro, int strength) {
-	short int *f1 = (short int*) malloc(nitens * sizeof(short int)), *f2 = (short int*) malloc(nitens * sizeof(short int));
+	short int *f1 = (short int*) allocateMatrix<short int>(1, nitens, 1, 1), *f2 = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = 0;
 
@@ -480,7 +480,7 @@ inline pair<Problem*, Problem*>* BinPacking::crossOver(const Problem *parceiro, 
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
 inline Problem* BinPacking::mutation(int mutMax) {
-	short int *mut = (short int*) malloc(nitens * sizeof(short int));
+	short int *mut = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
 	Problem *vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
 	for (int j = 0; j < nitens; j++)

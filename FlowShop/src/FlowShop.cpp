@@ -68,7 +68,7 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 			throw "Wrong Log File!";
 
 		for (int i = 0; i < nprob; i++) {
-			prob = (short int*) allocateMatrix(1, njob, 1, 1);
+			prob = (short int*) allocateMatrix<short int>(1, njob, 1, 1);
 
 			if (!fscanf(f, "%d", &makespan))
 				throw "Wrong Log File!";
@@ -159,7 +159,7 @@ void Problem::deallocateMemory() {
 /* Metodos */
 
 FlowShop::FlowShop() : Problem::Problem() {
-	solution.scaling = (short int*) allocateMatrix(1, njob, 1, 1);
+	solution.scaling = (short int*) allocateMatrix<short int>(1, njob, 1, 1);
 
 	for (int j = 0; j < njob; j++) {
 		solution.scaling[j] = j;
@@ -189,7 +189,7 @@ FlowShop::FlowShop(short int *prob) : Problem::Problem() {
 FlowShop::FlowShop(const Problem &prob) : Problem::Problem() {
 	FlowShop *other = dynamic_cast<FlowShop*>(const_cast<Problem*>(&prob));
 
-	this->solution.scaling = (short int*) allocateMatrix(1, njob, 1, 1);
+	this->solution.scaling = (short int*) allocateMatrix<short int>(1, njob, 1, 1);
 	for (int j = 0; j < njob; j++)
 		this->solution.scaling[j] = other->solution.scaling[j];
 
@@ -197,7 +197,7 @@ FlowShop::FlowShop(const Problem &prob) : Problem::Problem() {
 	this->solution.fitness = other->solution.fitness;
 
 	if (other->solution.staggering != NULL) {
-		this->solution.staggering = (short int***) allocateMatrix(3, nmaq, njob, 3);
+		this->solution.staggering = (short int***) allocateMatrix<short int>(3, nmaq, njob, 3);
 		for (int i = 0; i < nmaq; i++)
 			for (int j = 0; j < njob; j++)
 				for (int k = 0; k < 3; k++)
@@ -210,7 +210,7 @@ FlowShop::FlowShop(const Problem &prob) : Problem::Problem() {
 FlowShop::FlowShop(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
 	FlowShop *other = dynamic_cast<FlowShop*>(const_cast<Problem*>(&prob));
 
-	this->solution.scaling = (short int*) allocateMatrix(1, njob, 1, 1);
+	this->solution.scaling = (short int*) allocateMatrix<short int>(1, njob, 1, 1);
 	for (int j = 0; j < njob; j++)
 		this->solution.scaling[j] = other->solution.scaling[j];
 
@@ -227,17 +227,17 @@ FlowShop::FlowShop(const Problem &prob, int pos1, int pos2) : Problem::Problem()
 }
 
 FlowShop::~FlowShop() {
-	deallocateMatrix(1, solution.scaling, 1, 1);
+	deallocateMatrix<short int>(1, solution.scaling, 1, 1);
 
-	deallocateMatrix(3, solution.staggering, FlowShop::nmaq, FlowShop::njob);
+	deallocateMatrix<short int>(3, solution.staggering, FlowShop::nmaq, FlowShop::njob);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 inline bool FlowShop::calcFitness() {
-	deallocateMatrix(3, solution.staggering, nmaq, njob);
+	deallocateMatrix<short int>(3, solution.staggering, nmaq, njob);
 
-	short int ***aux_esc = (short int***) allocateMatrix(3, nmaq, njob, 3);
-	short int *pos = (short int*) allocateMatrix(1, nmaq, 1, 1);
+	short int ***aux_esc = (short int***) allocateMatrix<short int>(3, nmaq, njob, 3);
+	short int *pos = (short int*) allocateMatrix<short int>(1, nmaq, 1, 1);
 	int sum_time = 0;
 
 	for (int m = 0; m < nmaq; m++)
@@ -265,7 +265,7 @@ inline bool FlowShop::calcFitness() {
 	solution.staggering = aux_esc;
 	solution.fitness = sum_time;
 
-	deallocateMatrix(1, pos, 1, 1);
+	deallocateMatrix<short int>(1, pos, 1, 1);
 
 	return true;
 }
@@ -388,7 +388,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* FlowShop::localSearch(float parcela) 
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
 inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem *parceiro, int partitionSize, int strength) {
-	short int *f1 = (short int*) allocateMatrix(1, njob, 1, 1), *f2 = (short int*) allocateMatrix(1, njob, 1, 1);
+	short int *f1 = (short int*) allocateMatrix<short int>(1, njob, 1, 1), *f2 = (short int*) allocateMatrix<short int>(1, njob, 1, 1);
 	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = partitionSize == 0 ? (FlowShop::njob) / 2 : partitionSize;
 	int inicioPart = 0, fimPart = 0;
@@ -409,7 +409,7 @@ inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem *parceiro, in
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
 inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem *parceiro, int strength) {
-	short int *f1 = (short int*) allocateMatrix(1, njob, 1, 1), *f2 = (short int*) allocateMatrix(1, njob, 1, 1);
+	short int *f1 = (short int*) allocateMatrix<short int>(1, njob, 1, 1), *f2 = (short int*) allocateMatrix<short int>(1, njob, 1, 1);
 	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = 0;
 
@@ -428,7 +428,7 @@ inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem *parceiro, in
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
 inline Problem* FlowShop::mutation(int mutMax) {
-	short int *mut = (short int*) allocateMatrix(1, njob, 1, 1);
+	short int *mut = (short int*) allocateMatrix<short int>(1, njob, 1, 1);
 	Problem *vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
 	for (int j = 0; j < njob; j++)
