@@ -4,11 +4,10 @@
 
 using namespace std;
 
-#ifndef _GENETICO_
-#define _GENETICO_
+#ifndef _GENETIC_
+#define _GENETIC_
 
-class GeneticAlgorithm : public Heuristic
-{
+class GeneticAlgorithm: public Heuristic {
 public:
 
 	int iterGenetico, populationSizeGenetico, tamParticionamento;
@@ -17,13 +16,17 @@ public:
 	GeneticAlgorithm();
 	~GeneticAlgorithm();
 
-	bool setParameter(const char* parameter, const char* value);
+	bool setParameter(const char *parameter, const char *value) override;
 
-	vector<Problem*>* start(set<Problem*, bool(*)(Problem*, Problem*)>* sol, HeuristicListener* listener);
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) override;
+
+	vector<Problem*>* start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) override;
+
+	void markSolutions(vector<Problem*>* solutions) override;
 
 private:
 
-	vector<Problem*>* exec(vector<Problem*>* pop, HeuristicListener* listener);
+	vector<Problem*>* exec(vector<Problem*> *pop, HeuristicListener *listener);
 };
 
 #endif

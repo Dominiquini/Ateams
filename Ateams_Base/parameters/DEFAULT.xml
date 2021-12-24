@@ -19,19 +19,17 @@
        maxIterationsSA = "250"
        startTempSA = "125"
        endTempSA = "0.75"
-       restoreSolutionSA = "0"
        alphaSA = "0.99">
     </SimulatedAnnealing>
 
     <SimulatedAnnealing
        name = "SA2"
        probSA = "10"
-       choicePolicySA = "10"
+       choicePolicySA = "100"
        elitismProbabilitySA = "0.25"
        maxIterationsSA = "250"
        startTempSA = "125"
        endTempSA = "0.75"
-       restoreSolutionSA = "0"
        alphaSA = "0.999">
     </SimulatedAnnealing>
 
@@ -43,7 +41,6 @@
        maxIterationsSA = "25000"
        startTempSA = "125"
        endTempSA = "0.75"
-       restoreSolutionSA = "0"
        alphaSA = "0.9">
     </SimulatedAnnealing>
 
@@ -62,7 +59,7 @@
     <TabuSearch
        name = "BT2"
        probBT = "10"
-       choicePolicyTS = "50"
+       choicePolicyTS = "250"
        elitismProbabilityTS = "0.1"
        aspirationCriteriaTS = "0.5"
        iterationsTS = "750"
@@ -74,7 +71,7 @@
     <TabuSearch
        name = "BT3"
        probBT = "8"
-       choicePolicyTS = "250"
+       choicePolicyTS = "100"
        elitismProbabilityTS = "0.2"
        aspirationCriteriaTS = "0.5"
        iterationsTS = "750"

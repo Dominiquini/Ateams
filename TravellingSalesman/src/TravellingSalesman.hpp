@@ -47,7 +47,11 @@ public:
 class TravellingSalesman: public Problem {
 private:
 
-	bool calcFitness();						// Calcula o makespan
+	bool calcFitness() override;			// Calcula o makespan
+
+	Solution getSolution() override {		// Retorna solucao
+		return solution;
+	}
 
 	Solution_TravellingSalesman solution;	// Representacao interna da solucao
 

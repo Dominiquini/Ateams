@@ -48,7 +48,11 @@ public:
 class BinPacking: public Problem {
 private:
 
-	bool calcFitness();					// Calcula o makespan
+	bool calcFitness() override;		// Calcula o makespan
+
+	Solution getSolution() override {	// Retorna solucao
+		return solution;
+	}
 
 	Solution_BinPacking solution;		// Representacao interna da solucao
 
@@ -63,7 +67,6 @@ public:
 
 	BinPacking();											// Nova solucao aleatoria
 	BinPacking(short int *prob);							// Copia de prob
-	BinPacking(short int *prob, short int *bins);			// Copia de prob
 	BinPacking(const Problem &prob);						// Copia de prob
 	BinPacking(const Problem &prob, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 

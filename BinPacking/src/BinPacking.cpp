@@ -58,7 +58,7 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 		double capacity;
 		int npop, nitens, nbins;
 		short int *ordem, *bins;
-		Problem *p;
+		BinPacking *bp;
 
 		if (!fscanf(f, "%d %lf %d", &npop, &capacity, &nitens))
 			throw "Wrong Log File!";
@@ -78,12 +78,17 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 					throw "Wrong Log File!";
 			}
 
-			p = new BinPacking(ordem, bins);
+			bp = new BinPacking(ordem);
 
-			if (nbins != p->getFitness())
+			if (nbins != bp->getFitness())
 				throw "Wrong Log File!";
 
-			popInicial->push_back(p);
+			for (int j = 0; j < nitens; j++) {
+				if (bins[j] != bp->getSoluction().bins[j])
+					throw "Wrong Log File!";
+			}
+
+			popInicial->push_back(bp);
 		}
 
 		fclose(f);
@@ -105,10 +110,12 @@ void Problem::writeCurrentPopulationInLog(char *log, list<Problem*> *popInicial)
 		fprintf(f, "%d %f %d\n\n", sizePop, BinPacking::capacity, BinPacking::nitens);
 
 		for (iter = popInicial->begin(); iter != popInicial->end(); iter++) {
-			ordem = dynamic_cast<BinPacking*>(*iter)->getSoluction().ordemItens;
-			bins = dynamic_cast<BinPacking*>(*iter)->getSoluction().bins;
+			BinPacking *bp = dynamic_cast<BinPacking*>(*iter);
 
-			fprintf(f, "%d\n", (int) dynamic_cast<BinPacking*>(*iter)->getSoluction().fitness);
+			ordem = bp->getSoluction().ordemItens;
+			bins = bp->getSoluction().bins;
+
+			fprintf(f, "%d\n", (int) bp->getSoluction().fitness);
 
 			for (int j = 0; j < BinPacking::nitens; j++) {
 				fprintf(f, "%hd %hd ", bins[j], ordem[j]);
@@ -226,10 +233,6 @@ BinPacking::BinPacking() : Problem::Problem() {
 
 	solution.bins = NULL;
 	calcFitness();
-
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
 }
 
 BinPacking::BinPacking(short int *prob) : Problem::Problem() {
@@ -237,21 +240,6 @@ BinPacking::BinPacking(short int *prob) : Problem::Problem() {
 	solution.bins = NULL;
 
 	calcFitness();
-
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
-}
-
-BinPacking::BinPacking(short int *prob, short int *bins) : Problem::Problem() {
-	solution.ordemItens = prob;
-	solution.bins = bins;
-
-	calcFitness();
-
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
 }
 
 BinPacking::BinPacking(const Problem &prob) : Problem::Problem() {
@@ -271,8 +259,6 @@ BinPacking::BinPacking(const Problem &prob) : Problem::Problem() {
 		for (int i = 0; i < nitens; i++)
 			this->solution.bins[i] = other->solution.bins[i];
 	}
-
-	exec = prob.exec;
 }
 
 BinPacking::BinPacking(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
@@ -288,11 +274,8 @@ BinPacking::BinPacking(const Problem &prob, int pos1, int pos2) : Problem::Probl
 	this->solution.ordemItens[pos2] = aux;
 
 	this->solution.bins = NULL;
-	calcFitness();
 
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
+	calcFitness();
 }
 
 BinPacking::~BinPacking() {
@@ -306,7 +289,6 @@ inline bool BinPacking::calcFitness() {
 	deallocateMatrix<short int>(1, solution.bins, nitens, 1);
 
 	double sumBinAtual = 0;
-	int anterior = 0;
 	int bins = 1;
 
 	short int *aux_bins = (short int*) allocateMatrix<short int>(1, nitens, 1, 1);
@@ -317,15 +299,10 @@ inline bool BinPacking::calcFitness() {
 		if (sumBinAtual > capacity) {
 			bins++;
 			sumBinAtual = sizes[solution.ordemItens[pos]];
-
-			sort(&solution.ordemItens[anterior], &solution.ordemItens[pos]);
-			anterior = pos;
 		}
 
 		aux_bins[pos] = bins;
 	}
-
-	sort(&solution.ordemItens[anterior], &solution.ordemItens[nitens]);
 
 	solution.bins = aux_bins;
 	solution.fitness = bins;

@@ -78,7 +78,7 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 		int npop, nitens, nconstraint, valorTotal, limit;
 		char format_type[32];
 		short int *prob;
-		Problem *p;
+		KnapSack *ks;
 
 		if (!fscanf(f, "%d %d %d %s\n", &npop, &nitens, &nconstraint, format_type))
 			throw "Wrong Log File!";
@@ -100,11 +100,15 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 					throw "Wrong Log File!";
 			}
 
-			p = new KnapSack(prob, limit);
-			if (valorTotal != p->getFitness())
+			ks = new KnapSack(prob);
+
+			if (valorTotal != ks->getFitness())
 				throw "Wrong Log File!";
 
-			popInicial->push_back(p);
+			if (limit != ks->getSoluction().limit)
+				throw "Wrong Log File!";
+
+			popInicial->push_back(ks);
 		}
 
 		fclose(f);
@@ -126,13 +130,16 @@ void Problem::writeCurrentPopulationInLog(char *log, list<Problem*> *popInicial)
 		fprintf(f, "%d %d %d %s\n\n", sizePop, KnapSack::nitens, KnapSack::ncontraint, "src_1");
 
 		for (iter = popInicial->begin(); iter != popInicial->end(); iter++) {
-			prob = dynamic_cast<KnapSack*>(*iter)->getSoluction().ordemItens;
+			KnapSack *ks = dynamic_cast<KnapSack*>(*iter);
 
-			fprintf(f, "%d\n", (int) dynamic_cast<KnapSack*>(*iter)->getSoluction().fitness);
-			fprintf(f, "%d ", (int) dynamic_cast<KnapSack*>(*iter)->getSoluction().limit);
+			prob = ks->getSoluction().ordemItens;
+
+			fprintf(f, "%d\n", (int) ks->getSoluction().fitness);
+			fprintf(f, "%d ", (int) ks->getSoluction().limit);
 			for (int i = 0; i < KnapSack::nitens; i++) {
 				fprintf(f, "%d ", prob[i]);
 			}
+
 			fprintf(f, "\n\n");
 		}
 
@@ -196,11 +203,8 @@ KnapSack::KnapSack() : Problem::Problem() {
 	random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens], pointer_to_unary_function<int, int>(xRand));
 
 	solution.limit = -1;
-	calcFitness();
 
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
+	calcFitness();
 }
 
 KnapSack::KnapSack(short int *prob) : Problem::Problem() {
@@ -208,21 +212,6 @@ KnapSack::KnapSack(short int *prob) : Problem::Problem() {
 	solution.limit = -1;
 
 	calcFitness();
-
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
-}
-
-KnapSack::KnapSack(short int *prob, int limit) : Problem::Problem() {
-	solution.ordemItens = prob;
-	solution.limit = limit;
-
-	calcFitness();
-
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
 }
 
 KnapSack::KnapSack(const Problem &prob) : Problem::Problem() {
@@ -235,8 +224,6 @@ KnapSack::KnapSack(const Problem &prob) : Problem::Problem() {
 	this->solution.limit = other->solution.limit;
 
 	this->solution.fitness = other->solution.fitness;
-
-	exec = prob.exec;
 }
 
 KnapSack::KnapSack(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
@@ -253,10 +240,6 @@ KnapSack::KnapSack(const Problem &prob, int pos1, int pos2) : Problem::Problem()
 	solution.limit = -1;
 
 	calcFitness();
-
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
 }
 
 KnapSack::~KnapSack() {

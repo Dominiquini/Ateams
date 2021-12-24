@@ -61,7 +61,7 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 		list<Problem*> *popInicial = new list<Problem*>();
 		int njob, nmaq, nprob, makespan;
 		short int **prob;
-		Problem *p;
+		JobShop *js;
 
 		if (!fscanf(f, "%d %d %d", &nprob, &nmaq, &njob))
 			throw "Wrong Log File!";
@@ -82,12 +82,12 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 				}
 			}
 
-			p = new JobShop(prob);
+			js = new JobShop(prob);
 
-			if (makespan != p->getFitness())
+			if (makespan != js->getFitness())
 				throw "Wrong Log File!";
 
-			popInicial->push_back(p);
+			popInicial->push_back(js);
 		}
 
 		fclose(f);
@@ -109,16 +109,20 @@ void Problem::writeCurrentPopulationInLog(char *log, list<Problem*> *popInicial)
 		fprintf(f, "%d %d %d\n\n", sizePop, JobShop::nmaq, JobShop::njob);
 
 		for (iter = popInicial->begin(); iter != popInicial->end(); iter++) {
-			prob = dynamic_cast<JobShop*>(*iter)->getSoluction().scaling;
+			JobShop *js = dynamic_cast<JobShop*>(*iter);
 
-			fprintf(f, "%d\n", (int) dynamic_cast<JobShop*>(*iter)->getSoluction().fitness);
+			prob = js->getSoluction().scaling;
+
+			fprintf(f, "%d\n", (int) js->getSoluction().fitness);
 
 			for (int j = 0; j < JobShop::nmaq; j++) {
 				for (int m = 0; m < JobShop::njob; m++) {
 					fprintf(f, "%.2d ", prob[j][m]);
 				}
+
 				fprintf(f, "\n");
 			}
+
 			fprintf(f, "\n");
 		}
 
@@ -208,22 +212,15 @@ JobShop::JobShop() : Problem::Problem() {
 	}
 
 	solution.staggering = NULL;
-	calcFitness();
 
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
+	calcFitness();
 }
 
 JobShop::JobShop(short int **prob) : Problem::Problem() {
 	solution.scaling = prob;
-
 	solution.staggering = NULL;
-	calcFitness();
 
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
+	calcFitness();
 }
 
 JobShop::JobShop(const Problem &prob) : Problem::Problem() {
@@ -244,8 +241,6 @@ JobShop::JobShop(const Problem &prob) : Problem::Problem() {
 				for (int k = 0; k < 3; k++)
 					this->solution.staggering[i][j][k] = other->solution.staggering[i][j][k];
 	}
-
-	exec = prob.exec;
 }
 
 JobShop::JobShop(const Problem &prob, int maq, int pos1, int pos2) : Problem::Problem() {
@@ -261,11 +256,8 @@ JobShop::JobShop(const Problem &prob, int maq, int pos1, int pos2) : Problem::Pr
 	this->solution.scaling[maq][pos2] = aux;
 
 	this->solution.staggering = NULL;
-	calcFitness();
 
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
+	calcFitness();
 }
 
 JobShop::~JobShop() {

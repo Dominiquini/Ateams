@@ -50,18 +50,22 @@ public:
 class JobShop: public Problem {
 private:
 
-	bool calcFitness();				// Calcula o makespan
+	bool calcFitness() override;		// Calcula o makespan
 
-	Solution_JobShop solution;		// Representacao interna da solucao
+	Solution getSolution() override {	// Retorna solucao
+		return solution;
+	}
+
+	Solution_JobShop solution;			// Representacao interna da solucao
 
 public:
 
-	static char name[128];			// Nome do problema
+	static char name[128];				// Nome do problema
 
-	static int **maq, **time;		// Matriz de maquinas e de tempos
-	static int njob, nmaq;			// Quantidade de jobs e de maquinas
+	static int **maq, **time;			// Matriz de maquinas e de tempos
+	static int njob, nmaq;				// Quantidade de jobs e de maquinas
 
-	static int neighbors;			// Numero de permutacoes possiveis
+	static int neighbors;				// Numero de permutacoes possiveis
 
 	JobShop();													// Nova solucao aleatoria
 	JobShop(short int **prob);									// Copia de prob

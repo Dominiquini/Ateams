@@ -4,11 +4,10 @@
 
 using namespace std;
 
-#ifndef _Tabu_
-#define _Tabu_
+#ifndef _TABU_
+#define _TABU_
 
-class TabuSearch : public Heuristic
-{
+class TabuSearch: public Heuristic {
 public:
 
 	int iterTabu, tamListaTabu, tentSemMelhora, elitism;
@@ -17,13 +16,17 @@ public:
 	TabuSearch();
 	~TabuSearch();
 
-	bool setParameter(const char* parameter, const char* value);
+	bool setParameter(const char *parameter, const char *value) override;
 
-	vector<Problem*>* start(set<Problem*, bool(*)(Problem*, Problem*)>* sol, HeuristicListener* listener);
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) override;
+
+	vector<Problem*>* start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) override;
+
+	void markSolutions(vector<Problem*>* solutions) override;
 
 private:
 
-	vector<Problem*>* exec(Problem*, HeuristicListener* listener);
+	vector<Problem*>* exec(Problem*, HeuristicListener *listener);
 };
 
 class InfoTabu {
@@ -39,7 +42,7 @@ public:
 
 bool isTabu(list<InfoTabu*> *listaTabu, InfoTabu *m);
 
-void addTabu(list<InfoTabu*>* listaTabu, InfoTabu *m, int max);
+void addTabu(list<InfoTabu*> *listaTabu, InfoTabu *m, int max);
 
 bool aspiracao(double paramAsp, Problem *atual, Problem *local, Problem *global);
 

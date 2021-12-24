@@ -51,45 +51,54 @@ bool GeneticAlgorithm::setParameter(const char *parameter, const char *value) {
 }
 
 vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) {
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection = sol->begin();
 	vector<Problem*> *popAG = new vector<Problem*>();
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter = sol->begin();
-	int i = 0, j = 0;
+	int solutionsCount = 0;
+
+	pthread_mutex_lock(&mutex_pop);
 
 	if (populationSizeGenetico > (int) sol->size())
 		populationSizeGenetico = (int) sol->size();
 
 	executionCounter++;
 
-	pthread_mutex_lock(&mutex_pop);
-
 	if (choicePolicy == 0) {
-		for (iter = sol->begin(), i = 0; iter != sol->end() && i < populationSizeGenetico; iter++, i++) {
-			(*iter)->exec.genetic = true;
-			popAG->push_back(Problem::copySolution(**iter));
+		for (selection = sol->begin(), solutionsCount = 0; selection != sol->end() && solutionsCount < populationSizeGenetico; selection++, solutionsCount++) {
+			popAG->push_back(Problem::copySolution(**selection));
 		}
 	} else {
-		double visao = choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, choicePolicy);
+		double fitTotal = choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, choicePolicy);
 
-		for (i = 1; i < populationSizeGenetico; i++) {
-			/* Evita a escolha de individuos repetidos */
-			while ((iter == sol->begin() || (*iter)->exec.genetic == true) && (j++ < populationSizeGenetico))
-				iter = Control::selectRouletteWheel(sol, visao);
+		for (solutionsCount = 0; solutionsCount < populationSizeGenetico; solutionsCount++) {
+			selection = selectRouletteWheel(sol, fitTotal);
 
-			j = 0;
-
-			(*iter)->exec.genetic = true;
-			popAG->push_back(Problem::copySolution(**iter));
+			popAG->push_back(Problem::copySolution(**selection));
 		}
-
-		(*sol->begin())->exec.genetic = true;
-		popAG->push_back(Problem::copySolution(**sol->begin()));
-
-		sort(popAG->begin(), popAG->end(), fncomp2);
 	}
+
+	sort(popAG->begin(), popAG->end(), fncomp2);
 
 	pthread_mutex_unlock(&mutex_pop);
 
 	return exec(popAG, listener);
+}
+
+set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator GeneticAlgorithm::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection = population->begin();
+	int attemps = 0;
+
+	while ((selection == population->begin() || (*selection)->heuristicsInfo.genetic == true) && (attemps++ < MAX_ATTEMPTS))
+		selection = Control::selectRouletteWheel(population, fitTotal);
+
+	(*selection)->heuristicsInfo.genetic++;
+
+	return selection;
+}
+
+void GeneticAlgorithm::markSolutions(vector<Problem*> *solutions) {
+	for (auto solution = solutions->cbegin(); solution != solutions->cend(); ++solution) {
+		(*solution)->heuristicsInfo.genetic++;
+	}
 }
 
 vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicListener *listener) {
@@ -239,6 +248,8 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicListene
 	delete pais;
 	delete filhos;
 	delete aux_pop;
+
+	markSolutions(pop);
 
 	return pop;
 }

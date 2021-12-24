@@ -162,7 +162,7 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 		double peso;
 		int npop, nnodes;
 		short int *ordem;
-		Problem *p;
+		TravellingSalesman *ts;
 
 		if (!fscanf(f, "%d %d", &npop, &nnodes))
 			throw "Wrong Log File!";
@@ -171,7 +171,8 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 			throw "Wrong Log File!";
 
 		for (int i = 0; i < npop; i++) {
-			ordem = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1);;
+			ordem = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1);
+			;
 
 			if (!fscanf(f, "%lf", &peso))
 				throw "Wrong Log File!";
@@ -181,12 +182,12 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 					throw "Wrong Log File!";
 			}
 
-			p = new TravellingSalesman(ordem);
+			ts = new TravellingSalesman(ordem);
 
-			if (peso != p->getFitness())
+			if (peso != ts->getFitness())
 				throw "Wrong Log File!";
 
-			popInicial->push_back(p);
+			popInicial->push_back(ts);
 		}
 
 		fclose(f);
@@ -208,9 +209,11 @@ void Problem::writeCurrentPopulationInLog(char *log, list<Problem*> *popInicial)
 		fprintf(f, "%d %d\n\n", sizePop, TravellingSalesman::nnodes);
 
 		for (iter = popInicial->begin(); iter != popInicial->end(); iter++) {
-			ordem = dynamic_cast<TravellingSalesman*>(*iter)->getSoluction().ordemNodes;
+			TravellingSalesman *ts = dynamic_cast<TravellingSalesman*>(*iter);
 
-			fprintf(f, "%d\n", (int) dynamic_cast<TravellingSalesman*>(*iter)->getSoluction().fitness);
+			ordem = ts->getSoluction().ordemNodes;
+
+			fprintf(f, "%d\n", (int) ts->getSoluction().fitness);
 
 			for (int j = 0; j <= TravellingSalesman::nnodes; j++) {
 				fprintf(f, "%hd ", ordem[j]);
@@ -303,10 +306,6 @@ TravellingSalesman::TravellingSalesman() : Problem::Problem() {
 	}
 
 	calcFitness();
-
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
 }
 
 TravellingSalesman::TravellingSalesman(short int *prob) : Problem::Problem() {
@@ -314,10 +313,6 @@ TravellingSalesman::TravellingSalesman(short int *prob) : Problem::Problem() {
 	solution.fitness = -1;
 
 	calcFitness();
-
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
 }
 
 TravellingSalesman::TravellingSalesman(const Problem &prob) : Problem::Problem() {
@@ -329,8 +324,6 @@ TravellingSalesman::TravellingSalesman(const Problem &prob) : Problem::Problem()
 		this->solution.ordemNodes[i] = other->solution.ordemNodes[i];
 
 	this->solution.fitness = other->solution.fitness;
-
-	exec = prob.exec;
 }
 
 TravellingSalesman::TravellingSalesman(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
@@ -351,11 +344,8 @@ TravellingSalesman::TravellingSalesman(const Problem &prob, int pos1, int pos2) 
 		solution.ordemNodes[0] = solution.ordemNodes[nnodes];
 
 	solution.fitness = -1;
-	calcFitness();
 
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
+	calcFitness();
 }
 
 TravellingSalesman::~TravellingSalesman() {

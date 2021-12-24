@@ -22,6 +22,7 @@
 #include <vector>
 #include <bitset>
 #include <string>
+#include <thread>
 #include <cctype>
 #include <ctime>
 #include <list>
@@ -35,9 +36,9 @@ using namespace std;
 #define _ATEAMS_
 
 struct ExecHeuristicsInfo {
-	bool tabu;
-	bool genetic;
-	bool annealing;
+	unsigned int tabu = 0;
+	unsigned int genetic = 0;
+	unsigned int annealing = 0;
 };
 
 void terminate(int signal);

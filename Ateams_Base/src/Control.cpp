@@ -1,5 +1,6 @@
 #include "Control.hpp"
 
+using namespace this_thread;
 using namespace xercesc;
 using namespace std;
 
@@ -76,6 +77,8 @@ Control::Control() {
 	pthread_mutex_init(&mutex_cont, NULL);
 	pthread_mutex_init(&mutex_info, NULL);
 	pthread_mutex_init(&mutex_exec, NULL);
+
+	glutInit(Control::argc, Control::argv);
 }
 
 Control::~Control() {
@@ -272,8 +275,6 @@ void Control::generatePopulation(list<Problem*> *popInicial) {
 	}
 
 	cout << " (" << solutions->size() << ") " << endl;
-
-	TERMINATE = false;
 
 	return;
 }
@@ -689,7 +690,7 @@ vector<Problem*>::iterator Control::selectRandom(vector<Problem*> *probs) {
 	return iter;
 }
 
-list<Problem*>::iterator Control::findSol(list<Problem*> *vect, Problem *p) {
+list<Problem*>::iterator Control::findSolution(list<Problem*> *vect, Problem *p) {
 	list<Problem*>::iterator iter;
 
 	for (iter = vect->begin(); iter != vect->end(); iter++)
@@ -734,105 +735,120 @@ void* Control::pthrTime(void *obj) {
 		if ((int) difftime(rawtime, ctr->startTime) > ctr->maxExecutionTime)
 			TERMINATE = true;
 
-		sleep(1);
+		sleep_for(chrono::milliseconds(THREAD_TIME_CONTROL_INTERVAL));
 	}
 
 	return NULL;			//	pthread_exit(NULL);
 }
 
 void* Control::pthrAnimation(void *in) {
-	/* Cria a tela */
-	glutInit(Control::argc, Control::argv);
-	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-	glutInitWindowPosition(0, 0);
+	try {
+		/* Cria a tela */
+		glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+		glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		glutInitWindowPosition(0, 0);
 
-	glutCreateWindow(Control::argv[0]);
+		glutCreateWindow(Control::argv[0]);
 
-	/* Define as funcoes de desenho */
-	glutDisplayFunc(Control::display);
-	glutIdleFunc(Control::display);
-	glutReshapeFunc(Control::reshape);
+		/* Define as funcoes de desenho */
+		glutDisplayFunc(Control::display);
+		glutIdleFunc(Control::display);
+		glutReshapeFunc(Control::reshape);
 
-	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+		glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-	glEnable(GL_LINE_SMOOTH);
-	glEnable(GL_BLEND);
-	glLineWidth(2.0);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
+		glEnable(GL_LINE_SMOOTH);
+		glEnable(GL_BLEND);
+		glLineWidth(2.0);
 
-	/* Loop principal do programa */
-	glutMainLoop();
+		/* Loop principal do programa */
+		glutMainLoop();
+	} catch (...) {
+		cerr << endl << "Error On (pthrAnimation) Thread!" << endl;
+	}
 
 	return NULL;			//	pthread_exit(NULL);
 }
 
 void Control::display() {
-	/* Limpa buffer */
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	try {
+		/* Limpa buffer */
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	/* Reinicia o sistema de coordenadas */
-	glLoadIdentity();
+		/* Reinicia o sistema de coordenadas */
+		glLoadIdentity();
 
-	/* Restaura a posicao da camera */
-	gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
+		/* Restaura a posicao da camera */
+		gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
 
-	/* Desenha as informacoes na tela */
-	float linha = 1.4;
-	float coluna = -5;
-	for (list<list<HeuristicListener*>::iterator>::iterator iter = runningHeuristics->begin(); iter != runningHeuristics->end(); iter++) {
-		glColor3f(1.0f, 0.0f, 0.0f);
-		Control::drawstr(coluna, linha + 0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (**iter)->info.c_str(), (**iter)->status);
+		/* Desenha as informacoes na tela */
+		float linha = 1.4;
+		float coluna = -5;
+		for (list<list<HeuristicListener*>::iterator>::iterator iter = runningHeuristics->begin(); iter != runningHeuristics->end(); iter++) {
+			glColor3f(1.0f, 0.0f, 0.0f);
+			Control::drawstr(coluna, linha + 0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (**iter)->info.c_str(), (**iter)->status);
 
-		glColor3f(0.0f, 1.0f, 0.0f);
-		Control::drawstr(coluna, linha + 0.2, GLUT_BITMAP_HELVETICA_12, "Best Initial Solution: %.0f\t | \tBest Current Solution: %.0f\n\n", (**iter)->bestInitialFitness, (**iter)->bestActualFitness);
+			glColor3f(0.0f, 1.0f, 0.0f);
+			Control::drawstr(coluna, linha + 0.2, GLUT_BITMAP_HELVETICA_12, "Best Initial Solution: %.0f\t | \tBest Current Solution: %.0f\n\n", (**iter)->bestInitialFitness, (**iter)->bestActualFitness);
 
-		glColor3f(0.0f, 0.0f, 1.0f);
-		Control::drawstr(coluna, linha, GLUT_BITMAP_9_BY_15, (**iter)->getInfo());
+			glColor3f(0.0f, 0.0f, 1.0f);
+			Control::drawstr(coluna, linha, GLUT_BITMAP_9_BY_15, (**iter)->getInfo());
 
-		coluna += 3.4;
+			coluna += 3.4;
 
-		if (coluna > 1.8) {
-			coluna = -5;
-			linha -= 1;
+			if (coluna > 1.8) {
+				coluna = -5;
+				linha -= 1;
+			}
 		}
+
+		glutSwapBuffers();
+
+		sleep_for(chrono::milliseconds(WINDOW_ANIMATION_UPDATE_INTERVAL));
+	} catch (...) {
+		cerr << endl << "Error On (display) Function!" << endl;
 	}
-
-	glutSwapBuffers();
-
-	usleep(WINDOWS_UPDATE_INTERVAL);
 }
 
 void Control::reshape(GLint width, GLint height) {
-	glutReshapeWindow(WINDOW_WIDTH, WINDOW_HEIGHT);
+	try {
+		glutReshapeWindow(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-	glViewport(0, 0, width, height);
+		glViewport(0, 0, width, height);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(45.0, (float) width / height, 0.025, 25.0);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(45.0, (float) width / height, 0.025, 25.0);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
+	} catch (...) {
+		cerr << endl << "Error On (reshape) Function!" << endl;
+	}
 }
 
 void Control::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, const char *format, ...) {
-	if (format == NULL)
-		return;
+	try {
+		if (format == NULL)
+			return;
 
-	va_list args;
-	char buffer[512], *s;
+		va_list args;
+		char buffer[512], *s;
 
-	va_start(args, format);
-	vsprintf(buffer, format, args);
-	va_end(args);
+		va_start(args, format);
+		vsprintf(buffer, format, args);
+		va_end(args);
 
-	glRasterPos2f(x, y);
+		glRasterPos2f(x, y);
 
-	for (s = buffer; *s; s++)
-		glutBitmapCharacter(font_style, *s);
+		for (s = buffer; *s; s++)
+			glutBitmapCharacter(font_style, *s);
+	} catch (...) {
+		cerr << endl << "Error On (drawstr) Function!" << endl;
+	}
 }
 
 Control *Control::instance = NULL;

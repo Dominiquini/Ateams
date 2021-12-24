@@ -52,47 +52,47 @@ bool TabuSearch::setParameter(const char *parameter, const char *value) {
 
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
 vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) {
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator select;
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection;
 	Problem *solBT;
+
+	pthread_mutex_lock(&mutex_pop);
 
 	executionCounter++;
 
-	pthread_mutex_lock (&mutex_pop);
-
 	// Escolhe a melhor solucao para ser usada pelo BT
 	if (choicePolicy == 0 || xRand(0, 101) < elitism) {
-		select = sol->begin();
-		solBT = Problem::copySolution(**select);
+		selection = sol->begin();
+	} else {
+		double fitTotal = choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, choicePolicy);
 
-		pthread_mutex_unlock(&mutex_pop);
-
-		return exec(solBT, listener);
+		selection = selectRouletteWheel(sol, fitTotal);
 	}
 
-	// Escolhe alguem dentre os 'choicePolicy' primeiras solucoes
-	double visao = choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, choicePolicy);
-
-	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
-	select = Control::selectRouletteWheel(sol, visao);
-	if (choicePolicy < -1) {
-		while ((*select)->exec.tabu == true) {
-			if (select != sol->begin())
-				select--;
-			else
-				break;
-		}
-	}
-
-	(*select)->exec.tabu = true;
-
-	solBT = Problem::copySolution(**select);
+	solBT = Problem::copySolution(**selection);
 
 	pthread_mutex_unlock(&mutex_pop);
 
 	return exec(solBT, listener);
 }
 
-/* Executa uma busca por solucoes a partir de 'init' por 'iterTabu' vezes */
+set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator TabuSearch::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection = population->begin();
+	int attemps = 0;
+
+	while ((selection == population->begin() || (*selection)->heuristicsInfo.tabu == true) && (attemps++ < MAX_ATTEMPTS))
+		selection = Control::selectRouletteWheel(population, fitTotal);
+
+	(*selection)->heuristicsInfo.tabu++;
+
+	return selection;
+}
+
+void TabuSearch::markSolutions(vector<Problem*> *solutions) {
+	for (auto solution = solutions->cbegin(); solution != solutions->cend(); ++solution) {
+		(*solution)->heuristicsInfo.tabu++;
+	}
+}
+
 vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicListener *listener) {
 	vector<pair<Problem*, InfoTabu*>*> *vizinhanca;
 	pair<Problem*, InfoTabu*> *local;
@@ -196,6 +196,8 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicListener *listener) {
 	}
 	listaTabu->clear();
 	delete listaTabu;
+
+	markSolutions(maxGlobal);
 
 	return maxGlobal;
 }

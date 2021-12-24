@@ -19,7 +19,6 @@
        maxIterationsSA = "25000"
        startTempSA = "125"
        endTempSA = "0.75"
-       restoreSolutionSA = "0"
        alphaSA = "0.9">
     </SimulatedAnnealing>
 

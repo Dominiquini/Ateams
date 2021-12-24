@@ -14,12 +14,11 @@
     <SimulatedAnnealing
        name = "SA2"
        probSA = "10"
-       choicePolicySA = "10"
+       choicePolicySA = "100"
        elitismProbabilitySA = "0.25"
        maxIterationsSA = "250"
        startTempSA = "125"
        endTempSA = "0.75"
-       restoreSolutionSA = "0"
        alphaSA = "0.999">
     </SimulatedAnnealing>
 

@@ -62,7 +62,7 @@ public:
 			return newP - oldP;
 	}
 
-	ExecHeuristicsInfo exec;							// Algoritmos executados na solucao
+	ExecHeuristicsInfo heuristicsInfo;					// Algoritmos executados na solucao
 
 	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
 	Problem() {
@@ -100,7 +100,8 @@ public:
 
 private:
 
-	bool calcFitness();							// Calcula o makespan
+	virtual bool calcFitness() = 0;				// Calcula o makespan
+	virtual Solution getSolution() = 0;			// Retorna solucao
 
 	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
 	friend bool fnequal2(Problem*, Problem*);	// Comparacao superficial
@@ -113,8 +114,7 @@ bool fncomp2(Problem*, Problem*); 	//Se P1 for menor que P2, considerando apenas
 bool fnequal1(Problem*, Problem*);	//Se P1 for igual a P2
 bool fnequal2(Problem*, Problem*);	//Se P1 for igual a P2, considerando apenas o fitness
 
-
-template <typename T>
+template<typename T>
 T* allocateMatrix(int dim, int a, int b, int c) {
 	if (dim == 1) {
 		T *M = (T*) malloc(a * sizeof(T));
@@ -143,9 +143,9 @@ T* allocateMatrix(int dim, int a, int b, int c) {
 		return NULL;
 }
 
-template <typename T>
+template<typename T>
 void deallocateMatrix(int dim, void *MMM, int a, int b) {
-	if(MMM != NULL) {
+	if (MMM != NULL) {
 		if (dim == 1) {
 			T *M = (T*) MMM;
 
@@ -175,6 +175,5 @@ void deallocateMatrix(int dim, void *MMM, int a, int b) {
 
 	return;
 }
-
 
 #endif

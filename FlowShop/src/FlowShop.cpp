@@ -59,7 +59,7 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 		list<Problem*> *popInicial = new list<Problem*>();
 		int njob, nmaq, nprob, makespan;
 		short int *prob;
-		Problem *p;
+		FlowShop *fs;
 
 		if (!fscanf(f, "%d %d %d", &nprob, &nmaq, &njob))
 			throw "Wrong Log File!";
@@ -78,12 +78,12 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 					throw "Wrong Log File!";
 			}
 
-			p = new FlowShop(prob);
+			fs = new FlowShop(prob);
 
-			if (makespan != p->getFitness())
+			if (makespan != fs->getFitness())
 				throw "Wrong Log File!";
 
-			popInicial->push_back(p);
+			popInicial->push_back(fs);
 		}
 
 		fclose(f);
@@ -105,9 +105,11 @@ void Problem::writeCurrentPopulationInLog(char *log, list<Problem*> *popInicial)
 		fprintf(f, "%d %d %d\n\n", sizePop, FlowShop::nmaq, FlowShop::njob);
 
 		for (iter = popInicial->begin(); iter != popInicial->end(); iter++) {
-			prob = dynamic_cast<FlowShop*>(*iter)->getSoluction().scaling;
+			FlowShop *fs = dynamic_cast<FlowShop*>(*iter);
 
-			fprintf(f, "%d\n", (int) dynamic_cast<FlowShop*>(*iter)->getSoluction().fitness);
+			prob = fs->getSoluction().scaling;
+
+			fprintf(f, "%d\n", (int) fs->getSoluction().fitness);
 
 			for (int j = 0; j < FlowShop::njob; j++) {
 				fprintf(f, "%.2d ", prob[j]);
@@ -168,22 +170,15 @@ FlowShop::FlowShop() : Problem::Problem() {
 	random_shuffle(&solution.scaling[0], &solution.scaling[njob], pointer_to_unary_function<int, int>(xRand));
 
 	solution.staggering = NULL;
-	calcFitness();
 
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
+	calcFitness();
 }
 
 FlowShop::FlowShop(short int *prob) : Problem::Problem() {
 	solution.scaling = prob;
-
 	solution.staggering = NULL;
-	calcFitness();
 
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
+	calcFitness();
 }
 
 FlowShop::FlowShop(const Problem &prob) : Problem::Problem() {
@@ -203,8 +198,6 @@ FlowShop::FlowShop(const Problem &prob) : Problem::Problem() {
 				for (int k = 0; k < 3; k++)
 					this->solution.staggering[i][j][k] = other->solution.staggering[i][j][k];
 	}
-
-	exec = prob.exec;
 }
 
 FlowShop::FlowShop(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
@@ -219,11 +212,8 @@ FlowShop::FlowShop(const Problem &prob, int pos1, int pos2) : Problem::Problem()
 	this->solution.scaling[pos2] = aux;
 
 	this->solution.staggering = NULL;
-	calcFitness();
 
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
+	calcFitness();
 }
 
 FlowShop::~FlowShop() {

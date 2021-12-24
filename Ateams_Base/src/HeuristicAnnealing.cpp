@@ -10,7 +10,6 @@ SimulatedAnnealing::SimulatedAnnealing() : Heuristic::Heuristic("DEFAULT_SA") {
 	maxIter = 250;
 	startTemp = 125;
 	endTemp = 0.75;
-	restoreSolution = false;
 	alfa = 0.99;
 	elitism = 20;
 
@@ -39,15 +38,6 @@ bool SimulatedAnnealing::setParameter(const char *parameter, const char *value) 
 		sscanf(value, "%f", &startTemp);
 	} else if (strcasecmp(parameter, "endTempSA") == 0) {
 		sscanf(value, "%f", &endTemp);
-	} else if (strcasecmp(parameter, "restoreSolutionSA") == 0) {
-		int temp;
-
-		sscanf(value, "%d", &temp);
-
-		if (temp == 1)
-			restoreSolution = true;
-		else
-			restoreSolution = false;
 	} else if (strcasecmp(parameter, "alphaSA") == 0) {
 		sscanf(value, "%f", &alfa);
 	} else {
@@ -59,47 +49,47 @@ bool SimulatedAnnealing::setParameter(const char *parameter, const char *value) 
 
 /* Executa um Simulated Annealing na populacao com o devido criterio de selecao */
 vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) {
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator select;
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection;
 	Problem *solSA;
-
-	executionCounter++;
 
 	pthread_mutex_lock(&mutex_pop);
 
+	executionCounter++;
+
 	// Escolhe a melhor solucao para ser usada pelo SA
 	if (choicePolicy == 0 || xRand(0, 101) < elitism) {
-		select = sol->begin();
-		solSA = Problem::copySolution(**select);
+		selection = sol->begin();
+	} else {
+		double fitTotal = choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, choicePolicy);
 
-		pthread_mutex_unlock(&mutex_pop);
-
-		return exec(solSA, listener);
+		selection = selectRouletteWheel(sol, fitTotal);
 	}
 
-	// Escolhe alguem dentre os 'choicePolicy' primeiras solucoes
-	double visao = choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, choicePolicy);
-
-	// Evita trabalhar sobre solucoes ja selecionadas anteriormente
-	select = Control::selectRouletteWheel(sol, visao);
-	if (choicePolicy < -1) {
-		while ((*select)->exec.annealing == true) {
-			if (select != sol->begin())
-				select--;
-			else
-				break;
-		}
-	}
-
-	(*select)->exec.annealing = true;
-
-	solSA = Problem::copySolution(**select);
+	solSA = Problem::copySolution(**selection);
 
 	pthread_mutex_unlock(&mutex_pop);
 
 	return exec(solSA, listener);
 }
 
-/* Executa uma busca por solucoes a partir de 'init' */
+set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator SimulatedAnnealing::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection = population->begin();
+	int attemps = 0;
+
+	while ((selection == population->begin() || (*selection)->heuristicsInfo.annealing == true) && (attemps++ < MAX_ATTEMPTS))
+		selection = Control::selectRouletteWheel(population, fitTotal);
+
+	(*selection)->heuristicsInfo.annealing++;
+
+	return selection;
+}
+
+void SimulatedAnnealing::markSolutions(vector<Problem*> *solutions) {
+	for (auto solution = solutions->cbegin(); solution != solutions->cend(); ++solution) {
+		(*solution)->heuristicsInfo.annealing++;
+	}
+}
+
 vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicListener *listener) {
 	vector<Problem*> *Sf = new vector<Problem*>();
 	Problem *S, *Sn;
@@ -156,17 +146,16 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicListener *liste
 				delete Sn;
 			}
 		}
+
 		T = alfa * T;
 
 		if (T < Tf)
 			T = Tf;
-
-		if (restoreSolution) {
-			delete S;
-			S = Problem::copySolution(*Sf->back());
-		}
 	}
+
 	delete S;
+
+	markSolutions(Sf);
 
 	return Sf;
 }

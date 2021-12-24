@@ -62,7 +62,7 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 		list<Problem*> *popInicial = new list<Problem*>();
 		int npop, nnodes, nedges, ncolors;
 		short int *ordem;
-		Problem *p;
+		GraphColoring *gc;
 
 		if (!fscanf(f, "%d %d %d", &npop, &nnodes, &nedges))
 			throw "Wrong Log File!";
@@ -81,12 +81,12 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 					throw "Wrong Log File!";
 			}
 
-			p = new GraphColoring(ordem);
+			gc = new GraphColoring(ordem);
 
-			if (ncolors != p->getFitness())
+			if (ncolors != gc->getFitness())
 				throw "Wrong Log File!";
 
-			popInicial->push_back(p);
+			popInicial->push_back(gc);
 		}
 
 		fclose(f);
@@ -108,9 +108,11 @@ void Problem::writeCurrentPopulationInLog(char *log, list<Problem*> *popInicial)
 		fprintf(f, "%d %d %d\n\n", sizePop, GraphColoring::nnodes, GraphColoring::nedges);
 
 		for (iter = popInicial->begin(); iter != popInicial->end(); iter++) {
-			ordem = dynamic_cast<GraphColoring*>(*iter)->getSoluction().ordemNodes;
+			GraphColoring *gc = dynamic_cast<GraphColoring*>(*iter);
 
-			fprintf(f, "%d\n", (int) dynamic_cast<GraphColoring*>(*iter)->getSoluction().fitness);
+			ordem = gc->getSoluction().ordemNodes;
+
+			fprintf(f, "%d\n", (int) gc->getSoluction().fitness);
 
 			for (int j = 0; j < GraphColoring::nnodes; j++) {
 				fprintf(f, "%hd ", ordem[j]);
@@ -171,22 +173,16 @@ GraphColoring::GraphColoring() : Problem::Problem() {
 	random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], pointer_to_unary_function<int, int>(xRand));
 
 	solution.colors = NULL;
-	calcFitness();
 
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
+	calcFitness();
 }
 
 GraphColoring::GraphColoring(short int *prob) : Problem::Problem() {
 	solution.ordemNodes = prob;
 
 	solution.colors = NULL;
-	calcFitness();
 
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
+	calcFitness();
 }
 
 GraphColoring::GraphColoring(const Problem &prob) : Problem::Problem() {
@@ -206,8 +202,6 @@ GraphColoring::GraphColoring(const Problem &prob) : Problem::Problem() {
 		for (int i = 0; i <= nnodes; i++)
 			this->solution.colors[i] = other->solution.colors[i];
 	}
-
-	exec = prob.exec;
 }
 
 GraphColoring::GraphColoring(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
@@ -223,11 +217,8 @@ GraphColoring::GraphColoring(const Problem &prob, int pos1, int pos2) : Problem:
 	this->solution.ordemNodes[pos2] = aux;
 
 	this->solution.colors = NULL;
-	calcFitness();
 
-	exec.tabu = false;
-	exec.genetic = false;
-	exec.annealing = false;
+	calcFitness();
 }
 
 GraphColoring::~GraphColoring() {

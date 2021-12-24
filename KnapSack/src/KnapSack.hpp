@@ -49,9 +49,13 @@ public:
 class KnapSack: public Problem {
 private:
 
-	bool calcFitness();								// Calcula o makespan
+	bool calcFitness() override;		// Calcula o makespan
 
-	Solucao_KnapSack solution;						// Representacao interna da solucao
+	Solution getSolution() override {	// Retorna solucao
+		return solution;
+	}
+
+	Solucao_KnapSack solution;			// Representacao interna da solucao
 
 public:
 
@@ -64,7 +68,6 @@ public:
 
 	KnapSack();												// Nova solucao aleatoria
 	KnapSack(short int *prob);								// Copia de prob
-	KnapSack(short int *prob, int limit);					// Copia de prob
 	KnapSack(const Problem &prob);							// Copia de prob
 	KnapSack(const Problem &prob, int pos1, int pos2);		// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
