@@ -20,7 +20,7 @@
        iterationsTS = "750"
        attemptsWithoutImprovementTS = "750"
        listSizeTS = "25"
-       explorationPolicyTS = "1">
+       explorationPolicyTS = "0.5">
     </TabuSearch>
 
   </Heuristics>

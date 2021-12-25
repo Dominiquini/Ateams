@@ -50,10 +50,10 @@
        choicePolicyTS = "500"
        elitismProbabilityTS = "0.25"
        aspirationCriteriaTS = "0.5"
-       iterationsTS = "750"
+       iterationsTS = "500"
        attemptsWithoutImprovementTS = "500"
        listSizeTS = "10"
-       explorationPolicyTS = "0.5">
+       explorationPolicyTS = "0.25">
     </TabuSearch>
 
     <TabuSearch
@@ -65,7 +65,7 @@
        iterationsTS = "750"
        attemptsWithoutImprovementTS = "750"
        listSizeTS = "25"
-       explorationPolicyTS = "1">
+       explorationPolicyTS = "0.5">
     </TabuSearch>
 
     <TabuSearch
@@ -74,10 +74,10 @@
        choicePolicyTS = "100"
        elitismProbabilityTS = "0.2"
        aspirationCriteriaTS = "0.5"
-       iterationsTS = "750"
+       iterationsTS = "1000"
        attemptsWithoutImprovementTS = "750"
        listSizeTS = "250"
-       explorationPolicyTS = "0.25">
+       explorationPolicyTS = "1">
     </TabuSearch>
 
     <GeneticAlgorithm
@@ -86,7 +86,7 @@
        choicePolicyGA = "-1"
        iterationsGA = "500"
        populationSizeAG = "50"
-       partitionSizeAG = "-1"
+       partitionSizeAG = "0"
        crossoverProbabilityAG = "0.8"
        crossoverPowerAG = "0.25"
        mutationProbabilityAG = "0.08">
@@ -98,7 +98,7 @@
        choicePolicyGA = "-1"
        iterationsGA = "750"
        populationSizeAG = "100"
-       partitionSizeAG = "0"
+       partitionSizeAG = "-1"
        crossoverProbabilityAG = "0.8"
        crossoverPowerAG = "0.5"
        mutationProbabilityAG = "0.14">
@@ -110,7 +110,7 @@
        choicePolicyGA = "-1"
        iterationsGA = "1000"
        populationSizeAG = "250"
-       partitionSizeAG = "0"
+       partitionSizeAG = "-1"
        crossoverProbabilityAG = "0.99"
        crossoverPowerAG = "0.75"
        mutationProbabilityAG = "0.2">

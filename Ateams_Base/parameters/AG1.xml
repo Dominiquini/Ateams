@@ -17,7 +17,7 @@
        choicePolicyGA = "-1"
        iterationsGA = "500"
        populationSizeAG = "50"
-       partitionSizeAG = "-1"
+       partitionSizeAG = "0"
        crossoverProbabilityAG = "0.8"
        crossoverPowerAG = "0.25"
        mutationProbabilityAG = "0.08">

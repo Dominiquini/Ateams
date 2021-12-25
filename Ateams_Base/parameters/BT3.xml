@@ -17,10 +17,10 @@
        choicePolicyTS = "100"
        elitismProbabilityTS = "0.2"
        aspirationCriteriaTS = "0.5"
-       iterationsTS = "750"
+       iterationsTS = "1000"
        attemptsWithoutImprovementTS = "750"
        listSizeTS = "250"
-       explorationPolicyTS = "0.25">
+       explorationPolicyTS = "1">
     </TabuSearch>
 
   </Heuristics>

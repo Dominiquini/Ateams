@@ -226,6 +226,9 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicListene
 			else
 				bad_pop->push_back(*iterProb);	// Armazenado para possivel reaproveitamento
 		}
+
+		aux_pop->clear();
+
 		sort(pop->begin(), pop->end(), fncomp2);
 
 		/* Mantem a populacao auxiliar sob controle */
@@ -235,8 +238,6 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicListene
 			delete bad_pop->back();
 			bad_pop->pop_back();
 		}
-
-		aux_pop->clear();
 	}
 
 	for (iterProb = bad_pop->begin(); iterProb != bad_pop->end(); iterProb++)
