@@ -122,7 +122,7 @@ void Problem::writeCurrentPopulationInLog(char *log, list<Problem*> *popInicial)
 	}
 }
 
-void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo *info, char *resultado) {
+void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo info, char *resultado) {
 	FILE *f;
 
 	if (*resultado != '\0') {
@@ -133,11 +133,11 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo *in
 
 			fprintf(f, "%*s%*s", -16, "bestFitness", -16, "worstFitness");
 			fprintf(f, "%*s%*s%*s", -16, "numExecs", -16, "diffTime", -24, "expSol");
-			fprintf(f, "%*s%s\n", -24, "dados", "parametros");
+			fprintf(f, "%*s%s\n", -24, "input", "parameters");
 		}
 
-		fprintf(f, "%*d%*d", -16, (int) info->bestFitness, -16, (int) info->worstFitness);
-		fprintf(f, "%*d%*d%*d", -16, info->executionCount, -16, (int) info->executionTime, -24, (int) info->exploredSolutions);
+		fprintf(f, "%*d%*d", -16, (int) info.bestFitness, -16, (int) info.worstFitness);
+		fprintf(f, "%*d%*d%*d", -16, info.executionCount, -16, (int) info.executionTime, -24, (int) info.exploredSolutions);
 		fprintf(f, "%*s%s\n", -24, dados, parametros);
 
 		fclose(f);

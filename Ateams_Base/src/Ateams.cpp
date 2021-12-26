@@ -17,49 +17,21 @@ int main(int argc, char *argv[]) {
 	try {
 		cout << endl;
 
-		/* Adiciona as heuristicas selecionadas */
 		Control *ctrl = Control::getInstance(argc, argv);
 
-		/* Leitura dos dados passados por arquivos */
-		Problem::readProblemFromFile(ctrl->getInputDataFile());
+		ctrl->init();
 
-		/* Le memoria prinipal do disco, se especificado */
-		list<Problem*> *popInicial = Problem::readPopulationFromLog(ctrl->getOutputLogFile());
+		ctrl->run();
 
-		/* Inicia a execucao */
-		Problem *bestSolution = ctrl->start(popInicial);
-
-		if (popInicial != NULL) {
-			popInicial->clear();
-			delete popInicial;
-		}
-
-		list<Problem*> *solutions = ctrl->getSolutions();
-
-		/* Escreve memoria principal no disco */
-		Problem::writeCurrentPopulationInLog(ctrl->getOutputLogFile(), solutions);
-
-		delete solutions;
-
-		ExecutionInfo info = ctrl->getExecutionInfo();
-
-		/* Escreve solucao em arquivo no disco */
-		Problem::writeResultInFile(ctrl->getInputDataFile(), ctrl->getInputParameters(), &info, ctrl->getOutputResultFile());
+		ctrl->finish();
 
 		ctrl->printSolution(false);
 
 		ctrl->printExecution();
 
-		delete bestSolution;
-
 		ctrl->checkSolutions();
 
 		Control::terminate();
-
-		Problem::deallocateMemory();
-
-		if (Problem::numInst != 0)
-			throw "Memory Leak!";
 	} catch (...) {
 		exception_ptr exception = current_exception();
 

@@ -39,7 +39,7 @@ public:
 
 	// Imprime em um arquivo os resultados da execucao
 	static void writeCurrentPopulationInLog(char*, list<Problem*>*);
-	static void writeResultInFile(char*, char*, ExecutionInfo*, char*);
+	static void writeResultInFile(char*, char*, ExecutionInfo, char*);
 
 	// Aloca e Desaloca as estruturas do problema
 	static void allocateMemory();

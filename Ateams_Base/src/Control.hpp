@@ -15,6 +15,7 @@ using namespace std;
 #define _CONTROL_
 
 #include "Problem.hpp"
+
 #include "Heuristic.hpp"
 #include "HeuristicTabu.hpp"
 #include "HeuristicGenetic.hpp"
@@ -27,6 +28,10 @@ using namespace std;
 #define WINDOW_ANIMATION_UPDATE_INTERVAL 100
 
 extern volatile TerminationInfo STATUS;
+
+class SimulatedAnnealing;
+class TabuSearch;
+class GeneticAlgorithm;
 
 struct ExecutionInfo {
 	double executionTime;
@@ -105,11 +110,18 @@ private:
 
 	time_t startTime, endTime;			// Medidor do tempo inicial e final
 	int lastImprovedIteration = 0;		// Ultima iteracao em que houve melhora
-	int executionCount = 0;				// Threads executadas
+	long executionCount = 0;			// Threads executadas
+	uintptr_t swappedSolutions = 0;		// Numero de solucoes produzidas pelos algoritimos
 
 	Control();
 
 	~Control();
+
+	/* Parser do arquivo XML de configuracoes */
+	void startElement(const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs);
+
+	/* Adiciona uma heuristica ao conjunto de algoritmos disponiveis */
+	void addHeuristic(Heuristic *alg);
 
 	/* Seleciona um dos algoritmos implementados para executar */
 	int execute(int eID);
@@ -119,9 +131,6 @@ private:
 
 	/* Gera uma populacao inicial aleatoria com 'populationSize' elementos */
 	void generatePopulation(list<Problem*> *popInicial);
-
-	/* Parser do arquivo XML de configuracoes */
-	void startElement(const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs);
 
 	/* Leitura dos parametros passados por linha de comando */
 	void readMainCMDParameters();
@@ -139,14 +148,14 @@ private:
 
 public:
 
-	/* Adiciona uma heuristica ao conjunto de algoritmos disponiveis */
-	void addHeuristic(Heuristic *alg);
+	void init();
 
-	/* Comeca a execucao do Ateams utilizando os algoritmos disponiveis */
-	Problem* start(list<Problem*> *popInicial);
+	void finish();
 
-	list<Problem*>* getSolutions();	// Retorna a populacao da memoria principal
-	Problem* getSolution(int n);		// Retorna a solucao n da memoria principal
+	void run();								// Comeca a execucao do Ateams utilizando os algoritmos disponiveis
+
+	list<Problem*>* getSolutions();				// Retorna a populacao da memoria principal
+	Problem* getSolution(int n);				// Retorna a solucao n da memoria principal
 	void checkSolutions();						// Testa a memoria principal por solucoes repetidas ou fora de ordem
 
 	ExecutionInfo getExecutionInfo();			// Retorna algumas informacoes da ultima execucao
