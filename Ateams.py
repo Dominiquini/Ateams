@@ -30,7 +30,7 @@ def validate_path(ctx: click.core.Context=None, param: click.core.Option=None, v
     finally:
         return value
 
-@click.command(context_settings=dict(help_option_names=['-h', '--help']))
+@click.command(context_settings=dict(ignore_unknown_options=True, help_option_names=['-h', '--help']))
 @click.option('-a', '--algorithm', type=click.Choice(ALGORITHMS, case_sensitive=False), required=True, prompt="Algorithm: ", help='Algorithm')
 @click.option('-p', '--parameters', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Input Parameters File')
 @click.option('-i', '--input', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Input Data File')
@@ -40,8 +40,10 @@ def validate_path(ctx: click.core.Context=None, param: click.core.Option=None, v
 @click.option('-g', '--show_info', type=click.BOOL, is_flag=True, help='Show Graphical Overview')
 @click.option('-s', '--show_solution', type=click.BOOL, is_flag=True, help='Show Solution')
 @click.option('-n', '--repeat', type=click.INT, default=1, help='Repeat N Times')
-def ateams(algorithm, parameters, input, result, pop, write_output, show_info, show_solution, repeat):
-
+@click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
+def ateams(algorithm, parameters, input, result, pop, write_output, show_info, show_solution, repeat, extra_args):
+    """A Wrapper For Ateams"""
+    
     def __truncate(number, decimals=0):
         factor = 10.0 ** decimals
 
@@ -66,11 +68,16 @@ def ateams(algorithm, parameters, input, result, pop, write_output, show_info, s
         if(show_info): command_line += f" -g"
 
         if(show_solution): command_line += f" -s"
+        
+        for arg in extra_args:
+            command_line += f" {arg}"
 
         return ateams_path(command_line)
 
     def __execute_ateams(cmd, repeat=1):
         return timeit.repeat(stmt=lambda: os.system(cmd), repeat=repeat, number=1)
+
+    click.clear()
 
     algorithm = next((a for a in ALGORITHMS if a.casefold() == algorithm.casefold()), algorithm)
     if(parameters is None): parameters = DEFAULT_PARAM
