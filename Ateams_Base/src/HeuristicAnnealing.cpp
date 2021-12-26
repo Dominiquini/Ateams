@@ -111,8 +111,9 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicListener *liste
 		listener->bestInitialFitness = (*Sf->begin())->getFitness();
 
 	bool exec = true;
+
 	while (exec) {
-		if (TERMINATE == true)
+		if (STATUS != EXECUTING)
 			break;
 
 		if (listener != NULL) {

@@ -111,7 +111,7 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicListener *listener) {
 
 	// Loop principal
 	for (int i = 0, j = 0; i < iterTabu && j < tentSemMelhora; i++, j++) {
-		if (TERMINATE == true)
+		if (STATUS != EXECUTING)
 			break;
 
 		if (listener != NULL) {

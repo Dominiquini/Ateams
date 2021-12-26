@@ -14,19 +14,19 @@ using namespace std;
 #ifndef _CONTROL_
 #define _CONTROL_
 
-#define THREAD_TIME_CONTROL_INTERVAL 1000
-
-#define WINDOW_WIDTH 1250
-#define WINDOW_HEIGHT 500
-#define WINDOW_ANIMATION_UPDATE_INTERVAL 100
-
 #include "Problem.hpp"
 #include "Heuristic.hpp"
 #include "HeuristicTabu.hpp"
 #include "HeuristicGenetic.hpp"
 #include "HeuristicAnnealing.hpp"
 
-extern volatile bool TERMINATE;
+#define THREAD_TIME_CONTROL_INTERVAL 1000
+
+#define WINDOW_WIDTH 1250
+#define WINDOW_HEIGHT 500
+#define WINDOW_ANIMATION_UPDATE_INTERVAL 100
+
+extern volatile TerminationInfo STATUS;
 
 struct ExecutionInfo {
 	double executionTime;

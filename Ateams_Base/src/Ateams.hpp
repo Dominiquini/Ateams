@@ -35,6 +35,10 @@ using namespace std;
 #ifndef _ATEAMS_
 #define _ATEAMS_
 
+enum TerminationInfo {
+	EXECUTING, FINISHED_NORMALLY, USER_SIGNALED, EXECUTION_TIMEOUT, LACK_OF_IMPROVEMENT, RESULT_ACHIEVED
+};
+
 struct ExecHeuristicsInfo {
 	unsigned int tabu = 0;
 	unsigned int genetic = 0;
@@ -54,6 +58,18 @@ inline string getExceptionMessage(exception_ptr &eptr) {
 		return e;
 	} catch (...) {
 		return (current_exception() ? current_exception().__cxa_exception_type()->name() : "Unexpected Exception!");
+	}
+}
+
+inline string getTerminationInfo(TerminationInfo info) {
+	switch(info) {
+		case EXECUTING: return "EXECUTING";
+		case FINISHED_NORMALLY: return "FINISHED_NORMALLY";
+		case USER_SIGNALED: return "USER_SIGNALED";
+		case EXECUTION_TIMEOUT: return "EXECUTION_TIMEOUT";
+		case LACK_OF_IMPROVEMENT: return "LACK_OF_IMPROVEMENT";
+		case RESULT_ACHIEVED: return "RESULT_ACHIEVED";
+		default: return "UNKNOWN";
 	}
 }
 

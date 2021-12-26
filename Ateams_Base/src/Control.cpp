@@ -249,7 +249,7 @@ void Control::generatePopulation(list<Problem*> *popInicial) {
 	for (int i = 0; i < loading; i++)
 		cout << '*' << flush;
 
-	while ((int) solutions->size() < populationSize && iter < limit && TERMINATE == false) {
+	while ((int) solutions->size() < populationSize && iter < limit && STATUS == EXECUTING) {
 		soluction = Problem::randomSolution();
 
 		if (soluction->getFitness() != -1) {
@@ -524,7 +524,8 @@ Problem* Control::start(list<Problem*> *popInicial) {
 		ins += (uintptr_t) temp;
 	}
 
-	TERMINATE = true;
+	if (STATUS == EXECUTING)
+		STATUS = FINISHED_NORMALLY;
 
 	pthread_join(threadTime, NULL);
 
@@ -710,14 +711,14 @@ void* Control::pthrExec(void *obj) {
 
 	sem_wait(&semaphore);
 
-	if (TERMINATE != true) {
+	if (STATUS == EXECUTING) {
 		ins = ctr->execute(execAteams);
 
 		if (ctr->lastImprovedIteration > ctr->attemptsWithoutImprovement)
-			TERMINATE = true;
+			STATUS = LACK_OF_IMPROVEMENT;
 
 		if ((ctr->bestKnownFitness != -1 ? Problem::improvement(ctr->bestKnownFitness, Problem::best) : -1) >= 0)
-			TERMINATE = true;
+			STATUS = RESULT_ACHIEVED;
 	}
 
 	sem_post(&semaphore);
@@ -729,11 +730,11 @@ void* Control::pthrTime(void *obj) {
 	Control *ctr = (Control*) obj;
 	time_t rawtime;
 
-	while (TERMINATE == false) {
+	while (STATUS == EXECUTING) {
 		time(&rawtime);
 
 		if ((int) difftime(rawtime, ctr->startTime) > ctr->maxExecutionTime)
-			TERMINATE = true;
+			STATUS = EXECUTION_TIMEOUT;
 
 		sleep_for(chrono::milliseconds(THREAD_TIME_CONTROL_INTERVAL));
 	}

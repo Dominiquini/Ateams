@@ -5,7 +5,7 @@
 
 using namespace std;
 
-volatile bool TERMINATE = false;
+volatile TerminationInfo STATUS = EXECUTING;
 
 int main(int argc, char *argv[]) {
 
@@ -62,8 +62,6 @@ int main(int argc, char *argv[]) {
 
 		if (Problem::numInst != 0)
 			throw "Memory Leak!";
-
-		cout << endl;
 	} catch (...) {
 		exception_ptr exception = current_exception();
 
@@ -73,9 +71,11 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
+	cout << endl << endl << "Termination Reason: " << getTerminationInfo(STATUS) << endl << endl;
+
 	return 0;
 }
 
 void terminate(int signal) {
-	TERMINATE = true;
+	STATUS = USER_SIGNALED;
 }

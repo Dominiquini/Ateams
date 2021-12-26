@@ -123,7 +123,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicListene
 
 	/* Iteracao principal do AG */
 	for (int i = 0; i < iterGenetico; i++) {
-		if (TERMINATE == true)
+		if (STATUS != EXECUTING)
 			break;
 
 		if (listener != NULL) {

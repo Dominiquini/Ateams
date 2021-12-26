@@ -1,4 +1,3 @@
-#include "Ateams.hpp"
 #include "Control.hpp"
 
 using namespace std;

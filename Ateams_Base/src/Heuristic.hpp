@@ -10,7 +10,7 @@ using namespace std;
 extern pthread_mutex_t mutex_pop;
 extern pthread_mutex_t mutex_exec;
 
-extern volatile bool TERMINATE;
+extern volatile TerminationInfo STATUS;
 
 class HeuristicListener;
 
