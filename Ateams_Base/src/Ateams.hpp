@@ -12,6 +12,7 @@
 #include <semaphore.h>
 
 #include <functional>
+#include <exception>
 #include <algorithm>
 #include <iostream>
 #include <sstream>
@@ -23,17 +24,29 @@
 #include <bitset>
 #include <string>
 #include <thread>
+#include <chrono>
+#include <random>
 #include <cctype>
 #include <ctime>
 #include <list>
 #include <set>
 
-#include "Utils.hpp"
-
 using namespace std;
 
 #ifndef _ATEAMS_
 #define _ATEAMS_
+
+#define RANDOM_TYPE -1
+
+#if (RANDOM_TYPE > 0)
+  static default_random_engine randomEngine(RANDOM_TYPE);
+#elif (RANDOM_TYPE == -1)
+  static default_random_engine randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+#elif (RANDOM_TYPE == -2)
+  static mt19937 randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+#elif (RANDOM_TYPE == -3)
+  static random_device randomEngine;
+#endif
 
 enum TerminationInfo {
 	EXECUTING, FINISHED_NORMALLY, USER_SIGNALED, EXECUTION_TIMEOUT, LACK_OF_IMPROVEMENT, RESULT_ACHIEVED
@@ -45,7 +58,13 @@ struct ExecHeuristicsInfo {
 	unsigned int annealing = 0;
 };
 
-void terminate(int signal);
+int xRand();
+
+int xRand(int max);
+
+int xRand(int min, int max);
+
+void SIGINTHandler(int signal);
 
 inline string getExceptionMessage(exception_ptr &eptr) {
 	try {

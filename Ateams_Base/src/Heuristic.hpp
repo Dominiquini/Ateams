@@ -30,7 +30,11 @@ public:
 	Heuristic(string heuristicName) {
 		name = heuristicName;
 	}
+
 	virtual ~Heuristic() {
+	}
+
+	virtual void printStatistics() {
 		cout << name << ": " << executionCounter << endl;
 	}
 
@@ -54,32 +58,25 @@ class HeuristicListener {
 public:
 
 	double bestInitialFitness, bestActualFitness;
-	Heuristic *heuristica;
-	char *execInfo;
+	Heuristic *heuristic;
+	char threadInfo[16];
+	char execInfo[512];
 	double status;
-	string info;
 	int id;
 
 	HeuristicListener(Heuristic *alg, int threadId) {
 		this->bestInitialFitness = 0;
 		this->bestActualFitness = 0;
-
-		this->heuristica = alg;
-
-		char infoThread[16];
-		sprintf(infoThread, "%s(%.3d)", alg->name.c_str(), threadId);
-
-		this->execInfo = new char[512];
-		this->info = infoThread;
+		this->status = -1;
 
 		this->id = threadId;
 
-		this->status = -1;
+		this->heuristic = alg;
+
+		sprintf(threadInfo, "%s(%.3d)", alg->name.c_str(), threadId);
 	}
 
 	~HeuristicListener() {
-		if (execInfo != NULL)
-			delete[] execInfo;
 	}
 
 	inline void setInfo(const char *format, ...) {

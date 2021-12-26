@@ -50,7 +50,7 @@ private:
 	static void* pthrExec(void *obj);
 
 	/* Funcao que cotrola o tempo de execucao */
-	static void* pthrTime(void *obj);
+	static void* pthrControl(void *obj);
 
 	/* Funcao que controla a tela de informacoes */
 	static void* pthrAnimation(void *in);
@@ -145,13 +145,15 @@ public:
 	/* Comeca a execucao do Ateams utilizando os algoritmos disponiveis */
 	Problem* start(list<Problem*> *popInicial);
 
-	list<Problem*>* getSolutions();		// Retorna a populacao da memoria principal
+	list<Problem*>* getSolutions();	// Retorna a populacao da memoria principal
 	Problem* getSolution(int n);		// Retorna a solucao n da memoria principal
-	void checkSolutions();
+	void checkSolutions();						// Testa a memoria principal por solucoes repetidas ou fora de ordem
 
-	ExecutionInfo getExecutionInfo();		// Retorna algumas informacoes da ultima execucao
+	ExecutionInfo getExecutionInfo();			// Retorna algumas informacoes da ultima execucao
 
-	void printSolution(Problem*);
+	void printSolution(bool fullSolution);
+
+	void printExecution();
 
 	char* getInputDataFile() {
 		return inputDataFile;

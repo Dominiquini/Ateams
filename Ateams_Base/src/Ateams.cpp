@@ -10,7 +10,7 @@ volatile TerminationInfo STATUS = EXECUTING;
 int main(int argc, char *argv[]) {
 
 	/* Interrompe o programa ao se pessionar 'ctrl-c' */
-	signal(SIGINT, terminate);
+	signal(SIGINT, SIGINTHandler);
 
 	srand(unsigned(time(NULL)));
 
@@ -46,13 +46,11 @@ int main(int argc, char *argv[]) {
 		/* Escreve solucao em arquivo no disco */
 		Problem::writeResultInFile(ctrl->getInputDataFile(), ctrl->getInputParameters(), &info, ctrl->getOutputResultFile());
 
-		cout << endl << endl << "Solution:" << endl << endl;
+		ctrl->printSolution(false);
 
-		ctrl->printSolution(bestSolution);
+		ctrl->printExecution();
 
 		delete bestSolution;
-
-		cout << endl << endl << "Executions: " << info.executionCount << endl << endl;
 
 		ctrl->checkSolutions();
 
@@ -76,6 +74,20 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-void terminate(int signal) {
+int xRand() {
+	return xRand(RAND_MAX);
+}
+
+int xRand(int max) {
+	return xRand(0, max);
+}
+
+int xRand(int min, int max) {
+	uniform_int_distribution<int> randomDistribution(min, max - 1);
+
+	return randomDistribution(randomEngine);
+}
+
+void SIGINTHandler(int signal) {
 	STATUS = USER_SIGNALED;
 }

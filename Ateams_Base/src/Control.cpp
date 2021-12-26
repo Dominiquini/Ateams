@@ -60,7 +60,7 @@ Control::Control() {
 	this->iterations = 250;
 	this->attemptsWithoutImprovement = 100;
 	this->maxExecutionTime = 3600;
-	this->numThreads = 4;
+	this->numThreads = 8;
 	this->bestKnownFitness = -1;
 	this->printFullSolution = false;
 	this->heuristicListener = false;
@@ -90,10 +90,9 @@ Control::~Control() {
 	solutions->clear();
 	delete solutions;
 
-	vector<Heuristic*>::reverse_iterator it;
-
-	for (it = heuristics->rbegin(); it != heuristics->rend(); it++)
+	for (vector<Heuristic*>::reverse_iterator it = heuristics->rbegin(); it != heuristics->rend(); it++) {
 		delete *it;
+	}
 
 	heuristics->clear();
 	delete heuristics;
@@ -138,16 +137,16 @@ int Control::execute(int idThread) {
 
 		execNames = "";
 		for (list<list<HeuristicListener*>::iterator>::iterator it = runningHeuristics->begin(); it != runningHeuristics->end(); it++)
-			execNames = execNames + (**it)->info + " ";
+			execNames = execNames + (**it)->threadInfo + " ";
 
-		printf(">>> ALG: %s | ..................................................... | QUEUE: (%d : %s)\n", listener->info.c_str(), runningThreads, execNames.c_str());
+		printf(">>> ALG: %s | ..................................................... | QUEUE: (%d : %s)\n", listener->threadInfo, runningThreads, execNames.c_str());
 	}
 	pthread_mutex_unlock(&mutex_info);
 
 	if (this->heuristicListener)
 		newSoluctions = algorithm->start(solutions, listener);
 	else
-		newSoluctions = algorithm->start(solutions, NULL);
+		newSoluctions = algorithm->start(solutions, listener);
 
 	pthread_mutex_lock(&mutex_pop);
 	{
@@ -178,9 +177,9 @@ int Control::execute(int idThread) {
 
 		execNames = "";
 		for (list<list<HeuristicListener*>::iterator>::iterator it = runningHeuristics->begin(); it != runningHeuristics->end(); it++)
-			execNames = execNames + (**it)->info + " ";
+			execNames = execNames + (**it)->threadInfo + " ";
 
-		printf("<<< ALG: %s | ITER: %.3d | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d | QUEUE: (%d : %s)\n", listener->info.c_str(), executionCount, (int) Problem::best, (int) Problem::worst, insert->first, insert->second, runningThreads, execNames.c_str());
+		printf("<<< ALG: %s | ITER: %.3d | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d | QUEUE: (%d : %s)\n", listener->threadInfo, executionCount, (int) Problem::best, (int) Problem::worst, insert->first, insert->second, runningThreads, execNames.c_str());
 	}
 	pthread_mutex_unlock(&mutex_info);
 
@@ -505,8 +504,8 @@ Problem* Control::start(list<Problem*> *popInicial) {
 			throw "Thread Creation Error! (pthrAnimation)";
 	}
 
-	if (pthread_create(&threadTime, &attr, pthrTime, (void*) this) != 0)
-		throw "Thread Creation Error! (pthrTime)";
+	if (pthread_create(&threadTime, &attr, pthrControl, (void*) this) != 0)
+		throw "Thread Creation Error! (pthrControl)";
 
 	for (int execAteams = 0; execAteams < iterations; execAteams++) {
 		par = new pair<int, Control*>();
@@ -534,6 +533,8 @@ Problem* Control::start(list<Problem*> *popInicial) {
 	cout << endl << "Explored Solutions: " << Problem::totalNumInst << endl;
 	cout << endl << "Swapped Solutions: " << ins << endl;
 
+	cout << endl;
+
 	cout << endl << "Worst Final Solution: " << Problem::worst << endl;
 	cout << endl << "Best Final Solution: " << Problem::best << endl;
 
@@ -557,17 +558,14 @@ list<Problem*>* Control::getSolutions() {
 }
 
 Problem* Control::getSolution(int n) {
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter = solutions->begin();
+	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter = next(solutions->begin(), n);
 
-	for (int i = 0; i <= n && iter != solutions->end(); iter++);
-
-	return Problem::copySolution(**(--iter));
+	return *iter;
 }
 
 void Control::checkSolutions() {
 	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter1, iter2;
 
-	/* Testa a memoria principal por solucoes repetidas ou fora de ordem */
 	for (iter1 = solutions->begin(); iter1 != solutions->end(); iter1++)
 		for (iter2 = iter1; iter2 != solutions->end(); iter2++)
 			if ((iter1 != iter2) && (fnequal1(*iter1, *iter2) || fncomp1(*iter2, *iter1)))
@@ -587,8 +585,20 @@ ExecutionInfo Control::getExecutionInfo() {
 	return info;
 }
 
-void Control::printSolution(Problem *solution) {
-	solution->print(printFullSolution);
+void Control::printSolution(bool fullSolution) {
+	Problem *solution = getSolution(0);
+
+	cout << endl << endl << "Solution: " << solution->getFitness() << endl << endl;
+
+	solution->print(fullSolution || printFullSolution);
+}
+
+void Control::printExecution() {
+	cout << endl << endl << "Executions: " << executionCount << endl << endl;
+
+	for (vector<Heuristic*>::reverse_iterator it = heuristics->rbegin(); it != heuristics->rend(); it++) {
+		(*it)->printStatistics();
+	}
 }
 
 double Control::sumFitnessMaximize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n) {
@@ -644,6 +654,7 @@ set<Problem*, bool (*)(Problem*, Problem*)>::iterator Control::selectRouletteWhe
 			return iter;
 		}
 	}
+
 	return (probs->begin());
 }
 
@@ -660,6 +671,7 @@ vector<Problem*>::iterator Control::selectRouletteWheel(vector<Problem*> *probs,
 			return iter;
 		}
 	}
+
 	return probs->begin();
 }
 
@@ -713,12 +725,6 @@ void* Control::pthrExec(void *obj) {
 
 	if (STATUS == EXECUTING) {
 		ins = ctr->execute(execAteams);
-
-		if (ctr->lastImprovedIteration > ctr->attemptsWithoutImprovement)
-			STATUS = LACK_OF_IMPROVEMENT;
-
-		if ((ctr->bestKnownFitness != -1 ? Problem::improvement(ctr->bestKnownFitness, Problem::best) : -1) >= 0)
-			STATUS = RESULT_ACHIEVED;
 	}
 
 	sem_post(&semaphore);
@@ -726,7 +732,7 @@ void* Control::pthrExec(void *obj) {
 	return (void*) ins; 	//	pthread_exit((void*)ins);
 }
 
-void* Control::pthrTime(void *obj) {
+void* Control::pthrControl(void *obj) {
 	Control *ctr = (Control*) obj;
 	time_t rawtime;
 
@@ -735,6 +741,12 @@ void* Control::pthrTime(void *obj) {
 
 		if ((int) difftime(rawtime, ctr->startTime) > ctr->maxExecutionTime)
 			STATUS = EXECUTION_TIMEOUT;
+
+		if (ctr->lastImprovedIteration > ctr->attemptsWithoutImprovement)
+			STATUS = LACK_OF_IMPROVEMENT;
+
+		if ((ctr->bestKnownFitness != -1 ? Problem::improvement(ctr->bestKnownFitness, Problem::best) : -1) >= 0)
+			STATUS = RESULT_ACHIEVED;
 
 		sleep_for(chrono::milliseconds(THREAD_TIME_CONTROL_INTERVAL));
 	}
@@ -789,7 +801,7 @@ void Control::display() {
 		float coluna = -5;
 		for (list<list<HeuristicListener*>::iterator>::iterator iter = runningHeuristics->begin(); iter != runningHeuristics->end(); iter++) {
 			glColor3f(1.0f, 0.0f, 0.0f);
-			Control::drawstr(coluna, linha + 0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (**iter)->info.c_str(), (**iter)->status);
+			Control::drawstr(coluna, linha + 0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (**iter)->threadInfo, (**iter)->status);
 
 			glColor3f(0.0f, 1.0f, 0.0f);
 			Control::drawstr(coluna, linha + 0.2, GLUT_BITMAP_HELVETICA_12, "Best Initial Solution: %.0f\t | \tBest Current Solution: %.0f\n\n", (**iter)->bestInitialFitness, (**iter)->bestActualFitness);
