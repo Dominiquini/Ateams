@@ -52,6 +52,8 @@ void Problem::readProblemFromFile(char *input) {
 	for (int i = 1; i < GraphColoring::nnodes; i++)
 		GraphColoring::neighbors += i;
 
+	fclose(f);
+
 	return;
 }
 

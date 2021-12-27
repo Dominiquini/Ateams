@@ -151,6 +151,8 @@ void Problem::readProblemFromFile(char *input) {
 	for (int i = 1; i <= TravellingSalesman::nnodes; i++)
 		TravellingSalesman::neighbors += i;
 
+	fclose(f);
+
 	return;
 }
 

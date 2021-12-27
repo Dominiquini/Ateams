@@ -67,6 +67,8 @@ void Problem::readProblemFromFile(char *input) {
 	for (int i = 1; i < KnapSack::nitens + 2; i++)
 		KnapSack::neighbors += i;
 
+	fclose(f);
+
 	return;
 }
 

@@ -51,6 +51,8 @@ void Problem::readProblemFromFile(char *input) {
 
 	JobShop::neighbors *= JobShop::nmaq;
 
+	fclose(f);
+
 	return;
 }
 

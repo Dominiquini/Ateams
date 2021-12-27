@@ -47,6 +47,8 @@ void Problem::readProblemFromFile(char *input) {
 	for (int i = 1; i < BinPacking::nitens; i++)
 		BinPacking::neighbors += i;
 
+	fclose(f);
+
 	return;
 }
 

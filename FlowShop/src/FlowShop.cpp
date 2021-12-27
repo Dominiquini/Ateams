@@ -49,6 +49,8 @@ void Problem::readProblemFromFile(char *input) {
 	for (int i = 1; i < FlowShop::njob; i++)
 		FlowShop::neighbors += i;
 
+	fclose(f);
+
 	return;
 }
 

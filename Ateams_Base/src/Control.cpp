@@ -494,11 +494,15 @@ void Control::finish() {
 	cout << endl << "Worst Final Solution: " << Problem::worst << endl;
 	cout << endl << "Best Final Solution: " << Problem::best << endl;
 
+	list<Problem*> *finalSolutions = getSolutions();
+
 	/* Escreve memoria principal no disco */
-	Problem::writeCurrentPopulationInLog(getOutputLogFile(), getSolutions());
+	Problem::writeCurrentPopulationInLog(getOutputLogFile(), finalSolutions);
 
 	/* Escreve solucao em arquivo no disco */
 	Problem::writeResultInFile(getInputDataFile(), getInputParameters(), getExecutionInfo(), getOutputResultFile());
+
+	delete finalSolutions;
 }
 
 void Control::run() {

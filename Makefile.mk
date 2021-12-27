@@ -7,7 +7,7 @@ RANLIB = ranlib
 ifdef DEBUG
   CXXFLAGS = -Wall -pedantic -O0 -g3 -march=native -mtune=native
 else ifdef PROFILE
-  CXXFLAGS = -Wall -pedantic -O2 -pg -march=native -mtune=native
+  CXXFLAGS = -Wall -pedantic -O0 -pg -march=native -mtune=native
 else
   CXXFLAGS = -Wall -pedantic -O3 -march=native -mtune=native
 endif
