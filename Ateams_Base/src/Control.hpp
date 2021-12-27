@@ -52,10 +52,10 @@ private:
 	static int runningThreads;											// Threads em execucao no momento
 
 	/* Funcao que executa em multiplas threads e retorna o numero de solucoes inseridas */
-	static void* pthrExec(void *obj);
+	static void* pthrExecution(void *obj);
 
 	/* Funcao que cotrola o tempo de execucao */
-	static void* pthrControl(void *obj);
+	static void* pthrManagement(void *obj);
 
 	/* Funcao que controla a tela de informacoes */
 	static void* pthrAnimation(void *in);

@@ -4,6 +4,8 @@ using namespace this_thread;
 using namespace xercesc;
 using namespace std;
 
+pthread_mutexattr_t mutex_attr;
+
 pthread_mutex_t mutex_pop;	// Mutex que protege a populacao principal
 pthread_mutex_t mutex_cont;	// Mutex que protege as variaveis de criacao de novas solucoes
 pthread_mutex_t mutex_info;	// Mutex que protege a impressao das informacoes da execucao
@@ -78,11 +80,6 @@ Control::Control() {
 	runningHeuristics = new list<list<HeuristicListener*>::iterator>;
 	runningThreads = 0;
 
-	pthread_mutex_init(&mutex_pop, NULL);
-	pthread_mutex_init(&mutex_cont, NULL);
-	pthread_mutex_init(&mutex_info, NULL);
-	pthread_mutex_init(&mutex_exec, NULL);
-
 	glutInit(Control::argc, Control::argv);
 }
 
@@ -110,11 +107,6 @@ Control::~Control() {
 
 	runningHeuristics->clear();
 	delete runningHeuristics;
-
-	pthread_mutex_destroy(&mutex_pop);
-	pthread_mutex_destroy(&mutex_cont);
-	pthread_mutex_destroy(&mutex_info);
-	pthread_mutex_destroy(&mutex_exec);
 
 	int window = glutGetWindow();
 	if (window != 0)
@@ -461,6 +453,16 @@ inline int Control::findPosArgv(char **in, int num, char *key) {
 }
 
 void Control::init() {
+	pthread_mutexattr_init(&mutex_attr);
+	pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE);
+
+	pthread_mutex_init(&mutex_pop, &mutex_attr);
+	pthread_mutex_init(&mutex_cont, &mutex_attr);
+	pthread_mutex_init(&mutex_info, &mutex_attr);
+	pthread_mutex_init(&mutex_exec, &mutex_attr);
+
+	sem_init(&semaphore, 0, numThreads);
+
 	bool (*fn_pt)(Problem*, Problem*) = comparatorMode == 1 ? fncomp1 : fncomp2;
 	solutions = new set<Problem*, bool (*)(Problem*, Problem*)>(fn_pt);
 
@@ -503,21 +505,31 @@ void Control::finish() {
 	Problem::writeResultInFile(getInputDataFile(), getInputParameters(), getExecutionInfo(), getOutputResultFile());
 
 	delete finalSolutions;
+
+	sem_destroy(&semaphore);
+
+	pthread_mutexattr_destroy(&mutex_attr);
+
+	pthread_mutex_destroy(&mutex_pop);
+	pthread_mutex_destroy(&mutex_cont);
+	pthread_mutex_destroy(&mutex_info);
+	pthread_mutex_destroy(&mutex_exec);
 }
 
 void Control::run() {
 	time(&startTime);
 
-	sem_init(&semaphore, 0, numThreads);
-
 	pthread_t *threads = (pthread_t*) malloc(iterations * sizeof(pthread_t));
+	pthread_t threadManagement;
 	pthread_t threadAnimation;
-	pthread_t threadTime;
 
-	pthread_attr_t attr;
+	pthread_attr_t attrJoinable;
+	pthread_attr_init(&attrJoinable);
+	pthread_attr_setdetachstate(&attrJoinable, PTHREAD_CREATE_JOINABLE);
 
-	pthread_attr_init(&attr);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	pthread_attr_t attrDetached;
+	pthread_attr_init(&attrDetached);
+	pthread_attr_setdetachstate(&attrDetached, PTHREAD_CREATE_DETACHED);
 
 	if (solutions->size() == 0)
 		throw "No Initial Solution Found!";
@@ -525,23 +537,18 @@ void Control::run() {
 	pair<int, Control*> *threadInput = NULL;
 
 	if (heuristicListener) {
-		pthread_attr_t animationAttr;
-
-		pthread_attr_init(&animationAttr);
-		pthread_attr_setdetachstate(&animationAttr, PTHREAD_CREATE_DETACHED);
-
-		if (pthread_create(&threadAnimation, &animationAttr, pthrAnimation, NULL) != 0)
+		if (pthread_create(&threadAnimation, &attrDetached, pthrAnimation, NULL) != 0)
 			throw "Thread Creation Error! (pthrAnimation)";
 	}
 
-	if (pthread_create(&threadTime, &attr, pthrControl, (void*) this) != 0)
-		throw "Thread Creation Error! (pthrControl)";
+	if (pthread_create(&threadManagement, &attrJoinable, pthrManagement, (void*) this) != 0)
+		throw "Thread Creation Error! (pthrManagement)";
 
 	for (int execAteams = 0; execAteams < iterations; execAteams++) {
 		threadInput = new pair<int, Control*>(execAteams + 1, this);
 
-		if (pthread_create(&threads[execAteams], &attr, pthrExec, (void*) threadInput) != 0)
-			throw "Thread Creation Error! (pthrExec)";
+		if (pthread_create(&threads[execAteams], &attrJoinable, pthrExecution, (void*) threadInput) != 0)
+			throw "Thread Creation Error! (pthrExecution)";
 	}
 
 	for (uintptr_t execAteams = 0, *inserted = NULL; execAteams < (uintptr_t) iterations; execAteams++) {
@@ -553,13 +560,12 @@ void Control::run() {
 	if (STATUS == EXECUTING)
 		STATUS = (executionCount == iterations && (int) executedHeuristics->size() == iterations) ? FINISHED_NORMALLY : INCOMPLETE;
 
-	pthread_join(threadTime, NULL);
+	pthread_join(threadManagement, NULL);
 
 	free(threads);
 
-	pthread_attr_destroy(&attr);
-
-	sem_destroy(&semaphore);
+	pthread_attr_destroy(&attrJoinable);
+	pthread_attr_destroy(&attrDetached);
 
 	time(&endTime);
 }
@@ -730,7 +736,7 @@ list<Problem*>::iterator Control::findSolution(list<Problem*> *vect, Problem *p)
 	return iter;
 }
 
-void* Control::pthrExec(void *obj) {
+void* Control::pthrExecution(void *obj) {
 	pair<int, Control*> *in = (pair<int, Control*>*) obj;
 	int execAteams = in->first;
 	Control *ctr = in->second;
@@ -749,7 +755,7 @@ void* Control::pthrExec(void *obj) {
 	return (void*) inserted; //	pthread_exit((void*)ins);
 }
 
-void* Control::pthrControl(void *obj) {
+void* Control::pthrManagement(void *obj) {
 	Control *ctr = (Control*) obj;
 	time_t rawtime;
 
