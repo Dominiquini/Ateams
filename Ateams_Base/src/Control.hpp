@@ -106,7 +106,8 @@ private:
 	int comparatorMode;					// Criterio de unicidade da populacao adotado
 
 	bool printFullSolution;				// Imprime melhor solucao
-	bool heuristicListener;				// Informa se as heuristicas serao acompanhadas por um listener
+	bool showCMDOverview;				// Informa se as heuristicas serao visualizadas no prompt
+	bool showGraphicalOverview;			// Informa se as heuristicas serao visualizadas graficamente
 
 	time_t startTime, endTime;			// Medidor do tempo inicial e final
 	int lastImprovedIteration = 0;		// Ultima iteracao em que houve melhora
@@ -132,6 +133,9 @@ private:
 	/* Gera uma populacao inicial aleatoria com 'populationSize' elementos */
 	void generatePopulation(list<Problem*> *popInicial);
 
+	/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
+	int findPosArgv(char **in, int num, char *key);
+
 	/* Leitura dos parametros passados por linha de comando */
 	void readMainCMDParameters();
 
@@ -141,10 +145,9 @@ private:
 	bool setParameter(const char *parameter, const char *value);
 
 	void setPrintFullSolution(bool fullPrint);
-	void setGraphicStatusInfoScreen(bool statusInfoScreen);
 
-	/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
-	int findPosArgv(char **in, int num, char *key);
+	void setCMDStatusInfoScreen(bool showCMDOverview);
+	void setGraphicStatusInfoScreen(bool showGraphicalOverview);
 
 public:
 

@@ -70,7 +70,8 @@ Control::Control() {
 	this->numThreads = 8;
 	this->bestKnownFitness = -1;
 	this->printFullSolution = false;
-	this->heuristicListener = false;
+	this->showCMDOverview = false;
+	this->showGraphicalOverview = false;
 
 	this->startTime = this->endTime = 0;
 	this->lastImprovedIteration = 0;
@@ -193,11 +194,13 @@ int Control::execute(int idThread) {
 		listener_iterator = executedHeuristics->insert(executedHeuristics->begin(), listener);
 		runningHeuristics->push_back(listener_iterator);
 
-		execNames = "";
-		for (list<list<HeuristicListener*>::iterator>::iterator it = runningHeuristics->begin(); it != runningHeuristics->end(); it++)
-			execNames = execNames + (**it)->threadInfo + " ";
+		if (showCMDOverview) {
+			execNames = "";
+			for (list<list<HeuristicListener*>::iterator>::iterator it = runningHeuristics->begin(); it != runningHeuristics->end(); it++)
+				execNames = execNames + (**it)->threadInfo + " ";
 
-		printf(">>> ALG: %s | ..................................................... | QUEUE: (%d : %s)\n", listener->threadInfo, runningThreads, execNames.c_str());
+			printf(">>> ALG: %s | ..................................................... | QUEUE: (%d : %s)\n", listener->threadInfo, runningThreads, execNames.c_str());
+		}
 	}
 	pthread_mutex_unlock(&mutex_info);
 
@@ -230,11 +233,13 @@ int Control::execute(int idThread) {
 
 		runningHeuristics->erase(exec);
 
-		execNames = "";
-		for (list<list<HeuristicListener*>::iterator>::iterator it = runningHeuristics->begin(); it != runningHeuristics->end(); it++)
-			execNames = execNames + (**it)->threadInfo + " ";
+		if (showCMDOverview) {
+			execNames = "";
+			for (list<list<HeuristicListener*>::iterator>::iterator it = runningHeuristics->begin(); it != runningHeuristics->end(); it++)
+				execNames = execNames + (**it)->threadInfo + " ";
 
-		printf("<<< ALG: %s | ITER: %.3ld | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d | QUEUE: (%d : %s)\n", listener->threadInfo, executionCount, (int) Problem::best, (int) Problem::worst, insert->first, insert->second, runningThreads, execNames.c_str());
+			printf("<<< ALG: %s | ITER: %.3ld | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d | QUEUE: (%d : %s)\n", listener->threadInfo, executionCount, (int) Problem::best, (int) Problem::worst, insert->first, insert->second, runningThreads, execNames.c_str());
+		}
 	}
 	pthread_mutex_unlock(&mutex_info);
 
@@ -333,7 +338,16 @@ void Control::generatePopulation(list<Problem*> *popInicial) {
 	return;
 }
 
-void Control::readMainCMDParameters() {
+inline int Control::findPosArgv(char **in, int num, char *key) {
+	for (int i = 0; i < num; i++) {
+		if (!strcmp(in[i], key))
+			return i + 1;
+	}
+
+	return -1;
+}
+
+inline void Control::readMainCMDParameters() {
 	int p = -1;
 
 	if ((p = findPosArgv(argv, *argc, (char*) "-p")) != -1) {
@@ -385,10 +399,12 @@ void Control::readMainCMDParameters() {
 	}
 
 	setPrintFullSolution(findPosArgv(argv, *argc, (char*) "-s") != -1);
+
+	setCMDStatusInfoScreen(findPosArgv(argv, *argc, (char*) "-c") != -1);
 	setGraphicStatusInfoScreen(findPosArgv(argv, *argc, (char*) "-g") != -1);
 }
 
-void Control::readAdditionalCMDParameters() {
+inline void Control::readAdditionalCMDParameters() {
 	int p = -1;
 
 	if ((p = findPosArgv(argv, *argc, (char*) "--iterations")) != -1)
@@ -413,7 +429,7 @@ void Control::readAdditionalCMDParameters() {
 		setParameter("bestKnownFitness", argv[p]);
 }
 
-bool Control::setParameter(const char *parameter, const char *value) {
+inline bool Control::setParameter(const char *parameter, const char *value) {
 	int read = EOF;
 
 	if (strcasecmp(parameter, "iterations") == 0) {
@@ -439,17 +455,12 @@ inline void Control::setPrintFullSolution(bool fullPrint) {
 	this->printFullSolution = fullPrint;
 }
 
-inline void Control::setGraphicStatusInfoScreen(bool statusInfoScreen) {
-	this->heuristicListener = statusInfoScreen;
+inline void Control::setCMDStatusInfoScreen(bool showCMDOverview) {
+	this->showCMDOverview = showCMDOverview;
 }
 
-inline int Control::findPosArgv(char **in, int num, char *key) {
-	for (int i = 0; i < num; i++) {
-		if (!strcmp(in[i], key))
-			return i + 1;
-	}
-
-	return -1;
+inline void Control::setGraphicStatusInfoScreen(bool showGraphicalOverview) {
+	this->showGraphicalOverview = showGraphicalOverview;
 }
 
 void Control::init() {
@@ -536,7 +547,7 @@ void Control::run() {
 
 	pair<int, Control*> *threadInput = NULL;
 
-	if (heuristicListener) {
+	if (showGraphicalOverview) {
 		if (pthread_create(&threadAnimation, &attrDetached, pthrAnimation, NULL) != 0)
 			throw "Thread Creation Error! (pthrAnimation)";
 	}

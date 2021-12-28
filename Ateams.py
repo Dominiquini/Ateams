@@ -37,11 +37,12 @@ def validate_path(ctx: click.core.Context=None, param: click.core.Option=None, v
 @click.option('-r', '--result', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Output Result File')
 @click.option('-t', '--pop', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Population File')
 @click.option('-o', '--write_output', type=click.BOOL, is_flag=True, help='Force Write Output Files')
-@click.option('-g', '--show_info', type=click.BOOL, is_flag=True, help='Show Graphical Overview')
+@click.option('-c', '--show_cmd_info', type=click.BOOL, is_flag=True, help='Show Prompt Overview')
+@click.option('-g', '--show_graphical_info', type=click.BOOL, is_flag=True, help='Show Graphical Overview')
 @click.option('-s', '--show_solution', type=click.BOOL, is_flag=True, help='Show Solution')
 @click.option('-n', '--repeat', type=click.INT, default=1, help='Repeat N Times')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
-def ateams(algorithm, parameters, input, result, pop, write_output, show_info, show_solution, repeat, extra_args):
+def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, extra_args):
     """A Wrapper For Ateams"""
     
     def __truncate(number, decimals=0):
@@ -65,7 +66,9 @@ def ateams(algorithm, parameters, input, result, pop, write_output, show_info, s
 
         if(pop is not None): command_line += f" -t {pop}"
 
-        if(show_info): command_line += f" -g"
+        if(show_cmd_info): command_line += f" -c"
+
+        if(show_graphical_info): command_line += f" -g"
 
         if(show_solution): command_line += f" -s"
         
