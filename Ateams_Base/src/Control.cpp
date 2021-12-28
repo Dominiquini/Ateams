@@ -200,6 +200,8 @@ int Control::execute(int idThread) {
 				execNames = execNames + (**it)->threadInfo + " ";
 
 			printf(">>> ALG: %s | ..................................................... | QUEUE: (%d : %s)\n", listener->threadInfo, runningThreads, execNames.c_str());
+		} else {
+			Control::printProgress(executionCount);
 		}
 	}
 	pthread_mutex_unlock(&mutex_info);
@@ -239,6 +241,8 @@ int Control::execute(int idThread) {
 				execNames = execNames + (**it)->threadInfo + " ";
 
 			printf("<<< ALG: %s | ITER: %.3ld | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d | QUEUE: (%d : %s)\n", listener->threadInfo, executionCount, (int) Problem::best, (int) Problem::worst, insert->first, insert->second, runningThreads, execNames.c_str());
+		} else {
+			Control::printProgress(executionCount);
 		}
 	}
 	pthread_mutex_unlock(&mutex_info);
@@ -542,6 +546,8 @@ void Control::run() {
 	pthread_attr_init(&attrDetached);
 	pthread_attr_setdetachstate(&attrDetached, PTHREAD_CREATE_DETACHED);
 
+	Control::executionProgressBar = new ProgressBar(iterations);
+
 	if (solutions->size() == 0)
 		throw "No Initial Solution Found!";
 
@@ -577,6 +583,8 @@ void Control::run() {
 
 	pthread_attr_destroy(&attrJoinable);
 	pthread_attr_destroy(&attrDetached);
+
+	delete Control::executionProgressBar;
 
 	time(&endTime);
 }
@@ -747,6 +755,10 @@ list<Problem*>::iterator Control::findSolution(list<Problem*> *vect, Problem *p)
 	return iter;
 }
 
+void Control::printProgress(int iteration) {
+	Control::executionProgressBar->update(iteration);
+}
+
 void* Control::pthrExecution(void *obj) {
 	pair<int, Control*> *in = (pair<int, Control*>*) obj;
 	int execAteams = in->first;
@@ -915,6 +927,8 @@ Control *Control::instance = NULL;
 list<HeuristicListener*> *Control::executedHeuristics = NULL;
 list<list<HeuristicListener*>::iterator> *Control::runningHeuristics = NULL;
 int Control::runningThreads = 0;
+
+ProgressBar *Control::executionProgressBar = NULL;
 
 int *Control::argc = NULL;
 char **Control::argv = NULL;

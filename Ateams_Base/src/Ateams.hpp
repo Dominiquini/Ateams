@@ -93,4 +93,61 @@ inline string getTerminationInfo(TerminationInfo info) {
 	}
 }
 
+class ProgressBar {
+public:
+
+	const string firstPartOfpBar = "[", lastPartOfpBar = "]", pBarFiller = "|", pBarUpdater = "|";
+
+	ProgressBar(int neededProgress) {
+		this->neededProgress = neededProgress;
+
+		this->currentProgress = 0;
+		this->amountOfFiller = 0;
+	}
+	~ProgressBar() {
+		cout << endl;
+	}
+
+	void update(int newProgress) {
+		int oldProgress = currentProgress;
+		currentProgress = min(neededProgress, newProgress);
+
+		if(oldProgress != currentProgress) {
+			amountOfFiller = (int) (progress() * (double) pBarLength);
+
+			print();
+		}
+	}
+
+	void print() {
+		currUpdateVal %= pBarUpdater.length();
+
+		cout << "\r" << firstPartOfpBar;
+		for (int a = 0; a < amountOfFiller; a++) {
+			cout << pBarFiller;
+		}
+		cout << pBarUpdater[currUpdateVal];
+		for (int b = 0; b < pBarLength - amountOfFiller; b++) {
+			cout << " ";
+		}
+		cout << lastPartOfpBar << " (" << (int) (100 * progress()) << "%)" << flush;
+
+		currUpdateVal += 1;
+	}
+
+	double progress() {
+		return (double) currentProgress / (double) neededProgress;
+	}
+
+private:
+
+	const int pBarLength = 100;
+
+	int currentProgress = 0;
+	int neededProgress = 100;
+	int amountOfFiller = 0;
+	int currUpdateVal = 0;
+
+};
+
 #endif

@@ -29,6 +29,8 @@ using namespace std;
 
 extern volatile TerminationInfo STATUS;
 
+class ProgressBar;
+
 class SimulatedAnnealing;
 class TabuSearch;
 class GeneticAlgorithm;
@@ -50,6 +52,8 @@ private:
 	static list<HeuristicListener*> *executedHeuristics;				// Algoritmos executados ate o momento
 	static list<list<HeuristicListener*>::iterator> *runningHeuristics;	// Algoritmos em execucao no momento
 	static int runningThreads;											// Threads em execucao no momento
+
+	static ProgressBar *executionProgressBar;
 
 	/* Funcao que executa em multiplas threads e retorna o numero de solucoes inseridas */
 	static void* pthrExecution(void *obj);
@@ -86,6 +90,8 @@ public:
 	static vector<Problem*>::iterator selectRandom(vector<Problem*> *probs);
 
 	static list<Problem*>::iterator findSolution(list<Problem*> *vect, Problem *p);
+
+	static void printProgress(int iteration);
 
 private:
 
@@ -155,7 +161,7 @@ public:
 
 	void finish();
 
-	void run();								// Comeca a execucao do Ateams utilizando os algoritmos disponiveis
+	void run();									// Comeca a execucao do Ateams utilizando os algoritmos disponiveis
 
 	list<Problem*>* getSolutions();				// Retorna a populacao da memoria principal
 	Problem* getSolution(int n);				// Retorna a solucao n da memoria principal
