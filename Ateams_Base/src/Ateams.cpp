@@ -9,8 +9,12 @@ volatile TerminationInfo STATUS = EXECUTING;
 
 int main(int argc, char *argv[]) {
 
-	/* Interrompe o programa ao se pessionar 'ctrl-c' */
-	signal(SIGINT, SIGINTHandler);
+#ifdef _WIN32
+	ios_base::sync_with_stdio(false);
+#endif
+
+	signal(SIGTERM, SignalHandler);		// Interrompe o programa ao ser requisitado externamente
+	signal(SIGINT, SignalHandler);		// Interrompe o programa ao se pessionar 'CTRL-C'
 
 	srand(unsigned(time(NULL)));
 
@@ -60,6 +64,11 @@ int xRand(int min, int max) {
 	return randomDistribution(randomEngine);
 }
 
-void SIGINTHandler(int signal) {
-	STATUS = USER_SIGNALED;
+void SignalHandler(int signal) {
+	switch (signal) {
+		case SIGTERM:
+		case SIGINT:
+			STATUS = USER_SIGNALED;
+			break;
+	}
 }

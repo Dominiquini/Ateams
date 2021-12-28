@@ -98,6 +98,7 @@ def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_inf
 
 
 if __name__ == '__main__':
-    signal.signal(signal.SIGINT, lambda *_: None)
+    for sig in [signal.SIGINT, signal.SIGTERM]:
+        signal.signal(sig, lambda *_: None)
 
     ateams()

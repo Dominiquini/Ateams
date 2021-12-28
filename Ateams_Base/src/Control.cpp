@@ -70,7 +70,7 @@ Control::Control() {
 	this->numThreads = 8;
 	this->bestKnownFitness = -1;
 	this->printFullSolution = false;
-	this->showCMDOverview = false;
+	this->showTextOverview = false;
 	this->showGraphicalOverview = false;
 
 	this->startTime = this->endTime = 0;
@@ -179,9 +179,8 @@ int Control::execute(int idThread) {
 	list<HeuristicListener*>::iterator listener_iterator;
 	vector<Problem*> *newSoluctions = NULL;
 	HeuristicListener *listener = NULL;
+	pair<int, int> *insertion = NULL;
 	Heuristic *algorithm = NULL;
-	pair<int, int> *insert;
-	string execNames;
 	int contrib = 0;
 
 	pthread_mutex_lock(&mutex_info);
@@ -194,15 +193,7 @@ int Control::execute(int idThread) {
 		listener_iterator = executedHeuristics->insert(executedHeuristics->begin(), listener);
 		runningHeuristics->push_back(listener_iterator);
 
-		if (showCMDOverview) {
-			execNames = "";
-			for (list<list<HeuristicListener*>::iterator>::iterator it = runningHeuristics->begin(); it != runningHeuristics->end(); it++)
-				execNames = execNames + (**it)->threadInfo + " ";
-
-			printf(">>> ALG: %s | ..................................................... | QUEUE: (%d : %s)\n", listener->threadInfo, runningThreads, execNames.c_str());
-		} else {
-			Control::printProgress(executionCount);
-		}
+		Control::printProgress(listener->threadInfo, insertion);
 	}
 	pthread_mutex_unlock(&mutex_info);
 
@@ -212,7 +203,7 @@ int Control::execute(int idThread) {
 	{
 		double oldBest = Problem::best;
 
-		insert = addSolutions(newSoluctions);
+		insertion = addSolutions(newSoluctions);
 		executionCount++;
 
 		double newBest = Problem::best;
@@ -235,21 +226,13 @@ int Control::execute(int idThread) {
 
 		runningHeuristics->erase(exec);
 
-		if (showCMDOverview) {
-			execNames = "";
-			for (list<list<HeuristicListener*>::iterator>::iterator it = runningHeuristics->begin(); it != runningHeuristics->end(); it++)
-				execNames = execNames + (**it)->threadInfo + " ";
-
-			printf("<<< ALG: %s | ITER: %.3ld | FITNESS: %.6d:%.6d | CONTRIB: %.3d:%.3d | QUEUE: (%d : %s)\n", listener->threadInfo, executionCount, (int) Problem::best, (int) Problem::worst, insert->first, insert->second, runningThreads, execNames.c_str());
-		} else {
-			Control::printProgress(executionCount);
-		}
+		Control::printProgress(listener->threadInfo, insertion);
 	}
 	pthread_mutex_unlock(&mutex_info);
 
-	contrib = insert->second;
+	contrib = insertion->second;
 
-	delete insert;
+	delete insertion;
 
 	return contrib;
 }
@@ -288,56 +271,36 @@ pair<int, int>* Control::addSolutions(vector<Problem*> *news) {
 }
 
 void Control::generatePopulation(list<Problem*> *popInicial) {
-	pair<set<Problem*, bool (*)(Problem*, Problem*)>::iterator, bool> ret;
+	cout << endl;
+
+	ProgressBar loadingProgressBar(populationSize, "LOADING: ");
 
 	if (popInicial != NULL) {
 		for (list<Problem*>::iterator iter = popInicial->begin(); iter != popInicial->end(); iter++) {
-			if ((int) solutions->size() < populationSize) {
-				ret = solutions->insert(*iter);
-				if (!ret.second)
-					delete *iter;
-			} else {
+			if ((int) solutions->size() >= populationSize || !solutions->insert(*iter).second) {
 				delete *iter;
 			}
 		}
 	}
 
-	unsigned long int limit = pow(populationSize, 3), iter = 0;
+	loadingProgressBar.update(solutions->size());
+
 	Problem *soluction = NULL;
+	unsigned long int limit = pow(populationSize, 3), failedAttempts = 0;
 
-	cout << endl << "LOADING: " << flush;
-
-	int loadingMax = 100, loading = ceil((int) solutions->size() * loadingMax / populationSize);
-
-	for (int i = 0; i < loading; i++)
-		cout << '*' << flush;
-
-	while ((int) solutions->size() < populationSize && iter < limit && STATUS == EXECUTING) {
+	while ((int) solutions->size() < populationSize && failedAttempts < limit && STATUS == EXECUTING) {
 		soluction = Problem::randomSolution();
 
-		if (soluction->getFitness() != -1) {
-			ret = solutions->insert(soluction);
-			if (!ret.second) {
-				iter++;
-
-				delete soluction;
-			} else {
-				if ((ceil((int) solutions->size() * loadingMax / populationSize) - loading) == 1) {
-					cout << '#' << flush;
-					loading++;
-				}
-
-				if (iter > 0)
-					iter--;
-			}
-		} else {
-			iter++;
+		if (soluction->getFitness() == -1 || !solutions->insert(soluction).second) {
+			failedAttempts++;
 
 			delete soluction;
 		}
+
+		loadingProgressBar.update(solutions->size());
 	}
 
-	cout << " (" << solutions->size() << ") " << endl;
+	cout << endl;
 
 	return;
 }
@@ -460,7 +423,7 @@ inline void Control::setPrintFullSolution(bool fullPrint) {
 }
 
 inline void Control::setCMDStatusInfoScreen(bool showCMDOverview) {
-	this->showCMDOverview = showCMDOverview;
+	this->showTextOverview = showCMDOverview;
 }
 
 inline void Control::setGraphicStatusInfoScreen(bool showGraphicalOverview) {
@@ -494,22 +457,26 @@ void Control::init() {
 	Problem::best = (*solutions->begin())->getFitness();
 	Problem::worst = (*solutions->rbegin())->getFitness();
 
-	cout << endl << "Worst Initial Solution: " << Problem::worst << endl;
-	cout << endl << "Best Initial Solution: " << Problem::best << endl;
+	cout << COLOR_CYAN;
 
-	cout << endl << endl;
+	cout << endl << "Population Size: : " << solutions->size() << endl;
+	cout << endl << "Worst Initial Solution: " << Problem::worst << endl;
+	cout << endl << "Best Initial Solution: " << Problem::best << endl << endl;
+
+	cout << COLOR_DEFAULT;
 }
 
 void Control::finish() {
-	cout << endl;
+	if (!showTextOverview) {
+		cout << endl;
+	}
 
-	cout << endl << "Explored Solutions: " << Problem::totalNumInst << endl;
-	cout << endl << "Swapped Solutions: " << swappedSolutions << endl;
-
-	cout << endl;
+	cout << COLOR_CYAN;
 
 	cout << endl << "Worst Final Solution: " << Problem::worst << endl;
 	cout << endl << "Best Final Solution: " << Problem::best << endl;
+
+	cout << COLOR_DEFAULT;
 
 	list<Problem*> *finalSolutions = getSolutions();
 
@@ -546,7 +513,7 @@ void Control::run() {
 	pthread_attr_init(&attrDetached);
 	pthread_attr_setdetachstate(&attrDetached, PTHREAD_CREATE_DETACHED);
 
-	Control::executionProgressBar = new ProgressBar(iterations);
+	Control::executionProgressBar = new ProgressBar(iterations, "EXECUTING: ");
 
 	if (solutions->size() == 0)
 		throw "No Initial Solution Found!";
@@ -630,17 +597,28 @@ ExecutionInfo Control::getExecutionInfo() {
 void Control::printSolution(bool fullSolution) {
 	Problem *solution = getSolution(0);
 
-	cout << endl << endl << "Solution: " << solution->getFitness() << endl << endl;
+	cout << COLOR_MAGENTA;
+
+	cout << endl << endl << "Best Solution: " << solution->getFitness() << endl << endl;
 
 	solution->print(fullSolution || printFullSolution);
+
+	cout << COLOR_DEFAULT;
 }
 
 void Control::printExecution() {
-	cout << endl << endl << "Executions: " << executionCount << endl << endl;
+	cout << endl << COLOR_BLUE;
+
+	cout << endl << "Explored Solutions: " << Problem::totalNumInst << endl;
+	cout << endl << "Swapped Solutions: " << swappedSolutions << endl;
+
+	cout << endl << "Executions: " << executionCount << endl << endl;
 
 	for (vector<Heuristic*>::reverse_iterator it = heuristics->rbegin(); it != heuristics->rend(); it++) {
-		(*it)->printStatistics();
+		(*it)->printStatistics('-');
 	}
+
+	cout << COLOR_DEFAULT;
 }
 
 double Control::sumFitnessMaximize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n) {
@@ -755,8 +733,27 @@ list<Problem*>::iterator Control::findSolution(list<Problem*> *vect, Problem *p)
 	return iter;
 }
 
-void Control::printProgress(int iteration) {
-	Control::executionProgressBar->update(iteration);
+void Control::printProgress(char *threadInfo, pair<int, int> *insertion) {
+	if (instance->showTextOverview) {
+		string execNames = "";
+		string color;
+
+		for (list<list<HeuristicListener*>::iterator>::iterator it = runningHeuristics->begin(); it != runningHeuristics->end(); it++) {
+			execNames.append((**it)->threadInfo).append(1, ' ');
+		}
+
+		if (insertion == NULL) {
+			snprintf(Control::buffer, BUFFER_SIZE, "%.3ld >>> ALG: %s | ........................................... | QUEUE (%d): %s", instance->executionCount, threadInfo, runningThreads, execNames.c_str());
+			color = COLOR_GREEN;
+		} else {
+			snprintf(Control::buffer, BUFFER_SIZE, "%.3ld <<< ALG: %s | FITNESS: %.6ld::%.6ld | CONTRIB: %.3d::%.3d | QUEUE (%d): %s", instance->executionCount, threadInfo, (long) Problem::best, (long) Problem::worst, insertion->first, insertion->second, runningThreads, execNames.c_str());
+			color = COLOR_YELLOW;
+		}
+
+		cout << color << Control::buffer << COLOR_DEFAULT << endl << flush;
+	} else {
+		Control::executionProgressBar->update(instance->executionCount);
+	}
 }
 
 void* Control::pthrExecution(void *obj) {
@@ -849,23 +846,28 @@ void Control::display() {
 		/* Desenha as informacoes na tela */
 		float linha = 1.4;
 		float coluna = -5;
-		for (list<list<HeuristicListener*>::iterator>::iterator iter = runningHeuristics->begin(); iter != runningHeuristics->end(); iter++) {
-			glColor3f(1.0f, 0.0f, 0.0f);
-			Control::drawstr(coluna, linha + 0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (**iter)->threadInfo, (**iter)->status);
 
-			glColor3f(0.0f, 1.0f, 0.0f);
-			Control::drawstr(coluna, linha + 0.2, GLUT_BITMAP_HELVETICA_12, "Best Initial Solution: %.0f\t | \tBest Current Solution: %.0f\n\n", (**iter)->bestInitialFitness, (**iter)->bestActualFitness);
+		pthread_mutex_lock(&mutex_info);
+		{
+			for (list<list<HeuristicListener*>::iterator>::iterator iter = runningHeuristics->begin(); iter != runningHeuristics->end() && STATUS == EXECUTING; iter++) {
+				glColor3f(1.0f, 0.0f, 0.0f);
+				Control::drawstr(coluna, linha + 0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (**iter)->threadInfo, (**iter)->status);
 
-			glColor3f(0.0f, 0.0f, 1.0f);
-			Control::drawstr(coluna, linha, GLUT_BITMAP_9_BY_15, (**iter)->getInfo());
+				glColor3f(0.0f, 1.0f, 0.0f);
+				Control::drawstr(coluna, linha + 0.2, GLUT_BITMAP_HELVETICA_12, "Best Initial Solution: %.0f\t | \tBest Current Solution: %.0f\n\n", (**iter)->bestInitialFitness, (**iter)->bestActualFitness);
 
-			coluna += 3.4;
+				glColor3f(0.0f, 0.0f, 1.0f);
+				Control::drawstr(coluna, linha, GLUT_BITMAP_9_BY_15, (**iter)->getInfo());
 
-			if (coluna > 1.8) {
-				coluna = -5;
-				linha -= 1;
+				coluna += 3.4;
+
+				if (coluna > 1.8) {
+					coluna = -5;
+					linha -= 1;
+				}
 			}
 		}
+		pthread_mutex_unlock(&mutex_info);
 
 		glutSwapBuffers();
 
@@ -929,6 +931,7 @@ list<list<HeuristicListener*>::iterator> *Control::runningHeuristics = NULL;
 int Control::runningThreads = 0;
 
 ProgressBar *Control::executionProgressBar = NULL;
+char Control::buffer[BUFFER_SIZE];
 
 int *Control::argc = NULL;
 char **Control::argv = NULL;

@@ -27,6 +27,8 @@ using namespace std;
 #define WINDOW_HEIGHT 500
 #define WINDOW_ANIMATION_UPDATE_INTERVAL 100
 
+#define BUFFER_SIZE 4096
+
 extern volatile TerminationInfo STATUS;
 
 class ProgressBar;
@@ -54,6 +56,8 @@ private:
 	static int runningThreads;											// Threads em execucao no momento
 
 	static ProgressBar *executionProgressBar;
+
+	static char buffer[BUFFER_SIZE];
 
 	/* Funcao que executa em multiplas threads e retorna o numero de solucoes inseridas */
 	static void* pthrExecution(void *obj);
@@ -91,7 +95,7 @@ public:
 
 	static list<Problem*>::iterator findSolution(list<Problem*> *vect, Problem *p);
 
-	static void printProgress(int iteration);
+	static void printProgress(char *threadInfo, pair<int, int> *insertion);
 
 private:
 
@@ -112,7 +116,8 @@ private:
 	int comparatorMode;					// Criterio de unicidade da populacao adotado
 
 	bool printFullSolution;				// Imprime melhor solucao
-	bool showCMDOverview;				// Informa se as heuristicas serao visualizadas no prompt
+
+	bool showTextOverview;				// Informa se as heuristicas serao visualizadas no prompt
 	bool showGraphicalOverview;			// Informa se as heuristicas serao visualizadas graficamente
 
 	time_t startTime, endTime;			// Medidor do tempo inicial e final

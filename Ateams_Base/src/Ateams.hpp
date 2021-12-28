@@ -17,6 +17,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <iomanip>
 #include <cstdlib>
 #include <cstdint>
 #include <limits>
@@ -41,12 +42,25 @@ using namespace std;
 #if (RANDOM_TYPE > 0)
   static default_random_engine randomEngine(RANDOM_TYPE);
 #elif (RANDOM_TYPE == -1)
-  static default_random_engine randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+static default_random_engine randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 #elif (RANDOM_TYPE == -2)
   static mt19937 randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 #elif (RANDOM_TYPE == -3)
   static random_device randomEngine;
 #endif
+
+#define DEFAULT_PROGRESS_SIZE 100
+#define DEFAULT_PROGRESS_COLOR COLOR_RED
+
+#define COLOR_BLACK "[30m"
+#define COLOR_RED "[31m"
+#define COLOR_GREEN "[32m"
+#define COLOR_YELLOW "[33m"
+#define COLOR_BLUE "[34m"
+#define COLOR_MAGENTA "[35m"
+#define COLOR_CYAN "[36m"
+#define COLOR_WHITE "[37m"
+#define COLOR_DEFAULT "[39m"
 
 enum TerminationInfo {
 	EXECUTING, FINISHED_NORMALLY, INCOMPLETE, USER_SIGNALED, EXECUTION_TIMEOUT, LACK_OF_IMPROVEMENT, RESULT_ACHIEVED
@@ -64,7 +78,7 @@ int xRand(int max);
 
 int xRand(int min, int max);
 
-void SIGINTHandler(int signal);
+void SignalHandler(int signal);
 
 inline string getExceptionMessage(exception_ptr &eptr) {
 	try {
@@ -81,39 +95,60 @@ inline string getExceptionMessage(exception_ptr &eptr) {
 }
 
 inline string getTerminationInfo(TerminationInfo info) {
-	switch(info) {
-		case EXECUTING: return "EXECUTING";
-		case FINISHED_NORMALLY: return "FINISHED_NORMALLY";
-		case INCOMPLETE: return "INCOMPLETE";
-		case USER_SIGNALED: return "USER_SIGNALED";
-		case EXECUTION_TIMEOUT: return "EXECUTION_TIMEOUT";
-		case LACK_OF_IMPROVEMENT: return "LACK_OF_IMPROVEMENT";
-		case RESULT_ACHIEVED: return "RESULT_ACHIEVED";
-		default: return "UNKNOWN";
+	switch (info) {
+		case EXECUTING:
+			return "EXECUTING";
+		case FINISHED_NORMALLY:
+			return "FINISHED_NORMALLY";
+		case INCOMPLETE:
+			return "INCOMPLETE";
+		case USER_SIGNALED:
+			return "USER_SIGNALED";
+		case EXECUTION_TIMEOUT:
+			return "EXECUTION_TIMEOUT";
+		case LACK_OF_IMPROVEMENT:
+			return "LACK_OF_IMPROVEMENT";
+		case RESULT_ACHIEVED:
+			return "RESULT_ACHIEVED";
+		default:
+			return "UNKNOWN";
 	}
 }
 
 class ProgressBar {
 public:
 
-	const string firstPartOfpBar = "[", lastPartOfpBar = "]", pBarFiller = "|", pBarUpdater = "|";
+	ProgressBar(int maxProgress, string label, string color, int progressBarLength) {
+		this->label = label;
+		this->maxProgress = maxProgress;
+		this->progressBarLength = progressBarLength - label.size();
 
-	ProgressBar(int neededProgress) {
-		this->neededProgress = neededProgress;
+		cout << endl << color;
 
-		this->currentProgress = 0;
-		this->amountOfFiller = 0;
+		reset();
+	}
+	ProgressBar(int maxProgress, string label) : ProgressBar(maxProgress, label, DEFAULT_PROGRESS_COLOR, DEFAULT_PROGRESS_SIZE) {
+	}
+	ProgressBar(int maxProgress) : ProgressBar(maxProgress, "", DEFAULT_PROGRESS_COLOR, DEFAULT_PROGRESS_SIZE) {
 	}
 	~ProgressBar() {
-		cout << endl;
+		cout << endl << COLOR_DEFAULT;
+
+		reset();
+	}
+
+	void reset() {
+		this->currentProgress = 0;
+		this->amountOfFiller = 0;
+		this->currUpdateVal = 0;
 	}
 
 	void update(int newProgress) {
 		int oldProgress = currentProgress;
-		currentProgress = min(neededProgress, newProgress);
+		currentProgress = min(maxProgress, newProgress);
 
-		if(oldProgress != currentProgress) {
-			amountOfFiller = (int) (progress() * (double) pBarLength);
+		if (oldProgress != currentProgress) {
+			amountOfFiller = (int) (progress() * (double) progressBarLength);
 
 			print();
 		}
@@ -122,31 +157,36 @@ public:
 	void print() {
 		currUpdateVal %= pBarUpdater.length();
 
-		cout << "\r" << firstPartOfpBar;
+		cout << "\r" << label << firstPartOfpBar;
 		for (int a = 0; a < amountOfFiller; a++) {
 			cout << pBarFiller;
 		}
 		cout << pBarUpdater[currUpdateVal];
-		for (int b = 0; b < pBarLength - amountOfFiller; b++) {
+		for (int b = 0; b < progressBarLength - amountOfFiller; b++) {
 			cout << " ";
 		}
-		cout << lastPartOfpBar << " (" << (int) (100 * progress()) << "%)" << flush;
+		cout << lastPartOfpBar << " (" << (int) (progress() * 100) << "%)";
 
 		currUpdateVal += 1;
+
+		cout << flush;
 	}
 
 	double progress() {
-		return (double) currentProgress / (double) neededProgress;
+		return (double) currentProgress / (double) maxProgress;
 	}
 
 private:
 
-	const int pBarLength = 100;
+	const string firstPartOfpBar = "[", lastPartOfpBar = "]", pBarFiller = "|", pBarUpdater = "|";
 
-	int currentProgress = 0;
-	int neededProgress = 100;
-	int amountOfFiller = 0;
-	int currUpdateVal = 0;
+	string label;
+	int maxProgress;
+	int progressBarLength;
+
+	int currentProgress;
+	int amountOfFiller;
+	int currUpdateVal;
 
 };
 

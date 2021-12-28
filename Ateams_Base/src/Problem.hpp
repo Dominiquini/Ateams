@@ -69,12 +69,12 @@ public:
 		numInst++;
 		totalNumInst++;
 		pthread_mutex_unlock(&mutex_cont);
-	}	// numInst++
+	}
 	virtual ~Problem() {
 		pthread_mutex_lock(&mutex_cont);
 		numInst--;
 		pthread_mutex_unlock(&mutex_cont);
-	}		// numInst--
+	}
 
 	virtual void print(bool esc) = 0;	// Imprime o escalonamento
 

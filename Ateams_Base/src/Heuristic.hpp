@@ -34,8 +34,9 @@ public:
 	virtual ~Heuristic() {
 	}
 
-	virtual void printStatistics() {
-		cout << name << ": " << executionCounter << endl;
+	virtual void printStatistics(char bullet) {
+		printf(" %c %s : %03d || %% %02d %%\n", bullet, name.c_str(), executionCounter, choiceProbability);
+//		cout << " " << bullet << " " << name << ": " << executionCounter << " || " << "%" << choiceProbability << "%" << endl;
 	}
 
 	virtual bool setParameter(const char *parameter, const char *value) {
