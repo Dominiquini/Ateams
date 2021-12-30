@@ -1,4 +1,4 @@
-cxxflags = -Wall -pedantic -O3 -march=native -mtune=native
+cxxflags = -Wall -pedantic -O3 -march=native -mtune=native -masm=intel
 ldflags = -lpthread -lopengl32 -lGLU32 -lfreeglut -lxerces-c
 
 

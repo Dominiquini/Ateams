@@ -65,10 +65,14 @@ int xRand(int min, int max) {
 }
 
 void SignalHandler(int signal) {
-	switch (signal) {
-		case SIGTERM:
-		case SIGINT:
-			STATUS = USER_SIGNALED;
-			break;
+	if (STATUS == EXECUTING) {
+		switch (signal) {
+			case SIGTERM:
+			case SIGINT:
+				STATUS = USER_SIGNALED;
+				break;
+		}
+	} else {
+		exit(1);
 	}
 }
