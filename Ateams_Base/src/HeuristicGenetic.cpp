@@ -14,11 +14,11 @@ GeneticAlgorithm::GeneticAlgorithm() : Heuristic::Heuristic("DEFAULT_AG") {
 	probMutacao = 0.08;
 	tamParticionamento = 0;
 
-	Heuristic::heuristicsAvailable += choiceProbability;
+	Heuristic::heuristicsProbabilitySum += choiceProbability;
 }
 
 GeneticAlgorithm::~GeneticAlgorithm() {
-	Heuristic::heuristicsAvailable -= choiceProbability;
+	Heuristic::heuristicsProbabilitySum -= choiceProbability;
 }
 
 bool GeneticAlgorithm::setParameter(const char *parameter, const char *value) {
@@ -26,9 +26,9 @@ bool GeneticAlgorithm::setParameter(const char *parameter, const char *value) {
 		return true;
 
 	if (strcasecmp(parameter, "probAG") == 0) {
-		Heuristic::heuristicsAvailable -= choiceProbability;
+		Heuristic::heuristicsProbabilitySum -= choiceProbability;
 		sscanf(value, "%d", &choiceProbability);
-		Heuristic::heuristicsAvailable += choiceProbability;
+		Heuristic::heuristicsProbabilitySum += choiceProbability;
 	} else if (strcasecmp(parameter, "choicePolicyGA") == 0) {
 		sscanf(value, "%d", &choicePolicy);
 	} else if (strcasecmp(parameter, "iterationsGA") == 0) {
@@ -131,7 +131,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicListene
 
 			listener->bestActualFitness = (*pop->begin())->getFitness();
 
-			listener->setInfo("Generation: %d", i + 1);
+			listener->setuupInfo("Generation: %d", i + 1);
 		}
 
 		numCrossOver = (int) ((float) pop->size() * crossoverProbability);

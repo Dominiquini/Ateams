@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import click
+import builtins
 import pathlib
 import signal
 import timeit
@@ -95,7 +96,10 @@ def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_inf
     timers = __execute_ateams(command_line, repeat)
 
     if(print): click.echo(f"\n*** Timers: {[__truncate(n, 2) for n in timers]} ***\n")
-
+    
+    click.prompt("\nPress ENTER To Exit", prompt_suffix='', hide_input=True, show_choices=False, show_default=False, default='')
+    click.echo("\n")
+    
 
 if __name__ == '__main__':
     for sig in [signal.SIGINT, signal.SIGTERM]:

@@ -13,11 +13,11 @@ SimulatedAnnealing::SimulatedAnnealing() : Heuristic::Heuristic("DEFAULT_SA") {
 	alfa = 0.99;
 	elitism = 20;
 
-	Heuristic::heuristicsAvailable += choiceProbability;
+	Heuristic::heuristicsProbabilitySum += choiceProbability;
 }
 
 SimulatedAnnealing::~SimulatedAnnealing() {
-	Heuristic::heuristicsAvailable -= choiceProbability;
+	Heuristic::heuristicsProbabilitySum -= choiceProbability;
 }
 
 bool SimulatedAnnealing::setParameter(const char *parameter, const char *value) {
@@ -25,9 +25,9 @@ bool SimulatedAnnealing::setParameter(const char *parameter, const char *value) 
 		return true;
 
 	if (strcasecmp(parameter, "probSA") == 0) {
-		Heuristic::heuristicsAvailable -= choiceProbability;
+		Heuristic::heuristicsProbabilitySum -= choiceProbability;
 		sscanf(value, "%d", &choiceProbability);
-		Heuristic::heuristicsAvailable += choiceProbability;
+		Heuristic::heuristicsProbabilitySum += choiceProbability;
 	} else if (strcasecmp(parameter, "choicePolicySA") == 0) {
 		sscanf(value, "%d", &choicePolicy);
 	} else if (strcasecmp(parameter, "elitismProbabilitySA") == 0) {
@@ -121,7 +121,7 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicListener *liste
 
 			listener->bestActualFitness = (*Sf->rbegin())->getFitness();
 
-			listener->setInfo("Temperature: %f", T);
+			listener->setuupInfo("Temperature: %f", T);
 		}
 
 		if (T == Tf)

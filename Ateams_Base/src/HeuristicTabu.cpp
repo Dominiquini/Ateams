@@ -14,11 +14,11 @@ TabuSearch::TabuSearch() : Heuristic::Heuristic("DEFAULT_BT") {
 	polExploracao = 0.5;
 	elitism = 10;
 
-	Heuristic::heuristicsAvailable += choiceProbability;
+	Heuristic::heuristicsProbabilitySum += choiceProbability;
 }
 
 TabuSearch::~TabuSearch() {
-	Heuristic::heuristicsAvailable -= choiceProbability;
+	Heuristic::heuristicsProbabilitySum -= choiceProbability;
 }
 
 bool TabuSearch::setParameter(const char *parameter, const char *value) {
@@ -26,9 +26,9 @@ bool TabuSearch::setParameter(const char *parameter, const char *value) {
 		return true;
 
 	if (strcasecmp(parameter, "probBT") == 0) {
-		Heuristic::heuristicsAvailable -= choiceProbability;
+		Heuristic::heuristicsProbabilitySum -= choiceProbability;
 		sscanf(value, "%d", &choiceProbability);
-		Heuristic::heuristicsAvailable += choiceProbability;
+		Heuristic::heuristicsProbabilitySum += choiceProbability;
 	} else if (strcasecmp(parameter, "choicePolicyTS") == 0) {
 		sscanf(value, "%d", &choicePolicy);
 	} else if (strcasecmp(parameter, "elitismProbabilityTS") == 0) {
@@ -119,7 +119,7 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicListener *listener) {
 
 			listener->bestActualFitness = (*maxGlobal->rbegin())->getFitness();
 
-			listener->setInfo("Iteration: %d", i + 1);
+			listener->setuupInfo("Iteration: %d", i + 1);
 		}
 
 		if (polExploracao <= 0 || polExploracao >= 1) {

@@ -51,8 +51,6 @@ private:
 	/* Instancia do controle */
 	static Control *instance;
 
-	static list<HeuristicListener*> *executedHeuristics;				// Algoritmos executados ate o momento
-	static list<list<HeuristicListener*>::iterator> *runningHeuristics;	// Algoritmos em execucao no momento
 	static int runningThreads;											// Threads em execucao no momento
 
 	static ProgressBar *executionProgressBar;
@@ -95,7 +93,7 @@ public:
 
 	static list<Problem*>::iterator findSolution(list<Problem*> *vect, Problem *p);
 
-	static void printProgress(char *threadInfo, pair<int, int> *insertion);
+	static void printProgress(HeuristicListener *heuristic, pair<int, int> *insertion);
 
 private:
 

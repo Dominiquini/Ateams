@@ -77,10 +77,6 @@ Control::Control() {
 	this->lastImprovedIteration = 0;
 	this->executionCount = 0;
 
-	executedHeuristics = new list<HeuristicListener*>;
-	runningHeuristics = new list<list<HeuristicListener*>::iterator>;
-	runningThreads = 0;
-
 	glutInit(Control::argc, Control::argv);
 }
 
@@ -100,14 +96,14 @@ Control::~Control() {
 	heuristics->clear();
 	delete heuristics;
 
-	for (list<HeuristicListener*>::iterator it = executedHeuristics->begin(); it != executedHeuristics->end(); it++)
+	for (list<HeuristicListener*>::iterator it = Heuristic::executedHeuristics->begin(); it != Heuristic::executedHeuristics->end(); it++)
 		delete *it;
 
-	executedHeuristics->clear();
-	delete executedHeuristics;
+	Heuristic::executedHeuristics->clear();
+	delete Heuristic::executedHeuristics;
 
-	runningHeuristics->clear();
-	delete runningHeuristics;
+	Heuristic::runningHeuristics->clear();
+	delete Heuristic::runningHeuristics;
 
 	int window = glutGetWindow();
 	if (window != 0)
@@ -176,7 +172,6 @@ void Control::addHeuristic(Heuristic *alg) {
 }
 
 int Control::execute(int idThread) {
-	list<HeuristicListener*>::iterator listener_iterator;
 	vector<Problem*> *newSoluctions = NULL;
 	HeuristicListener *listener = NULL;
 	pair<int, int> *insertion = NULL;
@@ -185,15 +180,15 @@ int Control::execute(int idThread) {
 
 	pthread_mutex_lock(&mutex_info);
 	{
-		algorithm = selectRouletteWheel(heuristics, Heuristic::heuristicsAvailable);
+		algorithm = selectRouletteWheel(heuristics, Heuristic::heuristicsProbabilitySum);
 		listener = new HeuristicListener(algorithm, idThread);
 
 		runningThreads++;
 
-		listener_iterator = executedHeuristics->insert(executedHeuristics->begin(), listener);
-		runningHeuristics->push_back(listener_iterator);
+		Heuristic::executedHeuristics->push_back(listener);
+		Heuristic::runningHeuristics->push_back(listener);
 
-		Control::printProgress(listener->threadInfo, insertion);
+		Control::printProgress(listener, insertion);
 	}
 	pthread_mutex_unlock(&mutex_info);
 
@@ -222,11 +217,10 @@ int Control::execute(int idThread) {
 	{
 		runningThreads--;
 
-		list<list<HeuristicListener*>::iterator>::iterator exec = find(runningHeuristics->begin(), runningHeuristics->end(), listener_iterator);
+		list<HeuristicListener*>::iterator executed = find(Heuristic::runningHeuristics->begin(), Heuristic::runningHeuristics->end(), listener);
+		Heuristic::runningHeuristics->erase(executed);
 
-		runningHeuristics->erase(exec);
-
-		Control::printProgress(listener->threadInfo, insertion);
+		Control::printProgress(listener, insertion);
 	}
 	pthread_mutex_unlock(&mutex_info);
 
@@ -542,7 +536,7 @@ void Control::run() {
 	}
 
 	if (STATUS == EXECUTING)
-		STATUS = (executionCount == iterations && (int) executedHeuristics->size() == iterations) ? FINISHED_NORMALLY : INCOMPLETE;
+		STATUS = (executionCount == iterations && (int) Heuristic::executedHeuristics->size() == iterations) ? FINISHED_NORMALLY : INCOMPLETE;
 
 	pthread_join(threadManagement, NULL);
 
@@ -733,20 +727,18 @@ list<Problem*>::iterator Control::findSolution(list<Problem*> *vect, Problem *p)
 	return iter;
 }
 
-void Control::printProgress(char *threadInfo, pair<int, int> *insertion) {
+void Control::printProgress(HeuristicListener *heuristic, pair<int, int> *insertion) {
 	if (instance->showTextOverview) {
-		string execNames = "";
+		string execNames;
 		string color;
 
-		for (list<list<HeuristicListener*>::iterator>::iterator it = runningHeuristics->begin(); it != runningHeuristics->end(); it++) {
-			execNames.append((**it)->threadInfo).append(1, ' ');
-		}
+		execNames = Heuristic::getRunningHeuristics();
 
 		if (insertion == NULL) {
-			snprintf(Control::buffer, BUFFER_SIZE, "%.3ld >>> ALG: %s | ........................................... | QUEUE (%d): %s", instance->executionCount, threadInfo, runningThreads, execNames.c_str());
+			snprintf(Control::buffer, BUFFER_SIZE, ">>> {%.3ld} ALG: %s | ........................................... | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, runningThreads, execNames.c_str());
 			color = COLOR_GREEN;
 		} else {
-			snprintf(Control::buffer, BUFFER_SIZE, "%.3ld <<< ALG: %s | FITNESS: %.6ld::%.6ld | CONTRIB: %.3d::%.3d | QUEUE (%d): %s", instance->executionCount, threadInfo, (long) Problem::best, (long) Problem::worst, insertion->first, insertion->second, runningThreads, execNames.c_str());
+			snprintf(Control::buffer, BUFFER_SIZE, "<<< {%.3ld} ALG: %s | FITNESS: %.6ld::%.6ld | CONTRIB: %.3d::%.3d | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, (long) Problem::best, (long) Problem::worst, insertion->first, insertion->second, runningThreads, execNames.c_str());
 			color = COLOR_YELLOW;
 		}
 
@@ -849,15 +841,15 @@ void Control::display() {
 
 		pthread_mutex_lock(&mutex_info);
 		{
-			for (list<list<HeuristicListener*>::iterator>::iterator iter = runningHeuristics->begin(); iter != runningHeuristics->end() && STATUS == EXECUTING; iter++) {
+			for (list<HeuristicListener*>::const_iterator iter = Heuristic::runningHeuristics->cbegin(); iter != Heuristic::runningHeuristics->cend() && STATUS == EXECUTING; iter++) {
 				glColor3f(1.0f, 0.0f, 0.0f);
-				Control::drawstr(coluna, linha + 0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (**iter)->threadInfo, (**iter)->status);
+				Control::drawstr(coluna, linha + 0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (*iter)->heuristicInfo, (*iter)->status);
 
 				glColor3f(0.0f, 1.0f, 0.0f);
-				Control::drawstr(coluna, linha + 0.2, GLUT_BITMAP_HELVETICA_12, "Best Initial Solution: %.0f\t | \tBest Current Solution: %.0f\n\n", (**iter)->bestInitialFitness, (**iter)->bestActualFitness);
+				Control::drawstr(coluna, linha + 0.2, GLUT_BITMAP_HELVETICA_12, "Best Initial Solution: %.0f\t | \tBest Current Solution: %.0f\n\n", (*iter)->bestInitialFitness, (*iter)->bestActualFitness);
 
 				glColor3f(0.0f, 0.0f, 1.0f);
-				Control::drawstr(coluna, linha, GLUT_BITMAP_9_BY_15, (**iter)->getInfo());
+				Control::drawstr(coluna, linha, GLUT_BITMAP_9_BY_15, (*iter)->execInfo);
 
 				coluna += 3.4;
 
@@ -905,8 +897,9 @@ void Control::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, const char *form
 			return;
 		}
 
-		if (format == NULL)
+		if (format == NULL) {
 			return;
+		}
 
 		va_list args;
 		char buffer[512], *s;
@@ -917,17 +910,29 @@ void Control::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, const char *form
 
 		glRasterPos2f(x, y);
 
-		for (s = buffer; *s; s++)
+		for (s = buffer; *s; s++) {
 			glutBitmapCharacter(font_style, *s);
+		}
 	} catch (...) {
 		cerr << endl << "Error On (drawstr) Function!" << endl;
 	}
 }
 
+inline string Heuristic::getHeuristicNames(list<HeuristicListener*> *heuristicsList) {
+	string executedNames;
+
+	for (list<HeuristicListener*>::const_iterator it = heuristicsList->cbegin(); it != heuristicsList->cend(); it++) {
+		executedNames.append((*it)->heuristicInfo).push_back(' ');
+	}
+	if (executedNames.size() > 0) {
+		executedNames.pop_back();
+	}
+
+	return executedNames;
+}
+
 Control *Control::instance = NULL;
 
-list<HeuristicListener*> *Control::executedHeuristics = NULL;
-list<list<HeuristicListener*>::iterator> *Control::runningHeuristics = NULL;
 int Control::runningThreads = 0;
 
 ProgressBar *Control::executionProgressBar = NULL;
@@ -936,4 +941,6 @@ char Control::buffer[BUFFER_SIZE];
 int *Control::argc = NULL;
 char **Control::argv = NULL;
 
-int Heuristic::heuristicsAvailable = 0;
+int Heuristic::heuristicsProbabilitySum = 0;
+list<HeuristicListener*> *Heuristic::runningHeuristics = new list<HeuristicListener*>;
+list<HeuristicListener*> *Heuristic::executedHeuristics = new list<HeuristicListener*>;

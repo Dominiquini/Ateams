@@ -39,8 +39,7 @@ int main(int argc, char *argv[]) {
 	} catch (...) {
 		exception_ptr exception = current_exception();
 
-		cout << endl << "Error During Execution: ";
-		cerr << getExceptionMessage(exception) << endl << endl;
+		cerr << endl << COLOR_RED << "Error During Execution: " << getExceptionMessage(exception) << COLOR_DEFAULT << endl << endl;
 
 		exit(1);
 	}
@@ -73,6 +72,8 @@ void SignalHandler(int signal) {
 				break;
 		}
 	} else {
+		cerr << endl << endl << COLOR_RED << "Aborting..." << COLOR_DEFAULT << endl;
+
 		exit(1);
 	}
 }
