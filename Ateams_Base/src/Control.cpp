@@ -27,21 +27,9 @@ Control* Control::getInstance(int argc, char **argv) {
 
 	instance->readMainCMDParameters();
 
-	XMLPlatformUtils::Initialize();
-
-	SAX2XMLReader *parser = XMLReaderFactory::createXMLReader();
-	parser->setFeature(XMLUni::fgSAX2CoreValidation, true);
-	parser->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
-
-	DefaultHandler *defaultHandler = instance;
-	parser->setContentHandler(defaultHandler);
-	parser->setErrorHandler(defaultHandler);
-
-	parser->parse(instance->getInputParameters());
-
+	XMLParser *parser = new XMLParser(instance);
+	parser->parseXML(instance->getInputParameters());
 	delete parser;
-
-	XMLPlatformUtils::Terminate();
 
 	instance->readAdditionalCMDParameters();
 
@@ -59,11 +47,14 @@ void Control::terminate() {
 }
 
 Control::Control() {
-	this->heuristics = NULL;
-	this->solutions = NULL;
+	this->solutions = new set<Problem*, bool (*)(Problem*, Problem*)>(fnSortSolution);
+
+	this->heuristics = new vector<Heuristic*>();
+
+	this->loadingProgressBar = NULL;
+	this->executionProgressBar = NULL;
 
 	this->populationSize = 500;
-	this->comparatorMode = 1;
 	this->iterations = 250;
 	this->attemptsWithoutImprovement = 100;
 	this->maxExecutionTime = 3600;
@@ -81,9 +72,7 @@ Control::Control() {
 }
 
 Control::~Control() {
-	set<Problem*, bool (*)(Problem*, Problem*)>::iterator iter;
-
-	for (iter = solutions->begin(); iter != solutions->end(); iter++)
+	for (set<Problem*, bool (*)(Problem*, Problem*)>::iterator iter = solutions->begin(); iter != solutions->end(); iter++)
 		delete *iter;
 
 	solutions->clear();
@@ -108,67 +97,6 @@ Control::~Control() {
 	int window = glutGetWindow();
 	if (window != 0)
 		glutDestroyWindow(window);
-}
-
-void Control::startElement(const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) {
-	char *element = XMLString::transcode(localname);
-
-	if (strcasecmp(element, "Controller") == 0) {
-		char *parameter = NULL;
-		char *value = NULL;
-
-		for (unsigned int ix = 0; ix < attrs.getLength(); ++ix) {
-			parameter = XMLString::transcode(attrs.getQName(ix));
-			value = XMLString::transcode(attrs.getValue(ix));
-
-			if (!setParameter(parameter, value)) {
-				throw string("Invalid Parameter: ").append(parameter);
-			}
-
-			XMLString::release(&parameter);
-			XMLString::release(&value);
-		}
-	} else if (strcasecmp(element, "Heuristics") == 0) {
-		heuristics = new vector<Heuristic*>();
-	} else {
-		Heuristic *newHeuristic = NULL;
-
-		if (strcasecmp(element, "SimulatedAnnealing") == 0)
-			newHeuristic = new SimulatedAnnealing();
-
-		if (strcasecmp(element, "TabuSearch") == 0)
-			newHeuristic = new TabuSearch();
-
-		if (strcasecmp(element, "GeneticAlgorithm") == 0)
-			newHeuristic = new GeneticAlgorithm();
-
-		if (newHeuristic != NULL) {
-			char *parameter = NULL;
-			char *value = NULL;
-
-			for (unsigned int ix = 0; ix < attrs.getLength(); ++ix) {
-				parameter = XMLString::transcode(attrs.getQName(ix));
-				value = XMLString::transcode(attrs.getValue(ix));
-
-				if (!newHeuristic->setParameter(parameter, value)) {
-					throw string("Invalid Parameter: ").append(parameter);
-				}
-
-				XMLString::release(&parameter);
-				XMLString::release(&value);
-			}
-
-			addHeuristic(newHeuristic);
-		}
-	}
-
-	XMLString::release(&element);
-}
-
-void Control::addHeuristic(Heuristic *alg) {
-	heuristics->push_back(alg);
-
-	sort(heuristics->begin(), heuristics->end(), Heuristic::comparator);
 }
 
 int Control::execute(int idThread) {
@@ -267,7 +195,7 @@ pair<int, int>* Control::addSolutions(vector<Problem*> *news) {
 void Control::generatePopulation(list<Problem*> *popInicial) {
 	cout << endl;
 
-	ProgressBar loadingProgressBar(populationSize, "LOADING: ");
+	loadingProgressBar->init();
 
 	if (popInicial != NULL) {
 		for (list<Problem*>::iterator iter = popInicial->begin(); iter != popInicial->end(); iter++) {
@@ -277,7 +205,7 @@ void Control::generatePopulation(list<Problem*> *popInicial) {
 		}
 	}
 
-	loadingProgressBar.update(solutions->size());
+	loadingProgressBar->update(solutions->size());
 
 	Problem *soluction = NULL;
 	unsigned long int limit = pow(populationSize, 3), failedAttempts = 0;
@@ -291,8 +219,10 @@ void Control::generatePopulation(list<Problem*> *popInicial) {
 			delete soluction;
 		}
 
-		loadingProgressBar.update(solutions->size());
+		loadingProgressBar->update(solutions->size());
 	}
+
+	loadingProgressBar->end();
 
 	cout << endl;
 
@@ -390,28 +320,6 @@ inline void Control::readAdditionalCMDParameters() {
 		setParameter("bestKnownFitness", argv[p]);
 }
 
-inline bool Control::setParameter(const char *parameter, const char *value) {
-	int read = EOF;
-
-	if (strcasecmp(parameter, "iterations") == 0) {
-		read = sscanf(value, "%d", &iterations);
-	} else if (strcasecmp(parameter, "attemptsWithoutImprovement") == 0) {
-		read = sscanf(value, "%d", &attemptsWithoutImprovement);
-	} else if (strcasecmp(parameter, "maxExecutionTime") == 0) {
-		read = sscanf(value, "%d", &maxExecutionTime);
-	} else if (strcasecmp(parameter, "numThreads") == 0) {
-		read = sscanf(value, "%d", &numThreads);
-	} else if (strcasecmp(parameter, "populationSizeAteams") == 0) {
-		read = sscanf(value, "%d", &populationSize);
-	} else if (strcasecmp(parameter, "comparatorMode") == 0) {
-		read = sscanf(value, "%d", &comparatorMode);
-	} else if (strcasecmp(parameter, "bestKnownFitness") == 0) {
-		read = sscanf(value, "%d", &bestKnownFitness);
-	}
-
-	return read != EOF;
-}
-
 inline void Control::setPrintFullSolution(bool fullPrint) {
 	this->printFullSolution = fullPrint;
 }
@@ -435,8 +343,8 @@ void Control::init() {
 
 	sem_init(&semaphore, 0, numThreads);
 
-	bool (*fn_pt)(Problem*, Problem*) = comparatorMode == 1 ? fncomp1 : fncomp2;
-	solutions = new set<Problem*, bool (*)(Problem*, Problem*)>(fn_pt);
+	this->loadingProgressBar = new ProgressBar(populationSize, "LOADING: ");
+	this->executionProgressBar = new ProgressBar(iterations, "EXECUTING: ");
 
 	/* Leitura dos dados passados por arquivos */
 	Problem::readProblemFromFile(getInputDataFile());
@@ -455,17 +363,13 @@ void Control::init() {
 
 	cout << endl << "Population Size: : " << solutions->size() << endl;
 	cout << endl << "Worst Initial Solution: " << Problem::worst << endl;
-	cout << endl << "Best Initial Solution: " << Problem::best << endl << endl;
+	cout << endl << "Best Initial Solution: " << Problem::best << endl;
 
-	cout << COLOR_DEFAULT;
+	cout << endl << COLOR_DEFAULT;
 }
 
 void Control::finish() {
-	if (!showTextOverview) {
-		cout << endl;
-	}
-
-	cout << COLOR_CYAN;
+	cout << endl << COLOR_CYAN;
 
 	cout << endl << "Worst Final Solution: " << Problem::worst << endl;
 	cout << endl << "Best Final Solution: " << Problem::best << endl;
@@ -481,6 +385,15 @@ void Control::finish() {
 	Problem::writeResultInFile(getInputDataFile(), getInputParameters(), getExecutionInfo(), getOutputResultFile());
 
 	delete finalSolutions;
+
+	/* Testa a memoria principal por solucoes repetidas ou fora de ordem */
+	for (set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter1 = solutions->begin(); iter1 != solutions->end(); iter1++)
+		for (set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter2 = iter1; iter2 != solutions->end(); iter2++)
+			if ((iter1 != iter2) && (fnEqualSolution(*iter1, *iter2) || fnSortSolution(*iter2, *iter1)))
+				throw "Incorrect Main Memory!";
+
+	delete loadingProgressBar;
+	delete executionProgressBar;
 
 	sem_destroy(&semaphore);
 
@@ -507,25 +420,22 @@ void Control::run() {
 	pthread_attr_init(&attrDetached);
 	pthread_attr_setdetachstate(&attrDetached, PTHREAD_CREATE_DETACHED);
 
-	Control::executionProgressBar = new ProgressBar(iterations, "EXECUTING: ");
+	executionProgressBar->init();
 
 	if (solutions->size() == 0)
 		throw "No Initial Solution Found!";
 
-	pair<int, Control*> *threadInput = NULL;
-
 	if (showGraphicalOverview) {
-		if (pthread_create(&threadAnimation, &attrDetached, pthrAnimation, NULL) != 0)
+		if (pthread_create(&threadAnimation, &attrDetached, Control::pthrAnimation, NULL) != 0)
 			throw "Thread Creation Error! (pthrAnimation)";
 	}
 
-	if (pthread_create(&threadManagement, &attrJoinable, pthrManagement, (void*) this) != 0)
+	if (pthread_create(&threadManagement, &attrJoinable, Control::pthrManagement, NULL) != 0)
 		throw "Thread Creation Error! (pthrManagement)";
 
 	for (int execAteams = 0; execAteams < iterations; execAteams++) {
-		threadInput = new pair<int, Control*>(execAteams + 1, this);
-
-		if (pthread_create(&threads[execAteams], &attrJoinable, pthrExecution, (void*) threadInput) != 0)
+		int iteration = execAteams + 1;
+		if (pthread_create(&threads[execAteams], &attrJoinable, Control::pthrExecution, (void*) &iteration) != 0)
 			throw "Thread Creation Error! (pthrExecution)";
 	}
 
@@ -545,7 +455,11 @@ void Control::run() {
 	pthread_attr_destroy(&attrJoinable);
 	pthread_attr_destroy(&attrDetached);
 
-	delete Control::executionProgressBar;
+	executionProgressBar->end();
+
+	if (showTextOverview) {
+		cout << PREVIOUS_LINE << flush;
+	}
 
 	time(&endTime);
 }
@@ -566,15 +480,6 @@ Problem* Control::getSolution(int n) {
 	return *iter;
 }
 
-void Control::checkSolutions() {
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter1, iter2;
-
-	for (iter1 = solutions->begin(); iter1 != solutions->end(); iter1++)
-		for (iter2 = iter1; iter2 != solutions->end(); iter2++)
-			if ((iter1 != iter2) && (fnequal1(*iter1, *iter2) || fncomp1(*iter2, *iter1)))
-				throw "Incorrect Main Memory!";
-}
-
 ExecutionInfo Control::getExecutionInfo() {
 	ExecutionInfo info;
 
@@ -588,14 +493,14 @@ ExecutionInfo Control::getExecutionInfo() {
 	return info;
 }
 
-void Control::printSolution(bool fullSolution) {
+void Control::printSolution() {
 	Problem *solution = getSolution(0);
 
 	cout << COLOR_MAGENTA;
 
 	cout << endl << endl << "Best Solution: " << solution->getFitness() << endl << endl;
 
-	solution->print(fullSolution || printFullSolution);
+	solution->print(printFullSolution);
 
 	cout << COLOR_DEFAULT;
 }
@@ -613,6 +518,32 @@ void Control::printExecution() {
 	}
 
 	cout << COLOR_DEFAULT;
+}
+
+bool Control::setParameter(const char *parameter, const char *value) {
+	int read = EOF;
+
+	if (strcasecmp(parameter, "iterations") == 0) {
+		read = sscanf(value, "%d", &iterations);
+	} else if (strcasecmp(parameter, "attemptsWithoutImprovement") == 0) {
+		read = sscanf(value, "%d", &attemptsWithoutImprovement);
+	} else if (strcasecmp(parameter, "maxExecutionTime") == 0) {
+		read = sscanf(value, "%d", &maxExecutionTime);
+	} else if (strcasecmp(parameter, "numThreads") == 0) {
+		read = sscanf(value, "%d", &numThreads);
+	} else if (strcasecmp(parameter, "populationSizeAteams") == 0) {
+		read = sscanf(value, "%d", &populationSize);
+	} else if (strcasecmp(parameter, "bestKnownFitness") == 0) {
+		read = sscanf(value, "%d", &bestKnownFitness);
+	}
+
+	return read != EOF;
+}
+
+void Control::addHeuristic(Heuristic *alg) {
+	heuristics->push_back(alg);
+
+	sort(heuristics->begin(), heuristics->end(), Heuristic::comparator);
 }
 
 double Control::sumFitnessMaximize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n) {
@@ -721,7 +652,7 @@ list<Problem*>::iterator Control::findSolution(list<Problem*> *vect, Problem *p)
 	list<Problem*>::iterator iter;
 
 	for (iter = vect->begin(); iter != vect->end(); iter++)
-		if (fnequal1((*iter), p))
+		if (fnEqualSolution((*iter), p))
 			return iter;
 
 	return iter;
@@ -744,53 +675,50 @@ void Control::printProgress(HeuristicListener *heuristic, pair<int, int> *insert
 
 		cout << color << Control::buffer << COLOR_DEFAULT << endl << flush;
 	} else {
-		Control::executionProgressBar->update(instance->executionCount);
+		instance->executionProgressBar->update(instance->executionCount);
 	}
 }
 
-void* Control::pthrExecution(void *obj) {
-	pair<int, Control*> *in = (pair<int, Control*>*) obj;
-	int execAteams = in->first;
-	Control *ctr = in->second;
+void* Control::pthrExecution(void *iteration) {
+	Control *ctrl = Control::instance;
+	int iterationAteams = *(int*) iteration;
 	uintptr_t inserted = 0;
-
-	delete in;
 
 	sem_wait(&semaphore);
 
 	if (STATUS == EXECUTING) {
-		inserted = ctr->execute(execAteams);
+		inserted = ctrl->execute(iterationAteams);
 	}
 
 	sem_post(&semaphore);
 
-	return (void*) inserted; //	pthread_exit((void*)ins);
+	pthread_return(inserted);
 }
 
-void* Control::pthrManagement(void *obj) {
-	Control *ctr = (Control*) obj;
+void* Control::pthrManagement(void *_) {
+	Control *ctrl = Control::instance;
 	time_t rawtime;
 
 	while (STATUS == EXECUTING) {
 		time(&rawtime);
 
-		if ((int) difftime(rawtime, ctr->startTime) > ctr->maxExecutionTime)
+		if ((int) difftime(rawtime, ctrl->startTime) > ctrl->maxExecutionTime)
 			STATUS = EXECUTION_TIMEOUT;
 
-		if (ctr->lastImprovedIteration > ctr->attemptsWithoutImprovement)
+		if (ctrl->attemptsWithoutImprovement != -1 && ctrl->lastImprovedIteration > ctrl->attemptsWithoutImprovement)
 			STATUS = LACK_OF_IMPROVEMENT;
 
-		if ((ctr->bestKnownFitness != -1 ? Problem::improvement(ctr->bestKnownFitness, Problem::best) : -1) >= 0)
+		if ((ctrl->bestKnownFitness != -1 ? Problem::improvement(ctrl->bestKnownFitness, Problem::best) : -1) >= 0)
 			STATUS = RESULT_ACHIEVED;
 
 		sleep_for(chrono::milliseconds(THREAD_TIME_CONTROL_INTERVAL));
 	}
 
-	return NULL;			//	pthread_exit(NULL);
+	pthread_return(NULL);
 }
 
-void* Control::pthrAnimation(void *in) {
-	try {
+void* Control::pthrAnimation(void *_) {
+	if (STATUS == EXECUTING) {
 		/* Cria a tela */
 		glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 		glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -811,110 +739,103 @@ void* Control::pthrAnimation(void *in) {
 		glEnable(GL_BLEND);
 		glLineWidth(2.0);
 
-		/* Loop principal do programa */
+		/* Inicia loop principal da janela de informações */
 		glutMainLoop();
-	} catch (...) {
-		cerr << endl << "Error On (pthrAnimation) Thread!" << endl;
+	} else {
+		/* Finaliza loop principal da janela de informações */
+		glutLeaveMainLoop();
 	}
 
-	return NULL;			//	pthread_exit(NULL);
+	pthread_return(NULL);
 }
 
 void Control::display() {
-	try {
-		if (glutGetWindow() == 0) {
-			return;
-		}
+	if (glutGetWindow() == 0) {
+		return;
+	}
 
-		/* Limpa buffer */
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	/* Limpa buffer */
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		/* Reinicia o sistema de coordenadas */
-		glLoadIdentity();
+	/* Reinicia o sistema de coordenadas */
+	glLoadIdentity();
 
-		/* Restaura a posicao da camera */
-		gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
+	/* Restaura a posicao da camera */
+	gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
 
-		/* Desenha as informacoes na tela */
-		float linha = 1.4;
-		float coluna = -5;
+	/* Desenha as informacoes na tela */
+	float linha = 1.4;
+	float coluna = -5;
 
-		pthread_mutex_lock(&mutex_info);
-		{
-			for (list<HeuristicListener*>::const_iterator iter = Heuristic::runningHeuristics->cbegin(); iter != Heuristic::runningHeuristics->cend() && STATUS == EXECUTING; iter++) {
-				glColor3f(1.0f, 0.0f, 0.0f);
-				Control::drawstr(coluna, linha + 0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (*iter)->heuristicInfo, (*iter)->status);
+	pthread_mutex_lock(&mutex_info);
+	{
+		for (list<HeuristicListener*>::const_iterator iter = Heuristic::runningHeuristics->cbegin(); iter != Heuristic::runningHeuristics->cend() && STATUS == EXECUTING; iter++) {
+			glColor3f(1.0f, 0.0f, 0.0f);
+			Control::drawstr(coluna, linha + 0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (*iter)->heuristicInfo, (*iter)->status);
 
-				glColor3f(0.0f, 1.0f, 0.0f);
-				Control::drawstr(coluna, linha + 0.2, GLUT_BITMAP_HELVETICA_12, "Best Initial Solution: %.0f\t | \tBest Current Solution: %.0f\n\n", (*iter)->bestInitialFitness, (*iter)->bestActualFitness);
+			glColor3f(0.0f, 1.0f, 0.0f);
+			Control::drawstr(coluna, linha + 0.2, GLUT_BITMAP_HELVETICA_12, "Best Initial Solution: %.0f\t | \tBest Current Solution: %.0f\n\n", (*iter)->bestInitialFitness, (*iter)->bestActualFitness);
 
-				glColor3f(0.0f, 0.0f, 1.0f);
-				Control::drawstr(coluna, linha, GLUT_BITMAP_9_BY_15, (*iter)->execInfo);
+			glColor3f(0.0f, 0.0f, 1.0f);
+			Control::drawstr(coluna, linha, GLUT_BITMAP_9_BY_15, (*iter)->execInfo);
 
-				coluna += 3.4;
+			coluna += 3.4;
 
-				if (coluna > 1.8) {
-					coluna = -5;
-					linha -= 1;
-				}
+			if (coluna > 1.8) {
+				coluna = -5;
+				linha -= 1;
 			}
 		}
-		pthread_mutex_unlock(&mutex_info);
-
-		glutSwapBuffers();
-
-		sleep_for(chrono::milliseconds(WINDOW_ANIMATION_UPDATE_INTERVAL));
-	} catch (...) {
-		cerr << endl << "Error On (display) Function!" << endl;
 	}
+	pthread_mutex_unlock(&mutex_info);
+
+	glutSwapBuffers();
+
+	if (STATUS != EXECUTING) {
+		Control::pthrAnimation(NULL);
+	}
+
+	sleep_for(chrono::milliseconds(WINDOW_ANIMATION_UPDATE_INTERVAL));
 }
 
 void Control::reshape(GLint width, GLint height) {
-	try {
-		if (glutGetWindow() == 0) {
-			return;
-		}
-
-		glutReshapeWindow(WINDOW_WIDTH, WINDOW_HEIGHT);
-
-		glViewport(0, 0, width, height);
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluPerspective(45.0, (float) width / height, 0.025, 25.0);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
-	} catch (...) {
-		cerr << endl << "Error On (reshape) Function!" << endl;
+	if (glutGetWindow() == 0) {
+		return;
 	}
+
+	glutReshapeWindow(WINDOW_WIDTH, WINDOW_HEIGHT);
+
+	glViewport(0, 0, width, height);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(45.0, (float) width / height, 0.025, 25.0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
 }
 
 void Control::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, const char *format, ...) {
-	try {
-		if (glutGetWindow() == 0) {
-			return;
-		}
+	if (glutGetWindow() == 0) {
+		return;
+	}
 
-		if (format == NULL) {
-			return;
-		}
+	if (format == NULL) {
+		return;
+	}
 
-		va_list args;
-		char buffer[512], *s;
+	va_list args;
+	char buffer[512], *s;
 
-		va_start(args, format);
-		vsprintf(buffer, format, args);
-		va_end(args);
+	va_start(args, format);
+	vsprintf(buffer, format, args);
+	va_end(args);
 
-		glRasterPos2f(x, y);
+	glRasterPos2f(x, y);
 
-		for (s = buffer; *s; s++) {
-			glutBitmapCharacter(font_style, *s);
-		}
-	} catch (...) {
-		cerr << endl << "Error On (drawstr) Function!" << endl;
+	for (s = buffer; *s; s++) {
+		glutBitmapCharacter(font_style, *s);
 	}
 }
 
@@ -935,7 +856,6 @@ Control *Control::instance = NULL;
 
 int Control::runningThreads = 0;
 
-ProgressBar *Control::executionProgressBar = NULL;
 char Control::buffer[BUFFER_SIZE];
 
 int *Control::argc = NULL;

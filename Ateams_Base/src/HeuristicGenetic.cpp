@@ -76,7 +76,7 @@ vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Probl
 		}
 	}
 
-	sort(popAG->begin(), popAG->end(), fncomp2);
+	sort(popAG->begin(), popAG->end(), fnSortFitness);
 
 	pthread_mutex_unlock(&mutex_pop);
 
@@ -217,7 +217,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicListene
 		filhos->clear();
 
 		/* Ordena a antiga populacao dos pais */
-		sort(aux_pop->begin(), aux_pop->end(), fncomp2);
+		sort(aux_pop->begin(), aux_pop->end(), fnSortFitness);
 
 		/* Selecao dos melhores */
 		for (iterProb = aux_pop->begin(); iterProb != aux_pop->end(); iterProb++) {
@@ -229,7 +229,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicListene
 
 		aux_pop->clear();
 
-		sort(pop->begin(), pop->end(), fncomp2);
+		sort(pop->begin(), pop->end(), fnSortFitness);
 
 		/* Mantem a populacao auxiliar sob controle */
 		random_shuffle(bad_pop->begin(), bad_pop->end(), pointer_to_unary_function<int, int>(xRand));

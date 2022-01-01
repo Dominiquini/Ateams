@@ -29,11 +29,9 @@ int main(int argc, char *argv[]) {
 
 		ctrl->finish();
 
-		ctrl->printSolution(false);
+		ctrl->printSolution();
 
 		ctrl->printExecution();
-
-		ctrl->checkSolutions();
 
 		Control::terminate();
 	} catch (...) {

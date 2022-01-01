@@ -1,15 +1,13 @@
-#include <GL/freeglut.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <semaphore.h>
+#include <pthread.h>
 #include <stdarg.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <math.h>
-
-#include <pthread.h>
-#include <semaphore.h>
 
 #include <functional>
 #include <exception>
@@ -61,6 +59,8 @@ static default_random_engine randomEngine(std::chrono::high_resolution_clock::no
 #define COLOR_CYAN "[36m"
 #define COLOR_WHITE "[37m"
 #define COLOR_DEFAULT "[39m"
+
+#define PREVIOUS_LINE "\033[F"
 
 enum TerminationInfo {
 	EXECUTING, FINISHED_NORMALLY, INCOMPLETE, USER_SIGNALED, EXECUTION_TIMEOUT, LACK_OF_IMPROVEMENT, RESULT_ACHIEVED
@@ -120,10 +120,9 @@ public:
 
 	ProgressBar(int maxProgress, string label, string color, int progressBarLength) {
 		this->label = label;
+		this->color = color;
 		this->maxProgress = maxProgress;
 		this->progressBarLength = progressBarLength - label.size();
-
-		cout << endl << color;
 
 		reset();
 	}
@@ -132,8 +131,6 @@ public:
 	ProgressBar(int maxProgress) : ProgressBar(maxProgress, "", DEFAULT_PROGRESS_COLOR, DEFAULT_PROGRESS_SIZE) {
 	}
 	~ProgressBar() {
-		cout << endl << COLOR_DEFAULT;
-
 		reset();
 	}
 
@@ -141,6 +138,14 @@ public:
 		this->currentProgress = 0;
 		this->amountOfFiller = 0;
 		this->currUpdateVal = 0;
+	}
+
+	void init() {
+		cout << endl << color;
+	}
+
+	void end() {
+		cout << endl << COLOR_DEFAULT;
 	}
 
 	void update(int newProgress) {
@@ -181,6 +186,7 @@ private:
 	const string firstPartOfpBar = "[", lastPartOfpBar = "]", pBarFiller = "|", pBarUpdater = "|";
 
 	string label;
+	string color;
 	int maxProgress;
 	int progressBarLength;
 

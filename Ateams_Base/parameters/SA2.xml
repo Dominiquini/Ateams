@@ -7,7 +7,6 @@
    maxExecutionTime = "3600"
    numThreads = "8"
    populationSizeAteams = "500"
-   comparatorMode = "1"
    bestKnownFitness = "-1">
 
   <Heuristics>

@@ -9,7 +9,7 @@ using namespace std;
 #define _FlowShop_
 
 class Solution_FlowShop: public Solution {
-private:
+protected:
 
 	short int *scaling;			// Solucao
 	short int ***staggering;	// Escalonamento nas maquinas - Grafico de Gant
@@ -17,10 +17,10 @@ private:
 	friend class Problem;
 	friend class FlowShop;
 
-	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
-	friend bool fnequal2(Problem*, Problem*);	// Comparacao superficial
-	friend bool fncomp1(Problem*, Problem*);	// Comparacao profunda
-	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
+	friend bool fnEqualSolution(Problem*, Problem*);	// Comparacao profunda
+	friend bool fnEqualFitness(Problem*, Problem*);		// Comparacao superficial
+	friend bool fnSortSolution(Problem*, Problem*);		// Comparacao profunda
+	friend bool fnSortFitness(Problem*, Problem*);		// Comparacao superficial
 };
 
 class InfoTabu_FlowShop: public InfoTabu {
@@ -46,17 +46,7 @@ public:
 };
 
 class FlowShop: public Problem {
-private:
-
-	bool calcFitness() override;		// Calcula o makespan
-
-	Solution getSolution() override {	// Retorna solucao
-		return solution;
-	}
-
-	Solution_FlowShop solution;			// Representacao interna da solucao
-
-public:
+protected:
 
 	static char name[128];				// Nome do problema
 
@@ -65,12 +55,22 @@ public:
 
 	static int neighbors;				// Numero de permutacoes possiveis
 
+	Solution_FlowShop solution;			// Representacao interna da solucao
+
+public:
+
 	FlowShop();											// Nova solucao aleatoria
 	FlowShop(short int *prob);							// Copia de prob
 	FlowShop(const Problem &prob);						// Copia de prob
 	FlowShop(const Problem &prob, int pos1, int pos2);	// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
 	~FlowShop();
+
+	bool calcFitness() override;		// Calcula o makespan
+
+	Solution getSolution() override {	// Retorna solucao
+		return solution;
+	}
 
 	void print(bool esc);		// Imprime o escalonamento atual
 
@@ -97,16 +97,16 @@ public:
 		return solution;
 	}
 
-	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
-	friend bool fnequal2(Problem*, Problem*);	// Comparacao superficial
-	friend bool fncomp1(Problem*, Problem*);	// Comparacao profunda
-	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
+	friend class Problem;
+
+	friend void swap_vect(short int *p1, short int *p2, short int *f, int pos, int tam);
+
+	friend bool fnEqualSolution(Problem*, Problem*);	// Comparacao profunda
+	friend bool fnEqualFitness(Problem*, Problem*);		// Comparacao superficial
+	friend bool fnSortSolution(Problem*, Problem*);		// Comparacao profunda
+	friend bool fnSortFitness(Problem*, Problem*);		// Comparacao superficial
 };
 
 void swap_vect(short int *p1, short int *p2, short int *f, int pos, int tam);
-
-bool ptcomp(pair<Problem*, InfoTabu*>*, pair<Problem*, InfoTabu*>*);
-
-bool find(vector<Problem*> *vect, Problem *p);
 
 #endif

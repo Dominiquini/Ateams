@@ -1,21 +1,15 @@
-#include <xercesc/sax2/XMLReaderFactory.hpp>
-#include <xercesc/sax2/DefaultHandler.hpp>
-#include <xercesc/sax2/SAX2XMLReader.hpp>
-#include <xercesc/sax2/Attributes.hpp>
-#include <xercesc/util/XercesDefs.hpp>
-#include <xercesc/util/XMLString.hpp>
+#include <GL/freeglut.h>
 
 #include "Ateams.hpp"
 
 using namespace this_thread;
-using namespace xercesc;
 using namespace std;
 
 #ifndef _CONTROL_
 #define _CONTROL_
 
 #include "Problem.hpp"
-
+#include "XMLParser.hpp"
 #include "Heuristic.hpp"
 #include "HeuristicTabu.hpp"
 #include "HeuristicGenetic.hpp"
@@ -28,6 +22,8 @@ using namespace std;
 #define WINDOW_ANIMATION_UPDATE_INTERVAL 100
 
 #define BUFFER_SIZE 4096
+
+#define pthread_return(VALUE) pthread_exit((void*) VALUE) ; return (void*) VALUE ;
 
 extern volatile TerminationInfo STATUS;
 
@@ -45,26 +41,26 @@ struct ExecutionInfo {
 	double bestFitness;
 };
 
-class Control: public DefaultHandler {
-
+class Control {
 private:
 	/* Instancia do controle */
 	static Control *instance;
 
 	static int runningThreads;											// Threads em execucao no momento
 
-	static ProgressBar *executionProgressBar;
+	ProgressBar *loadingProgressBar;
+	ProgressBar *executionProgressBar;
 
 	static char buffer[BUFFER_SIZE];
 
 	/* Funcao que executa em multiplas threads e retorna o numero de solucoes inseridas */
-	static void* pthrExecution(void *obj);
+	static void* pthrExecution(void *iteration);
 
 	/* Funcao que cotrola o tempo de execucao */
-	static void* pthrManagement(void *obj);
+	static void* pthrManagement(void *_);
 
 	/* Funcao que controla a tela de informacoes */
-	static void* pthrAnimation(void *in);
+	static void* pthrAnimation(void *_);
 
 	static void display();                                      		//Desenha a tela
 	static void reshape(GLint, GLint);                             	 	//Redesenha a tela
@@ -111,7 +107,6 @@ private:
 	int iterations; 					// Numero de iteracoes
 	int attemptsWithoutImprovement; 	// Tentativas sem melhora
 	int maxExecutionTime;				// Tempo maximo de execucao
-	int comparatorMode;					// Criterio de unicidade da populacao adotado
 
 	bool printFullSolution;				// Imprime melhor solucao
 
@@ -126,12 +121,6 @@ private:
 	Control();
 
 	~Control();
-
-	/* Parser do arquivo XML de configuracoes */
-	void startElement(const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs);
-
-	/* Adiciona uma heuristica ao conjunto de algoritmos disponiveis */
-	void addHeuristic(Heuristic *alg);
 
 	/* Seleciona um dos algoritmos implementados para executar */
 	int execute(int eID);
@@ -151,8 +140,6 @@ private:
 	/* Le parametros adicionais passados por linha de comando (Sobrepujam as lidas no arquivo de configuracao) */
 	void readAdditionalCMDParameters();
 
-	bool setParameter(const char *parameter, const char *value);
-
 	void setPrintFullSolution(bool fullPrint);
 
 	void setCMDStatusInfoScreen(bool showCMDOverview);
@@ -168,13 +155,16 @@ public:
 
 	list<Problem*>* getSolutions();				// Retorna a populacao da memoria principal
 	Problem* getSolution(int n);				// Retorna a solucao n da memoria principal
-	void checkSolutions();						// Testa a memoria principal por solucoes repetidas ou fora de ordem
 
 	ExecutionInfo getExecutionInfo();			// Retorna algumas informacoes da ultima execucao
 
-	void printSolution(bool fullSolution);
+	void printSolution();
 
 	void printExecution();
+
+	bool setParameter(const char *parameter, const char *value);
+
+	void addHeuristic(Heuristic *alg);
 
 	char* getInputDataFile() {
 		return inputDataFile;

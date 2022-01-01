@@ -8,8 +8,9 @@ ProblemType Problem::TYPE = MINIMIZATION;
 
 double Problem::best = 0;
 double Problem::worst = 0;
-int Problem::numInst = 0;
-long int Problem::totalNumInst = 0;
+
+unsigned int Problem::numInst = 0;
+unsigned long long Problem::totalNumInst = 0;
 
 char BinPacking::name[128];
 double *BinPacking::sizes = NULL, BinPacking::capacity = 0;
@@ -379,7 +380,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* BinPacking::localSearch() {
 	}
 
 	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(xRand));
-	sort(local->begin(), local->end(), ptcomp);
+	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
 }
@@ -412,7 +413,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* BinPacking::localSearch(float parcela
 		local->push_back(temp);
 	}
 
-	sort(local->begin(), local->end(), ptcomp);
+	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
 }
@@ -507,7 +508,7 @@ inline void swap_vect(short int *p1, short int *p2, short int *f, int pos, int t
 }
 
 // comparator function:
-bool fnequal1(Problem *prob1, Problem *prob2) {
+bool fnEqualSolution(Problem *prob1, Problem *prob2) {
 	BinPacking *p1 = dynamic_cast<BinPacking*>(prob1);
 	BinPacking *p2 = dynamic_cast<BinPacking*>(prob2);
 
@@ -522,7 +523,7 @@ bool fnequal1(Problem *prob1, Problem *prob2) {
 }
 
 // comparator function:
-bool fnequal2(Problem *prob1, Problem *prob2) {
+bool fnEqualFitness(Problem *prob1, Problem *prob2) {
 	BinPacking *p1 = dynamic_cast<BinPacking*>(prob1);
 	BinPacking *p2 = dynamic_cast<BinPacking*>(prob2);
 
@@ -530,7 +531,7 @@ bool fnequal2(Problem *prob1, Problem *prob2) {
 }
 
 // comparator function:
-bool fncomp1(Problem *prob1, Problem *prob2) {
+bool fnSortSolution(Problem *prob1, Problem *prob2) {
 	BinPacking *p1 = dynamic_cast<BinPacking*>(prob1);
 	BinPacking *p2 = dynamic_cast<BinPacking*>(prob2);
 
@@ -545,13 +546,9 @@ bool fncomp1(Problem *prob1, Problem *prob2) {
 }
 
 // comparator function:
-bool fncomp2(Problem *prob1, Problem *prob2) {
+bool fnSortFitness(Problem *prob1, Problem *prob2) {
 	BinPacking *p1 = dynamic_cast<BinPacking*>(prob1);
 	BinPacking *p2 = dynamic_cast<BinPacking*>(prob2);
 
 	return p1->solution.fitness < p2->solution.fitness;
-}
-
-inline bool ptcomp(pair<Problem*, InfoTabu*> *p1, pair<Problem*, InfoTabu*> *p2) {
-	return (p1->first->getFitness() > p2->first->getFitness());
 }

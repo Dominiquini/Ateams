@@ -8,12 +8,13 @@ ProblemType Problem::TYPE = MAXIMIZATION;
 
 double Problem::best = 0;
 double Problem::worst = 0;
-int Problem::numInst = 0;
-long int Problem::totalNumInst = 0;
+
+unsigned int Problem::numInst = 0;
+unsigned long long Problem::totalNumInst = 0;
 
 char KnapSack::name[128];
 double *KnapSack::values = NULL, **KnapSack::constraint = NULL, *KnapSack::limit = NULL;
-int KnapSack::nitens = 0, KnapSack::ncontraint = 0;
+int KnapSack::nitens = 0, KnapSack::ncontraints = 0;
 
 int KnapSack::neighbors = 0;
 
@@ -34,7 +35,7 @@ void Problem::readProblemFromFile(char *input) {
 	if (!fgets(KnapSack::name, 128, f))
 		throw "Wrong Data File!";
 
-	if (!fscanf(f, "%d %d %*d\n", &KnapSack::nitens, &KnapSack::ncontraint))
+	if (!fscanf(f, "%d %d %*d\n", &KnapSack::nitens, &KnapSack::ncontraints))
 		throw "Wrong Data File!";
 
 	Problem::allocateMemory();
@@ -44,9 +45,9 @@ void Problem::readProblemFromFile(char *input) {
 			throw "Wrong Data File!";
 	}
 
-	double **constraints = (double**) allocateMatrix<double>(2, KnapSack::ncontraint, KnapSack::nitens, 1);
+	double **constraints = (double**) allocateMatrix<double>(2, KnapSack::ncontraints, KnapSack::nitens, 1);
 
-	for (int i = 0; i < KnapSack::ncontraint; i++) {
+	for (int i = 0; i < KnapSack::ncontraints; i++) {
 		for (int j = 0; j < KnapSack::nitens; j++) {
 			if (!fscanf(f, "%lf", &constraints[i][j]))
 				throw "Wrong Data File!";
@@ -54,12 +55,12 @@ void Problem::readProblemFromFile(char *input) {
 	}
 
 	for (int i = 0; i < KnapSack::nitens; i++)
-		for (int j = 0; j < KnapSack::ncontraint; j++)
+		for (int j = 0; j < KnapSack::ncontraints; j++)
 			KnapSack::constraint[i][j] = constraints[j][i];
 
-	deallocateMatrix<double>(2, constraints, KnapSack::ncontraint, KnapSack::nitens);
+	deallocateMatrix<double>(2, constraints, KnapSack::ncontraints, KnapSack::nitens);
 
-	for (int i = 0; i < KnapSack::ncontraint; i++) {
+	for (int i = 0; i < KnapSack::ncontraints; i++) {
 		if (!fscanf(f, "%lf", &KnapSack::limit[i]))
 			throw "Wrong Data File!";
 	}
@@ -85,7 +86,7 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 		if (!fscanf(f, "%d %d %d %s\n", &npop, &nitens, &nconstraint, format_type))
 			throw "Wrong Log File!";
 
-		if (nitens != KnapSack::nitens || nconstraint != KnapSack::ncontraint)
+		if (nitens != KnapSack::nitens || nconstraint != KnapSack::ncontraints)
 			throw "Wrong Log File!";
 
 		for (int s = 0; s < npop; s++) {
@@ -129,7 +130,7 @@ void Problem::writeCurrentPopulationInLog(char *log, list<Problem*> *popInicial)
 		list<Problem*>::iterator iter;
 		short int *prob;
 
-		fprintf(f, "%d %d %d %s\n\n", sizePop, KnapSack::nitens, KnapSack::ncontraint, "src_1");
+		fprintf(f, "%d %d %d %s\n\n", sizePop, KnapSack::nitens, KnapSack::ncontraints, "src_1");
 
 		for (iter = popInicial->begin(); iter != popInicial->end(); iter++) {
 			KnapSack *ks = dynamic_cast<KnapSack*>(*iter);
@@ -174,12 +175,12 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo inf
 void Problem::allocateMemory() {
 	KnapSack::values = (double*) malloc(KnapSack::nitens * sizeof(double));
 
-	KnapSack::limit = (double*) malloc(KnapSack::ncontraint * sizeof(double));
+	KnapSack::limit = (double*) malloc(KnapSack::ncontraints * sizeof(double));
 
 	KnapSack::constraint = (double**) malloc(KnapSack::nitens * sizeof(double*));
 
 	for (int i = 0; i < KnapSack::nitens; i++)
-		KnapSack::constraint[i] = (double*) malloc(KnapSack::ncontraint * sizeof(double));
+		KnapSack::constraint[i] = (double*) malloc(KnapSack::ncontraints * sizeof(double));
 }
 
 void Problem::deallocateMemory() {
@@ -187,7 +188,7 @@ void Problem::deallocateMemory() {
 
 	free(KnapSack::limit);
 
-	for (int i = 0; i < KnapSack::ncontraint; i++)
+	for (int i = 0; i < KnapSack::nitens; i++)
 		free(KnapSack::constraint[i]);
 
 	free(KnapSack::constraint);
@@ -250,15 +251,30 @@ KnapSack::~KnapSack() {
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 inline bool KnapSack::calcFitness() {
-	vector<double> tempConstraints(ncontraint, 0);
+	vector<double> tempConstraints(ncontraints, 0);
 
 	double fitness = 0;
 	int item = 0, limit = 0;
 	for (limit = 0; limit < nitens; limit++) {
 		item = solution.ordemItens[limit];
 
-		if (!constraintVerify(item, tempConstraints))
+		bool overflow = false;
+
+		int c = 0;
+		for (vector<double>::iterator constraint = tempConstraints.begin(); constraint != tempConstraints.end(); constraint++) {
+			*constraint += KnapSack::constraint[item][c];
+
+			if (*constraint > KnapSack::limit[c]) {
+				overflow = true;
+				break;
+			}
+
+			c++;
+		}
+
+		if (overflow) {
 			break;
+		}
 
 		fitness += values[item];
 	}
@@ -336,7 +352,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* KnapSack::localSearch() {
 	}
 
 	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(xRand));
-	sort(local->begin(), local->end(), ptcomp);
+	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
 }
@@ -367,7 +383,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* KnapSack::localSearch(float parcela) 
 		local->push_back(temp);
 	}
 
-	sort(local->begin(), local->end(), ptcomp);
+	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
 }
@@ -462,22 +478,8 @@ inline void swap_vect(short int *p1, short int *p2, short int *f, int pos, int t
 	return;
 }
 
-inline bool constraintVerify(int item, vector<double> &constraints) {
-	vector<double>::iterator constraint;
-	int c = 0;
-
-	for (constraint = constraints.begin(); constraint != constraints.end(); constraint++) {
-		*constraint += KnapSack::constraint[item][c];
-
-		if (*constraint > KnapSack::limit[c++])
-			return false;
-	}
-
-	return true;
-}
-
 // comparator function:
-bool fnequal1(Problem *prob1, Problem *prob2) {
+bool fnEqualSolution(Problem *prob1, Problem *prob2) {
 	KnapSack *p1 = dynamic_cast<KnapSack*>(const_cast<Problem*>(prob1));
 	KnapSack *p2 = dynamic_cast<KnapSack*>(const_cast<Problem*>(prob2));
 
@@ -492,7 +494,7 @@ bool fnequal1(Problem *prob1, Problem *prob2) {
 }
 
 // comparator function:
-bool fnequal2(Problem *prob1, Problem *prob2) {
+bool fnEqualFitness(Problem *prob1, Problem *prob2) {
 	KnapSack *p1 = dynamic_cast<KnapSack*>(const_cast<Problem*>(prob1));
 	KnapSack *p2 = dynamic_cast<KnapSack*>(const_cast<Problem*>(prob2));
 
@@ -500,7 +502,7 @@ bool fnequal2(Problem *prob1, Problem *prob2) {
 }
 
 // comparator function:
-bool fncomp1(Problem *prob1, Problem *prob2) {
+bool fnSortSolution(Problem *prob1, Problem *prob2) {
 	KnapSack *p1 = dynamic_cast<KnapSack*>(const_cast<Problem*>(prob1));
 	KnapSack *p2 = dynamic_cast<KnapSack*>(const_cast<Problem*>(prob2));
 
@@ -515,13 +517,9 @@ bool fncomp1(Problem *prob1, Problem *prob2) {
 }
 
 // comparator function:
-bool fncomp2(Problem *prob1, Problem *prob2) {
+bool fnSortFitness(Problem *prob1, Problem *prob2) {
 	KnapSack *p1 = dynamic_cast<KnapSack*>(const_cast<Problem*>(prob1));
 	KnapSack *p2 = dynamic_cast<KnapSack*>(const_cast<Problem*>(prob2));
 
 	return p1->solution.fitness > p2->solution.fitness;
-}
-
-inline bool ptcomp(pair<Problem*, InfoTabu*> *p1, pair<Problem*, InfoTabu*> *p2) {
-	return (p1->first->getFitness() < p2->first->getFitness());
 }

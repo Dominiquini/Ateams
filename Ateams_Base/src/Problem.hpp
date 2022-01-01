@@ -11,6 +11,8 @@ struct ExecutionInfo;
 
 class InfoTabu;
 
+class Problem;
+
 enum ProblemType {
 	MINIMIZATION, MAXIMIZATION
 };
@@ -19,6 +21,13 @@ class Solution {
 protected:
 
 	double fitness = -1;			// Fitness da solucao
+
+	friend class Problem;
+
+	friend bool fnEqualSolution(Problem*, Problem*);	// Comparacao profunda
+	friend bool fnEqualFitness(Problem*, Problem*);		// Comparacao superficial
+	friend bool fnSortSolution(Problem*, Problem*);		// Comparacao profunda
+	friend bool fnSortFitness(Problem*, Problem*);		// Comparacao superficial
 };
 
 class Problem {
@@ -26,10 +35,10 @@ public:
 
 	static ProblemType TYPE;
 
-	static double best;				// Melhor solucao do momento
-	static double worst;			// Pior solucao do momento
-	static int numInst;				// Quantidade de instancias criadas
-	static long int totalNumInst;	// Quantidade total de problemas processados
+	static double best;							// Melhor solucao do momento
+	static double worst;						// Pior solucao do momento
+	static unsigned int numInst;				// Quantidade de instancias criadas
+	static unsigned long long totalNumInst;		// Quantidade total de problemas processados
 
 	// Le arquivo de dados de entrada
 	static void readProblemFromFile(char*);
@@ -50,16 +59,27 @@ public:
 	static Problem* copySolution(const Problem &prob);	// Copia de prob
 
 	// Calcula a melhora (Resultado Positivo) de newP em relacao a oldP
-	static double improvement(Problem &oldP, Problem &newP) {
+	static inline double improvement(Problem &oldP, Problem &newP) {
 		return improvement(oldP.getFitness(), newP.getFitness());
 	}
 
-	static double improvement(double oldP, double newP) {
-		if (TYPE == MINIMIZATION)
-			return oldP - newP;
-		else
-			return newP - oldP;
+	static inline double improvement(double oldP, double newP) {
+		switch(TYPE) {
+			case MINIMIZATION: return oldP - newP;
+			case MAXIMIZATION: return newP - oldP;
+			default: return 0;
+		}
 	}
+
+	static inline bool ptcomp(pair<Problem*, InfoTabu*> *p1, pair<Problem*, InfoTabu*> *p2) {
+		switch(TYPE) {
+			case MINIMIZATION: return (p1->first->getFitness() > p2->first->getFitness());
+			case MAXIMIZATION: return (p1->first->getFitness() < p2->first->getFitness());
+			default: return false;
+		}
+	}
+
+public:
 
 	ExecHeuristicsInfo heuristicsInfo;					// Algoritmos executados na solucao
 
@@ -75,6 +95,10 @@ public:
 		numInst--;
 		pthread_mutex_unlock(&mutex_cont);
 	}
+
+	virtual bool calcFitness() = 0;		// Calcula o makespan
+
+	virtual Solution getSolution() = 0;	// Retorna solucao
 
 	virtual void print(bool esc) = 0;	// Imprime o escalonamento
 
@@ -97,21 +121,16 @@ public:
 	virtual double getFitnessMaximize() const = 0;	// Problemas de Maximizacao
 	virtual double getFitnessMinimize() const = 0;	// Problemas de Minimizacao
 
-private:
-
-	virtual bool calcFitness() = 0;				// Calcula o makespan
-	virtual Solution getSolution() = 0;			// Retorna solucao
-
-	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
-	friend bool fnequal2(Problem*, Problem*);	// Comparacao superficial
-	friend bool fncomp1(Problem*, Problem*);	// Comparacao profunda
-	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
+	friend bool fnEqualSolution(Problem*, Problem*);	// Comparacao profunda
+	friend bool fnEqualFitness(Problem*, Problem*);		// Comparacao superficial
+	friend bool fnSortSolution(Problem*, Problem*);		// Comparacao profunda
+	friend bool fnSortFitness(Problem*, Problem*);		// Comparacao superficial
 };
 
-bool fncomp1(Problem*, Problem*);	//Se P1 for menor que P2
-bool fncomp2(Problem*, Problem*); 	//Se P1 for menor que P2, considerando apenas o fitness
-bool fnequal1(Problem*, Problem*);	//Se P1 for igual a P2
-bool fnequal2(Problem*, Problem*);	//Se P1 for igual a P2, considerando apenas o fitness
+bool fnEqualSolution(Problem*, Problem*);	//Se P1 for igual a P2
+bool fnEqualFitness(Problem*, Problem*);	//Se P1 for igual a P2, considerando apenas o fitness
+bool fnSortSolution(Problem*, Problem*);	//Se P1 for menor que P2
+bool fnSortFitness(Problem*, Problem*); 	//Se P1 for menor que P2, considerando apenas o fitness
 
 template<typename T>
 T* allocateMatrix(int dim, int a, int b, int c) {

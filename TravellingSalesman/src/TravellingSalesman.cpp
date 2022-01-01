@@ -8,8 +8,9 @@ ProblemType Problem::TYPE = MINIMIZATION;
 
 double Problem::best = 0;
 double Problem::worst = 0;
-int Problem::numInst = 0;
-long int Problem::totalNumInst = 0;
+
+unsigned int Problem::numInst = 0;
+unsigned long long Problem::totalNumInst = 0;
 
 char TravellingSalesman::name[128];
 double **TravellingSalesman::edges = NULL;
@@ -31,11 +32,11 @@ void Problem::readProblemFromFile(char *input) {
 	if (f == NULL)
 		throw "Wrong Data File!";
 
+	char edge_weight_type[32];
 	char edge_weight_format[32];
-	char *line = NULL;
-	size_t size = 0;
 
-	while ((getline(&line, &size, f)) != -1) {
+	char line[128];
+	while (fgets(line, 128, f)) {
 		if (strstr(line, "NAME: "))
 			sscanf(line + strlen("NAME: "), "%s", TravellingSalesman::name);
 
@@ -43,7 +44,7 @@ void Problem::readProblemFromFile(char *input) {
 			sscanf(line + strlen("DIMENSION: "), "%d", &TravellingSalesman::nnodes);
 
 		if (strstr(line, "EDGE_WEIGHT_TYPE: "))
-			sscanf(line + strlen("EDGE_WEIGHT_TYPE: "), "%s", edge_weight_format);
+			sscanf(line + strlen("EDGE_WEIGHT_TYPE: "), "%s", edge_weight_type);
 
 		if (strstr(line, "EDGE_WEIGHT_FORMAT: "))
 			sscanf(line + strlen("EDGE_WEIGHT_FORMAT: "), "%s", edge_weight_format);
@@ -54,73 +55,73 @@ void Problem::readProblemFromFile(char *input) {
 
 	Problem::allocateMemory();
 
-	if (!strcmp(edge_weight_format, "FULL_MATRIX")) {
-		for (int i = 0; i < TravellingSalesman::nnodes; i++) {
-			for (int j = 0; j < TravellingSalesman::nnodes; j++) {
-				if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
-					throw "Wrong Data File!";
+	if (!strcmp(edge_weight_type, "EXPLICIT")) {
+		if (!strcmp(edge_weight_format, "FULL_MATRIX")) {
+			for (int i = 0; i < TravellingSalesman::nnodes; i++) {
+				for (int j = 0; j < TravellingSalesman::nnodes; j++) {
+					if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
+						throw "Wrong Data File!";
 
-				if (i == j)
-					TravellingSalesman::edges[i][j] = -1;
+					if (i == j)
+						TravellingSalesman::edges[i][j] = -1;
+				}
 			}
 		}
-	}
 
-	if (!strcmp(edge_weight_format, "UPPER_ROW")) {
-		for (int i = 0; i < TravellingSalesman::nnodes; i++) {
-			TravellingSalesman::edges[i][i] = -1;
+		if (!strcmp(edge_weight_format, "UPPER_ROW")) {
+			for (int i = 0; i < TravellingSalesman::nnodes; i++) {
+				TravellingSalesman::edges[i][i] = -1;
 
-			for (int j = i + 1; j < TravellingSalesman::nnodes; j++) {
-				if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
-					throw "Wrong Data File!";
+				for (int j = i + 1; j < TravellingSalesman::nnodes; j++) {
+					if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
+						throw "Wrong Data File!";
 
-				TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
+					TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
+				}
 			}
 		}
-	}
 
-	if (!strcmp(edge_weight_format, "UPPER_DIAG_ROW")) {
-		for (int i = 0; i < TravellingSalesman::nnodes; i++) {
-			for (int j = i; j < TravellingSalesman::nnodes; j++) {
-				if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
-					throw "Wrong Data File!";
+		if (!strcmp(edge_weight_format, "UPPER_DIAG_ROW")) {
+			for (int i = 0; i < TravellingSalesman::nnodes; i++) {
+				for (int j = i; j < TravellingSalesman::nnodes; j++) {
+					if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
+						throw "Wrong Data File!";
 
-				TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
+					TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
 
-				if (i == j)
-					TravellingSalesman::edges[i][j] = -1;
+					if (i == j)
+						TravellingSalesman::edges[i][j] = -1;
+				}
 			}
 		}
-	}
 
-	if (!strcmp(edge_weight_format, "LOWER_ROW")) {
-		for (int i = 0; i < TravellingSalesman::nnodes; i++) {
-			TravellingSalesman::edges[i][i] = -1;
+		if (!strcmp(edge_weight_format, "LOWER_ROW")) {
+			for (int i = 0; i < TravellingSalesman::nnodes; i++) {
+				TravellingSalesman::edges[i][i] = -1;
 
-			for (int j = 0; j < i; j++) {
-				if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
-					throw "Wrong Data File!";
+				for (int j = 0; j < i; j++) {
+					if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
+						throw "Wrong Data File!";
 
-				TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
+					TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
+				}
 			}
 		}
-	}
 
-	if (!strcmp(edge_weight_format, "LOWER_DIAG_ROW")) {
-		for (int i = 0; i < TravellingSalesman::nnodes; i++) {
-			for (int j = 0; j <= i; j++) {
-				if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
-					throw "Wrong Data File!";
+		if (!strcmp(edge_weight_format, "LOWER_DIAG_ROW")) {
+			for (int i = 0; i < TravellingSalesman::nnodes; i++) {
+				for (int j = 0; j <= i; j++) {
+					if (!fscanf(f, "%lf", &TravellingSalesman::edges[i][j]))
+						throw "Wrong Data File!";
 
-				TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
+					TravellingSalesman::edges[j][i] = TravellingSalesman::edges[i][j];
 
-				if (i == j)
-					TravellingSalesman::edges[i][j] = -1;
+					if (i == j)
+						TravellingSalesman::edges[i][j] = -1;
+				}
 			}
 		}
-	}
-
-	if (!strcmp(edge_weight_format, "EUC_2D")) {
+	} else if (!strcmp(edge_weight_type, "EUC_2D")) {
 		double *X = (double*) allocateMatrix<double>(1, TravellingSalesman::nnodes, 1, 1);
 		double *Y = (double*) allocateMatrix<double>(1, TravellingSalesman::nnodes, 1, 1);
 		int no = 0;
@@ -434,7 +435,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* TravellingSalesman::localSearch() {
 	}
 
 	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(xRand));
-	sort(local->begin(), local->end(), ptcomp);
+	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
 }
@@ -470,7 +471,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* TravellingSalesman::localSearch(float
 		}
 	}
 
-	sort(local->begin(), local->end(), ptcomp);
+	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
 }
@@ -570,7 +571,7 @@ inline void swap_vect(short int *p1, short int *p2, short int *f, int pos, int t
 }
 
 // comparator function:
-bool fnequal1(Problem *prob1, Problem *prob2) {
+bool fnEqualSolution(Problem *prob1, Problem *prob2) {
 	TravellingSalesman *p1 = dynamic_cast<TravellingSalesman*>(prob1);
 	TravellingSalesman *p2 = dynamic_cast<TravellingSalesman*>(prob2);
 
@@ -585,7 +586,7 @@ bool fnequal1(Problem *prob1, Problem *prob2) {
 }
 
 // comparator function:
-bool fnequal2(Problem *prob1, Problem *prob2) {
+bool fnEqualFitness(Problem *prob1, Problem *prob2) {
 	TravellingSalesman *p1 = dynamic_cast<TravellingSalesman*>(prob1);
 	TravellingSalesman *p2 = dynamic_cast<TravellingSalesman*>(prob2);
 
@@ -593,7 +594,7 @@ bool fnequal2(Problem *prob1, Problem *prob2) {
 }
 
 // comparator function:
-bool fncomp1(Problem *prob1, Problem *prob2) {
+bool fnSortSolution(Problem *prob1, Problem *prob2) {
 	TravellingSalesman *p1 = dynamic_cast<TravellingSalesman*>(prob1);
 	TravellingSalesman *p2 = dynamic_cast<TravellingSalesman*>(prob2);
 
@@ -608,13 +609,9 @@ bool fncomp1(Problem *prob1, Problem *prob2) {
 }
 
 // comparator function:
-bool fncomp2(Problem *prob1, Problem *prob2) {
+bool fnSortFitness(Problem *prob1, Problem *prob2) {
 	TravellingSalesman *p1 = dynamic_cast<TravellingSalesman*>(prob1);
 	TravellingSalesman *p2 = dynamic_cast<TravellingSalesman*>(prob2);
 
 	return p1->solution.fitness < p2->solution.fitness;
-}
-
-inline bool ptcomp(pair<Problem*, InfoTabu*> *p1, pair<Problem*, InfoTabu*> *p2) {
-	return (p1->first->getFitness() > p2->first->getFitness());
 }

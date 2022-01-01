@@ -9,7 +9,7 @@ using namespace std;
 #define _KnapSack_
 
 class Solucao_KnapSack: public Solution {
-private:
+protected:
 
 	short int *ordemItens;		// Solucao
 	short int limit;			// Ponto onde nao cabe mais itens
@@ -17,10 +17,10 @@ private:
 	friend class Problem;
 	friend class KnapSack;
 
-	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
-	friend bool fnequal2(Problem*, Problem*);	// Comparacao superficial
-	friend bool fncomp1(Problem*, Problem*);	// Comparacao profunda
-	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
+	friend bool fnEqualSolution(Problem*, Problem*);	// Comparacao profunda
+	friend bool fnEqualFitness(Problem*, Problem*);		// Comparacao superficial
+	friend bool fnSortSolution(Problem*, Problem*);		// Comparacao profunda
+	friend bool fnSortFitness(Problem*, Problem*);		// Comparacao superficial
 };
 
 class InfoTabu_KnapSack: public InfoTabu {
@@ -47,24 +47,18 @@ public:
 };
 
 class KnapSack: public Problem {
-private:
-
-	bool calcFitness() override;		// Calcula o makespan
-
-	Solution getSolution() override {	// Retorna solucao
-		return solution;
-	}
-
-	Solucao_KnapSack solution;			// Representacao interna da solucao
-
-public:
+protected:
 
 	static char name[128];							// Nome do problema
 
 	static double *values, **constraint, *limit;	// Valores, limitacoes da esquerda e direita
-	static int nitens, ncontraint;					// Quantidade de itens e de limitacoes
+	static int nitens, ncontraints;					// Quantidade de itens e de limitacoes
 
 	static int neighbors;							// Numero de permutacoes possiveis
+
+	Solucao_KnapSack solution;						// Representacao interna da solucao
+
+public:
 
 	KnapSack();												// Nova solucao aleatoria
 	KnapSack(short int *prob);								// Copia de prob
@@ -72,6 +66,12 @@ public:
 	KnapSack(const Problem &prob, int pos1, int pos2);		// Copia de prob trocando 'pos1' com 'pos2' em 'maq'
 
 	~KnapSack();
+
+	bool calcFitness() override;		// Calcula o makespan
+
+	Solution getSolution() override {	// Retorna solucao
+		return solution;
+	}
 
 	void print(bool esc);		// Imprime o escalonamento atual
 
@@ -98,18 +98,16 @@ public:
 		return solution;
 	}
 
-	friend bool fnequal1(Problem*, Problem*);	// Comparacao profunda
-	friend bool fnequal2(Problem*, Problem*);	// Comparacao superficial
-	friend bool fncomp1(Problem*, Problem*);	// Comparacao profunda
-	friend bool fncomp2(Problem*, Problem*);	// Comparacao superficial
+	friend class Problem;
+
+	friend void swap_vect(short int *p1, short int *p2, short int *f, int pos, int tam);
+
+	friend bool fnEqualSolution(Problem*, Problem*);	// Comparacao profunda
+	friend bool fnEqualFitness(Problem*, Problem*);		// Comparacao superficial
+	friend bool fnSortSolution(Problem*, Problem*);		// Comparacao profunda
+	friend bool fnSortFitness(Problem*, Problem*);		// Comparacao superficial
 };
 
 void swap_vect(short int *p1, short int *p2, short int *f, int pos, int tam);
-
-bool constraintVerify(int item, vector<double> &constraints);
-
-bool ptcomp(pair<Problem*, InfoTabu*>*, pair<Problem*, InfoTabu*>*);
-
-bool find(vector<Problem*> *vect, Problem *p);
 
 #endif

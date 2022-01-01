@@ -3,11 +3,10 @@
 
 <Controller
    iterations = "10"
-   attemptsWithoutImprovement = "5"
-   maxExecutionTime = "3600"
+   attemptsWithoutImprovement = "-1"
+   maxExecutionTime = "30"
    numThreads = "1"
    populationSizeAteams = "100"
-   comparatorMode = "1"
    bestKnownFitness = "-1">
 
   <Heuristics>
@@ -20,7 +19,6 @@
        maxIterationsSA = "50"
        startTempSA = "50"
        endTempSA = "1"
-       restoreSolutionSA = "0"
        alphaSA = "0.9">
     </SimulatedAnnealing>
 
