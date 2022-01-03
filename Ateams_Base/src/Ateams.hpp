@@ -35,12 +35,18 @@ using namespace std;
 #ifndef _ATEAMS_
 #define _ATEAMS_
 
+#ifdef _WIN32
+  #define fix_terminal() ios_base::sync_with_stdio(false);
+#else
+  #define fix_terminal() ios_base::sync_with_stdio(true);
+#endif
+
 #define RANDOM_TYPE -1
 
 #if (RANDOM_TYPE > 0)
   static default_random_engine randomEngine(RANDOM_TYPE);
 #elif (RANDOM_TYPE == -1)
-static default_random_engine randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+  static default_random_engine randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 #elif (RANDOM_TYPE == -2)
   static mt19937 randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 #elif (RANDOM_TYPE == -3)
@@ -64,6 +70,18 @@ static default_random_engine randomEngine(std::chrono::high_resolution_clock::no
 
 enum TerminationInfo {
 	EXECUTING, FINISHED_NORMALLY, INCOMPLETE, USER_SIGNALED, EXECUTION_TIMEOUT, LACK_OF_IMPROVEMENT, TOO_MANY_SOLUTIONS, RESULT_ACHIEVED
+};
+
+template<typename T>
+struct PrimitiveWrapper {
+	static_assert(!is_pointer<T>::value, "T can't be a pointer!");
+	static_assert(is_arithmetic<T>::value, "T must be a primitive!");
+
+	T value = 0;
+
+	PrimitiveWrapper(T value) {
+		this->value = value;
+	}
 };
 
 struct ExecHeuristicsInfo {
@@ -120,44 +138,50 @@ inline string getTerminationInfo(TerminationInfo info) {
 class ProgressBar {
 public:
 
-	ProgressBar(int maxProgress, string label, string color, int progressBarLength) {
+	ProgressBar(string label, string color, int progressBarLength) {
 		this->label = label;
 		this->color = color;
-		this->maxProgress = maxProgress;
 		this->progressBarLength = progressBarLength - label.size();
 
-		reset();
-	}
-	ProgressBar(int maxProgress, string label) : ProgressBar(maxProgress, label, DEFAULT_PROGRESS_COLOR, DEFAULT_PROGRESS_SIZE) {
-	}
-	ProgressBar(int maxProgress) : ProgressBar(maxProgress, "", DEFAULT_PROGRESS_COLOR, DEFAULT_PROGRESS_SIZE) {
-	}
-	~ProgressBar() {
-		reset();
-	}
+		this->maxProgress = -1;
+		this->currentProgress = -1;
 
-	void reset() {
-		this->currentProgress = 0;
 		this->amountOfFiller = 0;
 		this->currUpdateVal = 0;
 	}
+	ProgressBar(string label) : ProgressBar(label, DEFAULT_PROGRESS_COLOR, DEFAULT_PROGRESS_SIZE) {
+	}
+	ProgressBar() : ProgressBar("", DEFAULT_PROGRESS_COLOR, DEFAULT_PROGRESS_SIZE) {
+	}
+	~ProgressBar() {
+	}
 
-	void init() {
+	void init(int maxProgress) {
+		this->maxProgress = maxProgress;
+
 		cout << endl << color;
+
+		update(0);
 	}
 
 	void end() {
+		this->maxProgress = -1;
+
+		update(currentProgress);
+
 		cout << endl << COLOR_DEFAULT;
 	}
 
 	void update(int newProgress) {
-		int oldProgress = currentProgress;
-		currentProgress = min(maxProgress, newProgress);
+		if (maxProgress != -1) {
+			int oldProgress = currentProgress;
+			currentProgress = min(maxProgress, newProgress);
 
-		if (oldProgress != currentProgress) {
-			amountOfFiller = (int) (progress() * (double) progressBarLength);
+			if (oldProgress != currentProgress) {
+				amountOfFiller = (int) (progress() * (double) progressBarLength);
 
-			print();
+				print();
+			}
 		}
 	}
 
@@ -172,15 +196,19 @@ public:
 		for (int b = 0; b < progressBarLength - amountOfFiller; b++) {
 			cout << " ";
 		}
-		cout << lastPartOfpBar << " (" << (int) (progress() * 100) << "%)";
+		cout << lastPartOfpBar << " (" << percentage() << "%)";
 
 		currUpdateVal += 1;
 
 		cout << flush;
 	}
 
-	double progress() {
-		return (double) currentProgress / (double) maxProgress;
+	float progress() {
+		return (float) currentProgress / (float) maxProgress;
+	}
+
+	int percentage() {
+		return progress() * 100;
 	}
 
 private:

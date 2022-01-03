@@ -48,7 +48,7 @@ bool SimulatedAnnealing::setParameter(const char *parameter, const char *value) 
 }
 
 /* Executa um Simulated Annealing na populacao com o devido criterio de selecao */
-vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) {
+vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) {
 	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection;
 	Problem *solSA;
 
@@ -90,7 +90,7 @@ void SimulatedAnnealing::markSolutions(vector<Problem*> *solutions) {
 	}
 }
 
-vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicListener *listener) {
+vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *listener) {
 	vector<Problem*> *Sf = new vector<Problem*>();
 	Problem *S, *Sn;
 	double Ti, Tf, T;
@@ -121,7 +121,7 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicListener *liste
 
 			listener->bestActualFitness = (*Sf->rbegin())->getFitness();
 
-			listener->setuupInfo("Temperature: %f", T);
+			listener->setupInfo("Temperature: %f", T);
 		}
 
 		if (T == Tf)

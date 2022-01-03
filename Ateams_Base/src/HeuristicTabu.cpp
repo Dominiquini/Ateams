@@ -51,7 +51,7 @@ bool TabuSearch::setParameter(const char *parameter, const char *value) {
 }
 
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
-vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) {
+vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) {
 	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection;
 	Problem *solBT;
 
@@ -93,7 +93,7 @@ void TabuSearch::markSolutions(vector<Problem*> *solutions) {
 	}
 }
 
-vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicListener *listener) {
+vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *listener) {
 	vector<pair<Problem*, InfoTabu*>*> *vizinhanca;
 	pair<Problem*, InfoTabu*> *local;
 
@@ -119,7 +119,7 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicListener *listener) {
 
 			listener->bestActualFitness = (*maxGlobal->rbegin())->getFitness();
 
-			listener->setuupInfo("Iteration: %d", i + 1);
+			listener->setupInfo("Iteration: %d", i + 1);
 		}
 
 		if (polExploracao <= 0 || polExploracao >= 1) {

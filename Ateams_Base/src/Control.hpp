@@ -1,15 +1,15 @@
-#include <GL/freeglut.h>
-
 #include "Ateams.hpp"
 
-using namespace this_thread;
 using namespace std;
 
 #ifndef _CONTROL_
 #define _CONTROL_
 
-#include "Problem.hpp"
+#include "GraphicalOverview.hpp"
 #include "XMLParser.hpp"
+
+#include "Problem.hpp"
+
 #include "Heuristic.hpp"
 #include "HeuristicTabu.hpp"
 #include "HeuristicGenetic.hpp"
@@ -48,9 +48,6 @@ private:
 
 	static int runningThreads;
 
-	ProgressBar *loadingProgressBar;
-	ProgressBar *executionProgressBar;
-
 	static char buffer[BUFFER_SIZE];
 
 	/* Funcao que executa em multiplas threads e retorna o numero de solucoes inseridas */
@@ -58,13 +55,6 @@ private:
 
 	/* Funcao que cotrola o tempo de execucao */
 	static void* pthrManagement(void *_);
-
-	/* Funcao que controla a tela de informacoes */
-	static void* pthrAnimation(void *_);
-
-	static void display();                                      		//Desenha a tela
-	static void reshape(GLint, GLint);                             	 	//Redesenha a tela
-	static void drawstr(GLfloat, GLfloat, GLvoid*, const char*, ...); 	//Desenha uma string na tela
 
 public:
 	static int *argc;
@@ -89,7 +79,7 @@ public:
 
 	static list<Problem*>::iterator findSolution(list<Problem*> *vect, Problem *p);
 
-	static void printProgress(HeuristicListener *heuristic, pair<int, int> *insertion);
+	static void printProgress(HeuristicExecutionInfo *heuristic, pair<int, int> *insertion);
 
 private:
 
@@ -119,12 +109,17 @@ private:
 	long executionCount = 0;			// Threads executadas
 	uintptr_t swappedSolutions = 0;		// Numero de solucoes produzidas pelos algoritimos
 
+	ProgressBar *loadingProgressBar;
+	ProgressBar *executionProgressBar;
+
+	GraphicalOverview *graphicalOverview;
+
 	Control();
 
 	~Control();
 
 	/* Seleciona um dos algoritmos implementados para executar */
-	int execute(int eID);
+	int execute(unsigned int executionId);
 
 	/* Adiciona um novo conjunto de solucoes a populacao corrente */
 	pair<int, int>* addSolutions(vector<Problem*> *news);

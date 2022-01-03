@@ -1,7 +1,5 @@
 #include "Control.hpp"
 
-using namespace this_thread;
-using namespace xercesc;
 using namespace std;
 
 pthread_mutexattr_t mutex_attr;
@@ -51,8 +49,10 @@ Control::Control() {
 
 	this->heuristics = new vector<Heuristic*>();
 
-	this->loadingProgressBar = NULL;
-	this->executionProgressBar = NULL;
+	this->loadingProgressBar = new ProgressBar("LOADING: ");
+	this->executionProgressBar = new ProgressBar("EXECUTING: ");
+
+	this->graphicalOverview = new GraphicalOverview(Control::argc, Control::argv);
 
 	this->iterations = 250;
 	this->numThreads = 8;
@@ -71,8 +71,6 @@ Control::Control() {
 	this->lastImprovedIteration = 0;
 	this->executionCount = 0;
 	this->swappedSolutions = 0;
-
-	glutInit(Control::argc, Control::argv);
 }
 
 Control::~Control() {
@@ -89,23 +87,24 @@ Control::~Control() {
 	heuristics->clear();
 	delete heuristics;
 
-	for (list<HeuristicListener*>::iterator it = Heuristic::executedHeuristics->begin(); it != Heuristic::executedHeuristics->end(); it++)
+	for (list<HeuristicExecutionInfo*>::iterator it = Heuristic::executedHeuristics->begin(); it != Heuristic::executedHeuristics->end(); it++)
 		delete *it;
+
+	delete loadingProgressBar;
+	delete executionProgressBar;
+
+	delete graphicalOverview;
 
 	Heuristic::executedHeuristics->clear();
 	delete Heuristic::executedHeuristics;
 
 	Heuristic::runningHeuristics->clear();
 	delete Heuristic::runningHeuristics;
-
-	int window = glutGetWindow();
-	if (window != 0)
-		glutDestroyWindow(window);
 }
 
-int Control::execute(int idThread) {
+int Control::execute(unsigned int executionId) {
 	vector<Problem*> *newSoluctions = NULL;
-	HeuristicListener *listener = NULL;
+	HeuristicExecutionInfo *listener = NULL;
 	pair<int, int> *insertion = NULL;
 	Heuristic *algorithm = NULL;
 	int contrib = 0;
@@ -113,7 +112,7 @@ int Control::execute(int idThread) {
 	pthread_mutex_lock(&mutex_info);
 	{
 		algorithm = selectRouletteWheel(heuristics, Heuristic::heuristicsProbabilitySum);
-		listener = new HeuristicListener(algorithm, idThread);
+		listener = new HeuristicExecutionInfo(algorithm, executionId, this_thread::get_id());
 
 		runningThreads++;
 
@@ -149,7 +148,7 @@ int Control::execute(int idThread) {
 	{
 		runningThreads--;
 
-		list<HeuristicListener*>::iterator executed = find(Heuristic::runningHeuristics->begin(), Heuristic::runningHeuristics->end(), listener);
+		list<HeuristicExecutionInfo*>::iterator executed = find(Heuristic::runningHeuristics->begin(), Heuristic::runningHeuristics->end(), listener);
 		Heuristic::runningHeuristics->erase(executed);
 
 		Control::printProgress(listener, insertion);
@@ -199,7 +198,7 @@ pair<int, int>* Control::addSolutions(vector<Problem*> *news) {
 void Control::generatePopulation(list<Problem*> *popInicial) {
 	cout << endl;
 
-	loadingProgressBar->init();
+	loadingProgressBar->init(populationSize);
 
 	if (popInicial != NULL) {
 		for (list<Problem*>::iterator iter = popInicial->begin(); iter != popInicial->end(); iter++) {
@@ -348,9 +347,6 @@ void Control::init() {
 
 	sem_init(&semaphore, 0, numThreads);
 
-	this->loadingProgressBar = new ProgressBar(populationSize, "LOADING: ");
-	this->executionProgressBar = new ProgressBar(iterations, "EXECUTING: ");
-
 	/* Leitura dos dados passados por arquivos */
 	Problem::readProblemFromFile(getInputDataFile());
 
@@ -397,9 +393,6 @@ void Control::finish() {
 			if ((iter1 != iter2) && (fnEqualSolution(*iter1, *iter2) || fnSortSolution(*iter2, *iter1)))
 				throw "Incorrect Main Memory!";
 
-	delete loadingProgressBar;
-	delete executionProgressBar;
-
 	sem_destroy(&semaphore);
 
 	pthread_mutexattr_destroy(&mutex_attr);
@@ -413,34 +406,35 @@ void Control::finish() {
 void Control::run() {
 	time(&startTime);
 
+	if (showTextOverview) {
+		cout << endl << flush;
+	}
+
 	pthread_t *threads = (pthread_t*) malloc(iterations * sizeof(pthread_t));
 	pthread_t threadManagement;
-	pthread_t threadAnimation;
 
 	pthread_attr_t attrJoinable;
 	pthread_attr_init(&attrJoinable);
 	pthread_attr_setdetachstate(&attrJoinable, PTHREAD_CREATE_JOINABLE);
 
-	pthread_attr_t attrDetached;
-	pthread_attr_init(&attrDetached);
-	pthread_attr_setdetachstate(&attrDetached, PTHREAD_CREATE_DETACHED);
-
-	executionProgressBar->init();
-
-	if (solutions->size() == 0)
+	if (solutions->size() == 0) {
 		throw "No Initial Solution Found!";
+	}
+
+	if (!showTextOverview) {
+		executionProgressBar->init(iterations);
+	}
 
 	if (showGraphicalOverview) {
-		if (pthread_create(&threadAnimation, &attrDetached, Control::pthrAnimation, NULL) != 0)
-			throw "Thread Creation Error! (pthrAnimation)";
+		graphicalOverview->run();
 	}
 
 	if (pthread_create(&threadManagement, &attrJoinable, Control::pthrManagement, NULL) != 0)
 		throw "Thread Creation Error! (pthrManagement)";
 
 	for (int execAteams = 0; execAteams < iterations; execAteams++) {
-		int iteration = execAteams + 1;
-		if (pthread_create(&threads[execAteams], &attrJoinable, Control::pthrExecution, (void*) &iteration) != 0)
+		PrimitiveWrapper<unsigned int> *iteration = new PrimitiveWrapper<unsigned int>(execAteams + 1);
+		if (pthread_create(&threads[execAteams], &attrJoinable, Control::pthrExecution, (void*) iteration) != 0)
 			throw "Thread Creation Error! (pthrExecution)";
 	}
 
@@ -458,7 +452,6 @@ void Control::run() {
 	free(threads);
 
 	pthread_attr_destroy(&attrJoinable);
-	pthread_attr_destroy(&attrDetached);
 
 	executionProgressBar->end();
 
@@ -516,7 +509,7 @@ void Control::printExecution() {
 	cout << endl << "Explored Solutions: " << Problem::totalNumInst << endl;
 	cout << endl << "Swapped Solutions: " << swappedSolutions << endl;
 
-	cout << endl << "Executions: " << executionCount << endl << endl;
+	cout << endl << "Executions: " << executionCount << " (" << (100 * executionCount) / iterations << "%) " << endl << endl;
 
 	for (vector<Heuristic*>::reverse_iterator it = heuristics->rbegin(); it != heuristics->rend(); it++) {
 		(*it)->printStatistics('-', executionCount);
@@ -665,7 +658,7 @@ list<Problem*>::iterator Control::findSolution(list<Problem*> *vect, Problem *p)
 	return iter;
 }
 
-void Control::printProgress(HeuristicListener *heuristic, pair<int, int> *insertion) {
+void Control::printProgress(HeuristicExecutionInfo *heuristic, pair<int, int> *insertion) {
 	if (instance->showTextOverview) {
 		string execNames;
 		string color;
@@ -688,16 +681,19 @@ void Control::printProgress(HeuristicListener *heuristic, pair<int, int> *insert
 
 void* Control::pthrExecution(void *iteration) {
 	Control *ctrl = Control::instance;
-	int iterationAteams = *(int*) iteration;
+	PrimitiveWrapper<unsigned int> *iterationAteams = (PrimitiveWrapper<unsigned int>*) iteration;
+
 	uintptr_t inserted = 0;
 
 	sem_wait(&semaphore);
 
 	if (STATUS == EXECUTING) {
-		inserted = ctrl->execute(iterationAteams);
+		inserted = ctrl->execute(iterationAteams->value);
 	}
 
 	sem_post(&semaphore);
+
+	delete iterationAteams;
 
 	pthread_return(inserted);
 }
@@ -721,138 +717,16 @@ void* Control::pthrManagement(void *_) {
 		if ((ctrl->bestKnownFitness != -1 ? Problem::improvement(ctrl->bestKnownFitness, Problem::best) : -1) >= 0)
 			STATUS = RESULT_ACHIEVED;
 
-		sleep_for(chrono::milliseconds(THREAD_TIME_CONTROL_INTERVAL));
+		this_thread::sleep_for(chrono::milliseconds(THREAD_TIME_CONTROL_INTERVAL));
 	}
 
 	pthread_return(NULL);
 }
 
-void* Control::pthrAnimation(void *_) {
-	if (STATUS == EXECUTING) {
-		/* Cria a tela */
-		glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-		glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-		glutInitWindowPosition(0, 0);
-
-		glutCreateWindow(Control::argv[0]);
-
-		/* Define as funcoes de desenho */
-		glutDisplayFunc(Control::display);
-		glutIdleFunc(Control::display);
-		glutReshapeFunc(Control::reshape);
-
-		glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
-
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-		glEnable(GL_LINE_SMOOTH);
-		glEnable(GL_BLEND);
-		glLineWidth(2.0);
-
-		/* Inicia loop principal da janela de informações */
-		glutMainLoop();
-	} else {
-		/* Finaliza loop principal da janela de informações */
-		glutLeaveMainLoop();
-	}
-
-	pthread_return(NULL);
-}
-
-void Control::display() {
-	if (glutGetWindow() == 0) {
-		return;
-	}
-
-	/* Limpa buffer */
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	/* Reinicia o sistema de coordenadas */
-	glLoadIdentity();
-
-	/* Restaura a posicao da camera */
-	gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
-
-	/* Desenha as informacoes na tela */
-	float linha = 1.4;
-	float coluna = -5;
-
-	pthread_mutex_lock(&mutex_info);
-	{
-		for (list<HeuristicListener*>::const_iterator iter = Heuristic::runningHeuristics->cbegin(); iter != Heuristic::runningHeuristics->cend() && STATUS == EXECUTING; iter++) {
-			glColor3f(1.0f, 0.0f, 0.0f);
-			Control::drawstr(coluna, linha + 0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (*iter)->heuristicInfo, (*iter)->status);
-
-			glColor3f(0.0f, 1.0f, 0.0f);
-			Control::drawstr(coluna, linha + 0.2, GLUT_BITMAP_HELVETICA_12, "Best Initial Solution: %.0f\t | \tBest Current Solution: %.0f\n\n", (*iter)->bestInitialFitness, (*iter)->bestActualFitness);
-
-			glColor3f(0.0f, 0.0f, 1.0f);
-			Control::drawstr(coluna, linha, GLUT_BITMAP_9_BY_15, (*iter)->execInfo);
-
-			coluna += 3.4;
-
-			if (coluna > 1.8) {
-				coluna = -5;
-				linha -= 1;
-			}
-		}
-	}
-	pthread_mutex_unlock(&mutex_info);
-
-	glutSwapBuffers();
-
-	if (STATUS != EXECUTING) {
-		Control::pthrAnimation(NULL);
-	}
-
-	sleep_for(chrono::milliseconds(WINDOW_ANIMATION_UPDATE_INTERVAL));
-}
-
-void Control::reshape(GLint width, GLint height) {
-	if (glutGetWindow() == 0) {
-		return;
-	}
-
-	glutReshapeWindow(WINDOW_WIDTH, WINDOW_HEIGHT);
-
-	glViewport(0, 0, width, height);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(45.0, (float) width / height, 0.025, 25.0);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
-}
-
-void Control::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, const char *format, ...) {
-	if (glutGetWindow() == 0) {
-		return;
-	}
-
-	if (format == NULL) {
-		return;
-	}
-
-	va_list args;
-	char buffer[512], *s;
-
-	va_start(args, format);
-	vsprintf(buffer, format, args);
-	va_end(args);
-
-	glRasterPos2f(x, y);
-
-	for (s = buffer; *s; s++) {
-		glutBitmapCharacter(font_style, *s);
-	}
-}
-
-inline string Heuristic::getHeuristicNames(list<HeuristicListener*> *heuristicsList) {
+inline string Heuristic::getHeuristicNames(list<HeuristicExecutionInfo*> *heuristicsList) {
 	string executedNames;
 
-	for (list<HeuristicListener*>::const_iterator it = heuristicsList->cbegin(); it != heuristicsList->cend(); it++) {
+	for (list<HeuristicExecutionInfo*>::const_iterator it = heuristicsList->cbegin(); it != heuristicsList->cend(); it++) {
 		executedNames.append((*it)->heuristicInfo).push_back(' ');
 	}
 	if (executedNames.size() > 0) {
@@ -872,5 +746,5 @@ int *Control::argc = NULL;
 char **Control::argv = NULL;
 
 int Heuristic::heuristicsProbabilitySum = 0;
-list<HeuristicListener*> *Heuristic::runningHeuristics = new list<HeuristicListener*>;
-list<HeuristicListener*> *Heuristic::executedHeuristics = new list<HeuristicListener*>;
+list<HeuristicExecutionInfo*> *Heuristic::runningHeuristics = new list<HeuristicExecutionInfo*>;
+list<HeuristicExecutionInfo*> *Heuristic::executedHeuristics = new list<HeuristicExecutionInfo*>;

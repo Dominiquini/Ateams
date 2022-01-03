@@ -21,13 +21,13 @@ public:
 
 	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) override;
 
-	vector<Problem*>* start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) override;
+	vector<Problem*>* start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) override;
 
 	void markSolutions(vector<Problem*>* solutions) override;
 
 private:
 
-	vector<Problem*>* exec(Problem*, HeuristicListener *listener);
+	vector<Problem*>* exec(Problem*, HeuristicExecutionInfo *listener);
 };
 
 bool accept(double rand, double Ds, double T);

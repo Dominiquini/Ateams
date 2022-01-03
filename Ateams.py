@@ -42,8 +42,9 @@ def validate_path(ctx: click.core.Context=None, param: click.core.Option=None, v
 @click.option('-g', '--show_graphical_info', type=click.BOOL, is_flag=True, help='Show Graphical Overview')
 @click.option('-s', '--show_solution', type=click.BOOL, is_flag=True, help='Show Solution')
 @click.option('-n', '--repeat', type=click.INT, default=1, help='Repeat N Times')
+@click.option('-x', '--debug', type=click.BOOL, is_flag=True, help='Run With GDB')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
-def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, extra_args):
+def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, debug, extra_args):
     """A Wrapper For Ateams"""
     
     def __truncate(number, decimals=0):
@@ -72,9 +73,11 @@ def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_inf
         if(show_graphical_info): command_line += f" -g"
 
         if(show_solution): command_line += f" -s"
-        
+
         for arg in extra_args:
             command_line += f" {arg}"
+
+        if(debug): command_line = "gdb --args " + command_line
 
         return ateams_path(command_line)
 

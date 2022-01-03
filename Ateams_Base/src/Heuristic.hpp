@@ -7,19 +7,22 @@ using namespace std;
 
 #define MAX_ATTEMPTS 50
 
+#define HEURISTIC_NAME_MAX_LENGTH 16
+#define HEURISTIC_INFO_MAX_LENGTH 512
+
 extern pthread_mutex_t mutex_pop;
 
 extern volatile TerminationInfo STATUS;
 
-class HeuristicListener;
+class HeuristicExecutionInfo;
 
 class Heuristic {
 public:
 
 	static int heuristicsProbabilitySum;								// Soma das probabilidades de todos os algoritimos
 
-	static list<HeuristicListener*> *executedHeuristics;				// Algoritmos executados ate o momento
-	static list<HeuristicListener*> *runningHeuristics;					// Algoritmos em execucao no momento
+	static list<HeuristicExecutionInfo*> *executedHeuristics;			// Algoritmos executados ate o momento
+	static list<HeuristicExecutionInfo*> *runningHeuristics;			// Algoritmos em execucao no momento
 
 	static inline bool comparator(Heuristic *h1, Heuristic *h2) {
 		return h1->choiceProbability < h2->choiceProbability;
@@ -59,46 +62,57 @@ public:
 
 	virtual set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) = 0;
 
-	virtual vector<Problem*>* start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) = 0;
+	virtual vector<Problem*>* start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) = 0;
 
 	virtual void markSolutions(vector<Problem*> *solutions) = 0;
 
 private:
 
-	static string getHeuristicNames(list<HeuristicListener*> *heuristicsList);
+	static string getHeuristicNames(list<HeuristicExecutionInfo*> *heuristicsList);
 };
 
-class HeuristicListener {
+class HeuristicExecutionInfo {
 public:
 
 	Heuristic *heuristic;
-	int id;
+	thread::id threadId;
+	int executionId;
 
-	char heuristicInfo[16];
+	char heuristicInfo[HEURISTIC_NAME_MAX_LENGTH];
 
-	volatile double bestInitialFitness, bestActualFitness;
-	volatile double status;
-	char execInfo[512];
+	double bestInitialFitness, bestActualFitness;
 
-	HeuristicListener(Heuristic *heuristic, int threadId) {
+	double status;
+
+	char execInfo[HEURISTIC_INFO_MAX_LENGTH];
+
+	HeuristicExecutionInfo(Heuristic *heuristic, int executionId, thread::id threadId) {
 		this->heuristic = heuristic;
-		this->id = threadId;
+		this->executionId = executionId;
+		this->threadId = threadId;
 
 		this->bestInitialFitness = 0;
 		this->bestActualFitness = 0;
+
 		this->status = -1;
 
-		sprintf(heuristicInfo, "%s(%.3d)", heuristic->name.c_str(), threadId);
+		configName();
 	}
 
-	~HeuristicListener() {
+	~HeuristicExecutionInfo() {
 	}
 
-	inline void setuupInfo(const char *format, ...) {
+	inline void setupInfo(const char *format, ...) {
 		va_list args;
 		va_start(args, format);
-		vsprintf(this->execInfo, format, args);
+		vsnprintf(this->execInfo, HEURISTIC_INFO_MAX_LENGTH, format, args);
 		va_end(args);
+	}
+
+private:
+
+	inline void configName() {
+		snprintf(heuristicInfo, HEURISTIC_NAME_MAX_LENGTH, "%s(%04d)", heuristic->name.c_str(), executionId);
 	}
 };
 

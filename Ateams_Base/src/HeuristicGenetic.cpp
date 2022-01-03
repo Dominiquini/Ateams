@@ -50,7 +50,7 @@ bool GeneticAlgorithm::setParameter(const char *parameter, const char *value) {
 	return true;
 }
 
-vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicListener *listener) {
+vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) {
 	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection = sol->begin();
 	vector<Problem*> *popAG = new vector<Problem*>();
 	int solutionsCount = 0;
@@ -101,7 +101,7 @@ void GeneticAlgorithm::markSolutions(vector<Problem*> *solutions) {
 	}
 }
 
-vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicListener *listener) {
+vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecutionInfo *listener) {
 	Problem *mutante;
 	pair<Problem*, Problem*> *temp;
 	vector<Problem*> *aux_pop = new vector<Problem*>();
@@ -131,7 +131,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicListene
 
 			listener->bestActualFitness = (*pop->begin())->getFitness();
 
-			listener->setuupInfo("Generation: %d", i + 1);
+			listener->setupInfo("Generation: %d", i + 1);
 		}
 
 		numCrossOver = (int) ((float) pop->size() * crossoverProbability);
