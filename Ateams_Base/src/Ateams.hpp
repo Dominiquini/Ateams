@@ -63,7 +63,7 @@ static default_random_engine randomEngine(std::chrono::high_resolution_clock::no
 #define PREVIOUS_LINE "\033[F"
 
 enum TerminationInfo {
-	EXECUTING, FINISHED_NORMALLY, INCOMPLETE, USER_SIGNALED, EXECUTION_TIMEOUT, LACK_OF_IMPROVEMENT, RESULT_ACHIEVED
+	EXECUTING, FINISHED_NORMALLY, INCOMPLETE, USER_SIGNALED, EXECUTION_TIMEOUT, LACK_OF_IMPROVEMENT, TOO_MANY_SOLUTIONS, RESULT_ACHIEVED
 };
 
 struct ExecHeuristicsInfo {
@@ -108,6 +108,8 @@ inline string getTerminationInfo(TerminationInfo info) {
 			return "EXECUTION_TIMEOUT";
 		case LACK_OF_IMPROVEMENT:
 			return "LACK_OF_IMPROVEMENT";
+		case TOO_MANY_SOLUTIONS:
+			return "TOO_MANY_SOLUTIONS";
 		case RESULT_ACHIEVED:
 			return "RESULT_ACHIEVED";
 		default:

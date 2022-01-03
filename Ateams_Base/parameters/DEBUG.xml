@@ -6,7 +6,8 @@
    attemptsWithoutImprovement = "-1"
    maxExecutionTime = "30"
    numThreads = "1"
-   populationSizeAteams = "100"
+   populationSize = "100"
+   maxSolutions = "-1"
    bestKnownFitness = "-1">
 
   <Heuristics>

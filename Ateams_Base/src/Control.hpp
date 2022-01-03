@@ -43,10 +43,10 @@ struct ExecutionInfo {
 
 class Control {
 private:
-	/* Instancia do controle */
+
 	static Control *instance;
 
-	static int runningThreads;											// Threads em execucao no momento
+	static int runningThreads;
 
 	ProgressBar *loadingProgressBar;
 	ProgressBar *executionProgressBar;
@@ -101,12 +101,13 @@ private:
 	set<Problem*, bool (*)(Problem*, Problem*)> *solutions; 		// Populacao principal
 	vector<Heuristic*> *heuristics;									// Algoritmos disponiveis
 
-	int numThreads;						// Numero de threads que podem rodar ao mesmo tempo
-	int bestKnownFitness;				// Melhor makespan conhecido
-	int populationSize;					// Tamanho da populacao
 	int iterations; 					// Numero de iteracoes
+	int numThreads;						// Numero de threads que podem rodar ao mesmo tempo
+	int populationSize;					// Tamanho da populacao
 	int attemptsWithoutImprovement; 	// Tentativas sem melhora
+	int bestKnownFitness;				// Melhor makespan conhecido
 	int maxExecutionTime;				// Tempo maximo de execucao
+	long long maxSolutions;				// Numero maximo de solucoes para testar
 
 	bool printFullSolution;				// Imprime melhor solucao
 

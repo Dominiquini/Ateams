@@ -44,8 +44,8 @@ public:
 	virtual ~Heuristic() {
 	}
 
-	virtual void printStatistics(char bullet) {
-		printf(" %c %s : %03d || %% %02d %%\n", bullet, name.c_str(), executionCounter, choiceProbability);
+	virtual void printStatistics(char bullet, int total) {
+		printf(" %c %s |%% %03d %%| -> %03d (%% %06.2f %%)\n", bullet, name.c_str(), choiceProbability, executionCounter, (100.0f * executionCounter) / total);
 	}
 
 	virtual bool setParameter(const char *parameter, const char *value) {

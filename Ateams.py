@@ -94,8 +94,9 @@ def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_inf
     if(print):  click.echo(f"\n*** Command: '{command_line}' ***\n")
 
     timers = __execute_ateams(command_line, repeat)
+    average = sum(timers) / len(timers)
 
-    if(print): click.echo(f"\n*** Timers: {[__truncate(n, 2) for n in timers]} ***\n")
+    if(print): click.echo(f"\n*** Timers: {[__truncate(n, 2) for n in timers]} || Average: {__truncate(average, 2)} ***\n")
     
     click.prompt("\nPress ENTER To Exit", prompt_suffix='', hide_input=True, show_choices=False, show_default=False, default='')
     click.echo("\n")

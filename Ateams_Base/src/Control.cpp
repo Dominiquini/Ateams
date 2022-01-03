@@ -54,19 +54,23 @@ Control::Control() {
 	this->loadingProgressBar = NULL;
 	this->executionProgressBar = NULL;
 
-	this->populationSize = 500;
 	this->iterations = 250;
-	this->attemptsWithoutImprovement = 100;
-	this->maxExecutionTime = 3600;
 	this->numThreads = 8;
+	this->populationSize = 500;
+	this->attemptsWithoutImprovement = 100;
 	this->bestKnownFitness = -1;
+	this->maxExecutionTime = 3600;
+	this->maxSolutions = -1;
+
 	this->printFullSolution = false;
+
 	this->showTextOverview = false;
 	this->showGraphicalOverview = false;
 
 	this->startTime = this->endTime = 0;
 	this->lastImprovedIteration = 0;
 	this->executionCount = 0;
+	this->swappedSolutions = 0;
 
 	glutInit(Control::argc, Control::argv);
 }
@@ -304,20 +308,21 @@ inline void Control::readAdditionalCMDParameters() {
 	if ((p = findPosArgv(argv, *argc, (char*) "--numThreads")) != -1)
 		setParameter("numThreads", argv[p]);
 
+	if ((p = findPosArgv(argv, *argc, (char*) "--populationSize")) != -1)
+		setParameter("populationSize", argv[p]);
+
 	if ((p = findPosArgv(argv, *argc, (char*) "--attemptsWithoutImprovement")) != -1)
 		setParameter("attemptsWithoutImprovement", argv[p]);
+
+	if ((p = findPosArgv(argv, *argc, (char*) "--bestKnownFitness")) != -1)
+		setParameter("bestKnownFitness", argv[p]);
 
 	if ((p = findPosArgv(argv, *argc, (char*) "--maxExecutionTime")) != -1)
 		setParameter("maxExecutionTime", argv[p]);
 
-	if ((p = findPosArgv(argv, *argc, (char*) "--populationSizeAteams")) != -1)
-		setParameter("populationSizeAteams", argv[p]);
+	if ((p = findPosArgv(argv, *argc, (char*) "--maxSolutions")) != -1)
+		setParameter("maxSolutions", argv[p]);
 
-	if ((p = findPosArgv(argv, *argc, (char*) "--comparatorMode")) != -1)
-		setParameter("comparatorMode", argv[p]);
-
-	if ((p = findPosArgv(argv, *argc, (char*) "--bestKnownFitness")) != -1)
-		setParameter("bestKnownFitness", argv[p]);
 }
 
 inline void Control::setPrintFullSolution(bool fullPrint) {
@@ -514,7 +519,7 @@ void Control::printExecution() {
 	cout << endl << "Executions: " << executionCount << endl << endl;
 
 	for (vector<Heuristic*>::reverse_iterator it = heuristics->rbegin(); it != heuristics->rend(); it++) {
-		(*it)->printStatistics('-');
+		(*it)->printStatistics('-', executionCount);
 	}
 
 	cout << COLOR_DEFAULT;
@@ -525,16 +530,18 @@ bool Control::setParameter(const char *parameter, const char *value) {
 
 	if (strcasecmp(parameter, "iterations") == 0) {
 		read = sscanf(value, "%d", &iterations);
-	} else if (strcasecmp(parameter, "attemptsWithoutImprovement") == 0) {
-		read = sscanf(value, "%d", &attemptsWithoutImprovement);
-	} else if (strcasecmp(parameter, "maxExecutionTime") == 0) {
-		read = sscanf(value, "%d", &maxExecutionTime);
 	} else if (strcasecmp(parameter, "numThreads") == 0) {
 		read = sscanf(value, "%d", &numThreads);
-	} else if (strcasecmp(parameter, "populationSizeAteams") == 0) {
+	} else if (strcasecmp(parameter, "populationSize") == 0) {
 		read = sscanf(value, "%d", &populationSize);
+	} else if (strcasecmp(parameter, "attemptsWithoutImprovement") == 0) {
+		read = sscanf(value, "%d", &attemptsWithoutImprovement);
 	} else if (strcasecmp(parameter, "bestKnownFitness") == 0) {
 		read = sscanf(value, "%d", &bestKnownFitness);
+	} else if (strcasecmp(parameter, "maxExecutionTime") == 0) {
+		read = sscanf(value, "%d", &maxExecutionTime);
+	} else if (strcasecmp(parameter, "maxSolutions") == 0) {
+		read = sscanf(value, "%lld", &maxSolutions);
 	}
 
 	return read != EOF;
@@ -707,6 +714,9 @@ void* Control::pthrManagement(void *_) {
 
 		if (ctrl->attemptsWithoutImprovement != -1 && ctrl->lastImprovedIteration > ctrl->attemptsWithoutImprovement)
 			STATUS = LACK_OF_IMPROVEMENT;
+
+		if (ctrl->maxSolutions != -1 && Problem::totalNumInst > (unsigned long long) ctrl->maxSolutions)
+			STATUS = TOO_MANY_SOLUTIONS;
 
 		if ((ctrl->bestKnownFitness != -1 ? Problem::improvement(ctrl->bestKnownFitness, Problem::best) : -1) >= 0)
 			STATUS = RESULT_ACHIEVED;
