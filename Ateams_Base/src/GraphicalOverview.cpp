@@ -1,7 +1,5 @@
 #include "GraphicalOverview.hpp"
 
-using namespace this_thread;
-
 GraphicalOverview::GraphicalOverview(int *argc, char **argv) {
 	this->argc = argc;
 	this->argv = argv;
@@ -106,7 +104,7 @@ void GraphicalOverview::display() {
 		GraphicalOverview::asyncRun(NULL);
 	}
 
-	sleep_for(chrono::milliseconds(WINDOW_ANIMATION_UPDATE_INTERVAL));
+	sleep_ms(WINDOW_ANIMATION_UPDATE_INTERVAL);
 }
 
 void GraphicalOverview::reshape(GLint width, GLint height) {

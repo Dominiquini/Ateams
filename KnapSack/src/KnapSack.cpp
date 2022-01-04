@@ -203,7 +203,7 @@ KnapSack::KnapSack() : Problem::Problem() {
 		solution.ordemItens[i] = i;
 	}
 
-	random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens], pointer_to_unary_function<int, int>(xRand));
+	random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens], pointer_to_unary_function<int, int>(random));
 
 	solution.limit = -1;
 
@@ -321,7 +321,7 @@ inline void KnapSack::print(bool esc) {
 
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problem* KnapSack::neighbor() {
-	int p1 = xRand(0, solution.limit), p2 = xRand(solution.limit, nitens);
+	int p1 = random(0, solution.limit), p2 = random(solution.limit, nitens);
 	Problem *prob = NULL;
 
 	prob = new KnapSack(*this, p1, p2);
@@ -351,7 +351,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* KnapSack::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(xRand));
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(random));
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
@@ -372,7 +372,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* KnapSack::localSearch(float parcela) 
 		def = MAX_PERMUTATIONS;
 
 	for (int i = 0; i < def; i++) {
-		p1 = xRand(0, solution.limit), p2 = xRand(solution.limit, numItens);
+		p1 = random(0, solution.limit), p2 = random(solution.limit, numItens);
 
 		prob = new KnapSack(*this, p1, p2);
 
@@ -397,7 +397,7 @@ inline pair<Problem*, Problem*>* KnapSack::crossOver(const Problem *parceiro, in
 
 	KnapSack *other = dynamic_cast<KnapSack*>(const_cast<Problem*>(parceiro));
 
-	inicioPart = xRand(0, nitens);
+	inicioPart = random(0, nitens);
 	fimPart = inicioPart + particao <= nitens ? inicioPart + particao : nitens;
 
 	swap_vect(this->solution.ordemItens, other->solution.ordemItens, f1, inicioPart, fimPart - inicioPart);
@@ -417,7 +417,7 @@ inline pair<Problem*, Problem*>* KnapSack::crossOver(const Problem *parceiro, in
 
 	KnapSack *other = dynamic_cast<KnapSack*>(const_cast<Problem*>(parceiro));
 
-	particao = xRand(1, nitens);
+	particao = random(1, nitens);
 
 	swap_vect(this->solution.ordemItens, other->solution.ordemItens, f1, 0, particao);
 	swap_vect(other->solution.ordemItens, this->solution.ordemItens, f2, 0, particao);

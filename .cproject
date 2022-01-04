@@ -4,7 +4,8 @@
 		<cconfiguration id="cdt.managedbuild.toolchain.gnu.mingw.base.1896486750.358429541">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.mingw.base.1896486750.358429541" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<macros>
-					<stringMacro name="DEBUG" type="VALUE_TEXT" value=""/>
+					<stringMacro name="DEBUG" type="VALUE_TEXT" value="false"/>
+					<stringMacro name="PROFILE" type="VALUE_TEXT" value="false"/>
 				</macros>
 				<externalSettings/>
 				<extensions>
@@ -160,6 +161,7 @@
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/Ateams"/>
 		</configuration>
+		<configuration configurationName="Profile"/>
 		<configuration configurationName="Ateams (Make)">
 			<resource resourceType="PROJECT" workspacePath="/Ateams"/>
 		</configuration>

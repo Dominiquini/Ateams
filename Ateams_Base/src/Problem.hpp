@@ -81,7 +81,7 @@ public:
 
 public:
 
-	ExecHeuristicsInfo heuristicsInfo;					// Algoritmos executados na solucao
+	ExecHeuristicsInfo heuristicsInfo;	// Algoritmos executados na solucao
 
 	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
 	Problem() {
@@ -111,7 +111,7 @@ public:
 
 	/* Realiza um crossover com uma outra solucao */
 	virtual pair<Problem*, Problem*>* crossOver(const Problem*, int, int) = 0;	// Dois pivos
-	virtual pair<Problem*, Problem*>* crossOver(const Problem*, int) = 0;			// Um pivo
+	virtual pair<Problem*, Problem*>* crossOver(const Problem*, int) = 0;		// Um pivo
 
 	/* Devolve uma mutacao aleatoria na solucao atual */
 	virtual Problem* mutation(int) = 0;

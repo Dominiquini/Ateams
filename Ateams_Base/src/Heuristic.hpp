@@ -75,8 +75,9 @@ class HeuristicExecutionInfo {
 public:
 
 	Heuristic *heuristic;
-	thread::id threadId;
-	int executionId;
+
+	unsigned int executionId;
+	uintptr_t threadId;
 
 	char heuristicInfo[HEURISTIC_NAME_MAX_LENGTH];
 
@@ -86,8 +87,9 @@ public:
 
 	char execInfo[HEURISTIC_INFO_MAX_LENGTH];
 
-	HeuristicExecutionInfo(Heuristic *heuristic, int executionId, thread::id threadId) {
+	HeuristicExecutionInfo(Heuristic *heuristic, unsigned int executionId, uintptr_t threadId) {
 		this->heuristic = heuristic;
+
 		this->executionId = executionId;
 		this->threadId = threadId;
 

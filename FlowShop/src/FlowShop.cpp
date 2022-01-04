@@ -170,7 +170,7 @@ FlowShop::FlowShop() : Problem::Problem() {
 		solution.scaling[j] = j;
 	}
 
-	random_shuffle(&solution.scaling[0], &solution.scaling[njob], pointer_to_unary_function<int, int>(xRand));
+	random_shuffle(&solution.scaling[0], &solution.scaling[njob], pointer_to_unary_function<int, int>(random));
 
 	solution.staggering = NULL;
 
@@ -297,11 +297,11 @@ inline void FlowShop::print(bool esc) {
 
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problem* FlowShop::neighbor() {
-	int p1 = xRand(0, njob), p2 = xRand(0, njob);
+	int p1 = random(0, njob), p2 = random(0, njob);
 	Problem *job = NULL;
 
 	while (p2 == p1)
-		p2 = xRand(0, njob);
+		p2 = random(0, njob);
 
 	job = new FlowShop(*this, p1, p2);
 	if (job->getFitness() != -1) {
@@ -337,7 +337,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* FlowShop::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(xRand));
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(random));
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
@@ -357,10 +357,10 @@ inline vector<pair<Problem*, InfoTabu*>*>* FlowShop::localSearch(float parcela) 
 		def = MAX_PERMUTATIONS;
 
 	for (int i = 0; i < def; i++) {
-		p1 = xRand(0, njob), p2 = xRand(0, njob);
+		p1 = random(0, njob), p2 = random(0, njob);
 
 		while (p2 == p1)
-			p2 = xRand(0, njob);
+			p2 = random(0, njob);
 
 		job = new FlowShop(*this, p1, p2);
 		if (job->getFitness() != -1) {
@@ -388,7 +388,7 @@ inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem *parceiro, in
 
 	FlowShop *other = dynamic_cast<FlowShop*>(const_cast<Problem*>(parceiro));
 
-	inicioPart = xRand(0, njob);
+	inicioPart = random(0, njob);
 	fimPart = inicioPart + particao <= njob ? inicioPart + particao : njob;
 
 	swap_vect(this->solution.scaling, other->solution.scaling, f1, inicioPart, fimPart - inicioPart);
@@ -408,7 +408,7 @@ inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem *parceiro, in
 
 	FlowShop *other = dynamic_cast<FlowShop*>(const_cast<Problem*>(parceiro));
 
-	particao = xRand(1, njob);
+	particao = random(1, njob);
 
 	swap_vect(this->solution.scaling, other->solution.scaling, f1, 0, particao);
 	swap_vect(other->solution.scaling, this->solution.scaling, f2, 0, particao);

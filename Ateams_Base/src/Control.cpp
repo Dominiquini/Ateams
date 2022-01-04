@@ -112,7 +112,7 @@ int Control::execute(unsigned int executionId) {
 	pthread_mutex_lock(&mutex_info);
 	{
 		algorithm = selectRouletteWheel(heuristics, Heuristic::heuristicsProbabilitySum);
-		listener = new HeuristicExecutionInfo(algorithm, executionId, this_thread::get_id());
+		listener = new HeuristicExecutionInfo(algorithm, executionId, pthread_self());
 
 		runningThreads++;
 
@@ -590,7 +590,7 @@ set<Problem*, bool (*)(Problem*, Problem*)>::iterator Control::selectRouletteWhe
 	// Armazena o fitness total da populacao
 	unsigned int sum = (unsigned int) fitTotal;
 	// Um numero entre zero e "sum" e sorteado
-	unsigned int randWheel = xRand(0, sum + 1);
+	unsigned int randWheel = random(0, sum + 1);
 
 	set<Problem*, bool (*)(Problem*, Problem*)>::iterator iter;
 	for (iter = probs->begin(); iter != probs->end(); iter++) {
@@ -607,7 +607,7 @@ vector<Problem*>::iterator Control::selectRouletteWheel(vector<Problem*> *probs,
 	// Armazena o fitness total da populacao
 	unsigned int sum = (unsigned int) fitTotal;
 	// Um numero entre zero e "sum" e sorteado
-	unsigned int randWheel = xRand(0, sum + 1);
+	unsigned int randWheel = random(0, sum + 1);
 
 	vector<Problem*>::iterator iter;
 	for (iter = probs->begin(); iter != probs->end(); iter++) {
@@ -627,7 +627,7 @@ Heuristic* Control::selectRouletteWheel(vector<Heuristic*> *heuristic, unsigned 
 	// Armazena o fitness total da populacao
 	unsigned int sum = probTotal;
 	// Um numero entre zero e "sum" e sorteado
-	unsigned int randWheel = xRand(0, sum + 1);
+	unsigned int randWheel = random(0, sum + 1);
 
 	for (int i = 0; i < (int) heuristic->size(); i++) {
 		sum -= heuristic->at(i)->choiceProbability;
@@ -640,7 +640,7 @@ Heuristic* Control::selectRouletteWheel(vector<Heuristic*> *heuristic, unsigned 
 }
 
 vector<Problem*>::iterator Control::selectRandom(vector<Problem*> *probs) {
-	unsigned int randWheel = xRand(0, probs->size());
+	unsigned int randWheel = random(0, probs->size());
 
 	vector<Problem*>::iterator iter = probs->begin();
 	for (unsigned long i = 0; iter != probs->end() && i < randWheel; iter++, i++);
@@ -717,7 +717,7 @@ void* Control::pthrManagement(void *_) {
 		if ((ctrl->bestKnownFitness != -1 ? Problem::improvement(ctrl->bestKnownFitness, Problem::best) : -1) >= 0)
 			STATUS = RESULT_ACHIEVED;
 
-		this_thread::sleep_for(chrono::milliseconds(THREAD_TIME_CONTROL_INTERVAL));
+		sleep_ms(THREAD_TIME_CONTROL_INTERVAL);
 	}
 
 	pthread_return(NULL);

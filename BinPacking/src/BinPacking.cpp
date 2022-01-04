@@ -231,7 +231,7 @@ BinPacking::BinPacking() : Problem::Problem() {
 			solution.ordemItens[i] = i;
 		}
 
-		random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens], pointer_to_unary_function<int, int>(xRand));
+		random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens], pointer_to_unary_function<int, int>(random));
 	}
 
 	solution.bins = NULL;
@@ -344,11 +344,11 @@ inline void BinPacking::print(bool esc) {
 
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problem* BinPacking::neighbor() {
-	int p1 = xRand(0, nitens), p2 = xRand(0, nitens);
+	int p1 = random(0, nitens), p2 = random(0, nitens);
 	Problem *prob = NULL;
 
 	while (p2 == p1 || solution.bins[p1] == solution.bins[p2])
-		p2 = xRand(0, nitens);
+		p2 = random(0, nitens);
 
 	prob = new BinPacking(*this, p1, p2);
 
@@ -379,7 +379,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* BinPacking::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(xRand));
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(random));
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
@@ -399,10 +399,10 @@ inline vector<pair<Problem*, InfoTabu*>*>* BinPacking::localSearch(float parcela
 		def = MAX_PERMUTATIONS;
 
 	for (int i = 0; i < def; i++) {
-		p1 = xRand(0, nitens), p2 = xRand(0, nitens);
+		p1 = random(0, nitens), p2 = random(0, nitens);
 
 		while (p2 == p1 || solution.bins[p1] == solution.bins[p2])
-			p2 = xRand(0, nitens);
+			p2 = random(0, nitens);
 
 		prob = new BinPacking(*this, p1, p2);
 
@@ -427,7 +427,7 @@ inline pair<Problem*, Problem*>* BinPacking::crossOver(const Problem *parceiro, 
 
 	BinPacking *other = dynamic_cast<BinPacking*>(const_cast<Problem*>(parceiro));
 
-	inicioPart = xRand(0, nitens);
+	inicioPart = random(0, nitens);
 	fimPart = inicioPart + particao <= nitens ? inicioPart + particao : nitens;
 
 	swap_vect(this->solution.ordemItens, other->solution.ordemItens, f1, inicioPart, fimPart - inicioPart);
@@ -447,7 +447,7 @@ inline pair<Problem*, Problem*>* BinPacking::crossOver(const Problem *parceiro, 
 
 	BinPacking *other = dynamic_cast<BinPacking*>(const_cast<Problem*>(parceiro));
 
-	particao = xRand(1, nitens);
+	particao = random(1, nitens);
 
 	swap_vect(this->solution.ordemItens, other->solution.ordemItens, f1, 0, particao);
 	swap_vect(other->solution.ordemItens, this->solution.ordemItens, f2, 0, particao);

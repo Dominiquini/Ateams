@@ -142,7 +142,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 		for (int j = 0; j < numCrossOver / 2; j++) {
 			temp = new pair<Problem*, Problem*>();
 
-			if (xRand() < RAND_MAX * probMutacao && (int) bad_pop->size() > 0) {
+			if (random() < RAND_MAX * probMutacao && (int) bad_pop->size() > 0) {
 				iterProb = Control::selectRandom(bad_pop);
 				temp->first = *iterProb;
 			} else {
@@ -153,7 +153,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 				pop->erase(iterProb);
 			}
 
-			if (xRand() < RAND_MAX * probMutacao && (int) bad_pop->size() > 0) {
+			if (random() < RAND_MAX * probMutacao && (int) bad_pop->size() > 0) {
 				iterProb = Control::selectRandom(bad_pop);
 				temp->second = *iterProb;
 			} else {
@@ -176,14 +176,14 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 				temp = (*iterParProb)->first->crossOver((*iterParProb)->second, strengthCrossOver);
 			}
 
-			if (xRand() < (RAND_MAX * probMutacao / 2)) {
-				mutante = temp->first->mutation(xRand(1, (int) (((float) 100) * probMutacao)));
+			if (random() < (RAND_MAX * probMutacao / 2)) {
+				mutante = temp->first->mutation(random(1, (int) (((float) 100) * probMutacao)));
 				delete temp->first;
 				temp->first = mutante;
 			}
 
-			if (xRand() < (RAND_MAX * probMutacao / 2)) {
-				mutante = temp->second->mutation(xRand(1, (int) (((float) 100) * probMutacao)));
+			if (random() < (RAND_MAX * probMutacao / 2)) {
+				mutante = temp->second->mutation(random(1, (int) (((float) 100) * probMutacao)));
 				delete temp->second;
 				temp->second = mutante;
 			}
@@ -232,7 +232,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 		sort(pop->begin(), pop->end(), fnSortFitness);
 
 		/* Mantem a populacao auxiliar sob controle */
-		random_shuffle(bad_pop->begin(), bad_pop->end(), pointer_to_unary_function<int, int>(xRand));
+		random_shuffle(bad_pop->begin(), bad_pop->end(), pointer_to_unary_function<int, int>(random));
 
 		while ((int) bad_pop->size() > 10 * populationSizeGenetico) {
 			delete bad_pop->back();

@@ -11,8 +11,8 @@ int main(int argc, char *argv[]) {
 
 	fix_terminal();
 
-	signal(SIGTERM, SignalHandler);		// Interrompe o programa ao ser requisitado externamente
-	signal(SIGINT, SignalHandler);		// Interrompe o programa ao se pessionar 'CTRL-C'
+	signal(SIGTERM, internalSignalHandler);		// Interrompe o programa ao ser requisitado externamente
+	signal(SIGINT, internalSignalHandler);		// Interrompe o programa ao se pessionar 'CTRL-C'
 
 	srand(unsigned(time(NULL)));
 
@@ -32,34 +32,34 @@ int main(int argc, char *argv[]) {
 		ctrl->printExecution();
 
 		Control::terminate();
+
+		cout << endl << endl << "Termination Reason: " << getTerminationInfo(STATUS) << endl << endl;
+
+		return 0;
 	} catch (...) {
 		exception_ptr exception = current_exception();
 
-		cerr << endl << COLOR_RED << "Error During Execution: " << getExceptionMessage(exception) << COLOR_DEFAULT << endl << endl;
+		cerr << endl << endl << COLOR_RED << "Error During Execution: " << getExceptionMessage(exception) << COLOR_DEFAULT << endl << endl;
 
-		exit(1);
+		return -1;
 	}
-
-	cout << endl << endl << "Termination Reason: " << getTerminationInfo(STATUS) << endl << endl;
-
-	return 0;
 }
 
-int xRand() {
-	return xRand(RAND_MAX);
+int random() {
+	return random(RAND_MAX);
 }
 
-int xRand(int max) {
-	return xRand(0, max);
+int random(int max) {
+	return random(0, max);
 }
 
-int xRand(int min, int max) {
+int random(int min, int max) {
 	uniform_int_distribution<int> randomDistribution(min, max - 1);
 
 	return randomDistribution(randomEngine);
 }
 
-void SignalHandler(int signal) {
+void internalSignalHandler(int signal) {
 	if (STATUS == EXECUTING) {
 		switch (signal) {
 			case SIGTERM:

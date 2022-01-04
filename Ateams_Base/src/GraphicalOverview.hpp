@@ -2,8 +2,6 @@
 
 #include "Control.hpp"
 
-using namespace this_thread;
-
 #ifndef _GRAPHICAL_OVERVIEW_
 #define _GRAPHICAL_OVERVIEW_
 

@@ -22,7 +22,6 @@
 #include <vector>
 #include <bitset>
 #include <string>
-#include <thread>
 #include <chrono>
 #include <random>
 #include <cctype>
@@ -41,17 +40,9 @@ using namespace std;
   #define fix_terminal() ios_base::sync_with_stdio(true);
 #endif
 
-#define RANDOM_TYPE -1
+#define sleep_ms(milliseconds) usleep(milliseconds * 1000)
 
-#if (RANDOM_TYPE > 0)
-  static default_random_engine randomEngine(RANDOM_TYPE);
-#elif (RANDOM_TYPE == -1)
-  static default_random_engine randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
-#elif (RANDOM_TYPE == -2)
-  static mt19937 randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
-#elif (RANDOM_TYPE == -3)
-  static random_device randomEngine;
-#endif
+#define RANDOM_TYPE -1
 
 #define DEFAULT_PROGRESS_SIZE 100
 #define DEFAULT_PROGRESS_COLOR COLOR_RED
@@ -90,13 +81,23 @@ struct ExecHeuristicsInfo {
 	unsigned int annealing = 0;
 };
 
-int xRand();
+#if (RANDOM_TYPE > 0)
+  static default_random_engine randomEngine(RANDOM_TYPE);
+#elif (RANDOM_TYPE == -1)
+  static default_random_engine randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+#elif (RANDOM_TYPE == -2)
+  static mt19937 randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+#elif (RANDOM_TYPE == -3)
+  static random_device randomEngine;
+#endif
 
-int xRand(int max);
+int random();
 
-int xRand(int min, int max);
+int random(int max);
 
-void SignalHandler(int signal);
+int random(int min, int max);
+
+void internalSignalHandler(int signal);
 
 inline string getExceptionMessage(exception_ptr &eptr) {
 	try {
