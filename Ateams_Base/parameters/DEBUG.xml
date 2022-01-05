@@ -3,10 +3,10 @@
 
 <Controller
    iterations = "10"
-   attemptsWithoutImprovement = "-1"
-   maxExecutionTime = "30"
    numThreads = "1"
    populationSize = "100"
+   attemptsWithoutImprovement = "-1"
+   maxExecutionTime = "30"
    maxSolutions = "-1"
    bestKnownFitness = "-1">
 

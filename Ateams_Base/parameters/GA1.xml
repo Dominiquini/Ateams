@@ -3,25 +3,25 @@
 
 <Controller
    iterations = "250"
-   attemptsWithoutImprovement = "100"
-   maxExecutionTime = "3600"
    numThreads = "8"
    populationSize = "500"
+   attemptsWithoutImprovement = "100"
+   maxExecutionTime = "3600"
    maxSolutions = "-1"
    bestKnownFitness = "-1">
 
   <Heuristics>
 
     <GeneticAlgorithm
-       name = "AG3"
-       probAG = "3"
+       name = "AG1"
+       probAG = "12"
        choicePolicyGA = "-1"
-       iterationsGA = "1000"
-       populationSizeAG = "250"
-       partitionSizeAG = "-1"
-       crossoverProbabilityAG = "0.99"
-       crossoverPowerAG = "0.75"
-       mutationProbabilityAG = "0.2">
+       iterationsGA = "500"
+       populationSizeAG = "50"
+       partitionSizeAG = "0"
+       crossoverProbabilityAG = "0.8"
+       crossoverPowerAG = "0.25"
+       mutationProbabilityAG = "0.08">
     </GeneticAlgorithm>
 
   </Heuristics>

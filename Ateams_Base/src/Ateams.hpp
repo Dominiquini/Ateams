@@ -27,6 +27,7 @@
 #include <cctype>
 #include <ctime>
 #include <list>
+#include <map>
 #include <set>
 
 using namespace std;
@@ -41,6 +42,8 @@ using namespace std;
 #endif
 
 #define sleep_ms(milliseconds) usleep(milliseconds * 1000)
+
+#define quote(x) #x
 
 #define RANDOM_TYPE -1
 

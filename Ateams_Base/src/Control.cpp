@@ -44,7 +44,25 @@ void Control::terminate() {
 		throw "Memory Leak!";
 }
 
+Heuristic* Control::instantiateHeuristic(char *name) {
+	if (strcmpi(name, SIMULATED_ANNEALING_NAME) == 0)
+		return new SimulatedAnnealing();
+
+	if (strcmpi(name, GENETIC_ALGORITHM_NAME) == 0)
+		return new GeneticAlgorithm();
+
+	if (strcmpi(name, TABU_SEARCH_NAME) == 0)
+		return new TabuSearch();
+
+	return NULL;
+}
+
 Control::Control() {
+	this->printFullSolution = false;
+
+	this->showTextOverview = false;
+	this->showGraphicalOverview = false;
+
 	this->solutions = new set<Problem*, bool (*)(Problem*, Problem*)>(fnSortSolution);
 
 	this->heuristics = new vector<Heuristic*>();
@@ -53,19 +71,6 @@ Control::Control() {
 	this->executionProgressBar = new ProgressBar("EXECUTING: ");
 
 	this->graphicalOverview = new GraphicalOverview(Control::argc, Control::argv);
-
-	this->iterations = 250;
-	this->numThreads = 8;
-	this->populationSize = 500;
-	this->attemptsWithoutImprovement = 100;
-	this->bestKnownFitness = -1;
-	this->maxExecutionTime = 3600;
-	this->maxSolutions = -1;
-
-	this->printFullSolution = false;
-
-	this->showTextOverview = false;
-	this->showGraphicalOverview = false;
 
 	this->startTime = this->endTime = 0;
 	this->lastImprovedIteration = 0;
@@ -162,26 +167,27 @@ int Control::execute(unsigned int executionId) {
 	return contrib;
 }
 
-pair<int, int>* Control::addSolutions(vector<Problem*> *news) {
-	pair<set<Problem*, bool (*)(Problem*, Problem*)>::iterator, bool> ret;
-	vector<Problem*>::const_iterator iterNews;
-	int nins = 0, nret = news->size();
-	Problem *pointSol = NULL;
+pair<int, int>* Control::addSolutions(vector<Problem*> *newSolutions) {
+	pair<set<Problem*, bool (*)(Problem*, Problem*)>::iterator, bool> insertion;
+	int nins = 0, nret = newSolutions->size();
+	Problem *worstSolution = NULL;
 
-	for (iterNews = news->begin(); iterNews != news->end(); iterNews++) {
-		if (Problem::improvement(**solutions->rbegin(), **iterNews) < 0) {
+	for (vector<Problem*>::const_iterator iterNews = newSolutions->begin(); iterNews != newSolutions->end(); iterNews++) {
+		worstSolution = *solutions->rbegin();
+
+		if (Problem::improvement(*worstSolution, **iterNews) < 0) {
 			delete *iterNews;
 		} else {
-			ret = solutions->insert(*iterNews);
+			insertion = solutions->insert(*iterNews);
 
-			if (ret.second == true) {
+			if (insertion.second) {
 				nins++;
 
-				if ((int) solutions->size() > populationSize) {
-					pointSol = *solutions->rbegin();
+				if ((int) solutions->size() > parameters.populationSize) {
+					worstSolution = *solutions->rbegin();
 
-					solutions->erase(pointSol);
-					delete pointSol;
+					solutions->erase(worstSolution);
+					delete worstSolution;
 				}
 			} else {
 				delete *iterNews;
@@ -198,11 +204,11 @@ pair<int, int>* Control::addSolutions(vector<Problem*> *news) {
 void Control::generatePopulation(list<Problem*> *popInicial) {
 	cout << endl;
 
-	loadingProgressBar->init(populationSize);
+	loadingProgressBar->init(parameters.populationSize);
 
 	if (popInicial != NULL) {
 		for (list<Problem*>::iterator iter = popInicial->begin(); iter != popInicial->end(); iter++) {
-			if ((int) solutions->size() >= populationSize || !solutions->insert(*iter).second) {
+			if ((int) solutions->size() >= parameters.populationSize || !solutions->insert(*iter).second) {
 				delete *iter;
 			}
 		}
@@ -211,9 +217,9 @@ void Control::generatePopulation(list<Problem*> *popInicial) {
 	loadingProgressBar->update(solutions->size());
 
 	Problem *soluction = NULL;
-	unsigned long int limit = pow(populationSize, 3), failedAttempts = 0;
+	unsigned long int limit = pow(parameters.populationSize, 3), failedAttempts = 0;
 
-	while ((int) solutions->size() < populationSize && failedAttempts < limit && STATUS == EXECUTING) {
+	while ((int) solutions->size() < parameters.populationSize && failedAttempts < limit && STATUS == EXECUTING) {
 		soluction = Problem::randomSolution();
 
 		if (soluction->getFitness() == -1 || !solutions->insert(soluction).second) {
@@ -301,27 +307,13 @@ inline void Control::readMainCMDParameters() {
 inline void Control::readAdditionalCMDParameters() {
 	int p = -1;
 
-	if ((p = findPosArgv(argv, *argc, (char*) "--iterations")) != -1)
-		setParameter("iterations", argv[p]);
+	for (map<string, void*>::const_iterator param = parameters.keys.begin(); param != parameters.keys.end(); param++) {
+		string cmdParameter = COMMAND_LINE_PARAMETER_SUFFIX + param->first;
 
-	if ((p = findPosArgv(argv, *argc, (char*) "--numThreads")) != -1)
-		setParameter("numThreads", argv[p]);
-
-	if ((p = findPosArgv(argv, *argc, (char*) "--populationSize")) != -1)
-		setParameter("populationSize", argv[p]);
-
-	if ((p = findPosArgv(argv, *argc, (char*) "--attemptsWithoutImprovement")) != -1)
-		setParameter("attemptsWithoutImprovement", argv[p]);
-
-	if ((p = findPosArgv(argv, *argc, (char*) "--bestKnownFitness")) != -1)
-		setParameter("bestKnownFitness", argv[p]);
-
-	if ((p = findPosArgv(argv, *argc, (char*) "--maxExecutionTime")) != -1)
-		setParameter("maxExecutionTime", argv[p]);
-
-	if ((p = findPosArgv(argv, *argc, (char*) "--maxSolutions")) != -1)
-		setParameter("maxSolutions", argv[p]);
-
+		if ((p = findPosArgv(argv, *argc, const_cast<char*>(cmdParameter.c_str()))) != -1) {
+			setParameter(param->first.c_str(), argv[p]);
+		}
+	}
 }
 
 inline void Control::setPrintFullSolution(bool fullPrint) {
@@ -345,7 +337,7 @@ void Control::init() {
 	pthread_mutex_init(&mutex_info, &mutex_attr);
 	pthread_mutex_init(&mutex_exec, &mutex_attr);
 
-	sem_init(&semaphore, 0, numThreads);
+	sem_init(&semaphore, 0, parameters.numThreads);
 
 	/* Leitura dos dados passados por arquivos */
 	Problem::readProblemFromFile(getInputDataFile());
@@ -362,7 +354,7 @@ void Control::init() {
 
 	cout << COLOR_CYAN;
 
-	cout << endl << "Population Size: : " << solutions->size() << endl;
+	cout << endl << "Initial Population Size: : " << solutions->size() << endl;
 	cout << endl << "Worst Initial Solution: " << Problem::worst << endl;
 	cout << endl << "Best Initial Solution: " << Problem::best << endl;
 
@@ -372,6 +364,7 @@ void Control::init() {
 void Control::finish() {
 	cout << endl << COLOR_CYAN;
 
+	cout << endl << "Final Population Size: : " << solutions->size() << endl;
 	cout << endl << "Worst Final Solution: " << Problem::worst << endl;
 	cout << endl << "Best Final Solution: " << Problem::best << endl;
 
@@ -410,7 +403,7 @@ void Control::run() {
 		cout << endl << flush;
 	}
 
-	pthread_t *threads = (pthread_t*) malloc(iterations * sizeof(pthread_t));
+	pthread_t *threads = (pthread_t*) malloc(parameters.iterations * sizeof(pthread_t));
 	pthread_t threadManagement;
 
 	pthread_attr_t attrJoinable;
@@ -422,7 +415,7 @@ void Control::run() {
 	}
 
 	if (!showTextOverview) {
-		executionProgressBar->init(iterations);
+		executionProgressBar->init(parameters.iterations);
 	}
 
 	if (showGraphicalOverview) {
@@ -432,20 +425,20 @@ void Control::run() {
 	if (pthread_create(&threadManagement, &attrJoinable, Control::pthrManagement, NULL) != 0)
 		throw "Thread Creation Error! (pthrManagement)";
 
-	for (int execAteams = 0; execAteams < iterations; execAteams++) {
+	for (int execAteams = 0; execAteams < parameters.iterations; execAteams++) {
 		PrimitiveWrapper<unsigned int> *iteration = new PrimitiveWrapper<unsigned int>(execAteams + 1);
 		if (pthread_create(&threads[execAteams], &attrJoinable, Control::pthrExecution, (void*) iteration) != 0)
 			throw "Thread Creation Error! (pthrExecution)";
 	}
 
-	for (uintptr_t execAteams = 0, *inserted = NULL; execAteams < (uintptr_t) iterations; execAteams++) {
+	for (uintptr_t execAteams = 0, *inserted = NULL; execAteams < (uintptr_t) parameters.iterations; execAteams++) {
 		pthread_join(threads[execAteams], (void**) &inserted);
 
 		swappedSolutions += (uintptr_t) inserted;
 	}
 
 	if (STATUS == EXECUTING)
-		STATUS = (executionCount == iterations && (int) Heuristic::executedHeuristics->size() == iterations) ? FINISHED_NORMALLY : INCOMPLETE;
+		STATUS = (executionCount == parameters.iterations && (int) Heuristic::executedHeuristics->size() == parameters.iterations) ? FINISHED_NORMALLY : INCOMPLETE;
 
 	pthread_join(threadManagement, NULL);
 
@@ -486,6 +479,7 @@ ExecutionInfo Control::getExecutionInfo() {
 
 	info.worstFitness = Problem::worst;
 	info.bestFitness = Problem::best;
+
 	info.exploredSolutions = Problem::totalNumInst;
 
 	return info;
@@ -509,7 +503,7 @@ void Control::printExecution() {
 	cout << endl << "Explored Solutions: " << Problem::totalNumInst << endl;
 	cout << endl << "Swapped Solutions: " << swappedSolutions << endl;
 
-	cout << endl << "Executions: " << executionCount << " (" << (100 * executionCount) / iterations << "%) " << endl << endl;
+	cout << endl << "Executions: " << executionCount << " (" << (100 * executionCount) / parameters.iterations << "%) " << endl << endl;
 
 	for (vector<Heuristic*>::reverse_iterator it = heuristics->rbegin(); it != heuristics->rend(); it++) {
 		(*it)->printStatistics('-', executionCount);
@@ -518,32 +512,32 @@ void Control::printExecution() {
 	cout << COLOR_DEFAULT;
 }
 
-bool Control::setParameter(const char *parameter, const char *value) {
-	int read = EOF;
-
-	if (strcasecmp(parameter, "iterations") == 0) {
-		read = sscanf(value, "%d", &iterations);
-	} else if (strcasecmp(parameter, "numThreads") == 0) {
-		read = sscanf(value, "%d", &numThreads);
-	} else if (strcasecmp(parameter, "populationSize") == 0) {
-		read = sscanf(value, "%d", &populationSize);
-	} else if (strcasecmp(parameter, "attemptsWithoutImprovement") == 0) {
-		read = sscanf(value, "%d", &attemptsWithoutImprovement);
-	} else if (strcasecmp(parameter, "bestKnownFitness") == 0) {
-		read = sscanf(value, "%d", &bestKnownFitness);
-	} else if (strcasecmp(parameter, "maxExecutionTime") == 0) {
-		read = sscanf(value, "%d", &maxExecutionTime);
-	} else if (strcasecmp(parameter, "maxSolutions") == 0) {
-		read = sscanf(value, "%lld", &maxSolutions);
-	}
-
-	return read != EOF;
+AteamsParameters Control::getParameters() {
+	return parameters;
 }
 
-void Control::addHeuristic(Heuristic *alg) {
-	heuristics->push_back(alg);
+bool Control::setParameter(const char *parameter, const char *value) {
+	return parameters.setParameter(parameter, value);
+}
 
-	sort(heuristics->begin(), heuristics->end(), Heuristic::comparator);
+void Control::newHeuristic(Heuristic *alg) {
+	if (alg != NULL) {
+		heuristics->push_back(alg);
+
+		Heuristic::heuristicsProbabilitySum += alg->getParameters().choiceProbability;
+	}
+
+	sort(heuristics->begin(), heuristics->end(), Heuristic::sortingComparator);
+}
+
+void Control::deleteHeuristic(Heuristic *alg) {
+	if (alg != NULL) {
+		remove(heuristics->begin(), heuristics->end(), alg);
+
+		Heuristic::heuristicsProbabilitySum -= alg->getParameters().choiceProbability;
+	}
+
+	sort(heuristics->begin(), heuristics->end(), Heuristic::sortingComparator);
 }
 
 double Control::sumFitnessMaximize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n) {
@@ -630,7 +624,7 @@ Heuristic* Control::selectRouletteWheel(vector<Heuristic*> *heuristic, unsigned 
 	unsigned int randWheel = random(0, sum + 1);
 
 	for (int i = 0; i < (int) heuristic->size(); i++) {
-		sum -= heuristic->at(i)->choiceProbability;
+		sum -= heuristic->at(i)->getParameters().choiceProbability;
 		if (sum <= randWheel) {
 			return heuristic->at(i);
 		}
@@ -705,19 +699,19 @@ void* Control::pthrManagement(void *_) {
 	while (STATUS == EXECUTING) {
 		time(&rawtime);
 
-		if ((int) difftime(rawtime, ctrl->startTime) > ctrl->maxExecutionTime)
+		if (ctrl->parameters.maxExecutionTime != -1 && (int) difftime(rawtime, ctrl->startTime) > ctrl->parameters.maxExecutionTime)
 			STATUS = EXECUTION_TIMEOUT;
 
-		if (ctrl->attemptsWithoutImprovement != -1 && ctrl->lastImprovedIteration > ctrl->attemptsWithoutImprovement)
+		if (ctrl->parameters.attemptsWithoutImprovement != -1 && ctrl->lastImprovedIteration > ctrl->parameters.attemptsWithoutImprovement)
 			STATUS = LACK_OF_IMPROVEMENT;
 
-		if (ctrl->maxSolutions != -1 && Problem::totalNumInst > (unsigned long long) ctrl->maxSolutions)
+		if (ctrl->parameters.maxSolutions != -1 && Problem::totalNumInst > (unsigned long long) ctrl->parameters.maxSolutions)
 			STATUS = TOO_MANY_SOLUTIONS;
 
-		if ((ctrl->bestKnownFitness != -1 ? Problem::improvement(ctrl->bestKnownFitness, Problem::best) : -1) >= 0)
+		if ((ctrl->parameters.bestKnownFitness != -1 ? Problem::improvement(ctrl->parameters.bestKnownFitness, Problem::best) : -1) >= 0)
 			STATUS = RESULT_ACHIEVED;
 
-		sleep_ms(THREAD_TIME_CONTROL_INTERVAL);
+		sleep_ms(THREAD_MANAGEMENT_UPDATE_INTERVAL);
 	}
 
 	pthread_return(NULL);

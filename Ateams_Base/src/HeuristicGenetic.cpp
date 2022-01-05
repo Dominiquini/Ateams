@@ -2,74 +2,40 @@
 
 using namespace std;
 
-GeneticAlgorithm::GeneticAlgorithm() : Heuristic::Heuristic("DEFAULT_AG") {
-	executionCounter = 0;
-
-	choiceProbability = 13;
-	choicePolicy = -1;
-	iterGenetico = 500;
-	populationSizeGenetico = 250;
-	crossoverProbability = 0.8;
-	crossoverPowerAG = 0.5;
-	probMutacao = 0.08;
-	tamParticionamento = 0;
-
-	Heuristic::heuristicsProbabilitySum += choiceProbability;
+GeneticAlgorithm::GeneticAlgorithm() : Heuristic::Heuristic() {
 }
 
 GeneticAlgorithm::~GeneticAlgorithm() {
-	Heuristic::heuristicsProbabilitySum -= choiceProbability;
+}
+
+HeuristicParameters GeneticAlgorithm::getParameters() {
+	return parameters;
 }
 
 bool GeneticAlgorithm::setParameter(const char *parameter, const char *value) {
-	if (Heuristic::setParameter(parameter, value))
-		return true;
-
-	if (strcasecmp(parameter, "probAG") == 0) {
-		Heuristic::heuristicsProbabilitySum -= choiceProbability;
-		sscanf(value, "%d", &choiceProbability);
-		Heuristic::heuristicsProbabilitySum += choiceProbability;
-	} else if (strcasecmp(parameter, "choicePolicyGA") == 0) {
-		sscanf(value, "%d", &choicePolicy);
-	} else if (strcasecmp(parameter, "iterationsGA") == 0) {
-		sscanf(value, "%d", &iterGenetico);
-	} else if (strcasecmp(parameter, "populationSizeAG") == 0) {
-		sscanf(value, "%d", &populationSizeGenetico);
-	} else if (strcasecmp(parameter, "partitionSizeAG") == 0) {
-		sscanf(value, "%d", &tamParticionamento);
-	} else if (strcasecmp(parameter, "crossoverProbabilityAG") == 0) {
-		sscanf(value, "%f", &crossoverProbability);
-	} else if (strcasecmp(parameter, "crossoverPowerAG") == 0) {
-		sscanf(value, "%f", &crossoverPowerAG);
-	} else if (strcasecmp(parameter, "mutationProbabilityAG") == 0) {
-		sscanf(value, "%f", &probMutacao);
-	} else {
-		return false;
-	}
-
-	return true;
+	return parameters.setParameter(parameter, value);
 }
 
 vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) {
 	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection = sol->begin();
 	vector<Problem*> *popAG = new vector<Problem*>();
+	int initialPopulation = 0;
 	int solutionsCount = 0;
 
 	pthread_mutex_lock(&mutex_pop);
 
-	if (populationSizeGenetico > (int) sol->size())
-		populationSizeGenetico = (int) sol->size();
+	initialPopulation = min(parameters.populationSize, (int) sol->size());
 
 	executionCounter++;
 
-	if (choicePolicy == 0) {
-		for (selection = sol->begin(), solutionsCount = 0; selection != sol->end() && solutionsCount < populationSizeGenetico; selection++, solutionsCount++) {
+	if (parameters.choicePolicy == 0) {
+		for (selection = sol->begin(), solutionsCount = 0; selection != sol->end() && solutionsCount < initialPopulation; selection++, solutionsCount++) {
 			popAG->push_back(Problem::copySolution(**selection));
 		}
 	} else {
-		double fitTotal = choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, choicePolicy);
+		double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
 
-		for (solutionsCount = 0; solutionsCount < populationSizeGenetico; solutionsCount++) {
+		for (solutionsCount = 0; solutionsCount < initialPopulation; solutionsCount++) {
 			selection = selectRouletteWheel(sol, fitTotal);
 
 			popAG->push_back(Problem::copySolution(**selection));
@@ -112,7 +78,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 	vector<pair<Problem*, Problem*>*>::const_iterator iterParProb;
 	vector<Problem*>::iterator iterProb;
 
-	int strengthCrossOver = (int) (crossoverPowerAG * 100);
+	int strengthCrossOver = (int) (parameters.crossoverPower * 100);
 	int numCrossOver;
 	double sumP;
 
@@ -122,19 +88,19 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 		listener->bestInitialFitness = (*pop->begin())->getFitness();
 
 	/* Iteracao principal do AG */
-	for (int i = 0; i < iterGenetico; i++) {
+	for (int i = 0; i < parameters.iterations; i++) {
 		if (STATUS != EXECUTING)
 			break;
 
 		if (listener != NULL) {
-			listener->status = (100.00 * (double) (i + 1)) / (double) iterGenetico;
+			listener->status = (100.00 * (double) (i + 1)) / (double) parameters.iterations;
 
 			listener->bestActualFitness = (*pop->begin())->getFitness();
 
 			listener->setupInfo("Generation: %d", i + 1);
 		}
 
-		numCrossOver = (int) ((float) pop->size() * crossoverProbability);
+		numCrossOver = (int) ((float) pop->size() * parameters.crossoverProbability);
 
 		sumP = Control::sumFitnessMaximize(pop, pop->size());
 
@@ -142,7 +108,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 		for (int j = 0; j < numCrossOver / 2; j++) {
 			temp = new pair<Problem*, Problem*>();
 
-			if (random() < RAND_MAX * probMutacao && (int) bad_pop->size() > 0) {
+			if (random() < RAND_MAX * parameters.mutationProbability && (int) bad_pop->size() > 0) {
 				iterProb = Control::selectRandom(bad_pop);
 				temp->first = *iterProb;
 			} else {
@@ -153,7 +119,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 				pop->erase(iterProb);
 			}
 
-			if (random() < RAND_MAX * probMutacao && (int) bad_pop->size() > 0) {
+			if (random() < RAND_MAX * parameters.mutationProbability && (int) bad_pop->size() > 0) {
 				iterProb = Control::selectRandom(bad_pop);
 				temp->second = *iterProb;
 			} else {
@@ -168,22 +134,22 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 
 		/* Faz o cruzamento entre os individuos anteriormente escolhidos */
 		for (iterParProb = pais->begin(); iterParProb != pais->end(); iterParProb++) {
-			if (tamParticionamento != -1) {
+			if (parameters.partitionSize != -1) {
 				/* Crossover com dois pontos de particionamento escolhidos aleatoriamente e um deles com tamanho 'tamParticionmento' */
-				temp = (*iterParProb)->first->crossOver((*iterParProb)->second, tamParticionamento, strengthCrossOver);
+				temp = (*iterParProb)->first->crossOver((*iterParProb)->second, parameters.partitionSize, strengthCrossOver);
 			} else {
 				/* Crossover com um ponto de particionamento escolhido aleatoriamente */
 				temp = (*iterParProb)->first->crossOver((*iterParProb)->second, strengthCrossOver);
 			}
 
-			if (random() < (RAND_MAX * probMutacao / 2)) {
-				mutante = temp->first->mutation(random(1, (int) (((float) 100) * probMutacao)));
+			if (random() < (RAND_MAX * parameters.mutationProbability / 2)) {
+				mutante = temp->first->mutation(random(1, (int) (((float) 100) * parameters.mutationProbability)));
 				delete temp->first;
 				temp->first = mutante;
 			}
 
-			if (random() < (RAND_MAX * probMutacao / 2)) {
-				mutante = temp->second->mutation(random(1, (int) (((float) 100) * probMutacao)));
+			if (random() < (RAND_MAX * parameters.mutationProbability / 2)) {
+				mutante = temp->second->mutation(random(1, (int) (((float) 100) * parameters.mutationProbability)));
 				delete temp->second;
 				temp->second = mutante;
 			}
@@ -221,7 +187,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 
 		/* Selecao dos melhores */
 		for (iterProb = aux_pop->begin(); iterProb != aux_pop->end(); iterProb++) {
-			if ((int) pop->size() < populationSizeGenetico)
+			if ((int) pop->size() < parameters.populationSize)
 				pop->push_back(*iterProb);
 			else
 				bad_pop->push_back(*iterProb);	// Armazenado para possivel reaproveitamento
@@ -234,7 +200,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 		/* Mantem a populacao auxiliar sob controle */
 		random_shuffle(bad_pop->begin(), bad_pop->end(), pointer_to_unary_function<int, int>(random));
 
-		while ((int) bad_pop->size() > 10 * populationSizeGenetico) {
+		while ((int) bad_pop->size() > 10 * parameters.populationSize) {
 			delete bad_pop->back();
 			bad_pop->pop_back();
 		}

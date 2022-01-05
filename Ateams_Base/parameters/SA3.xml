@@ -3,10 +3,10 @@
 
 <Controller
    iterations = "250"
-   attemptsWithoutImprovement = "100"
-   maxExecutionTime = "3600"
    numThreads = "8"
    populationSize = "500"
+   attemptsWithoutImprovement = "100"
+   maxExecutionTime = "3600"
    maxSolutions = "-1"
    bestKnownFitness = "-1">
 
@@ -16,10 +16,10 @@
        name = "SA3"
        probSA = "5"
        choicePolicySA = "10"
-       elitismProbabilitySA = "0.25"
-       maxIterationsSA = "25000"
-       startTempSA = "125"
-       endTempSA = "0.75"
+       elitismProbabilitySA = "0.125"
+       maxIterationsSA = "2500"
+       startTempSA = "250.0"
+       endTempSA = "0.25"
        alphaSA = "0.9">
     </SimulatedAnnealing>
 

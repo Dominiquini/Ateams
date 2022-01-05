@@ -16,6 +16,40 @@ extern volatile TerminationInfo STATUS;
 
 class HeuristicExecutionInfo;
 
+struct HeuristicParameters {
+	map<string, void*> keys;
+
+	string name;
+
+	int choiceProbability = 0;
+	int choicePolicy = 0;
+
+	bool setParameter(const char *parameter, const char *value) {
+		int read = EOF;
+
+		if (strcmpi(parameter, "name") == 0) {
+			name = string(value);
+
+			read = name.size();
+		} else {
+			for (map<string, void*>::const_iterator param = keys.begin(); param != keys.end(); param++) {
+				if (strcmpi(parameter, param->first.c_str()) == 0) {
+					if(strchr(value, '.') != NULL)
+						read = sscanf(value, "%f", (float*) param->second);
+					else
+						read = sscanf(value, "%d", (int*) param->second);
+				}
+			}
+		}
+
+		return read != EOF;
+	}
+
+	bool isEqual(HeuristicParameters other) {
+		return name.compare(other.name) == 0;
+	}
+};
+
 class Heuristic {
 public:
 
@@ -24,8 +58,12 @@ public:
 	static list<HeuristicExecutionInfo*> *executedHeuristics;			// Algoritmos executados ate o momento
 	static list<HeuristicExecutionInfo*> *runningHeuristics;			// Algoritmos em execucao no momento
 
-	static inline bool comparator(Heuristic *h1, Heuristic *h2) {
-		return h1->choiceProbability < h2->choiceProbability;
+	static inline bool sortingComparator(Heuristic *h1, Heuristic *h2) {
+		return h1->getParameters().choiceProbability < h2->getParameters().choiceProbability;
+	}
+
+	static inline bool equalityComparator(Heuristic *h1, Heuristic *h2) {
+		return h1->getParameters().isEqual(h2->getParameters());
 	}
 
 	static inline string getExecutedHeuristics() {
@@ -36,28 +74,22 @@ public:
 		return getHeuristicNames(runningHeuristics);
 	}
 
-	string name;
-	int executionCounter = 0;
-	int choiceProbability = 0, choicePolicy = 0;
+	int executionCounter = -1;
 
-	Heuristic(string heuristicName) {
-		name = heuristicName;
+	Heuristic() {
+		executionCounter = 0;
 	}
 
 	virtual ~Heuristic() {
+		executionCounter = -1;
 	}
+
+	virtual HeuristicParameters getParameters() = 0;
+
+	virtual bool setParameter(const char *parameter, const char *value) = 0;
 
 	virtual void printStatistics(char bullet, int total) {
-		printf(" %c %s |%% %03d %%| -> %03d (%% %06.2f %%)\n", bullet, name.c_str(), choiceProbability, executionCounter, (100.0f * executionCounter) / total);
-	}
-
-	virtual bool setParameter(const char *parameter, const char *value) {
-		if (strcasecmp(parameter, "name") != 0)
-			return false;
-
-		name = string(value);
-
-		return true;
+		printf(" %c %s |%% %03d %%| -> %03d (%% %06.2f %%)\n", bullet, getParameters().name.c_str(), getParameters().choiceProbability, executionCounter, (100.0f * executionCounter) / total);
 	}
 
 	virtual set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) = 0;
@@ -114,7 +146,7 @@ public:
 private:
 
 	inline void configName() {
-		snprintf(heuristicInfo, HEURISTIC_NAME_MAX_LENGTH, "%s(%04d)", heuristic->name.c_str(), executionId);
+		snprintf(heuristicInfo, HEURISTIC_NAME_MAX_LENGTH, "%s(%04d)", heuristic->getParameters().name.c_str(), executionId);
 	}
 };
 

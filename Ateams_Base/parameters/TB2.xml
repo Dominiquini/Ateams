@@ -3,25 +3,25 @@
 
 <Controller
    iterations = "250"
-   attemptsWithoutImprovement = "100"
-   maxExecutionTime = "3600"
    numThreads = "8"
    populationSize = "500"
+   attemptsWithoutImprovement = "100"
+   maxExecutionTime = "3600"
    maxSolutions = "-1"
    bestKnownFitness = "-1">
 
   <Heuristics>
 
     <TabuSearch
-       name = "BT3"
-       probBT = "8"
-       choicePolicyTS = "100"
-       elitismProbabilityTS = "0.2"
+       name = "BT2"
+       probBT = "10"
+       choicePolicyTS = "250"
+       elitismProbabilityTS = "0.25"
        aspirationCriteriaTS = "0.5"
-       iterationsTS = "1000"
+       iterationsTS = "750"
        attemptsWithoutImprovementTS = "750"
-       listSizeTS = "250"
-       explorationPolicyTS = "1">
+       listSizeTS = "25"
+       explorationPolicyTS = "0.5">
     </TabuSearch>
 
   </Heuristics>

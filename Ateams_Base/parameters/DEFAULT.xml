@@ -3,10 +3,10 @@
 
 <Controller
    iterations = "250"
-   attemptsWithoutImprovement = "100"
-   maxExecutionTime = "3600"
    numThreads = "8"
    populationSize = "500"
+   attemptsWithoutImprovement = "100"
+   maxExecutionTime = "3600"
    maxSolutions = "-1"
    bestKnownFitness = "-1">
 
@@ -18,7 +18,7 @@
        choicePolicySA = "250"
        elitismProbabilitySA = "0.25"
        maxIterationsSA = "250"
-       startTempSA = "125"
+       startTempSA = "125.0"
        endTempSA = "0.75"
        alphaSA = "0.99">
     </SimulatedAnnealing>
@@ -29,7 +29,7 @@
        choicePolicySA = "100"
        elitismProbabilitySA = "0.25"
        maxIterationsSA = "250"
-       startTempSA = "125"
+       startTempSA = "125.0"
        endTempSA = "0.75"
        alphaSA = "0.999">
     </SimulatedAnnealing>
@@ -38,10 +38,10 @@
        name = "SA3"
        probSA = "5"
        choicePolicySA = "10"
-       elitismProbabilitySA = "0.25"
-       maxIterationsSA = "25000"
-       startTempSA = "125"
-       endTempSA = "0.75"
+       elitismProbabilitySA = "0.125"
+       maxIterationsSA = "2500"
+       startTempSA = "250.0"
+       endTempSA = "0.25"
        alphaSA = "0.9">
     </SimulatedAnnealing>
 
@@ -61,7 +61,7 @@
        name = "BT2"
        probBT = "10"
        choicePolicyTS = "250"
-       elitismProbabilityTS = "0.1"
+       elitismProbabilityTS = "0.25"
        aspirationCriteriaTS = "0.5"
        iterationsTS = "750"
        attemptsWithoutImprovementTS = "750"
@@ -73,12 +73,12 @@
        name = "BT3"
        probBT = "8"
        choicePolicyTS = "100"
-       elitismProbabilityTS = "0.2"
+       elitismProbabilityTS = "0.125"
        aspirationCriteriaTS = "0.5"
        iterationsTS = "1000"
        attemptsWithoutImprovementTS = "750"
        listSizeTS = "250"
-       explorationPolicyTS = "1">
+       explorationPolicyTS = "1.0">
     </TabuSearch>
 
     <GeneticAlgorithm

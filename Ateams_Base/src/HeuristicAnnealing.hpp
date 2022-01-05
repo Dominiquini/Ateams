@@ -7,15 +7,41 @@ using namespace std;
 #ifndef _ANNEALING_
 #define _ANNEALING_
 
+#define SIMULATED_ANNEALING_NAME "SimulatedAnnealing"
+
+struct SimulatedAnnealingParameters : HeuristicParameters {
+	map<string, void*> simulatedAnnealingKeys = {
+			{"probSA", &choiceProbability},
+			{"choicePolicySA", &choicePolicy},
+			{"maxIterationsSA", &maxIterations},
+			{"elitismProbabilitySA", &elitismProbability},
+			{"startTempSA", &startTemp},
+			{"endTempSA", &endTemp},
+			{"alphaSA", &alpha}
+	};
+
+	int maxIterations = 250;
+
+	float elitismProbability = 0.25;
+
+	float startTemp = 125.0;
+	float endTemp = 0.75;
+	float alpha = 0.99;
+
+	SimulatedAnnealingParameters() {
+		keys.insert(simulatedAnnealingKeys.begin(), simulatedAnnealingKeys.end());
+	}
+};
+
 class SimulatedAnnealing: public Heuristic {
 public:
 
-	int maxIter, elitism;
-	float startTemp, endTemp;
-	float alfa;
+	SimulatedAnnealingParameters parameters;
 
 	SimulatedAnnealing();
 	~SimulatedAnnealing();
+
+	HeuristicParameters getParameters() override;
 
 	bool setParameter(const char *parameter, const char *value) override;
 

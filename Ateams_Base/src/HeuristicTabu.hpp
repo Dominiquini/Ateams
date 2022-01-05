@@ -7,14 +7,43 @@ using namespace std;
 #ifndef _TABU_
 #define _TABU_
 
+#define TABU_SEARCH_NAME "TabuSearch"
+
+struct TabuSearchParameters : HeuristicParameters {
+	map<string, void*> tabuSearchKeys = {
+			{"probBT", &choiceProbability},
+			{"choicePolicyTS", &choicePolicy},
+			{"iterationsTS", &iterations},
+			{"listSizeTS", &listSize},
+			{"attemptsWithoutImprovementTS", &attemptsWithoutImprovement},
+			{"elitismProbabilityTS", &elitismProbability},
+			{"aspirationCriteriaTS", &aspirationCriteria},
+			{"explorationPolicyTS", &explorationPolicy}
+	};
+
+	int iterations = 750;
+	int listSize = 10;
+	int	attemptsWithoutImprovement = 500;
+
+	float elitismProbability = 0.25;
+
+	float aspirationCriteria = 0.5;
+	float explorationPolicy = 0.5;
+
+	TabuSearchParameters() {
+		keys.insert(tabuSearchKeys.begin(), tabuSearchKeys.end());
+	}
+};
+
 class TabuSearch: public Heuristic {
 public:
 
-	int iterTabu, tamListaTabu, tentSemMelhora, elitism;
-	float funcAsp, polExploracao;
+	TabuSearchParameters parameters;
 
 	TabuSearch();
 	~TabuSearch();
+
+	HeuristicParameters getParameters() override;
 
 	bool setParameter(const char *parameter, const char *value) override;
 

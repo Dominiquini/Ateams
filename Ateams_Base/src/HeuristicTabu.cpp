@@ -2,52 +2,18 @@
 
 using namespace std;
 
-TabuSearch::TabuSearch() : Heuristic::Heuristic("DEFAULT_BT") {
-	executionCounter = 0;
-
-	choiceProbability = 35;
-	funcAsp = 0.5;
-	choicePolicy = 100;
-	iterTabu = 750;
-	tamListaTabu = 10;
-	tentSemMelhora = 500;
-	polExploracao = 0.5;
-	elitism = 10;
-
-	Heuristic::heuristicsProbabilitySum += choiceProbability;
+TabuSearch::TabuSearch() : Heuristic::Heuristic() {
 }
 
 TabuSearch::~TabuSearch() {
-	Heuristic::heuristicsProbabilitySum -= choiceProbability;
+}
+
+HeuristicParameters TabuSearch::getParameters() {
+	return parameters;
 }
 
 bool TabuSearch::setParameter(const char *parameter, const char *value) {
-	if (Heuristic::setParameter(parameter, value))
-		return true;
-
-	if (strcasecmp(parameter, "probBT") == 0) {
-		Heuristic::heuristicsProbabilitySum -= choiceProbability;
-		sscanf(value, "%d", &choiceProbability);
-		Heuristic::heuristicsProbabilitySum += choiceProbability;
-	} else if (strcasecmp(parameter, "choicePolicyTS") == 0) {
-		sscanf(value, "%d", &choicePolicy);
-	} else if (strcasecmp(parameter, "elitismProbabilityTS") == 0) {
-		sscanf(value, "%d", &elitism);
-	} else if (strcasecmp(parameter, "aspirationCriteriaTS") == 0) {
-		sscanf(value, "%f", &funcAsp);
-	} else if (strcasecmp(parameter, "iterationsTS") == 0) {
-		sscanf(value, "%d", &iterTabu);
-	} else if (strcasecmp(parameter, "attemptsWithoutImprovementTS") == 0) {
-		sscanf(value, "%d", &tentSemMelhora);
-	} else if (strcasecmp(parameter, "listSizeTS") == 0) {
-		sscanf(value, "%d", &tamListaTabu);
-	} else if (strcasecmp(parameter, "explorationPolicyTS") == 0) {
-		sscanf(value, "%f", &polExploracao);
-	} else {
-		return false;
-	}
-
-	return true;
+	return parameters.setParameter(parameter, value);
 }
 
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
@@ -60,10 +26,10 @@ vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> 
 	executionCounter++;
 
 	// Escolhe a melhor solucao para ser usada pelo BT
-	if (choicePolicy == 0 || random(0, 101) < elitism) {
+	if (parameters.choicePolicy == 0 || random(0, 101) < (100 * parameters.elitismProbability)) {
 		selection = sol->begin();
 	} else {
-		double fitTotal = choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, choicePolicy);
+		double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
 
 		selection = selectRouletteWheel(sol, fitTotal);
 	}
@@ -110,24 +76,24 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *listen
 		listener->bestInitialFitness = (*maxGlobal->begin())->getFitness();
 
 	// Loop principal
-	for (int i = 0, j = 0; i < iterTabu && j < tentSemMelhora; i++, j++) {
+	for (int i = 0, j = 0; i < parameters.iterations && j < parameters.attemptsWithoutImprovement; i++, j++) {
 		if (STATUS != EXECUTING)
 			break;
 
 		if (listener != NULL) {
-			listener->status = (100.00 * (double) (i + 1)) / (double) iterTabu;
+			listener->status = (100.00 * (double) (i + 1)) / (double) parameters.iterations;
 
 			listener->bestActualFitness = (*maxGlobal->rbegin())->getFitness();
 
 			listener->setupInfo("Iteration: %d", i + 1);
 		}
 
-		if (polExploracao <= 0 || polExploracao >= 1) {
+		if (parameters.explorationPolicy <= 0 || parameters.explorationPolicy >= 1) {
 			// Pega uma lista de todos os "vizinhos" de maxLocal
 			vizinhanca = maxLocal->localSearch();
 		} else {
 			// Pega uma parcela 'polExploracao' dos "vizinhos" de maxLocal
-			vizinhanca = maxLocal->localSearch(polExploracao);
+			vizinhanca = maxLocal->localSearch(parameters.explorationPolicy);
 		}
 
 		// Escolhe a solucao de peso minimo
@@ -147,7 +113,7 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *listen
 					maxGlobal->push_back(Problem::copySolution(*maxLocal));
 				}
 
-				addTabu(listaTabu, local->second, tamListaTabu);
+				addTabu(listaTabu, local->second, parameters.listSize);
 
 				delete local;
 
@@ -156,7 +122,7 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *listen
 			// Eh tabu...
 			else {
 				// Satisfaz a funcao de aspiracao
-				if (aspiracao((double) funcAsp, local->first, maxLocal, maxGlobal->back())) {
+				if (aspiracao((double) parameters.aspirationCriteria, local->first, maxLocal, maxGlobal->back())) {
 					j = 0;
 
 					delete maxLocal;

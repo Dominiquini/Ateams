@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+
+<Controller
+   iterations = "250"
+   numThreads = "8"
+   populationSize = "500"
+   attemptsWithoutImprovement = "100"
+   maxExecutionTime = "3600"
+   maxSolutions = "-1"
+   bestKnownFitness = "-1">
+
+  <Heuristics>
+
+    <TabuSearch
+       name = "BT1"
+       probBT = "22"
+       choicePolicyTS = "500"
+       elitismProbabilityTS = "0.25"
+       aspirationCriteriaTS = "0.5"
+       iterationsTS = "500"
+       attemptsWithoutImprovementTS = "500"
+       listSizeTS = "10"
+       explorationPolicyTS = "0.25">
+    </TabuSearch>
+
+    <TabuSearch
+       name = "BT2"
+       probBT = "10"
+       choicePolicyTS = "250"
+       elitismProbabilityTS = "0.25"
+       aspirationCriteriaTS = "0.5"
+       iterationsTS = "750"
+       attemptsWithoutImprovementTS = "750"
+       listSizeTS = "25"
+       explorationPolicyTS = "0.5">
+    </TabuSearch>
+
+    <TabuSearch
+       name = "BT3"
+       probBT = "8"
+       choicePolicyTS = "100"
+       elitismProbabilityTS = "0.125"
+       aspirationCriteriaTS = "0.5"
+       iterationsTS = "1000"
+       attemptsWithoutImprovementTS = "750"
+       listSizeTS = "250"
+       explorationPolicyTS = "1.0">
+    </TabuSearch>
+
+  </Heuristics>
+
+</Controller>

@@ -7,14 +7,42 @@ using namespace std;
 #ifndef _GENETIC_
 #define _GENETIC_
 
+#define GENETIC_ALGORITHM_NAME "GeneticAlgorithm"
+
+struct GeneticAlgorithmParameters : HeuristicParameters {
+	map<string, void*> geneticAlgorithmKeys = {
+			{"probAG", &choiceProbability},
+			{"choicePolicyGA", &choicePolicy},
+			{"iterationsGA", &iterations},
+			{"populationSizeAG", &populationSize},
+			{"partitionSizeAG", &partitionSize},
+			{"crossoverProbabilityAG", &crossoverProbability},
+			{"crossoverPowerAG", &crossoverPower},
+			{"mutationProbabilityAG", &mutationProbability}
+	};
+
+	int iterations = 500;
+	int populationSize = 250;
+	int partitionSize = 0;
+
+	float crossoverProbability = 0.8;
+	float crossoverPower = 0.5;
+	float mutationProbability = 0.08;
+
+	GeneticAlgorithmParameters() {
+		keys.insert(geneticAlgorithmKeys.begin(), geneticAlgorithmKeys.end());
+	}
+};
+
 class GeneticAlgorithm: public Heuristic {
 public:
 
-	int iterGenetico, populationSizeGenetico, tamParticionamento;
-	float crossoverProbability, crossoverPowerAG, probMutacao;
+	GeneticAlgorithmParameters parameters;
 
 	GeneticAlgorithm();
 	~GeneticAlgorithm();
+
+	HeuristicParameters getParameters() override;
 
 	bool setParameter(const char *parameter, const char *value) override;
 

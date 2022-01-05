@@ -2,49 +2,18 @@
 
 using namespace std;
 
-SimulatedAnnealing::SimulatedAnnealing() : Heuristic::Heuristic("DEFAULT_SA") {
-	executionCounter = 0;
-
-	choiceProbability = 52;
-	choicePolicy = 10;
-	maxIter = 250;
-	startTemp = 125;
-	endTemp = 0.75;
-	alfa = 0.99;
-	elitism = 20;
-
-	Heuristic::heuristicsProbabilitySum += choiceProbability;
+SimulatedAnnealing::SimulatedAnnealing() : Heuristic::Heuristic() {
 }
 
 SimulatedAnnealing::~SimulatedAnnealing() {
-	Heuristic::heuristicsProbabilitySum -= choiceProbability;
+}
+
+HeuristicParameters SimulatedAnnealing::getParameters() {
+	return parameters;
 }
 
 bool SimulatedAnnealing::setParameter(const char *parameter, const char *value) {
-	if (Heuristic::setParameter(parameter, value))
-		return true;
-
-	if (strcasecmp(parameter, "probSA") == 0) {
-		Heuristic::heuristicsProbabilitySum -= choiceProbability;
-		sscanf(value, "%d", &choiceProbability);
-		Heuristic::heuristicsProbabilitySum += choiceProbability;
-	} else if (strcasecmp(parameter, "choicePolicySA") == 0) {
-		sscanf(value, "%d", &choicePolicy);
-	} else if (strcasecmp(parameter, "elitismProbabilitySA") == 0) {
-		sscanf(value, "%d", &elitism);
-	} else if (strcasecmp(parameter, "maxIterationsSA") == 0) {
-		sscanf(value, "%d", &maxIter);
-	} else if (strcasecmp(parameter, "startTempSA") == 0) {
-		sscanf(value, "%f", &startTemp);
-	} else if (strcasecmp(parameter, "endTempSA") == 0) {
-		sscanf(value, "%f", &endTemp);
-	} else if (strcasecmp(parameter, "alphaSA") == 0) {
-		sscanf(value, "%f", &alfa);
-	} else {
-		return false;
-	}
-
-	return true;
+	return parameters.setParameter(parameter, value);
 }
 
 /* Executa um Simulated Annealing na populacao com o devido criterio de selecao */
@@ -57,10 +26,10 @@ vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Pro
 	executionCounter++;
 
 	// Escolhe a melhor solucao para ser usada pelo SA
-	if (choicePolicy == 0 || random(0, 101) < elitism) {
+	if (parameters.choicePolicy == 0 || random(0, 101) < (100 * parameters.elitismProbability)) {
 		selection = sol->begin();
 	} else {
-		double fitTotal = choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, choicePolicy);
+		double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
 
 		selection = selectRouletteWheel(sol, fitTotal);
 	}
@@ -94,11 +63,11 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *
 	vector<Problem*> *Sf = new vector<Problem*>();
 	Problem *S, *Sn;
 	double Ti, Tf, T;
-	int L = maxIter;
+	int L = parameters.maxIterations;
 	double Ds;
 
-	Ti = startTemp != -1 ? startTemp : (Problem::best - Problem::worst) / log(0.5);
-	Tf = endTemp > 0 ? endTemp : 1;
+	Ti = parameters.startTemp != -1 ? parameters.startTemp : (Problem::best - Problem::worst) / log(0.5);
+	Tf = parameters.endTemp > 0 ? parameters.endTemp : 1;
 
 	double diff = Ti - Tf;
 
@@ -148,7 +117,7 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *
 			}
 		}
 
-		T = alfa * T;
+		T = parameters.alpha * T;
 
 		if (T < Tf)
 			T = Tf;
