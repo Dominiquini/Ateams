@@ -13,7 +13,7 @@
   <Heuristics>
 
     <TabuSearch
-       name = "BT3"
+       name = "TB3"
        probBT = "8"
        choicePolicyTS = "100"
        elitismProbabilityTS = "0.125"

@@ -18,7 +18,7 @@ bool SimulatedAnnealing::setParameter(const char *parameter, const char *value) 
 
 /* Executa um Simulated Annealing na populacao com o devido criterio de selecao */
 vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) {
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection;
+	set<Problem*>::const_iterator selection;
 	Problem *solSA;
 
 	pthread_mutex_lock(&mutex_pop);
@@ -41,8 +41,8 @@ vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Pro
 	return exec(solSA, listener);
 }
 
-set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator SimulatedAnnealing::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection = population->begin();
+set<Problem*>::const_iterator SimulatedAnnealing::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
+	set<Problem*>::const_iterator selection = population->begin();
 	int attemps = 0;
 
 	while ((selection == population->begin() || (*selection)->heuristicsInfo.annealing == true) && (attemps++ < MAX_ATTEMPTS))

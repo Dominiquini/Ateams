@@ -18,7 +18,7 @@ bool TabuSearch::setParameter(const char *parameter, const char *value) {
 
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
 vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) {
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection;
+	set<Problem*>::const_iterator selection;
 	Problem *solBT;
 
 	pthread_mutex_lock(&mutex_pop);
@@ -41,8 +41,8 @@ vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> 
 	return exec(solBT, listener);
 }
 
-set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator TabuSearch::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection = population->begin();
+set<Problem*>::const_iterator TabuSearch::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
+	set<Problem*>::const_iterator selection = population->begin();
 	int attemps = 0;
 
 	while ((selection == population->begin() || (*selection)->heuristicsInfo.tabu == true) && (attemps++ < MAX_ATTEMPTS))

@@ -46,7 +46,7 @@
     </SimulatedAnnealing>
 
     <TabuSearch
-       name = "BT1"
+       name = "TB1"
        probBT = "22"
        choicePolicyTS = "500"
        elitismProbabilityTS = "0.25"
@@ -58,7 +58,7 @@
     </TabuSearch>
 
     <TabuSearch
-       name = "BT2"
+       name = "TB2"
        probBT = "10"
        choicePolicyTS = "250"
        elitismProbabilityTS = "0.25"
@@ -70,7 +70,7 @@
     </TabuSearch>
 
     <TabuSearch
-       name = "BT3"
+       name = "TB3"
        probBT = "8"
        choicePolicyTS = "100"
        elitismProbabilityTS = "0.125"
@@ -82,7 +82,7 @@
     </TabuSearch>
 
     <GeneticAlgorithm
-       name = "AG1"
+       name = "GA1"
        probAG = "12"
        choicePolicyGA = "-1"
        iterationsGA = "500"
@@ -94,7 +94,7 @@
     </GeneticAlgorithm>
 
     <GeneticAlgorithm
-       name = "AG2"
+       name = "GA2"
        probAG = "6"
        choicePolicyGA = "-1"
        iterationsGA = "750"
@@ -106,7 +106,7 @@
     </GeneticAlgorithm>
     
     <GeneticAlgorithm
-       name = "AG3"
+       name = "GA3"
        probAG = "3"
        choicePolicyGA = "-1"
        iterationsGA = "1000"

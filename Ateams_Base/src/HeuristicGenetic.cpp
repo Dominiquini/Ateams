@@ -17,7 +17,7 @@ bool GeneticAlgorithm::setParameter(const char *parameter, const char *value) {
 }
 
 vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) {
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection = sol->begin();
+	set<Problem*>::const_iterator selection = sol->begin();
 	vector<Problem*> *popAG = new vector<Problem*>();
 	int initialPopulation = 0;
 	int solutionsCount = 0;
@@ -49,8 +49,8 @@ vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Probl
 	return exec(popAG, listener);
 }
 
-set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator GeneticAlgorithm::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selection = population->begin();
+set<Problem*>::const_iterator GeneticAlgorithm::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
+	set<Problem*>::const_iterator selection = population->begin();
 	int attemps = 0;
 
 	while ((selection == population->begin() || (*selection)->heuristicsInfo.genetic == true) && (attemps++ < MAX_ATTEMPTS))

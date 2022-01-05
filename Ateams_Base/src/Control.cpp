@@ -79,7 +79,7 @@ Control::Control() {
 }
 
 Control::~Control() {
-	for (set<Problem*, bool (*)(Problem*, Problem*)>::iterator iter = solutions->begin(); iter != solutions->end(); iter++)
+	for (set<Problem*>::iterator iter = solutions->begin(); iter != solutions->end(); iter++)
 		delete *iter;
 
 	solutions->clear();
@@ -168,7 +168,7 @@ int Control::execute(unsigned int executionId) {
 }
 
 pair<int, int>* Control::addSolutions(vector<Problem*> *newSolutions) {
-	pair<set<Problem*, bool (*)(Problem*, Problem*)>::iterator, bool> insertion;
+	pair<set<Problem*>::iterator, bool> insertion;
 	int nins = 0, nret = newSolutions->size();
 	Problem *worstSolution = NULL;
 
@@ -381,8 +381,8 @@ void Control::finish() {
 	delete finalSolutions;
 
 	/* Testa a memoria principal por solucoes repetidas ou fora de ordem */
-	for (set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter1 = solutions->begin(); iter1 != solutions->end(); iter1++)
-		for (set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter2 = iter1; iter2 != solutions->end(); iter2++)
+	for (set<Problem*>::const_iterator iter1 = solutions->begin(); iter1 != solutions->end(); iter1++)
+		for (set<Problem*>::const_iterator iter2 = iter1; iter2 != solutions->end(); iter2++)
 			if ((iter1 != iter2) && (fnEqualSolution(*iter1, *iter2) || fnSortSolution(*iter2, *iter1)))
 				throw "Incorrect Main Memory!";
 
@@ -457,7 +457,7 @@ void Control::run() {
 
 list<Problem*>* Control::getSolutions() {
 	list<Problem*> *sol = new list<Problem*>();
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter;
+	set<Problem*>::const_iterator iter;
 
 	for (iter = solutions->begin(); iter != solutions->end(); iter++)
 		sol->push_back(*iter);
@@ -466,7 +466,7 @@ list<Problem*>* Control::getSolutions() {
 }
 
 Problem* Control::getSolution(int n) {
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter = next(solutions->begin(), n);
+	set<Problem*>::const_iterator iter = next(solutions->begin(), n);
 
 	return *iter;
 }
@@ -541,7 +541,7 @@ void Control::deleteHeuristic(Heuristic *alg) {
 }
 
 double Control::sumFitnessMaximize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n) {
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter;
+	set<Problem*>::const_iterator iter;
 	double sum = 0, i = 0;
 
 	for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
@@ -561,7 +561,7 @@ double Control::sumFitnessMaximize(vector<Problem*> *probs, int n) {
 }
 
 double Control::sumFitnessMinimize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n) {
-	set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator iter;
+	set<Problem*>::const_iterator iter;
 	double sum = 0, i = 0;
 
 	for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
@@ -580,13 +580,13 @@ double Control::sumFitnessMinimize(vector<Problem*> *probs, int n) {
 	return sum;
 }
 
-set<Problem*, bool (*)(Problem*, Problem*)>::iterator Control::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *probs, double fitTotal) {
+set<Problem*>::iterator Control::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *probs, double fitTotal) {
 	// Armazena o fitness total da populacao
 	unsigned int sum = (unsigned int) fitTotal;
 	// Um numero entre zero e "sum" e sorteado
 	unsigned int randWheel = random(0, sum + 1);
 
-	set<Problem*, bool (*)(Problem*, Problem*)>::iterator iter;
+	set<Problem*>::iterator iter;
 	for (iter = probs->begin(); iter != probs->end(); iter++) {
 		sum -= (int) (*iter)->getFitnessMaximize();
 		if (sum <= randWheel) {

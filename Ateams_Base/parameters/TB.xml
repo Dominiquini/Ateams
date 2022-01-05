@@ -13,7 +13,7 @@
   <Heuristics>
 
     <TabuSearch
-       name = "BT1"
+       name = "TB1"
        probBT = "22"
        choicePolicyTS = "500"
        elitismProbabilityTS = "0.25"
@@ -25,7 +25,7 @@
     </TabuSearch>
 
     <TabuSearch
-       name = "BT2"
+       name = "TB2"
        probBT = "10"
        choicePolicyTS = "250"
        elitismProbabilityTS = "0.25"
@@ -37,7 +37,7 @@
     </TabuSearch>
 
     <TabuSearch
-       name = "BT3"
+       name = "TB3"
        probBT = "8"
        choicePolicyTS = "100"
        elitismProbabilityTS = "0.125"

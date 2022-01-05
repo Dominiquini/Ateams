@@ -13,7 +13,7 @@
   <Heuristics>
 
     <GeneticAlgorithm
-       name = "AG2"
+       name = "GA2"
        probAG = "6"
        choicePolicyGA = "-1"
        iterationsGA = "750"

@@ -92,7 +92,7 @@ public:
 		printf(" %c %s |%% %03d %%| -> %03d (%% %06.2f %%)\n", bullet, getParameters().name.c_str(), getParameters().choiceProbability, executionCounter, (100.0f * executionCounter) / total);
 	}
 
-	virtual set<Problem*, bool (*)(Problem*, Problem*)>::const_iterator selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) = 0;
+	virtual set<Problem*>::const_iterator selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) = 0;
 
 	virtual vector<Problem*>* start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) = 0;
 

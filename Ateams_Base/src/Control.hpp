@@ -108,7 +108,7 @@ public:
 	static double sumFitnessMinimize(vector<Problem*> *probs, int n);
 
 	/* Seleciona um individuo da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
-	static set<Problem*, bool (*)(Problem*, Problem*)>::iterator selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *probs, double fitTotal);
+	static set<Problem*>::iterator selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *probs, double fitTotal);
 	static vector<Problem*>::iterator selectRouletteWheel(vector<Problem*> *probs, double fitTotal);
 	static Heuristic* selectRouletteWheel(vector<Heuristic*> *heuristc, unsigned int probTotal);
 
