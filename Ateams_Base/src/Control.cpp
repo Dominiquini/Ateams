@@ -41,17 +41,17 @@ void Control::terminate() {
 	Problem::deallocateMemory();
 
 	if (Problem::numInst != 0)
-		throw "Memory Leak!";
+		throw string("Solutions Leaked: ") + to_string(Problem::numInst);
 }
 
 Heuristic* Control::instantiateHeuristic(char *name) {
-	if (strcmpi(name, SIMULATED_ANNEALING_NAME) == 0)
+	if (strcasecmp(name, SIMULATED_ANNEALING_NAME) == 0)
 		return new SimulatedAnnealing();
 
-	if (strcmpi(name, GENETIC_ALGORITHM_NAME) == 0)
+	if (strcasecmp(name, GENETIC_ALGORITHM_NAME) == 0)
 		return new GeneticAlgorithm();
 
-	if (strcmpi(name, TABU_SEARCH_NAME) == 0)
+	if (strcasecmp(name, TABU_SEARCH_NAME) == 0)
 		return new TabuSearch();
 
 	return NULL;
@@ -75,7 +75,7 @@ Control::Control() {
 	this->startTime = this->endTime = 0;
 	this->lastImprovedIteration = 0;
 	this->executionCount = 0;
-	this->swappedSolutions = 0;
+	this->newSolutionsCount = 0;
 }
 
 Control::~Control() {
@@ -107,98 +107,91 @@ Control::~Control() {
 	delete Heuristic::runningHeuristics;
 }
 
-int Control::execute(unsigned int executionId) {
+HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
 	vector<Problem*> *newSoluctions = NULL;
-	HeuristicExecutionInfo *listener = NULL;
-	pair<int, int> *insertion = NULL;
+	HeuristicExecutionInfo *info = NULL;
 	Heuristic *algorithm = NULL;
-	int contrib = 0;
 
-	pthread_mutex_lock(&mutex_info);
-	{
-		algorithm = selectRouletteWheel(heuristics, Heuristic::heuristicsProbabilitySum);
-		listener = new HeuristicExecutionInfo(algorithm, executionId, pthread_self());
+	algorithm = selectRouletteWheel(heuristics, Heuristic::heuristicsProbabilitySum);
+	info = new HeuristicExecutionInfo(algorithm, executionId, pthread_self());
 
-		runningThreads++;
+	if (STATUS == EXECUTING) {
+		pthread_mutex_lock(&mutex_info);
+		{
+			runningThreads++;
 
-		Heuristic::executedHeuristics->push_back(listener);
-		Heuristic::runningHeuristics->push_back(listener);
+			Heuristic::executedHeuristics->push_back(info);
+			Heuristic::runningHeuristics->push_back(info);
 
-		Control::printProgress(listener, insertion);
-	}
-	pthread_mutex_unlock(&mutex_info);
+			Control::printProgress(info);
+		}
+		pthread_mutex_unlock(&mutex_info);
 
-	newSoluctions = algorithm->start(solutions, listener);
+		newSoluctions = algorithm->start(solutions, info);
 
-	pthread_mutex_lock(&mutex_pop);
-	{
-		double oldBest = Problem::best;
+		pthread_mutex_lock(&mutex_pop);
+		{
+			executionCount++;
 
-		insertion = addSolutions(newSoluctions);
-		executionCount++;
+			double oldBest = Problem::best;
 
-		double newBest = Problem::best;
+			insertNewSolutions(newSoluctions, true);
 
-		if (Problem::improvement(oldBest, newBest) > 0)
-			lastImprovedIteration = 0;
-		else
-			lastImprovedIteration++;
-	}
-	pthread_mutex_unlock(&mutex_pop);
+			double newBest = Problem::best;
 
-	newSoluctions->clear();
-	delete newSoluctions;
-
-	pthread_mutex_lock(&mutex_info);
-	{
-		runningThreads--;
-
-		list<HeuristicExecutionInfo*>::iterator executed = find(Heuristic::runningHeuristics->begin(), Heuristic::runningHeuristics->end(), listener);
-		Heuristic::runningHeuristics->erase(executed);
-
-		Control::printProgress(listener, insertion);
-	}
-	pthread_mutex_unlock(&mutex_info);
-
-	contrib = insertion->second;
-
-	delete insertion;
-
-	return contrib;
-}
-
-pair<int, int>* Control::addSolutions(vector<Problem*> *newSolutions) {
-	pair<set<Problem*>::iterator, bool> insertion;
-	int nins = 0, nret = newSolutions->size();
-	Problem *worstSolution = NULL;
-
-	for (vector<Problem*>::const_iterator iterNews = newSolutions->begin(); iterNews != newSolutions->end(); iterNews++) {
-		worstSolution = *solutions->rbegin();
-
-		if (Problem::improvement(*worstSolution, **iterNews) < 0) {
-			delete *iterNews;
-		} else {
-			insertion = solutions->insert(*iterNews);
-
-			if (insertion.second) {
-				nins++;
-
-				if ((int) solutions->size() > parameters.populationSize) {
-					worstSolution = *solutions->rbegin();
-
-					solutions->erase(worstSolution);
-					delete worstSolution;
-				}
+			if (Problem::improvement(oldBest, newBest) > 0) {
+				lastImprovedIteration = 0;
 			} else {
-				delete *iterNews;
+				lastImprovedIteration++;
 			}
 		}
+		pthread_mutex_unlock(&mutex_pop);
+
+		newSoluctions->clear();
+		delete newSoluctions;
+
+		pthread_mutex_lock(&mutex_info);
+		{
+			runningThreads--;
+
+			list<HeuristicExecutionInfo*>::iterator executed = find(Heuristic::runningHeuristics->begin(), Heuristic::runningHeuristics->end(), info);
+			Heuristic::runningHeuristics->erase(executed);
+
+			Control::printProgress(info);
+		}
+		pthread_mutex_unlock(&mutex_info);
+	}
+
+	return info;
+}
+
+void Control::insertNewSolutions(vector<Problem*> *newSolutions, bool autoTrim) {
+	for (vector<Problem*>::iterator it = newSolutions->begin(); it != newSolutions->end(); it++) {
+		if (!solutions->insert(*it).second) {
+			delete *it;
+		}
+	}
+
+	if (autoTrim) {
+		trimSolutions();
 	}
 
 	Problem::best = (*solutions->begin())->getFitness();
 	Problem::worst = (*solutions->rbegin())->getFitness();
+}
 
-	return new pair<int, int>(nret, nins);
+void Control::trimSolutions() {
+	set<Problem*>::iterator lastViableSolution = solutions->begin();
+	advance(lastViableSolution, parameters.populationSize);
+
+	while (lastViableSolution != solutions->end()) {
+		delete *lastViableSolution;
+
+		lastViableSolution = solutions->erase(lastViableSolution);
+	}
+
+	Problem::best = (*solutions->begin())->getFitness();
+	Problem::worst = (*solutions->rbegin())->getFitness();
 }
 
 void Control::generatePopulation(list<Problem*> *popInicial) {
@@ -434,11 +427,18 @@ void Control::run() {
 	for (uintptr_t execAteams = 0, *inserted = NULL; execAteams < (uintptr_t) parameters.iterations; execAteams++) {
 		pthread_join(threads[execAteams], (void**) &inserted);
 
-		swappedSolutions += (uintptr_t) inserted;
+		HeuristicExecutionInfo *info = (HeuristicExecutionInfo*) inserted;
+
+		if (info->isStarted()) {
+			newSolutionsCount += info->newSolutionsProduced;
+		} else {
+			delete info;
+		}
 	}
 
-	if (STATUS == EXECUTING)
+	if (STATUS == EXECUTING) {
 		STATUS = (executionCount == parameters.iterations && (int) Heuristic::executedHeuristics->size() == parameters.iterations) ? FINISHED_NORMALLY : INCOMPLETE;
+	}
 
 	pthread_join(threadManagement, NULL);
 
@@ -501,7 +501,7 @@ void Control::printExecution() {
 	cout << endl << COLOR_BLUE;
 
 	cout << endl << "Explored Solutions: " << Problem::totalNumInst << endl;
-	cout << endl << "Swapped Solutions: " << swappedSolutions << endl;
+	cout << endl << "Returned Solutions: " << newSolutionsCount << endl;
 
 	cout << endl << "Executions: " << executionCount << " (" << (100 * executionCount) / parameters.iterations << "%) " << endl << endl;
 
@@ -584,7 +584,7 @@ set<Problem*>::iterator Control::selectRouletteWheel(set<Problem*, bool (*)(Prob
 	// Armazena o fitness total da populacao
 	unsigned int sum = (unsigned int) fitTotal;
 	// Um numero entre zero e "sum" e sorteado
-	unsigned int randWheel = random(0, sum + 1);
+	unsigned int randWheel = randomNumber(0, sum + 1);
 
 	set<Problem*>::iterator iter;
 	for (iter = probs->begin(); iter != probs->end(); iter++) {
@@ -601,7 +601,7 @@ vector<Problem*>::iterator Control::selectRouletteWheel(vector<Problem*> *probs,
 	// Armazena o fitness total da populacao
 	unsigned int sum = (unsigned int) fitTotal;
 	// Um numero entre zero e "sum" e sorteado
-	unsigned int randWheel = random(0, sum + 1);
+	unsigned int randWheel = randomNumber(0, sum + 1);
 
 	vector<Problem*>::iterator iter;
 	for (iter = probs->begin(); iter != probs->end(); iter++) {
@@ -621,7 +621,7 @@ Heuristic* Control::selectRouletteWheel(vector<Heuristic*> *heuristic, unsigned 
 	// Armazena o fitness total da populacao
 	unsigned int sum = probTotal;
 	// Um numero entre zero e "sum" e sorteado
-	unsigned int randWheel = random(0, sum + 1);
+	unsigned int randWheel = randomNumber(0, sum + 1);
 
 	for (int i = 0; i < (int) heuristic->size(); i++) {
 		sum -= heuristic->at(i)->getParameters().choiceProbability;
@@ -634,7 +634,7 @@ Heuristic* Control::selectRouletteWheel(vector<Heuristic*> *heuristic, unsigned 
 }
 
 vector<Problem*>::iterator Control::selectRandom(vector<Problem*> *probs) {
-	unsigned int randWheel = random(0, probs->size());
+	unsigned int randWheel = randomNumber(0, probs->size());
 
 	vector<Problem*>::iterator iter = probs->begin();
 	for (unsigned long i = 0; iter != probs->end() && i < randWheel; iter++, i++);
@@ -652,18 +652,18 @@ list<Problem*>::iterator Control::findSolution(list<Problem*> *vect, Problem *p)
 	return iter;
 }
 
-void Control::printProgress(HeuristicExecutionInfo *heuristic, pair<int, int> *insertion) {
+void Control::printProgress(HeuristicExecutionInfo *heuristic) {
 	if (instance->showTextOverview) {
 		string execNames;
 		string color;
 
 		execNames = Heuristic::getRunningHeuristics();
 
-		if (insertion == NULL) {
-			snprintf(Control::buffer, BUFFER_SIZE, ">>> {%.3ld} ALG: %s | ........................................... | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, runningThreads, execNames.c_str());
+		if (!heuristic->isFinished()) {
+			snprintf(Control::buffer, BUFFER_SIZE, ">>> {%.3ld} ALG: %s | ....................... | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, runningThreads, execNames.c_str());
 			color = COLOR_GREEN;
 		} else {
-			snprintf(Control::buffer, BUFFER_SIZE, "<<< {%.3ld} ALG: %s | FITNESS: %.6ld::%.6ld | CONTRIB: %.3d::%.3d | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, (long) Problem::best, (long) Problem::worst, insertion->first, insertion->second, runningThreads, execNames.c_str());
+			snprintf(Control::buffer, BUFFER_SIZE, "<<< {%.3ld} ALG: %s | FITNESS: %.6ld::%.6ld | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, (long) Problem::best, (long) Problem::worst, runningThreads, execNames.c_str());
 			color = COLOR_YELLOW;
 		}
 
@@ -677,13 +677,11 @@ void* Control::pthrExecution(void *iteration) {
 	Control *ctrl = Control::instance;
 	PrimitiveWrapper<unsigned int> *iterationAteams = (PrimitiveWrapper<unsigned int>*) iteration;
 
-	uintptr_t inserted = 0;
+	HeuristicExecutionInfo *inserted;
 
 	sem_wait(&semaphore);
 
-	if (STATUS == EXECUTING) {
-		inserted = ctrl->execute(iterationAteams->value);
-	}
+	inserted = ctrl->execute(iterationAteams->value);
 
 	sem_post(&semaphore);
 

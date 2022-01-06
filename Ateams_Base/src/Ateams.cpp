@@ -45,15 +45,15 @@ int main(int argc, char *argv[]) {
 	}
 }
 
-int random() {
-	return random(RAND_MAX);
+int randomNumber() {
+	return randomNumber(RAND_MAX);
 }
 
-int random(int max) {
-	return random(0, max);
+int randomNumber(int max) {
+	return randomNumber(0, max);
 }
 
-int random(int min, int max) {
+int randomNumber(int min, int max) {
 	uniform_int_distribution<int> randomDistribution(min, max - 1);
 
 	return randomDistribution(randomEngine);

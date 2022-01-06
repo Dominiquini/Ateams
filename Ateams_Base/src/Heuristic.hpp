@@ -27,13 +27,13 @@ struct HeuristicParameters {
 	bool setParameter(const char *parameter, const char *value) {
 		int read = EOF;
 
-		if (strcmpi(parameter, "name") == 0) {
+		if (strcasecmp(parameter, "name") == 0) {
 			name = string(value);
 
 			read = name.size();
 		} else {
 			for (map<string, void*>::const_iterator param = keys.begin(); param != keys.end(); param++) {
-				if (strcmpi(parameter, param->first.c_str()) == 0) {
+				if (strcasecmp(parameter, param->first.c_str()) == 0) {
 					if(strchr(value, '.') != NULL)
 						read = sscanf(value, "%f", (float*) param->second);
 					else
@@ -119,6 +119,8 @@ public:
 
 	char execInfo[HEURISTIC_INFO_MAX_LENGTH];
 
+	int newSolutionsProduced;
+
 	HeuristicExecutionInfo(Heuristic *heuristic, unsigned int executionId, uintptr_t threadId) {
 		this->heuristic = heuristic;
 
@@ -128,7 +130,9 @@ public:
 		this->bestInitialFitness = 0;
 		this->bestActualFitness = 0;
 
-		this->status = -1;
+		this->status = -1.0;
+
+		this->newSolutionsProduced = 0;
 
 		configName();
 	}
@@ -143,10 +147,20 @@ public:
 		va_end(args);
 	}
 
+	inline bool isStarted() {
+		return status != -1;
+	}
+
+	inline bool isFinished() {
+		return status == 100.0;
+	}
+
 private:
 
 	inline void configName() {
-		snprintf(heuristicInfo, HEURISTIC_NAME_MAX_LENGTH, "%s(%04d)", heuristic->getParameters().name.c_str(), executionId);
+		if (heuristic != NULL) {
+			snprintf(heuristicInfo, HEURISTIC_NAME_MAX_LENGTH, "%s(%04d)", heuristic->getParameters().name.c_str(), executionId);
+		}
 	}
 };
 

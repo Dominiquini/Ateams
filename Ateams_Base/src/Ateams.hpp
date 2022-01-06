@@ -94,11 +94,11 @@ struct ExecHeuristicsInfo {
   static random_device randomEngine;
 #endif
 
-int random();
+int randomNumber();
 
-int random(int max);
+int randomNumber(int max);
 
-int random(int min, int max);
+int randomNumber(int min, int max);
 
 void internalSignalHandler(int signal);
 

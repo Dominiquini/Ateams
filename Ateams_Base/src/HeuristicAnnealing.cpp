@@ -17,7 +17,7 @@ bool SimulatedAnnealing::setParameter(const char *parameter, const char *value) 
 }
 
 /* Executa um Simulated Annealing na populacao com o devido criterio de selecao */
-vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) {
+vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *info) {
 	set<Problem*>::const_iterator selection;
 	Problem *solSA;
 
@@ -26,7 +26,7 @@ vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Pro
 	executionCounter++;
 
 	// Escolhe a melhor solucao para ser usada pelo SA
-	if (parameters.choicePolicy == 0 || random(0, 101) < (100 * parameters.elitismProbability)) {
+	if (parameters.choicePolicy == 0 || randomNumber(0, 101) < (100 * parameters.elitismProbability)) {
 		selection = sol->begin();
 	} else {
 		double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
@@ -38,7 +38,7 @@ vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Pro
 
 	pthread_mutex_unlock(&mutex_pop);
 
-	return exec(solSA, listener);
+	return exec(solSA, info);
 }
 
 set<Problem*>::const_iterator SimulatedAnnealing::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
@@ -59,7 +59,7 @@ void SimulatedAnnealing::markSolutions(vector<Problem*> *solutions) {
 	}
 }
 
-vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *listener) {
+vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *info) {
 	vector<Problem*> *Sf = new vector<Problem*>();
 	Problem *S, *Sn;
 	double Ti, Tf, T;
@@ -76,8 +76,8 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *
 
 	Sf->push_back(Problem::copySolution(*Si));
 
-	if (listener != NULL)
-		listener->bestInitialFitness = (*Sf->begin())->getFitness();
+	if (info != NULL)
+		info->bestInitialFitness = (*Sf->begin())->getFitness();
 
 	bool exec = true;
 
@@ -85,12 +85,12 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *
 		if (STATUS != EXECUTING)
 			break;
 
-		if (listener != NULL) {
-			listener->status = 100.00 - (100.00 * (T - Tf)) / diff;
+		if (info != NULL) {
+			info->status = 100.00 - (100.00 * (T - Tf)) / diff;
 
-			listener->bestActualFitness = (*Sf->rbegin())->getFitness();
+			info->bestActualFitness = (*Sf->rbegin())->getFitness();
 
-			listener->setupInfo("Temperature: %f", T);
+			info->setupInfo("Temperature: %f", T);
 		}
 
 		if (T == Tf)
@@ -105,7 +105,7 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *
 			}
 
 			Ds = Problem::improvement(*S, *Sn);
-			if (Ds >= 0 || accept((double) random(), Ds, T)) {
+			if (Ds >= 0 || accept((double) randomNumber(), Ds, T)) {
 				delete S;
 				S = Sn;
 
@@ -126,6 +126,10 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *
 	delete S;
 
 	markSolutions(Sf);
+
+	if (info != NULL) {
+		info->newSolutionsProduced = Sf->size();
+	}
 
 	return Sf;
 }

@@ -5,11 +5,11 @@ AR = ar
 RANLIB = ranlib
 
 ifdef DEBUG
-  CXXFLAGS = -std=c++2a -Wall -pedantic -O0 -g3 -march=native -mtune=native -masm=intel
+  CXXFLAGS = -Wall -pedantic -O0 -g3 -march=native -mtune=native -masm=intel
 else ifdef PROFILE
-  CXXFLAGS = -std=c++2a -Wall -pedantic -O0 -pg -march=native -mtune=native -masm=intel
+  CXXFLAGS = -Wall -pedantic -O0 -pg -march=native -mtune=native -masm=intel
 else
-  CXXFLAGS = -std=c++2a -Wall -pedantic -O3 -march=native -mtune=native -masm=intel
+  CXXFLAGS = -Wall -pedantic -O3 -march=native -mtune=native -masm=intel
 endif
 
 ifeq ($(OS), Windows_NT)

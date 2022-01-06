@@ -7,7 +7,7 @@
    populationSize = "100"
    attemptsWithoutImprovement = "-1"
    maxExecutionTime = "30"
-   maxSolutions = "-1"
+   maxSolutions = "10"
    bestKnownFitness = "-1">
 
   <Heuristics>

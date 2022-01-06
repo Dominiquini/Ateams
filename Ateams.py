@@ -11,7 +11,11 @@ import math
 import os
 
 ATEAMS_PATH_PLACEHOLDER = "#ATEAMS_PATH#"
-    
+
+GDB_COMMAND = "gdb --args"
+
+VALGRIND_COMMAND = "valgrind --leak-check=full -s"
+
 ALGORITHMS = ['BinPacking', 'FlowShop', 'GraphColoring', 'JobShop', 'KnapSack', 'TravellingSalesman']
 
 BINARIES = {A: f"{ATEAMS_PATH_PLACEHOLDER}/{A}/bin/{A}" for A in ALGORITHMS}
@@ -42,9 +46,10 @@ def validate_path(ctx: click.core.Context=None, param: click.core.Option=None, v
 @click.option('-g', '--show_graphical_info', type=click.BOOL, is_flag=True, help='Show Graphical Overview')
 @click.option('-s', '--show_solution', type=click.BOOL, is_flag=True, help='Show Solution')
 @click.option('-n', '--repeat', type=click.INT, default=1, help='Repeat N Times')
-@click.option('-x', '--debug', type=click.BOOL, is_flag=True, help='Run With GDB')
+@click.option('-d', '--debug', type=click.BOOL, is_flag=True, help='Run With GDB')
+@click.option('-m', '--memory', type=click.BOOL, is_flag=True, help='Run With Valgrind')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
-def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, debug, extra_args):
+def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, debug, memory, extra_args):
     """A Wrapper For Ateams"""
     
     def __truncate(number, decimals=0):
@@ -77,7 +82,9 @@ def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_inf
         for arg in extra_args:
             command_line += f" {arg}"
 
-        if(debug): command_line = "gdb --args " + command_line
+        if(debug): command_line = GDB_COMMAND + " " + command_line
+        
+        if(memory): command_line = VALGRIND_COMMAND + " " + command_line
 
         return ateams_path(command_line)
 

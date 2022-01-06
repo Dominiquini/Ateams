@@ -17,7 +17,7 @@ bool TabuSearch::setParameter(const char *parameter, const char *value) {
 }
 
 /* Executa uma Busca Tabu na populacao com o devido criterio de selecao */
-vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) {
+vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *info) {
 	set<Problem*>::const_iterator selection;
 	Problem *solBT;
 
@@ -26,7 +26,7 @@ vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> 
 	executionCounter++;
 
 	// Escolhe a melhor solucao para ser usada pelo BT
-	if (parameters.choicePolicy == 0 || random(0, 101) < (100 * parameters.elitismProbability)) {
+	if (parameters.choicePolicy == 0 || randomNumber(0, 101) < (100 * parameters.elitismProbability)) {
 		selection = sol->begin();
 	} else {
 		double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
@@ -38,7 +38,7 @@ vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> 
 
 	pthread_mutex_unlock(&mutex_pop);
 
-	return exec(solBT, listener);
+	return exec(solBT, info);
 }
 
 set<Problem*>::const_iterator TabuSearch::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
@@ -59,7 +59,7 @@ void TabuSearch::markSolutions(vector<Problem*> *solutions) {
 	}
 }
 
-vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *listener) {
+vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *info) {
 	vector<pair<Problem*, InfoTabu*>*> *vizinhanca;
 	pair<Problem*, InfoTabu*> *local;
 
@@ -72,20 +72,20 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *listen
 
 	maxGlobal->push_back(Problem::copySolution(*maxLocal));
 
-	if (listener != NULL)
-		listener->bestInitialFitness = (*maxGlobal->begin())->getFitness();
+	if (info != NULL)
+		info->bestInitialFitness = (*maxGlobal->begin())->getFitness();
 
 	// Loop principal
 	for (int i = 0, j = 0; i < parameters.iterations && j < parameters.attemptsWithoutImprovement; i++, j++) {
 		if (STATUS != EXECUTING)
 			break;
 
-		if (listener != NULL) {
-			listener->status = (100.00 * (double) (i + 1)) / (double) parameters.iterations;
+		if (info != NULL) {
+			info->status = (100.00 * (double) (i + 1)) / (double) parameters.iterations;
 
-			listener->bestActualFitness = (*maxGlobal->rbegin())->getFitness();
+			info->bestActualFitness = (*maxGlobal->rbegin())->getFitness();
 
-			listener->setupInfo("Iteration: %d", i + 1);
+			info->setupInfo("Iteration: %d", i + 1);
 		}
 
 		if (parameters.explorationPolicy <= 0 || parameters.explorationPolicy >= 1) {
@@ -164,6 +164,10 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *listen
 	delete listaTabu;
 
 	markSolutions(maxGlobal);
+
+	if (info != NULL) {
+		info->newSolutionsProduced = maxGlobal->size();
+	}
 
 	return maxGlobal;
 }

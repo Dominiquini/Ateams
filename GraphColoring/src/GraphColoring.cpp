@@ -173,7 +173,7 @@ GraphColoring::GraphColoring() : Problem::Problem() {
 		solution.ordemNodes[i] = i + 1;
 	}
 
-	random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], pointer_to_unary_function<int, int>(random));
+	random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], pointer_to_unary_function<int, int>(randomNumber));
 
 	solution.colors = NULL;
 
@@ -292,11 +292,11 @@ inline void GraphColoring::print(bool esc) {
 
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problem* GraphColoring::neighbor() {
-	int p1 = random(0, nnodes), p2 = random(0, nnodes);
+	int p1 = randomNumber(0, nnodes), p2 = randomNumber(0, nnodes);
 	Problem *prob = NULL;
 
 	while (p2 == p1)
-		p2 = random(0, nnodes);
+		p2 = randomNumber(0, nnodes);
 
 	prob = new GraphColoring(*this, p1, p2);
 
@@ -325,7 +325,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* GraphColoring::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(random));
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(randomNumber));
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
@@ -345,10 +345,10 @@ inline vector<pair<Problem*, InfoTabu*>*>* GraphColoring::localSearch(float parc
 		def = MAX_PERMUTATIONS;
 
 	for (int i = 0; i < def; i++) {
-		p1 = random(0, nnodes), p2 = random(0, nnodes);
+		p1 = randomNumber(0, nnodes), p2 = randomNumber(0, nnodes);
 
 		while (p2 == p1)
-			p2 = random(0, nnodes);
+			p2 = randomNumber(0, nnodes);
 
 		prob = new GraphColoring(*this, p1, p2);
 
@@ -373,7 +373,7 @@ inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem *parceir
 
 	GraphColoring *other = dynamic_cast<GraphColoring*>(const_cast<Problem*>(parceiro));
 
-	inicioPart = random(0, nnodes);
+	inicioPart = randomNumber(0, nnodes);
 	fimPart = inicioPart + particao <= nnodes ? inicioPart + particao : nnodes;
 
 	swap_vect(this->solution.ordemNodes, other->solution.ordemNodes, f1, inicioPart, fimPart - inicioPart);
@@ -393,7 +393,7 @@ inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem *parceir
 
 	GraphColoring *other = dynamic_cast<GraphColoring*>(const_cast<Problem*>(parceiro));
 
-	particao = random(1, nnodes);
+	particao = randomNumber(1, nnodes);
 
 	swap_vect(this->solution.ordemNodes, other->solution.ordemNodes, f1, 0, particao);
 	swap_vect(other->solution.ordemNodes, this->solution.ordemNodes, f2, 0, particao);

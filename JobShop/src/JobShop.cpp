@@ -184,7 +184,7 @@ void Problem::deallocateMemory() {
 JobShop::JobShop() : Problem::Problem() {
 	solution.scaling = (short int**) allocateMatrix<short int>(2, nmaq, njob, 1);
 
-	if (random(0, 2) == 0) { // Tenta uma solucao gulosa
+	if (randomNumber(0, 2) == 0) { // Tenta uma solucao gulosa
 		short int *aux_vet = (short int*) allocateMatrix<short int>(1, njob, 1, 1);
 		short int *aux_maq = (short int*) allocateMatrix<short int>(1, nmaq, 1, 1);
 
@@ -195,7 +195,7 @@ JobShop::JobShop() : Problem::Problem() {
 			aux_vet[i] = i;
 
 		for (int i = 0; i < nmaq; i++) {
-			random_shuffle(&aux_vet[0], &aux_vet[njob], pointer_to_unary_function<int, int>(random));
+			random_shuffle(&aux_vet[0], &aux_vet[njob], pointer_to_unary_function<int, int>(randomNumber));
 			for (int j = 0; j < njob; j++) {
 				solution.scaling[maq[aux_vet[j]][i]][aux_maq[maq[aux_vet[j]][i]]] = aux_vet[j];
 				aux_maq[maq[aux_vet[j]][i]] += 1;
@@ -210,7 +210,7 @@ JobShop::JobShop() : Problem::Problem() {
 				solution.scaling[i][j] = j;
 			}
 
-			random_shuffle(&solution.scaling[i][0], &solution.scaling[i][njob], pointer_to_unary_function<int, int>(random));
+			random_shuffle(&solution.scaling[i][0], &solution.scaling[i][njob], pointer_to_unary_function<int, int>(randomNumber));
 		}
 	}
 
@@ -392,11 +392,11 @@ inline void JobShop::print(bool esc) {
 
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problem* JobShop::neighbor() {
-	int maq = random(0, nmaq), p1 = random(0, njob), p2 = random(0, njob);
+	int maq = randomNumber(0, nmaq), p1 = randomNumber(0, njob), p2 = randomNumber(0, njob);
 	Problem *job = NULL;
 
 	while (p2 == p1)
-		p2 = random(0, njob);
+		p2 = randomNumber(0, njob);
 
 	job = new JobShop(*this, maq, p1, p2);
 	if (job->getFitness() != -1) {
@@ -435,7 +435,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* JobShop::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(random));
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(randomNumber));
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
@@ -456,10 +456,10 @@ inline vector<pair<Problem*, InfoTabu*>*>* JobShop::localSearch(float parcela) {
 		def = MAX_PERMUTATIONS;
 
 	for (int i = 0; i < def; i++) {
-		maq = random(0, numMaqs), p1 = random(0, numJobs), p2 = random(0, numJobs);
+		maq = randomNumber(0, numMaqs), p1 = randomNumber(0, numJobs), p2 = randomNumber(0, numJobs);
 
 		while (p2 == p1)
-			p2 = random(0, numJobs);
+			p2 = randomNumber(0, numJobs);
 
 		job = new JobShop(*this, maq, p1, p2);
 		if (job->getFitness() != -1) {
@@ -492,13 +492,13 @@ inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem *parceiro, int
 	for (int i = 0; i < nmaq; i++)
 		maqs[i] = i;
 
-	random_shuffle(&maqs[0], &maqs[nmaq], pointer_to_unary_function<int, int>(random));
+	random_shuffle(&maqs[0], &maqs[nmaq], pointer_to_unary_function<int, int>(randomNumber));
 
 	for (int i = 0, j; i < nmaq; i++) {
 		j = maqs[i];
 
 		if (i < numberCrossOver) {
-			inicioPart = random(0, njob);
+			inicioPart = randomNumber(0, njob);
 			fimPart = inicioPart + particao <= njob ? inicioPart + particao : njob;
 
 			swap_vect(this->solution.scaling[j], other->solution.scaling[j], f1[j], inicioPart, fimPart - inicioPart);
@@ -530,13 +530,13 @@ inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem *parceiro, int
 	for (int i = 0; i < nmaq; i++)
 		maqs[i] = i;
 
-	random_shuffle(&maqs[0], &maqs[nmaq], pointer_to_unary_function<int, int>(random));
+	random_shuffle(&maqs[0], &maqs[nmaq], pointer_to_unary_function<int, int>(randomNumber));
 
 	for (int i = 0, j; i < nmaq; i++) {
 		j = maqs[i];
 
 		if (i < numberCrossOver) {
-			particao = random(1, njob);
+			particao = randomNumber(1, njob);
 
 			swap_vect(this->solution.scaling[j], other->solution.scaling[j], f1[j], 0, particao);
 			swap_vect(other->solution.scaling[j], this->solution.scaling[j], f2[j], 0, particao);

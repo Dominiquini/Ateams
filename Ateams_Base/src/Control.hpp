@@ -68,7 +68,7 @@ struct AteamsParameters {
 		int read = EOF;
 
 		for (map<string, void*>::const_iterator param = keys.begin(); param != keys.end(); param++) {
-			if (strcmpi(parameter, param->first.c_str()) == 0) {
+			if (strcasecmp(parameter, param->first.c_str()) == 0) {
 				read = sscanf(value, "%d", (int*) param->second);
 			}
 		}
@@ -117,7 +117,7 @@ public:
 
 	static list<Problem*>::iterator findSolution(list<Problem*> *vect, Problem *p);
 
-	static void printProgress(HeuristicExecutionInfo *heuristic, pair<int, int> *insertion);
+	static void printProgress(HeuristicExecutionInfo *heuristic);
 
 private:
 
@@ -139,7 +139,7 @@ private:
 	time_t startTime, endTime;			// Medidor do tempo inicial e final
 	int lastImprovedIteration = 0;		// Ultima iteracao em que houve melhora
 	long executionCount = 0;			// Threads executadas
-	uintptr_t swappedSolutions = 0;		// Numero de solucoes produzidas pelos algoritimos
+	uintptr_t newSolutionsCount = 0;		// Numero de solucoes produzidas pelos algoritimos
 
 	ProgressBar *loadingProgressBar;
 	ProgressBar *executionProgressBar;
@@ -151,10 +151,13 @@ private:
 	~Control();
 
 	/* Seleciona um dos algoritmos implementados para executar */
-	int execute(unsigned int executionId);
+	HeuristicExecutionInfo* execute(unsigned int executionId);
 
 	/* Adiciona um novo conjunto de solucoes a populacao corrente */
-	pair<int, int>* addSolutions(vector<Problem*> *newSolutions);
+	void insertNewSolutions(vector<Problem*> *newSolutions, bool autoTrim);
+
+	/* Remove soluções excedentes da população */
+	void trimSolutions();
 
 	/* Gera uma populacao inicial aleatoria com 'populationSize' elementos */
 	void generatePopulation(list<Problem*> *popInicial);

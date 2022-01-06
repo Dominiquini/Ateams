@@ -29,7 +29,7 @@ void XMLParser::parseXML(char *parameters) {
 void XMLParser::startElement(const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) {
 	char *element = XMLString::transcode(localname);
 
-	if (strcmpi(element, "Controller") == 0) {
+	if (strcasecmp(element, "Controller") == 0) {
 		char *parameter = NULL;
 		char *value = NULL;
 
@@ -44,7 +44,7 @@ void XMLParser::startElement(const XMLCh *const uri, const XMLCh *const localnam
 			XMLString::release(&parameter);
 			XMLString::release(&value);
 		}
-	} else if (strcmpi(element, "Heuristics") == 0) {
+	} else if (strcasecmp(element, "Heuristics") == 0) {
 		ctrl->newHeuristic(NULL);
 	} else {
 		Heuristic *newHeuristic = Control::instantiateHeuristic(element);

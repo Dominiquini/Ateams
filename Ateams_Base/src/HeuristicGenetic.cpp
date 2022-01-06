@@ -16,7 +16,7 @@ bool GeneticAlgorithm::setParameter(const char *parameter, const char *value) {
 	return parameters.setParameter(parameter, value);
 }
 
-vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) {
+vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *info) {
 	set<Problem*>::const_iterator selection = sol->begin();
 	vector<Problem*> *popAG = new vector<Problem*>();
 	int initialPopulation = 0;
@@ -46,7 +46,7 @@ vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Probl
 
 	pthread_mutex_unlock(&mutex_pop);
 
-	return exec(popAG, listener);
+	return exec(popAG, info);
 }
 
 set<Problem*>::const_iterator GeneticAlgorithm::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
@@ -67,7 +67,7 @@ void GeneticAlgorithm::markSolutions(vector<Problem*> *solutions) {
 	}
 }
 
-vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecutionInfo *listener) {
+vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecutionInfo *info) {
 	Problem *mutante;
 	pair<Problem*, Problem*> *temp;
 	vector<Problem*> *aux_pop = new vector<Problem*>();
@@ -84,20 +84,20 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 
 	vector<Problem*> *bad_pop = new vector<Problem*>();
 
-	if (listener != NULL)
-		listener->bestInitialFitness = (*pop->begin())->getFitness();
+	if (info != NULL)
+		info->bestInitialFitness = (*pop->begin())->getFitness();
 
 	/* Iteracao principal do AG */
 	for (int i = 0; i < parameters.iterations; i++) {
 		if (STATUS != EXECUTING)
 			break;
 
-		if (listener != NULL) {
-			listener->status = (100.00 * (double) (i + 1)) / (double) parameters.iterations;
+		if (info != NULL) {
+			info->status = (100.00 * (double) (i + 1)) / (double) parameters.iterations;
 
-			listener->bestActualFitness = (*pop->begin())->getFitness();
+			info->bestActualFitness = (*pop->begin())->getFitness();
 
-			listener->setupInfo("Generation: %d", i + 1);
+			info->setupInfo("Generation: %d", i + 1);
 		}
 
 		numCrossOver = (int) ((float) pop->size() * parameters.crossoverProbability);
@@ -108,7 +108,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 		for (int j = 0; j < numCrossOver / 2; j++) {
 			temp = new pair<Problem*, Problem*>();
 
-			if (random() < RAND_MAX * parameters.mutationProbability && (int) bad_pop->size() > 0) {
+			if (randomNumber() < RAND_MAX * parameters.mutationProbability && (int) bad_pop->size() > 0) {
 				iterProb = Control::selectRandom(bad_pop);
 				temp->first = *iterProb;
 			} else {
@@ -119,7 +119,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 				pop->erase(iterProb);
 			}
 
-			if (random() < RAND_MAX * parameters.mutationProbability && (int) bad_pop->size() > 0) {
+			if (randomNumber() < RAND_MAX * parameters.mutationProbability && (int) bad_pop->size() > 0) {
 				iterProb = Control::selectRandom(bad_pop);
 				temp->second = *iterProb;
 			} else {
@@ -142,14 +142,14 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 				temp = (*iterParProb)->first->crossOver((*iterParProb)->second, strengthCrossOver);
 			}
 
-			if (random() < (RAND_MAX * parameters.mutationProbability / 2)) {
-				mutante = temp->first->mutation(random(1, (int) (((float) 100) * parameters.mutationProbability)));
+			if (randomNumber() < (RAND_MAX * parameters.mutationProbability / 2)) {
+				mutante = temp->first->mutation(randomNumber(1, (int) (((float) 100) * parameters.mutationProbability)));
 				delete temp->first;
 				temp->first = mutante;
 			}
 
-			if (random() < (RAND_MAX * parameters.mutationProbability / 2)) {
-				mutante = temp->second->mutation(random(1, (int) (((float) 100) * parameters.mutationProbability)));
+			if (randomNumber() < (RAND_MAX * parameters.mutationProbability / 2)) {
+				mutante = temp->second->mutation(randomNumber(1, (int) (((float) 100) * parameters.mutationProbability)));
 				delete temp->second;
 				temp->second = mutante;
 			}
@@ -198,7 +198,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 		sort(pop->begin(), pop->end(), fnSortFitness);
 
 		/* Mantem a populacao auxiliar sob controle */
-		random_shuffle(bad_pop->begin(), bad_pop->end(), pointer_to_unary_function<int, int>(random));
+		random_shuffle(bad_pop->begin(), bad_pop->end(), pointer_to_unary_function<int, int>(randomNumber));
 
 		while ((int) bad_pop->size() > 10 * parameters.populationSize) {
 			delete bad_pop->back();
@@ -217,6 +217,10 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 	delete aux_pop;
 
 	markSolutions(pop);
+
+	if (info != NULL) {
+		info->newSolutionsProduced = pop->size();
+	}
 
 	return pop;
 }
