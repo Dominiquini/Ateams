@@ -50,6 +50,7 @@ struct AteamsParameters {
 			{"iterations", &iterations},
 			{"numThreads", &numThreads},
 			{"populationSize", &populationSize},
+			{"maxPopulationSize", &maxPopulationSize},
 			{"attemptsWithoutImprovement", &attemptsWithoutImprovement},
 			{"maxExecutionTime", &maxExecutionTime},
 			{"maxSolutions", &maxSolutions},
@@ -58,7 +59,8 @@ struct AteamsParameters {
 
 	int iterations = 250; 					// Numero de iteracoes
 	int numThreads = 8;						// Numero de threads que podem rodar ao mesmo tempo
-	int populationSize = 500;				// Tamanho da populacao
+	int populationSize = 500;				// Tamanho inicial da populacao
+	int maxPopulationSize = -1;				// Tamanho maximo da populacao
 	int attemptsWithoutImprovement = 100; 	// Tentativas sem melhora
 	int maxExecutionTime = 3600;			// Tempo maximo de execucao
 	int maxSolutions = -1;					// Numero maximo de solucoes para testar

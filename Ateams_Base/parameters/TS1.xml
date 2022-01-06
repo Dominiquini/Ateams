@@ -5,6 +5,7 @@
    iterations = "250"
    numThreads = "8"
    populationSize = "500"
+   maxPopulationSize = "-1"
    attemptsWithoutImprovement = "100"
    maxExecutionTime = "3600"
    maxSolutions = "-1"
@@ -13,15 +14,15 @@
   <Heuristics>
 
     <TabuSearch
-       name = "TB2"
-       probBT = "10"
-       choicePolicyTS = "250"
+       name = "TS1"
+       probBT = "22"
+       choicePolicyTS = "500"
        elitismProbabilityTS = "0.25"
        aspirationCriteriaTS = "0.5"
-       iterationsTS = "750"
-       attemptsWithoutImprovementTS = "750"
-       listSizeTS = "25"
-       explorationPolicyTS = "0.5">
+       iterationsTS = "500"
+       attemptsWithoutImprovementTS = "500"
+       listSizeTS = "10"
+       explorationPolicyTS = "0.25">
     </TabuSearch>
 
   </Heuristics>

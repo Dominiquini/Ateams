@@ -89,7 +89,11 @@ public:
 	virtual bool setParameter(const char *parameter, const char *value) = 0;
 
 	virtual void printStatistics(char bullet, int total) {
-		printf(" %c %s |%% %03d %%| -> %03d (%% %06.2f %%)\n", bullet, getParameters().name.c_str(), getParameters().choiceProbability, executionCounter, (100.0f * executionCounter) / total);
+		if (total == 0) {
+			printf(" %c %s |%% %03d %%| -> %03d (%% ------ %%)\n", bullet, getParameters().name.c_str(), getParameters().choiceProbability, executionCounter);
+		} else {
+			printf(" %c %s |%% %03d %%| -> %03d (%% %06.2f %%)\n", bullet, getParameters().name.c_str(), getParameters().choiceProbability, executionCounter, (100.0f * executionCounter) / total);
+		}
 	}
 
 	virtual set<Problem*>::const_iterator selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) = 0;

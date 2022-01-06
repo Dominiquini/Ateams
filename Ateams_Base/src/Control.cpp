@@ -115,52 +115,50 @@ HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
 	algorithm = selectRouletteWheel(heuristics, Heuristic::heuristicsProbabilitySum);
 	info = new HeuristicExecutionInfo(algorithm, executionId, pthread_self());
 
-	if (STATUS == EXECUTING) {
-		pthread_mutex_lock(&mutex_info);
-		{
-			runningThreads++;
+	pthread_mutex_lock(&mutex_info);
+	{
+		runningThreads++;
 
-			Heuristic::executedHeuristics->push_back(info);
-			Heuristic::runningHeuristics->push_back(info);
+		Heuristic::executedHeuristics->push_back(info);
+		Heuristic::runningHeuristics->push_back(info);
 
-			Control::printProgress(info);
-		}
-		pthread_mutex_unlock(&mutex_info);
-
-		newSoluctions = algorithm->start(solutions, info);
-
-		pthread_mutex_lock(&mutex_pop);
-		{
-			executionCount++;
-
-			double oldBest = Problem::best;
-
-			insertNewSolutions(newSoluctions, true);
-
-			double newBest = Problem::best;
-
-			if (Problem::improvement(oldBest, newBest) > 0) {
-				lastImprovedIteration = 0;
-			} else {
-				lastImprovedIteration++;
-			}
-		}
-		pthread_mutex_unlock(&mutex_pop);
-
-		newSoluctions->clear();
-		delete newSoluctions;
-
-		pthread_mutex_lock(&mutex_info);
-		{
-			runningThreads--;
-
-			list<HeuristicExecutionInfo*>::iterator executed = find(Heuristic::runningHeuristics->begin(), Heuristic::runningHeuristics->end(), info);
-			Heuristic::runningHeuristics->erase(executed);
-
-			Control::printProgress(info);
-		}
-		pthread_mutex_unlock(&mutex_info);
+		Control::printProgress(info);
 	}
+	pthread_mutex_unlock(&mutex_info);
+
+	newSoluctions = algorithm->start(solutions, info);
+
+	pthread_mutex_lock(&mutex_pop);
+	{
+		executionCount++;
+
+		double oldBest = Problem::best;
+
+		insertNewSolutions(newSoluctions, true);
+
+		double newBest = Problem::best;
+
+		if (Problem::improvement(oldBest, newBest) > 0) {
+			lastImprovedIteration = 0;
+		} else {
+			lastImprovedIteration++;
+		}
+	}
+	pthread_mutex_unlock(&mutex_pop);
+
+	newSoluctions->clear();
+	delete newSoluctions;
+
+	pthread_mutex_lock(&mutex_info);
+	{
+		runningThreads--;
+
+		list<HeuristicExecutionInfo*>::iterator executed = find(Heuristic::runningHeuristics->begin(), Heuristic::runningHeuristics->end(), info);
+		Heuristic::runningHeuristics->erase(executed);
+
+		Control::printProgress(info);
+	}
+	pthread_mutex_unlock(&mutex_info);
 
 	return info;
 }
@@ -182,7 +180,7 @@ void Control::insertNewSolutions(vector<Problem*> *newSolutions, bool autoTrim) 
 
 void Control::trimSolutions() {
 	set<Problem*>::iterator lastViableSolution = solutions->begin();
-	advance(lastViableSolution, parameters.populationSize);
+	advance(lastViableSolution, max(parameters.maxPopulationSize, parameters.populationSize));
 
 	while (lastViableSolution != solutions->end()) {
 		delete *lastViableSolution;
@@ -429,10 +427,8 @@ void Control::run() {
 
 		HeuristicExecutionInfo *info = (HeuristicExecutionInfo*) inserted;
 
-		if (info->isStarted()) {
+		if (info != NULL) {
 			newSolutionsCount += info->newSolutionsProduced;
-		} else {
-			delete info;
 		}
 	}
 
@@ -677,11 +673,13 @@ void* Control::pthrExecution(void *iteration) {
 	Control *ctrl = Control::instance;
 	PrimitiveWrapper<unsigned int> *iterationAteams = (PrimitiveWrapper<unsigned int>*) iteration;
 
-	HeuristicExecutionInfo *inserted;
+	HeuristicExecutionInfo *inserted = NULL;
 
 	sem_wait(&semaphore);
 
-	inserted = ctrl->execute(iterationAteams->value);
+	if (STATUS == EXECUTING) {
+		inserted = ctrl->execute(iterationAteams->value);
+	}
 
 	sem_post(&semaphore);
 
@@ -721,6 +719,7 @@ inline string Heuristic::getHeuristicNames(list<HeuristicExecutionInfo*> *heuris
 	for (list<HeuristicExecutionInfo*>::const_iterator it = heuristicsList->cbegin(); it != heuristicsList->cend(); it++) {
 		executedNames.append((*it)->heuristicInfo).push_back(' ');
 	}
+
 	if (executedNames.size() > 0) {
 		executedNames.pop_back();
 	}

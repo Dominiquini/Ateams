@@ -72,8 +72,14 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *info) 
 
 	maxGlobal->push_back(Problem::copySolution(*maxLocal));
 
-	if (info != NULL)
+	if (info != NULL) {
 		info->bestInitialFitness = (*maxGlobal->begin())->getFitness();
+		info->bestActualFitness = (*maxGlobal->rbegin())->getFitness();
+
+		info->status = 0.0f;
+
+		info->setupInfo("Iteration: %d", 0);
+	}
 
 	// Loop principal
 	for (int i = 0, j = 0; i < parameters.iterations && j < parameters.attemptsWithoutImprovement; i++, j++) {

@@ -84,8 +84,14 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 
 	vector<Problem*> *bad_pop = new vector<Problem*>();
 
-	if (info != NULL)
+	if (info != NULL) {
 		info->bestInitialFitness = (*pop->begin())->getFitness();
+		info->bestActualFitness = (*pop->begin())->getFitness();
+
+		info->status = 0.0f;
+
+		info->setupInfo("Generation: %d", 0);
+	}
 
 	/* Iteracao principal do AG */
 	for (int i = 0; i < parameters.iterations; i++) {

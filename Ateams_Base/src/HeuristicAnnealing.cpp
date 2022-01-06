@@ -76,8 +76,14 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *
 
 	Sf->push_back(Problem::copySolution(*Si));
 
-	if (info != NULL)
+	if (info != NULL) {
 		info->bestInitialFitness = (*Sf->begin())->getFitness();
+		info->bestActualFitness = (*Sf->rbegin())->getFitness();
+
+		info->status = 0.0f;
+
+		info->setupInfo("Temperature: %f", T);
+	}
 
 	bool exec = true;
 

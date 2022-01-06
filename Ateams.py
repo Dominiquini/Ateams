@@ -51,7 +51,7 @@ def validate_path(ctx: click.core.Context=None, param: click.core.Option=None, v
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, debug, memory, extra_args):
     """A Wrapper For Ateams"""
-    
+
     def __truncate(number, decimals=0):
         factor = 10.0 ** decimals
 
@@ -61,14 +61,21 @@ def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_inf
         filename = pathlib.Path(input).stem
 
         return validate_path(value=ateams_path(DEFAULT_OUTPUTS_PATH[algorithm] + filename + '.' + extension))
-    
+
+    def __apply_execution_modifiers(command_line):
+        if(debug and not memory): command_line = GDB_COMMAND + " " + command_line
+        if(memory and not debug): command_line = VALGRIND_COMMAND + " " + command_line
+        if(debug and memory): raise Exception("Don't Use '-d' and '-m' At Same Time!")
+
+        return command_line
+
     def __build_command_line():       
         command_line = BINARIES[algorithm]
 
         if(parameters is not None): command_line += f" -p {parameters}"
-        
+
         if(input is not None): command_line += f" -i {input}"
-        
+
         if(result is not None): command_line += f" -r {result}"
 
         if(pop is not None): command_line += f" -t {pop}"
@@ -82,9 +89,7 @@ def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_inf
         for arg in extra_args:
             command_line += f" {arg}"
 
-        if(debug): command_line = GDB_COMMAND + " " + command_line
-        
-        if(memory): command_line = VALGRIND_COMMAND + " " + command_line
+        command_line = __apply_execution_modifiers(command_line)
 
         return ateams_path(command_line)
 
@@ -110,7 +115,7 @@ def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_inf
     
     click.prompt("\nPress ENTER To Exit", prompt_suffix='', hide_input=True, show_choices=False, show_default=False, default='')
     click.echo("\n")
-    
+
 
 if __name__ == '__main__':
     for sig in [signal.SIGINT, signal.SIGTERM]:

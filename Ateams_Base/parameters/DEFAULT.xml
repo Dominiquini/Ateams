@@ -5,6 +5,7 @@
    iterations = "250"
    numThreads = "8"
    populationSize = "500"
+   maxPopulationSize = "-1"
    attemptsWithoutImprovement = "100"
    maxExecutionTime = "3600"
    maxSolutions = "-1"
@@ -46,7 +47,7 @@
     </SimulatedAnnealing>
 
     <TabuSearch
-       name = "TB1"
+       name = "TS1"
        probBT = "22"
        choicePolicyTS = "500"
        elitismProbabilityTS = "0.25"
@@ -58,7 +59,7 @@
     </TabuSearch>
 
     <TabuSearch
-       name = "TB2"
+       name = "TS2"
        probBT = "10"
        choicePolicyTS = "250"
        elitismProbabilityTS = "0.25"
@@ -70,7 +71,7 @@
     </TabuSearch>
 
     <TabuSearch
-       name = "TB3"
+       name = "TS3"
        probBT = "8"
        choicePolicyTS = "100"
        elitismProbabilityTS = "0.125"

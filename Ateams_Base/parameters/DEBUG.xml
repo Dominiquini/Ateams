@@ -5,6 +5,7 @@
    iterations = "10"
    numThreads = "1"
    populationSize = "100"
+   maxPopulationSize = "-1"
    attemptsWithoutImprovement = "-1"
    maxExecutionTime = "30"
    maxSolutions = "10"
@@ -24,7 +25,7 @@
     </SimulatedAnnealing>
 
     <TabuSearch
-       name = "BT"
+       name = "TS"
        probBT = "33"
        choicePolicyTS = "100"
        elitismProbabilityTS = "0.1"
@@ -36,7 +37,7 @@
     </TabuSearch>
 
     <GeneticAlgorithm
-       name = "AG"
+       name = "GA"
        probAG = "33"
        choicePolicyGA = "-1"
        iterationsGA = "50"
