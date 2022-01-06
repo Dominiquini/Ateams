@@ -33,13 +33,15 @@ int main(int argc, char *argv[]) {
 
 		Control::terminate();
 
-		cout << endl << endl << "Termination Reason: " << getTerminationInfo(STATUS) << endl << endl;
+		cout << endl << endl << COLOR_GREEN << "Termination Reason: " << getTerminationInfo(STATUS) << COLOR_DEFAULT << endl << endl;
 
 		return 0;
 	} catch (...) {
+		beep();
+
 		exception_ptr exception = current_exception();
 
-		cerr << endl << endl << COLOR_RED << "Error During Execution: " << getExceptionMessage(exception) << COLOR_DEFAULT << endl << endl;
+		cerr << endl << endl << COLOR_RED << "Exception: " << getExceptionMessage(exception) << COLOR_DEFAULT << endl << endl;
 
 		return -1;
 	}

@@ -1,4 +1,4 @@
-include ../Makefile.mk
+include ../Makefile_Base
 
 -include $(PROJ_DEPS)
 
@@ -6,18 +6,13 @@ PATH_ROOT = ../
 
 PROJ = GraphColoring
 
-RUN_PARAM = -i $(PATH_PROJ_INPUT)jean.prb -p $(PATH_PROJ_PARAM)DEFAULT.xml -r $(PATH_PROJ_RES)jean.res $(ARG)
 
-
-.PHONY: 				all base run clean purge
+.PHONY: 				all base clean purge
 
 
 all:					$(PATH_PROJ_BIN) $(PROJ_BIN)
 
 base:					$(BASE_LIB)
-
-run:					$(PATH_PROJ_RES) all
-						$(PROJ_BIN) $(RUN_PARAM)
 
 clean:
 						$(RM) $(PROJ_OBJS) $(PROJ_DEPS) $(PROJ_BIN) $(PATH_PROJ_BIN)
@@ -35,7 +30,7 @@ $(BASE_LIB):			$(BASE_SRCS) $(BASE_HEADERS)
 						$(MAKE) -C $(PATH_BASE)
 
 $(PATTERN_PROJ_OBJS):	$(PATTERN_PROJ_SRCS) $(PROJ_HEADERS)
-						$(CC) $(CXXFLAGS) -MMD -MF $(patsubst %.o,%.o.d,$@) -c $< -o $@
+						$(CC) $(CXXFLAGS) -MMD -MF $(patsubst %$(OBJ_EXT),%$(DEPS_EXT),$@) -c $< -o $@
 
 $(PROJ_BIN):			$(BASE_LIB) $(PROJ_OBJS)
 						$(CC) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)

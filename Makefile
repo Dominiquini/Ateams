@@ -1,11 +1,13 @@
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 
-include ./Makefile.mk
+include ./Makefile_Base
 
 PATH_ROOT = ./
 
+PROJ =
 
-.PHONY:				Ateams Base BinPacking FlowShop GraphColoring JobShop KnapSack TravellingSalesman list all clean purge
+
+.PHONY:				Ateams Base BinPacking FlowShop GraphColoring JobShop KnapSack TravellingSalesman list all base clean purge
 
 
 Ateams:				Base BinPacking FlowShop GraphColoring JobShop KnapSack TravellingSalesman
@@ -33,9 +35,11 @@ TravellingSalesman:	Base
 
 
 list:
-					@LC_ALL=C $(MAKE) -pRrq -f $(lastword $(THIS_FILE)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
+					@$(ECHO)  -- Ateams "\n" - Base "\n" - BinPacking "\n" - FlowShop "\n" - GraphColoring "\n" - JobShop "\n" - KnapSack "\n" - TravellingSalesman
 
 all:				Ateams
+
+base:				Base
 
 clean:				COMMAND=clean
 clean:				--delete

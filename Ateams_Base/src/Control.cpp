@@ -241,52 +241,54 @@ inline int Control::findPosArgv(char **in, int num, char *key) {
 inline void Control::readMainCMDParameters() {
 	int p = -1;
 
+	Control::buffer[0] = '\0';
+
 	if ((p = findPosArgv(argv, *argc, (char*) "-p")) != -1) {
 		strcpy(inputParameters, argv[p]);
 
-		printf("Parameters File: '%s'\n", inputParameters);
+		cout << COLOR_GREEN << "Parameters File: " << inputParameters << COLOR_DEFAULT << endl;
 	} else {
-		inputParameters[0] = '\0';
+		memset(inputParameters, 0, sizeof inputParameters);
 
-		printf("Parameters File Cannot Be Empty!\n");
+		cout << COLOR_RED << "Parameters File: " << "---" << COLOR_DEFAULT << endl;
 
-		printf("\n./Ateams -i <<INPUT_FILE>> -p <<INPUT_PARAMETERS>> -r <RESULT_FILE> -l <LOG_FILE>\n\n");
-
-		exit(1);
+		strcat(Control::buffer, "Parameters File Cannot Be Empty! ");
 	}
 
 	if ((p = findPosArgv(argv, *argc, (char*) "-i")) != -1) {
 		strcpy(inputDataFile, argv[p]);
 
-		printf("Data File: '%s'\n", inputDataFile);
+		cout << COLOR_GREEN << "Data File: " << inputDataFile << COLOR_DEFAULT << endl;
 	} else {
-		inputDataFile[0] = '\0';
+		memset(inputDataFile, 0, sizeof inputDataFile);
 
-		printf("Data File Cannot Be Empty!\n");
+		cout << COLOR_RED << "Data File: " << "---" << COLOR_DEFAULT << endl;
 
-		printf("\n./Ateams -i <<INPUT_FILE>> -p <<INPUT_PARAMETERS>> -r <RESULT_FILE> -l <LOG_FILE>\n\n");
-
-		exit(1);
+		strcat(Control::buffer, "Data File Cannot Be Empty! ");
 	}
 
 	if ((p = findPosArgv(argv, *argc, (char*) "-r")) != -1) {
 		strcpy(outputResultFile, argv[p]);
 
-		printf("Result File: '%s'\n", outputResultFile);
+		cout << COLOR_GREEN << "Result File: " << outputResultFile << COLOR_DEFAULT << endl;
 	} else {
-		outputResultFile[0] = '\0';
+		memset(outputResultFile, 0, sizeof outputResultFile);
 
-		printf("~Result File: ---\n");
+		cout << COLOR_YELLOW << "Result File: " << "---" << COLOR_DEFAULT << endl;
 	}
 
 	if ((p = findPosArgv(argv, *argc, (char*) "-t")) != -1) {
-		strcpy(outputLogFile, argv[p]);
+		strcpy(populationFile, argv[p]);
 
-		printf("Log File: '%s'\n", outputLogFile);
+		cout << COLOR_GREEN << "Population File: " << populationFile << COLOR_DEFAULT << endl;
 	} else {
-		outputLogFile[0] = '\0';
+		memset(populationFile, 0, sizeof populationFile);
 
-		printf("~Log File: ---\n");
+		cout << COLOR_YELLOW << "Population File: " << "---" << COLOR_DEFAULT << endl;
+	}
+
+	if (strlen(Control::buffer) != 0) {
+		throw Control::buffer;
 	}
 
 	setPrintFullSolution(findPosArgv(argv, *argc, (char*) "-s") != -1);
@@ -654,6 +656,8 @@ void Control::printProgress(HeuristicExecutionInfo *heuristic) {
 		string color;
 
 		execNames = Heuristic::getRunningHeuristics();
+
+		Control::buffer[0] = '\0';
 
 		if (!heuristic->isFinished()) {
 			snprintf(Control::buffer, BUFFER_SIZE, ">>> {%.3ld} ALG: %s | ....................... | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, runningThreads, execNames.c_str());

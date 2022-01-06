@@ -22,7 +22,11 @@ XMLParser::~XMLParser() {
 }
 
 void XMLParser::parseXML(char *parameters) {
-	parser->parse(parameters);
+	try {
+		parser->parse(parameters);
+	} catch (...) {
+		throw "Unable To Parse: " + string(parameters);
+	}
 }
 
 /* Parser do arquivo XML de configuracoes */

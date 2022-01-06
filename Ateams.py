@@ -14,7 +14,7 @@ ATEAMS_PATH_PLACEHOLDER = "#ATEAMS_PATH#"
 
 GDB_COMMAND = "gdb --args"
 
-VALGRIND_COMMAND = "valgrind --leak-check=full -s"
+VALGRIND_COMMAND = "valgrind --leak-check=full --show-leak-kinds=all -s"
 
 ALGORITHMS = ['BinPacking', 'FlowShop', 'GraphColoring', 'JobShop', 'KnapSack', 'TravellingSalesman']
 
@@ -47,9 +47,9 @@ def validate_path(ctx: click.core.Context=None, param: click.core.Option=None, v
 @click.option('-s', '--show_solution', type=click.BOOL, is_flag=True, help='Show Solution')
 @click.option('-n', '--repeat', type=click.INT, default=1, help='Repeat N Times')
 @click.option('-d', '--debug', type=click.BOOL, is_flag=True, help='Run With GDB')
-@click.option('-m', '--memory', type=click.BOOL, is_flag=True, help='Run With Valgrind')
+@click.option('-m', '--memcheck', type=click.BOOL, is_flag=True, help='Run With Valgrind')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
-def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, debug, memory, extra_args):
+def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, debug, memcheck, extra_args):
     """A Wrapper For Ateams"""
 
     def __truncate(number, decimals=0):
@@ -63,9 +63,9 @@ def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_inf
         return validate_path(value=ateams_path(DEFAULT_OUTPUTS_PATH[algorithm] + filename + '.' + extension))
 
     def __apply_execution_modifiers(command_line):
-        if(debug and not memory): command_line = GDB_COMMAND + " " + command_line
-        if(memory and not debug): command_line = VALGRIND_COMMAND + " " + command_line
-        if(debug and memory): raise Exception("Don't Use '-d' and '-m' At Same Time!")
+        if(debug and not memcheck): command_line = GDB_COMMAND + " " + command_line
+        if(not debug and memcheck): command_line = VALGRIND_COMMAND + " " + command_line
+        if(debug and memcheck): raise Exception("Don't Use '-d' and '-m' At Same Time!")
 
         return command_line
 

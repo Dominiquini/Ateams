@@ -43,6 +43,8 @@ using namespace std;
 
 #define sleep_ms(milliseconds) usleep(milliseconds * 1000)
 
+#define beep() cout << BEEP_ASCII_CHAR
+
 #define quote(x) #x
 
 #define RANDOM_TYPE -1
@@ -61,6 +63,8 @@ using namespace std;
 #define COLOR_DEFAULT "[39m"
 
 #define PREVIOUS_LINE "\033[F"
+
+#define BEEP_ASCII_CHAR '\a'
 
 enum TerminationInfo {
 	EXECUTING, FINISHED_NORMALLY, INCOMPLETE, USER_SIGNALED, EXECUTION_TIMEOUT, LACK_OF_IMPROVEMENT, TOO_MANY_SOLUTIONS, RESULT_ACHIEVED

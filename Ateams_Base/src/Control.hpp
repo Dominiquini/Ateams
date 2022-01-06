@@ -126,7 +126,7 @@ private:
 	char inputParameters[128];
 	char inputDataFile[128];
 	char outputResultFile[128];
-	char outputLogFile[128];
+	char populationFile[128];
 
 	bool printFullSolution;				// Imprime melhor solucao
 
@@ -212,7 +212,7 @@ public:
 	}
 
 	char* getOutputLogFile() {
-		return outputLogFile;
+		return populationFile;
 	}
 
 	char* getOutputResultFile() {
