@@ -252,6 +252,12 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo inf
 }
 
 void Problem::allocateMemory() {
+	Problem::best = 0;
+	Problem::worst = 0;
+
+	Problem::numInst = 0;
+	Problem::totalNumInst = 0;
+
 	TravellingSalesman::edges = (double**) malloc(TravellingSalesman::nnodes * sizeof(double*));
 
 	for (int i = 0; i < TravellingSalesman::nnodes; i++)
@@ -259,6 +265,12 @@ void Problem::allocateMemory() {
 }
 
 void Problem::deallocateMemory() {
+	Problem::best = 0;
+	Problem::worst = 0;
+
+	Problem::numInst = 0;
+	Problem::totalNumInst = 0;
+
 	for (int i = 0; i < TravellingSalesman::nnodes; i++)
 		free(TravellingSalesman::edges[i]);
 

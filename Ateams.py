@@ -1,124 +1,289 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import click
+import ninja_syntax
+import collections
+import platform
 import builtins
 import pathlib
 import signal
 import timeit
+import click
+import glob
 import time
 import math
+import sys
 import os
 
-ATEAMS_PATH_PLACEHOLDER = "#ATEAMS_PATH#"
+PLATFORM = collections.namedtuple('PlatformInfo', ['windows_key', 'linux_key', 'is_windows', 'is_linux', 'system'])(windows_key := "WINDOWS", linux_key := "LINUX", is_windows := sys.platform == 'win32', is_linux := not is_windows, system := windows_key if is_windows else linux_key)
+
+PATH_SEPARATOR = os.path.sep
+
+ROOT_FOLDER = os.path.dirname(os.path.abspath(__file__))
+
+THIS_FILE = os.path.basename(__file__)
+
+NINJA_BUILD_FILE = os.path.basename(f"{ROOT_FOLDER}{PATH_SEPARATOR}build.ninja")
+
+MULTITHREADING_BUILDING_ENABLED = True
+
+BUILD_TOOLS = collections.namedtuple('BuildTools', ['tools', 'default'])(tools := ["make", "ninja"], default := tools[0])
+
+BUILDING_MODES = collections.namedtuple('BuildModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
+
+CXXFLAGS = {BUILDING_MODES.modes[0]: "-Wall -pedantic -O3 -march=native -mtune=native -masm=intel", BUILDING_MODES.modes[1]: "-Wall -pedantic -O0 -g3 -march=native -mtune=native -masm=intel", BUILDING_MODES.modes[2]: "-Wall -pedantic -O0 -pg -march=native -mtune=native -masm=intel"}
+
+LDFLAGS = {PLATFORM.windows_key: "-lpthread -lopengl32 -lGLU32 -lfreeglut -lxerces-c", PLATFORM.linux_key: "-lpthread -lGL -lGLU -lglut -lxerces-c"}
+
+POOL_ASYNC = collections.namedtuple('NinjaPool', ['name', 'depth'])("threaded", 16)
+
+BIN_EXT = ".exe" if PLATFORM.is_windows else ""
+
+BASE_SRCS = [cpp.replace(ROOT_FOLDER, ".") for cpp in glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}*{PATH_SEPARATOR}src{PATH_SEPARATOR}*.cpp") if cpp.find("Ateams_Base") != -1]
+BASE_OBJS = [src.replace("src", "bin").replace(".cpp", ".o") for src in BASE_SRCS]
+BASE_LIB = f"{ROOT_FOLDER}{PATH_SEPARATOR}Ateams_Base{PATH_SEPARATOR}bin{PATH_SEPARATOR}Ateams_Base.a".replace(ROOT_FOLDER, ".")
+
+PROJ_SRCS = [cpp.replace(ROOT_FOLDER, ".") for cpp in glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}*{PATH_SEPARATOR}src{PATH_SEPARATOR}*.cpp") if cpp.find("Ateams_Base") == -1]
+PROJ_OBJS = [src.replace("src", "bin").replace(".cpp", ".o") for src in PROJ_SRCS]
+PROJ_BINS = [obj.replace(".o", BIN_EXT) for obj in PROJ_OBJS]
 
 GDB_COMMAND = "gdb --args"
 
-VALGRIND_COMMAND = "valgrind --leak-check=full --show-leak-kinds=all -s"
+VALGRIND_COMMAND = "valgrind --leak-check=full -s"
 
 ALGORITHMS = ['BinPacking', 'FlowShop', 'GraphColoring', 'JobShop', 'KnapSack', 'TravellingSalesman']
 
-BINARIES = {A: f"{ATEAMS_PATH_PLACEHOLDER}/{A}/bin/{A}" for A in ALGORITHMS}
+FILE_BINS = {A: f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}bin{PATH_SEPARATOR}{A}{BIN_EXT}" for A in ALGORITHMS}
+FILE_PARAMS = glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}Ateams_Base{PATH_SEPARATOR}parameters{PATH_SEPARATOR}*.xml")
+FILE_DEFAULT_PARAM = f"{ROOT_FOLDER}{PATH_SEPARATOR}Ateams_Base{PATH_SEPARATOR}parameters{PATH_SEPARATOR}DEFAULT.xml"
+FILE_INPUTS = {A: glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}input{PATH_SEPARATOR}*.prb") for A in ALGORITHMS}
+FILE_DEFAULT_INPUTS = {A: f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}input{PATH_SEPARATOR}{I}" for (A, I) in zip(ALGORITHMS, ['binpack1_01.prb', 'car1.prb', 'jean.prb', 'la01.prb', 'mk_gk01.prb', 'br17.prb'])}
+PATH_DEFAULT_OUTPUTS = {A: f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}results{PATH_SEPARATOR}" for A in ALGORITHMS}
 
-DEFAULT_PARAM = f"{ATEAMS_PATH_PLACEHOLDER}/Ateams_Base/parameters/DEFAULT.xml"
 
-DEFAULT_INPUTS = {A: f"{ATEAMS_PATH_PLACEHOLDER}/{A}/input/{I}" for (A, I) in zip(ALGORITHMS, ['binpack1_01.prb', 'car1.prb', 'jean.prb', 'la01.prb', 'mk_gk01.prb', 'br17.prb'])}
+class NinjaFileWriter(ninja_syntax.Writer):
 
-DEFAULT_OUTPUTS_PATH = {A: f"{ATEAMS_PATH_PLACEHOLDER}/{A}/results/" for A in ALGORITHMS}
+    def __init__(self, path=NINJA_BUILD_FILE, mode="w", width=512):
+        super().__init__(output=open(path, mode), width=width)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        super().close()
+
+
+def truncate_number(number, decimals=0):
+    factor = 10.0 ** decimals
+
+    return math.trunc(number) if decimals <= 0 else math.trunc(number * factor) / factor
+
 
 def validate_path(ctx: click.core.Context=None, param: click.core.Option=None, value: click.Path=None):
-    try:
-        os.makedirs(os.path.dirname(value))
-    finally:
-        return value
+    try: os.makedirs(os.path.dirname(value))
+    finally: return value
 
-@click.command(context_settings=dict(ignore_unknown_options=True, help_option_names=['-h', '--help']))
-@click.option('-a', '--algorithm', type=click.Choice(ALGORITHMS, case_sensitive=False), required=True, prompt="Algorithm: ", help='Algorithm')
+
+click.pass_config = click.make_pass_decorator(Config := collections.namedtuple('LauncherConfig', ['execute', 'verbose', 'clear', 'pause']))
+
+
+@click.group(context_settings=dict(ignore_unknown_options=True, help_option_names=['-h', '--help']))
+@click.option('--execute/--no-execute', default=True, help='Execute Selected Command')
+@click.option('--verbose/--no-verbose', default=True, help='Print Execution Info')
+@click.option('--clear/--no-clear', default=False, help='Clear Terminal')
+@click.option('--pause/--no-pause', default=False, help='Pause Terminal')
+@click.pass_context
+def ateams(ctx, execute, verbose, clear, pause):
+    ctx.obj = Config(execute, verbose, clear, pause)
+
+
+@ateams.command(context_settings=dict(ignore_unknown_options=True, help_option_names=['-h', '--help']))
+@click.option('-a', '--tool', type=click.Choice(BUILD_TOOLS.tools, case_sensitive=False), required=True, default=BUILD_TOOLS.default, help='Building Tool')
+@click.option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, help='Building Mode')
+@click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
+@click.pass_config
+def build(config, tool, mode, extra_args):
+    """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
+
+    def __compose_command_line():
+        command_line = tool
+
+        if MULTITHREADING_BUILDING_ENABLED and "-j" not in extra_args: command_line += f" -j {os.cpu_count()}"
+
+        for arg in extra_args: command_line += f" {arg}"
+
+        if tool == "make": command_line += f" {mode}=true"
+
+        return command_line
+
+    def __build_ateams(cmd, change_to_root_folder=True):
+        if change_to_root_folder: os.chdir(ROOT_FOLDER)
+
+        return timeit.repeat(stmt=lambda: os.system(cmd), repeat=1, number=1)[0] if config.execute else 0
+
+    with NinjaFileWriter(ROOT_FOLDER + PATH_SEPARATOR + NINJA_BUILD_FILE) as ninja:
+        ninja.comment(f"PLATFORM: {PLATFORM.system}")
+
+        ninja.newline()
+
+        ninja.variable("BUILD_MODE", mode)
+        ninja.variable("CXXFLAGS", CXXFLAGS[mode])
+        ninja.variable("LDFLAGS", LDFLAGS[PLATFORM.system])
+
+        ninja.newline()
+
+        ninja.pool(**POOL_ASYNC._asdict())
+
+        ninja.newline()
+
+        ninja.rule(name="compile", command="g++ -MMD -MF $out.d $CXXFLAGS -c -o $out $in", description="COMPILE $out", deps="gcc", depfile="$out.d", pool=POOL_ASYNC.name)
+
+        ninja.newline()
+
+        ninja.rule(name="link", command="g++ $CXXFLAGS -o $out $in $LDFLAGS", description="LINK $out", pool=POOL_ASYNC.name)
+
+        ninja.newline()
+
+        ninja.rule(name="archive", command="ar -rsc $out $in", description="ARCHIVE $out", pool=POOL_ASYNC.name)
+
+        ninja.newline()
+
+        ninja.rule(name="generate", command="python $in --no-execute --no-verbose --no-clear --no-pause build -a ninja -m $BUILD_MODE", description="UPDATE NINJA BUILD FILE", pool=POOL_ASYNC.name, generator=True)
+
+        ninja.newline()
+
+        for src, obj in zip(BASE_SRCS, BASE_OBJS):
+            ninja.build(outputs=obj, rule="compile", inputs=src)
+
+        ninja.newline()
+
+        ninja.build(outputs=BASE_LIB, rule="archive", inputs=BASE_OBJS)
+
+        ninja.newline()
+
+        for src, obj in zip(PROJ_SRCS, PROJ_OBJS):
+            ninja.build(outputs=obj, rule="compile", inputs=src)
+
+        ninja.newline()
+
+        for obj, bin in zip(PROJ_OBJS, PROJ_BINS):
+            ninja.build(outputs=bin, rule="link", inputs=[BASE_LIB, obj])
+
+        ninja.newline()
+
+        ninja.build(outputs="Ateams", rule="phony", inputs=PROJ_BINS)
+
+        ninja.newline()
+
+        ninja.build(outputs="Base", rule="phony", inputs=BASE_LIB)
+
+        ninja.newline()
+
+        for bin in PROJ_BINS:
+            ninja.build(outputs=os.path.splitext(os.path.basename(bin))[0], rule="phony", inputs=bin)
+
+        ninja.newline()
+
+        ninja.default("Ateams")
+
+        ninja.newline()
+
+        ninja.build(outputs="update", rule="generate", inputs=THIS_FILE, implicit=NINJA_BUILD_FILE)
+
+    if config.clear: click.clear()
+
+    command_line = __compose_command_line()
+
+    if config.verbose: click.echo(f"\n*** Command: '{command_line}' ***\n")
+
+    timer = __build_ateams(command_line)
+
+    if config.verbose: click.echo(f"\n*** Timer: {truncate_number(timer, 2)} ***\n")
+
+    if config.pause: click.prompt("\nPress ENTER To Exit ", prompt_suffix='', hide_input=True, show_choices=False, show_default=False, default='') ; click.echo("\n")
+
+
+@ateams.command(context_settings=dict(ignore_unknown_options=True, help_option_names=['-h', '--help']))
+@click.option('-a', '--algorithm', type=click.Choice(ALGORITHMS, case_sensitive=False), required=True, prompt="Algorithm:", help='Algorithm')
 @click.option('-p', '--parameters', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Input Parameters File')
 @click.option('-i', '--input', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Input Data File')
 @click.option('-r', '--result', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Output Result File')
 @click.option('-t', '--pop', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Population File')
-@click.option('-o', '--write_output', type=click.BOOL, is_flag=True, help='Force Write Output Files')
-@click.option('-c', '--show_cmd_info', type=click.BOOL, is_flag=True, help='Show Prompt Overview')
-@click.option('-g', '--show_graphical_info', type=click.BOOL, is_flag=True, help='Show Graphical Overview')
-@click.option('-s', '--show_solution', type=click.BOOL, is_flag=True, help='Show Solution')
+@click.option('-o', '--write-output', type=click.BOOL, is_flag=True, help='Force Write Output Files')
+@click.option('-c', '--show-cmd-info', type=click.BOOL, is_flag=True, help='Show Prompt Overview')
+@click.option('-g', '--show-graphical-info', type=click.BOOL, is_flag=True, help='Show Graphical Overview')
+@click.option('-s', '--show-solution', type=click.BOOL, is_flag=True, help='Show Solution')
 @click.option('-n', '--repeat', type=click.INT, default=1, help='Repeat N Times')
 @click.option('-d', '--debug', type=click.BOOL, is_flag=True, help='Run With GDB')
 @click.option('-m', '--memcheck', type=click.BOOL, is_flag=True, help='Run With Valgrind')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
-def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, debug, memcheck, extra_args):
-    """A Wrapper For Ateams"""
-
-    def __truncate(number, decimals=0):
-        factor = 10.0 ** decimals
-
-        return math.trunc(number) if decimals <= 0 else math.trunc(number * factor) / factor
-
-    def __ateams_path(path, placeholder=ATEAMS_PATH_PLACEHOLDER):
-        return path.replace(placeholder, os.path.dirname(os.path.abspath(__file__)))
+@click.pass_config
+def run(config, algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, debug, memcheck, extra_args):
+    """A Wrapper For Running ATEAMS Algorithms"""
 
     def __evaluate_output_files(extension):
         filename = pathlib.Path(input).stem
 
-        return validate_path(value=__ateams_path(DEFAULT_OUTPUTS_PATH[algorithm] + filename + '.' + extension))
+        return validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + filename + '.' + extension)
 
     def __apply_execution_modifiers(command_line):
-        if(debug and not memcheck): command_line = GDB_COMMAND + " " + command_line
-        if(not debug and memcheck): command_line = VALGRIND_COMMAND + " " + command_line
-        if(debug and memcheck): raise Exception("Don't Use '-d' and '-m' At Same Time!")
+        if debug and not memcheck: command_line = GDB_COMMAND + " " + command_line
+        if not debug and memcheck: command_line = VALGRIND_COMMAND + " " + command_line
+        if debug and memcheck: raise Exception("Don't Use '-d' And '-m' At Same Time!")
 
         return command_line
 
-    def __build_command_line():       
-        command_line = BINARIES[algorithm]
+    def __compose_command_line(): 
+        command_line = FILE_BINS[algorithm]
 
-        if(parameters is not None): command_line += f" -p {parameters}"
+        if parameters is not None: command_line += f" -p {parameters}"
 
-        if(input is not None): command_line += f" -i {input}"
+        if input is not None: command_line += f" -i {input}"
 
-        if(result is not None): command_line += f" -r {result}"
+        if result is not None: command_line += f" -r {result}"
 
-        if(pop is not None): command_line += f" -t {pop}"
+        if pop is not None: command_line += f" -t {pop}"
 
-        if(show_cmd_info): command_line += f" -c"
+        if show_cmd_info: command_line += f" -c"
 
-        if(show_graphical_info): command_line += f" -g"
+        if show_graphical_info: command_line += f" -g"
 
-        if(show_solution): command_line += f" -s"
+        if show_solution: command_line += f" -s"
 
-        for arg in extra_args:
-            command_line += f" {arg}"
+        for arg in extra_args: command_line += f" {arg}"
 
         command_line = __apply_execution_modifiers(command_line)
 
-        return __ateams_path(command_line)
+        return command_line
 
-    def __execute_ateams(cmd, repeat=1):
-        return timeit.repeat(stmt=lambda: os.system(cmd), repeat=repeat, number=1)
+    def __execute_ateams(cmd, repeat=1, change_to_root_folder=True):
+        if change_to_root_folder: os.chdir(ROOT_FOLDER)
 
-    click.clear()
+        return timeit.repeat(stmt=lambda: os.system(cmd), repeat=repeat, number=1) if config.execute else [0] * repeat
 
-    algorithm = next((a for a in ALGORITHMS if a.casefold() == algorithm.casefold()), algorithm)
-    if(parameters is None): parameters = DEFAULT_PARAM
-    if(input is None): input = DEFAULT_INPUTS[algorithm]
-    if(result is None and write_output): result = __evaluate_output_files("res")
-    if(pop is None and write_output): pop = __evaluate_output_files("pop")
+    if config.clear: click.clear()
 
-    command_line = __build_command_line()
+    algorithm = next((alg for alg in ALGORITHMS if alg.casefold() == algorithm.casefold()), algorithm)
 
-    if(print):  click.echo(f"\n*** Command: '{command_line}' ***\n")
+    if parameters is None: parameters = FILE_DEFAULT_PARAM
+    if input is None: input = FILE_DEFAULT_INPUTS[algorithm]
+    if result is None and write_output: result = __evaluate_output_files("res")
+    if pop is None and write_output: pop = __evaluate_output_files("pop")
+
+    command_line = __compose_command_line()
+
+    if config.verbose: click.echo(f"\n*** Command: '{command_line}' ***\n")
 
     timers = __execute_ateams(command_line, repeat)
-    average = sum(timers) / len(timers)
+    total = sum(timers)
+    average = total / len(timers)
 
-    if(print): click.echo(f"\n*** Timers: {[__truncate(n, 2) for n in timers]} || Average: {__truncate(average, 2)} ***\n")
-    
-    click.prompt("\nPress ENTER To Exit", prompt_suffix='', hide_input=True, show_choices=False, show_default=False, default='')
-    click.echo("\n")
+    if config.verbose: click.echo(f"\n*** Timers: {[truncate_number(n, 2) for n in timers]} || Total: {truncate_number(total, 2)} || Average: {truncate_number(average, 2)} ***\n")
+
+    if config.pause: click.prompt("\nPress ENTER To Exit ", prompt_suffix='', hide_input=True, show_choices=False, show_default=False, default='') ; click.echo("\n")
 
 
 if __name__ == '__main__':
-    for sig in [signal.SIGINT, signal.SIGTERM]:
-        signal.signal(sig, lambda *_: None)
+    for sig in [signal.SIGINT, signal.SIGTERM]: signal.signal(sig, lambda *_: None)
 
     ateams()

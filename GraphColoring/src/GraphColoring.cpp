@@ -151,6 +151,12 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo inf
 }
 
 void Problem::allocateMemory() {
+	Problem::best = 0;
+	Problem::worst = 0;
+
+	Problem::numInst = 0;
+	Problem::totalNumInst = 0;
+
 	GraphColoring::edges = (vector<int>**) malloc((1 + GraphColoring::nnodes) * sizeof(vector<int>*));
 
 	for (int i = 1; i <= GraphColoring::nnodes; i++)
@@ -158,6 +164,12 @@ void Problem::allocateMemory() {
 }
 
 void Problem::deallocateMemory() {
+	Problem::best = 0;
+	Problem::worst = 0;
+
+	Problem::numInst = 0;
+	Problem::totalNumInst = 0;
+
 	for (int i = 1; i <= GraphColoring::nnodes; i++)
 		delete GraphColoring::edges[i];
 

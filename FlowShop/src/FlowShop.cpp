@@ -148,6 +148,12 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo inf
 }
 
 void Problem::allocateMemory() {
+	Problem::best = 0;
+	Problem::worst = 0;
+
+	Problem::numInst = 0;
+	Problem::totalNumInst = 0;
+
 	FlowShop::time = (int**) malloc(FlowShop::njob * sizeof(int*));
 
 	for (int i = 0; i < FlowShop::njob; i++)
@@ -155,6 +161,12 @@ void Problem::allocateMemory() {
 }
 
 void Problem::deallocateMemory() {
+	Problem::best = 0;
+	Problem::worst = 0;
+
+	Problem::numInst = 0;
+	Problem::totalNumInst = 0;
+
 	for (int i = 0; i < FlowShop::njob; i++)
 		free(FlowShop::time[i]);
 

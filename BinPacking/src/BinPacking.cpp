@@ -154,10 +154,22 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo inf
 }
 
 void Problem::allocateMemory() {
+	Problem::best = 0;
+	Problem::worst = 0;
+
+	Problem::numInst = 0;
+	Problem::totalNumInst = 0;
+
 	BinPacking::sizes = (double*) malloc(BinPacking::nitens * sizeof(double));
 }
 
 void Problem::deallocateMemory() {
+	Problem::best = 0;
+	Problem::worst = 0;
+
+	Problem::numInst = 0;
+	Problem::totalNumInst = 0;
+
 	free(BinPacking::sizes);
 }
 

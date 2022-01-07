@@ -12,24 +12,13 @@ pthread_mutex_t mutex_exec;	// Mutex que protege as informacoes de execucao
 sem_t semaphore;			// Semaforo que controla o acesso dos algoritmos ao processador
 
 Control* Control::getInstance(int argc, char **argv) {
-	Control::argc = &argc;
-	Control::argv = argv;
-
 	if (instance == NULL) {
-		instance = new Control();
+		instance = new Control(argc, argv);
 	} else {
 		terminate();
 
-		return getInstance(argc, argv);
+		instance = getInstance(argc, argv);
 	}
-
-	instance->readMainCMDParameters();
-
-	XMLParser *parser = new XMLParser(instance);
-	parser->parseXML(instance->getInputParameters());
-	delete parser;
-
-	instance->readAdditionalCMDParameters();
 
 	return instance;
 }
@@ -38,10 +27,11 @@ void Control::terminate() {
 	delete instance;
 	instance = NULL;
 
-	Problem::deallocateMemory();
-
-	if (Problem::numInst != 0)
+	if (Problem::numInst != 0) {
 		throw string("Solutions Leaked: ") + to_string(Problem::numInst);
+	}
+
+	Problem::deallocateMemory();
 }
 
 Heuristic* Control::instantiateHeuristic(char *name) {
@@ -57,20 +47,24 @@ Heuristic* Control::instantiateHeuristic(char *name) {
 	return NULL;
 }
 
-Control::Control() {
-	this->printFullSolution = false;
+Control::Control(int argc, char **argv) {
+	Heuristic::allocateMemory();
 
-	this->showTextOverview = false;
-	this->showGraphicalOverview = false;
+	this->argc = &argc;
+	this->argv = argv;
 
 	this->solutions = new set<Problem*, bool (*)(Problem*, Problem*)>(fnSortSolution);
 
 	this->heuristics = new vector<Heuristic*>();
 
+	this->readMainCMDParameters();
+	this->readFileParameters();
+	this->readAdditionalCMDParameters();
+
 	this->loadingProgressBar = new ProgressBar("LOADING: ");
 	this->executionProgressBar = new ProgressBar("EXECUTING: ");
 
-	this->graphicalOverview = new GraphicalOverview(Control::argc, Control::argv);
+	this->graphicalOverview = new GraphicalOverview(this->showGraphicalOverview, this->argc, this->argv);
 
 	this->startTime = this->endTime = 0;
 	this->lastImprovedIteration = 0;
@@ -79,8 +73,9 @@ Control::Control() {
 }
 
 Control::~Control() {
-	for (set<Problem*>::iterator iter = solutions->begin(); iter != solutions->end(); iter++)
+	for (set<Problem*>::iterator iter = solutions->begin(); iter != solutions->end(); iter++) {
 		delete *iter;
+	}
 
 	solutions->clear();
 	delete solutions;
@@ -92,19 +87,12 @@ Control::~Control() {
 	heuristics->clear();
 	delete heuristics;
 
-	for (list<HeuristicExecutionInfo*>::iterator it = Heuristic::executedHeuristics->begin(); it != Heuristic::executedHeuristics->end(); it++)
-		delete *it;
-
 	delete loadingProgressBar;
 	delete executionProgressBar;
 
 	delete graphicalOverview;
 
-	Heuristic::executedHeuristics->clear();
-	delete Heuristic::executedHeuristics;
-
-	Heuristic::runningHeuristics->clear();
-	delete Heuristic::runningHeuristics;
+	Heuristic::deallocateMemory();
 }
 
 HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
@@ -119,7 +107,7 @@ HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
 	{
 		runningThreads++;
 
-		Heuristic::executedHeuristics->push_back(info);
+		Heuristic::allHeuristics->push_back(info);
 		Heuristic::runningHeuristics->push_back(info);
 
 		Control::printProgress(info);
@@ -192,13 +180,13 @@ void Control::trimSolutions() {
 	Problem::worst = (*solutions->rbegin())->getFitness();
 }
 
-void Control::generatePopulation(list<Problem*> *popInicial) {
+void Control::generatePopulation() {
 	cout << endl;
 
 	loadingProgressBar->init(parameters.populationSize);
 
-	if (popInicial != NULL) {
-		for (list<Problem*>::iterator iter = popInicial->begin(); iter != popInicial->end(); iter++) {
+	if (initialPopulation != NULL) {
+		for (list<Problem*>::iterator iter = initialPopulation->begin(); iter != initialPopulation->end(); iter++) {
 			if ((int) solutions->size() >= parameters.populationSize || !solutions->insert(*iter).second) {
 				delete *iter;
 			}
@@ -210,7 +198,7 @@ void Control::generatePopulation(list<Problem*> *popInicial) {
 	Problem *soluction = NULL;
 	unsigned long int limit = pow(parameters.populationSize, 3), failedAttempts = 0;
 
-	while ((int) solutions->size() < parameters.populationSize && failedAttempts < limit && STATUS == EXECUTING) {
+	while ((int) solutions->size() < parameters.populationSize && failedAttempts < limit) {
 		soluction = Problem::randomSolution();
 
 		if (soluction->getFitness() == -1 || !solutions->insert(soluction).second) {
@@ -225,6 +213,11 @@ void Control::generatePopulation(list<Problem*> *popInicial) {
 	loadingProgressBar->end();
 
 	cout << endl;
+
+	if (!solutions->empty()) {
+		Problem::best = (*solutions->begin())->getFitness();
+		Problem::worst = (*solutions->rbegin())->getFitness();
+	}
 
 	return;
 }
@@ -288,7 +281,9 @@ inline void Control::readMainCMDParameters() {
 	}
 
 	if (strlen(Control::buffer) != 0) {
-		throw Control::buffer;
+		throw string(Control::buffer);
+	} else {
+		Control::buffer[0] = '\0';
 	}
 
 	setPrintFullSolution(findPosArgv(argv, *argc, (char*) "-s") != -1);
@@ -307,6 +302,14 @@ inline void Control::readAdditionalCMDParameters() {
 			setParameter(param->first.c_str(), argv[p]);
 		}
 	}
+}
+
+inline void Control::readFileParameters() {
+	XMLParser *parser = new XMLParser(this);
+
+	parser->parseXML(getInputParameters());
+
+	delete parser;
 }
 
 inline void Control::setPrintFullSolution(bool fullPrint) {
@@ -336,14 +339,9 @@ void Control::init() {
 	Problem::readProblemFromFile(getInputDataFile());
 
 	/* Le memoria prinipal do disco, se especificado */
-	list<Problem*> *popInicial = Problem::readPopulationFromLog(getOutputLogFile());
+	initialPopulation = Problem::readPopulationFromLog(getOutputLogFile());
 
-	generatePopulation(popInicial);
-
-	delete popInicial;
-
-	Problem::best = (*solutions->begin())->getFitness();
-	Problem::worst = (*solutions->rbegin())->getFitness();
+	generatePopulation();
 
 	cout << COLOR_CYAN;
 
@@ -363,21 +361,27 @@ void Control::finish() {
 
 	cout << COLOR_DEFAULT;
 
-	list<Problem*> *finalSolutions = getSolutions();
+	delete initialPopulation;
+	initialPopulation = NULL;
 
-	/* Escreve memoria principal no disco */
-	Problem::writeCurrentPopulationInLog(getOutputLogFile(), finalSolutions);
+	list<Problem*> *finalSolutions = getSolutions();
 
 	/* Escreve solucao em arquivo no disco */
 	Problem::writeResultInFile(getInputDataFile(), getInputParameters(), getExecutionInfo(), getOutputResultFile());
 
+	/* Escreve memoria principal no disco */
+	Problem::writeCurrentPopulationInLog(getOutputLogFile(), finalSolutions);
+
 	delete finalSolutions;
 
 	/* Testa a memoria principal por solucoes repetidas ou fora de ordem */
-	for (set<Problem*>::const_iterator iter1 = solutions->begin(); iter1 != solutions->end(); iter1++)
-		for (set<Problem*>::const_iterator iter2 = iter1; iter2 != solutions->end(); iter2++)
-			if ((iter1 != iter2) && (fnEqualSolution(*iter1, *iter2) || fnSortSolution(*iter2, *iter1)))
+	for (set<Problem*>::const_iterator iter1 = solutions->begin(); iter1 != solutions->end(); iter1++) {
+		for (set<Problem*>::const_iterator iter2 = iter1; iter2 != solutions->end(); iter2++) {
+			if ((iter1 != iter2) && (fnEqualSolution(*iter1, *iter2) || fnSortSolution(*iter2, *iter1))) {
 				throw "Incorrect Main Memory!";
+			}
+		}
+	}
 
 	sem_destroy(&semaphore);
 
@@ -390,6 +394,8 @@ void Control::finish() {
 }
 
 void Control::run() {
+	STATUS = EXECUTING;
+
 	time(&startTime);
 
 	if (showTextOverview) {
@@ -415,13 +421,16 @@ void Control::run() {
 		graphicalOverview->run();
 	}
 
-	if (pthread_create(&threadManagement, &attrJoinable, Control::pthrManagement, NULL) != 0)
+	if (pthread_create(&threadManagement, &attrJoinable, Control::pthrManagement, NULL) != 0) {
 		throw "Thread Creation Error! (pthrManagement)";
+	}
 
 	for (int execAteams = 0; execAteams < parameters.iterations; execAteams++) {
 		PrimitiveWrapper<unsigned int> *iteration = new PrimitiveWrapper<unsigned int>(execAteams + 1);
-		if (pthread_create(&threads[execAteams], &attrJoinable, Control::pthrExecution, (void*) iteration) != 0)
+
+		if (pthread_create(&threads[execAteams], &attrJoinable, Control::pthrExecution, (void*) iteration) != 0) {
 			throw "Thread Creation Error! (pthrExecution)";
+		}
 	}
 
 	for (uintptr_t execAteams = 0, *inserted = NULL; execAteams < (uintptr_t) parameters.iterations; execAteams++) {
@@ -435,7 +444,7 @@ void Control::run() {
 	}
 
 	if (STATUS == EXECUTING) {
-		STATUS = (executionCount == parameters.iterations && (int) Heuristic::executedHeuristics->size() == parameters.iterations) ? FINISHED_NORMALLY : INCOMPLETE;
+		STATUS = (executionCount == parameters.iterations && (int) Heuristic::allHeuristics->size() == parameters.iterations) ? FINISHED_NORMALLY : INCOMPLETE;
 	}
 
 	pthread_join(threadManagement, NULL);
@@ -668,6 +677,8 @@ void Control::printProgress(HeuristicExecutionInfo *heuristic) {
 		}
 
 		cout << color << Control::buffer << COLOR_DEFAULT << endl << flush;
+
+		Control::buffer[0] = '\0';
 	} else {
 		instance->executionProgressBar->update(instance->executionCount);
 	}
@@ -737,9 +748,6 @@ int Control::runningThreads = 0;
 
 char Control::buffer[BUFFER_SIZE];
 
-int *Control::argc = NULL;
-char **Control::argv = NULL;
-
 int Heuristic::heuristicsProbabilitySum = 0;
-list<HeuristicExecutionInfo*> *Heuristic::runningHeuristics = new list<HeuristicExecutionInfo*>;
-list<HeuristicExecutionInfo*> *Heuristic::executedHeuristics = new list<HeuristicExecutionInfo*>;
+list<HeuristicExecutionInfo*> *Heuristic::allHeuristics = NULL;
+list<HeuristicExecutionInfo*> *Heuristic::runningHeuristics = NULL;

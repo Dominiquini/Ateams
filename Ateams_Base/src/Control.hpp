@@ -95,13 +95,11 @@ private:
 	static void* pthrManagement(void *_);
 
 public:
-	static int *argc;
-	static char **argv;
 
 	static Control* getInstance(int argc, char **argv);
 	static void terminate();
 
-	static Heuristic* instantiateHeuristic(char* name);
+	static Heuristic* instantiateHeuristic(char *name);
 
 	/* Retorna a soma de fitness de uma populacao */
 	static double sumFitnessMaximize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n);
@@ -123,32 +121,37 @@ public:
 
 private:
 
+	int *argc;
+	char **argv;
+
 	char inputParameters[128];
 	char inputDataFile[128];
 	char outputResultFile[128];
 	char populationFile[128];
 
-	bool printFullSolution;				// Imprime melhor solucao
+	bool printFullSolution = false;		// Imprime melhor solucao por completo
 
-	bool showTextOverview;				// Informa se as heuristicas serao visualizadas no prompt
-	bool showGraphicalOverview;			// Informa se as heuristicas serao visualizadas graficamente
+	bool showTextOverview = false;		// Informa se as heuristicas serao visualizadas no prompt
+	bool showGraphicalOverview = false;	// Informa se as heuristicas serao visualizadas graficamente
 
 	AteamsParameters parameters;
 
-	set<Problem*, bool (*)(Problem*, Problem*)> *solutions; 		// Populacao principal
-	vector<Heuristic*> *heuristics;									// Algoritmos disponiveis
+	list<Problem*> *initialPopulation = NULL;	// Populacao inicial do arquivo de log
 
-	time_t startTime, endTime;			// Medidor do tempo inicial e final
+	set<Problem*, bool (*)(Problem*, Problem*)> *solutions;		// Populacao principal
+	vector<Heuristic*> *heuristics;								// Algoritmos disponiveis
+
+	time_t startTime, endTime = 0;		// Medidor do tempo inicial e final
 	int lastImprovedIteration = 0;		// Ultima iteracao em que houve melhora
 	long executionCount = 0;			// Threads executadas
-	uintptr_t newSolutionsCount = 0;		// Numero de solucoes produzidas pelos algoritimos
+	uintptr_t newSolutionsCount = 0;	// Numero de solucoes produzidas pelos algoritimos
 
 	ProgressBar *loadingProgressBar;
 	ProgressBar *executionProgressBar;
 
 	GraphicalOverview *graphicalOverview;
 
-	Control();
+	Control(int argc, char **argv);
 
 	~Control();
 
@@ -162,7 +165,7 @@ private:
 	void trimSolutions();
 
 	/* Gera uma populacao inicial aleatoria com 'populationSize' elementos */
-	void generatePopulation(list<Problem*> *popInicial);
+	void generatePopulation();
 
 	/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
 	int findPosArgv(char **in, int num, char *key);
@@ -172,6 +175,9 @@ private:
 
 	/* Le parametros adicionais passados por linha de comando (Sobrepujam as lidas no arquivo de configuracao) */
 	void readAdditionalCMDParameters();
+
+	/* Le parametros do arquivo XML passado por linha de comando */
+	void readFileParameters();
 
 	void setPrintFullSolution(bool fullPrint);
 

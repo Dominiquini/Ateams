@@ -5,7 +5,7 @@
 
 using namespace std;
 
-volatile TerminationInfo STATUS = EXECUTING;
+volatile TerminationInfo STATUS;
 
 int main(int argc, char *argv[]) {
 
@@ -70,7 +70,7 @@ void internalSignalHandler(int signal) {
 				break;
 		}
 	} else {
-		cerr << endl << endl << COLOR_RED << "Aborting..." << COLOR_DEFAULT << endl;
+		cerr << endl << endl << COLOR_RED << "Aborting..." << COLOR_DEFAULT << endl << endl;
 
 		exit(1);
 	}

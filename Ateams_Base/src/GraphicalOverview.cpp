@@ -1,52 +1,46 @@
 #include "GraphicalOverview.hpp"
 
-GraphicalOverview::GraphicalOverview(int *argc, char **argv) {
+GraphicalOverview::GraphicalOverview(bool enabled, int *argc, char **argv) {
+	this->enabled = enabled;
+
 	this->argc = argc;
 	this->argv = argv;
 
-	glutInit(this->argc, this->argv);
+	if (this->enabled) {
+		glutInit(this->argc, this->argv);
+	}
 }
 
 GraphicalOverview::~GraphicalOverview() {
-	int window = glutGetWindow();
-	if (window != 0)
-		glutDestroyWindow(window);
+	this->argc = NULL;
+	this->argv = NULL;
+
+	if (this->enabled) {
+		if (int window = glutGetWindow() != 0) {
+			glutDestroyWindow(window);
+		}
+	}
 }
 
 void GraphicalOverview::run() {
-	pthread_t threadAnimation;
+	if (enabled) {
+		pthread_t threadAnimation;
 
-	pthread_attr_t attrDetached;
-	pthread_attr_init(&attrDetached);
-	pthread_attr_setdetachstate(&attrDetached, PTHREAD_CREATE_DETACHED);
+		pthread_attr_t attrDetached;
+		pthread_attr_init(&attrDetached);
+		pthread_attr_setdetachstate(&attrDetached, PTHREAD_CREATE_DETACHED);
 
-	if (pthread_create(&threadAnimation, &attrDetached, GraphicalOverview::asyncRun, (void*) this->argv[0]) != 0)
-		throw "Thread Creation Error! (GraphicalOverview::asyncRun)";
+		if (pthread_create(&threadAnimation, &attrDetached, GraphicalOverview::asyncRun, (void*) this->argv[0]) != 0) {
+			throw "Thread Creation Error! (GraphicalOverview::asyncRun)";
+		}
 
-	pthread_attr_destroy(&attrDetached);
+		pthread_attr_destroy(&attrDetached);
+	}
 }
 
 void* GraphicalOverview::asyncRun(void *title) {
 	if (STATUS == EXECUTING) {
-		/* Cria a tela */
-		glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-		glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-		glutInitWindowPosition(0, 0);
-
-		glutCreateWindow((char*) title);
-
-		/* Define as funcoes de desenho */
-		glutDisplayFunc(GraphicalOverview::display);
-		glutIdleFunc(GraphicalOverview::display);
-		glutReshapeFunc(GraphicalOverview::reshape);
-
-		glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
-
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-		glEnable(GL_LINE_SMOOTH);
-		glEnable(GL_BLEND);
-		glLineWidth(2.0);
+		GraphicalOverview::setup((char*) title);
 
 		/* Inicia loop principal da janela de informações */
 		glutMainLoop();
@@ -56,6 +50,28 @@ void* GraphicalOverview::asyncRun(void *title) {
 	}
 
 	pthread_return(NULL);
+}
+
+void GraphicalOverview::setup(char *title) {
+	/* Cria a tela */
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+	glutInitWindowPosition(0, 0);
+
+	glutCreateWindow(title);
+
+	/* Define as funcoes de desenho */
+	glutDisplayFunc(GraphicalOverview::display);
+	glutIdleFunc(GraphicalOverview::display);
+	glutReshapeFunc(GraphicalOverview::reshape);
+
+	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_BLEND);
+	glLineWidth(2.0);
 }
 
 void GraphicalOverview::display() {
@@ -126,24 +142,22 @@ void GraphicalOverview::reshape(GLint width, GLint height) {
 }
 
 void GraphicalOverview::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, const char *format, ...) {
-	if (glutGetWindow() == 0) {
-		return;
-	}
-
-	if (format == NULL) {
+	if (glutGetWindow() == 0 || format == NULL) {
 		return;
 	}
 
 	va_list args;
-	char buffer[512], *s;
+	char *s;
 
 	va_start(args, format);
-	vsprintf(buffer, format, args);
+	vsnprintf(graphical_buffer, GRAPHICAL_BUFFER_SIZE, format, args);
 	va_end(args);
 
 	glRasterPos2f(x, y);
 
-	for (s = buffer; *s; s++) {
+	for (s = graphical_buffer; *s; s++) {
 		glutBitmapCharacter(font_style, *s);
 	}
 }
+
+char GraphicalOverview::graphical_buffer[GRAPHICAL_BUFFER_SIZE];

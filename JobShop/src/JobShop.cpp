@@ -156,6 +156,12 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo inf
 }
 
 void Problem::allocateMemory() {
+	Problem::best = 0;
+	Problem::worst = 0;
+
+	Problem::numInst = 0;
+	Problem::totalNumInst = 0;
+
 	JobShop::maq = (int**) malloc(JobShop::njob * sizeof(int*));
 
 	for (int i = 0; i < JobShop::njob; i++)
@@ -168,6 +174,12 @@ void Problem::allocateMemory() {
 }
 
 void Problem::deallocateMemory() {
+	Problem::best = 0;
+	Problem::worst = 0;
+
+	Problem::numInst = 0;
+	Problem::totalNumInst = 0;
+
 	for (int i = 0; i < JobShop::njob; i++)
 		free(JobShop::maq[i]);
 

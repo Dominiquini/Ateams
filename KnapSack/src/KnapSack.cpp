@@ -173,6 +173,12 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo inf
 }
 
 void Problem::allocateMemory() {
+	Problem::best = 0;
+	Problem::worst = 0;
+
+	Problem::numInst = 0;
+	Problem::totalNumInst = 0;
+
 	KnapSack::values = (double*) malloc(KnapSack::nitens * sizeof(double));
 
 	KnapSack::limit = (double*) malloc(KnapSack::ncontraints * sizeof(double));
@@ -184,6 +190,12 @@ void Problem::allocateMemory() {
 }
 
 void Problem::deallocateMemory() {
+	Problem::best = 0;
+	Problem::worst = 0;
+
+	Problem::numInst = 0;
+	Problem::totalNumInst = 0;
+
 	free(KnapSack::values);
 
 	free(KnapSack::limit);

@@ -53,28 +53,32 @@ struct HeuristicParameters {
 class Heuristic {
 public:
 
-	static int heuristicsProbabilitySum;								// Soma das probabilidades de todos os algoritimos
+	static int heuristicsProbabilitySum;							// Soma das probabilidades de todos os algoritimos
 
-	static list<HeuristicExecutionInfo*> *executedHeuristics;			// Algoritmos executados ate o momento
-	static list<HeuristicExecutionInfo*> *runningHeuristics;			// Algoritmos em execucao no momento
+	static list<HeuristicExecutionInfo*> *allHeuristics;			// Algoritmos executados ate o momento
+	static list<HeuristicExecutionInfo*> *runningHeuristics;		// Algoritmos em execucao no momento
 
-	static inline bool sortingComparator(Heuristic *h1, Heuristic *h2) {
+	static inline void allocateMemory();
+
+	static inline void deallocateMemory();
+
+	static bool sortingComparator(Heuristic *h1, Heuristic *h2) {
 		return h1->getParameters().choiceProbability < h2->getParameters().choiceProbability;
 	}
 
-	static inline bool equalityComparator(Heuristic *h1, Heuristic *h2) {
+	static bool equalityComparator(Heuristic *h1, Heuristic *h2) {
 		return h1->getParameters().isEqual(h2->getParameters());
 	}
 
 	static inline string getExecutedHeuristics() {
-		return getHeuristicNames(executedHeuristics);
+		return getHeuristicNames(allHeuristics);
 	}
 
 	static inline string getRunningHeuristics() {
 		return getHeuristicNames(runningHeuristics);
 	}
 
-	int executionCounter = -1;
+	int executionCounter;
 
 	Heuristic() {
 		executionCounter = 0;
@@ -167,5 +171,28 @@ private:
 		}
 	}
 };
+
+inline void Heuristic::allocateMemory() {
+	heuristicsProbabilitySum = 0;
+
+	allHeuristics = new list<HeuristicExecutionInfo*>;
+	runningHeuristics = new list<HeuristicExecutionInfo*>;
+}
+
+inline void Heuristic::deallocateMemory() {
+	heuristicsProbabilitySum = 0;
+
+	for (list<HeuristicExecutionInfo*>::iterator it = allHeuristics->begin(); it != allHeuristics->end(); it++) {
+		delete *it;
+	}
+
+	allHeuristics->clear();
+	delete allHeuristics;
+	allHeuristics = NULL;
+
+	runningHeuristics->clear();
+	delete runningHeuristics;
+	runningHeuristics = NULL;
+}
 
 #endif

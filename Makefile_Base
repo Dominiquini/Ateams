@@ -79,8 +79,8 @@ PATTERN_PROJ_SRCS		= $(PATH_PROJ_SRC)%$(SRC_EXT)
 PATTERN_PROJ_HEADERS	= $(PATH_PROJ_SRC)%$(HEADER_EXT)
 PATTERN_PROJ_OBJS		= $(PATH_PROJ_BIN)%$(OBJ_EXT)
 
-
-NINJA_OUTPUTS = .ninja_deps .ninja_log
+NINJA_BUILD_FILE	= build.ninja
+NINJA_OUTPUTS		= .ninja_deps .ninja_log
 
 PROFILE_OUTPUT = gmon.out
 
@@ -90,7 +90,7 @@ RM = rm -rf
 ECHO = echo
 
 
-debug_vars:
+print_vars:
 			@$(ECHO) - MAKEFILE_FLAGS: $(MAKEFLAGS)
 			@$(ECHO) - BASE_SOURCES: $(BASE_HEADERS) $(BASE_SRCS)
 			@$(ECHO) - BASE_OBJS: $(BASE_OBJS)
