@@ -26,9 +26,6 @@ DEFAULT_INPUTS = {A: f"{ATEAMS_PATH_PLACEHOLDER}/{A}/input/{I}" for (A, I) in zi
 
 DEFAULT_OUTPUTS_PATH = {A: f"{ATEAMS_PATH_PLACEHOLDER}/{A}/results/" for A in ALGORITHMS}
 
-def ateams_path(path=ATEAMS_PATH_PLACEHOLDER, placeholder=ATEAMS_PATH_PLACEHOLDER):
-    return path.replace(placeholder, os.path.dirname(os.path.abspath(__file__)))
-
 def validate_path(ctx: click.core.Context=None, param: click.core.Option=None, value: click.Path=None):
     try:
         os.makedirs(os.path.dirname(value))
@@ -57,10 +54,13 @@ def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_inf
 
         return math.trunc(number) if decimals <= 0 else math.trunc(number * factor) / factor
 
+    def __ateams_path(path, placeholder=ATEAMS_PATH_PLACEHOLDER):
+        return path.replace(placeholder, os.path.dirname(os.path.abspath(__file__)))
+
     def __evaluate_output_files(extension):
         filename = pathlib.Path(input).stem
 
-        return validate_path(value=ateams_path(DEFAULT_OUTPUTS_PATH[algorithm] + filename + '.' + extension))
+        return validate_path(value=__ateams_path(DEFAULT_OUTPUTS_PATH[algorithm] + filename + '.' + extension))
 
     def __apply_execution_modifiers(command_line):
         if(debug and not memcheck): command_line = GDB_COMMAND + " " + command_line
@@ -91,7 +91,7 @@ def ateams(algorithm, parameters, input, result, pop, write_output, show_cmd_inf
 
         command_line = __apply_execution_modifiers(command_line)
 
-        return ateams_path(command_line)
+        return __ateams_path(command_line)
 
     def __execute_ateams(cmd, repeat=1):
         return timeit.repeat(stmt=lambda: os.system(cmd), repeat=repeat, number=1)

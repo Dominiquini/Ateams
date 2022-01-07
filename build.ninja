@@ -1,0 +1,50 @@
+# PLATFORM: Windows
+
+CXXFLAGS = -Wall -pedantic -O3 -march=native -mtune=native -masm=intel
+LDFLAGS = -lpthread -lopengl32 -lGLU32 -lfreeglut -lxerces-c
+
+pool default_pool
+  depth = 16
+
+rule compile
+  command = g++ -MMD -MF $out.d $CXXFLAGS -c -o $out $in $LDFLAGS
+  description = COMPILE $out
+  depfile = $out.d
+  pool = default_pool
+  deps = gcc
+
+rule link
+  command = g++ $CXXFLAGS -o $out $in $LDFLAGS
+  description = LINK $out
+  pool = default_pool
+
+rule archive
+  command = ar -rsc $out $in
+  description = ARCHIVE $out
+  pool = default_pool
+
+build .\Ateams_Base\bin\Ateams.o: compile .\Ateams_Base\src\Ateams.cpp
+build .\Ateams_Base\bin\Control.o: compile .\Ateams_Base\src\Control.cpp
+build .\Ateams_Base\bin\GraphicalOverview.o: compile .\Ateams_Base\src\GraphicalOverview.cpp
+build .\Ateams_Base\bin\HeuristicAnnealing.o: compile .\Ateams_Base\src\HeuristicAnnealing.cpp
+build .\Ateams_Base\bin\HeuristicGenetic.o: compile .\Ateams_Base\src\HeuristicGenetic.cpp
+build .\Ateams_Base\bin\HeuristicTabu.o: compile .\Ateams_Base\src\HeuristicTabu.cpp
+build .\Ateams_Base\bin\XMLParser.o: compile .\Ateams_Base\src\XMLParser.cpp
+
+build .\Ateams_Base\bin\Ateams_Base.a: archive .\Ateams_Base\bin\Ateams.o .\Ateams_Base\bin\Control.o .\Ateams_Base\bin\GraphicalOverview.o .\Ateams_Base\bin\HeuristicAnnealing.o .\Ateams_Base\bin\HeuristicGenetic.o .\Ateams_Base\bin\HeuristicTabu.o .\Ateams_Base\bin\XMLParser.o
+
+build .\BinPacking\bin\BinPacking.o: compile .\BinPacking\src\BinPacking.cpp
+build .\FlowShop\bin\FlowShop.o: compile .\FlowShop\src\FlowShop.cpp
+build .\GraphColoring\bin\GraphColoring.o: compile .\GraphColoring\src\GraphColoring.cpp
+build .\JobShop\bin\JobShop.o: compile .\JobShop\src\JobShop.cpp
+build .\KnapSack\bin\KnapSack.o: compile .\KnapSack\src\KnapSack.cpp
+build .\TravellingSalesman\bin\TravellingSalesman.o: compile .\TravellingSalesman\src\TravellingSalesman.cpp
+
+build .\BinPacking\bin\BinPacking.exe: link .\Ateams_Base\bin\Ateams_Base.a .\BinPacking\bin\BinPacking.o
+build .\FlowShop\bin\FlowShop.exe: link .\Ateams_Base\bin\Ateams_Base.a .\FlowShop\bin\FlowShop.o
+build .\GraphColoring\bin\GraphColoring.exe: link .\Ateams_Base\bin\Ateams_Base.a .\GraphColoring\bin\GraphColoring.o
+build .\JobShop\bin\JobShop.exe: link .\Ateams_Base\bin\Ateams_Base.a .\JobShop\bin\JobShop.o
+build .\KnapSack\bin\KnapSack.exe: link .\Ateams_Base\bin\Ateams_Base.a .\KnapSack\bin\KnapSack.o
+build .\TravellingSalesman\bin\TravellingSalesman.exe: link .\Ateams_Base\bin\Ateams_Base.a .\TravellingSalesman\bin\TravellingSalesman.o
+
+default .\BinPacking\bin\BinPacking.exe .\FlowShop\bin\FlowShop.exe .\GraphColoring\bin\GraphColoring.exe .\JobShop\bin\JobShop.exe .\KnapSack\bin\KnapSack.exe .\TravellingSalesman\bin\TravellingSalesman.exe
