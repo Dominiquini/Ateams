@@ -49,7 +49,7 @@ void XMLParser::startElement(const XMLCh *const uri, const XMLCh *const localnam
 			XMLString::release(&value);
 		}
 	} else if (strcasecmp(element, "Heuristics") == 0) {
-		ctrl->newHeuristic(NULL);
+		ctrl->clearHeuristics(true);
 	} else {
 		Heuristic *newHeuristic = Control::instantiateHeuristic(element);
 
@@ -69,7 +69,7 @@ void XMLParser::startElement(const XMLCh *const uri, const XMLCh *const localnam
 				XMLString::release(&value);
 			}
 
-			ctrl->newHeuristic(newHeuristic);
+			ctrl->insertHeuristic(newHeuristic, true);
 		}
 	}
 

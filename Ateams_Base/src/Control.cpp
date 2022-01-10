@@ -58,8 +58,8 @@ Control::Control(int argc, char **argv) {
 	this->heuristics = new vector<Heuristic*>();
 
 	this->readMainCMDParameters();
-	this->readFileParameters();
-	this->readAdditionalCMDParameters();
+	this->readXMLFileParameters();
+	this->readExtraCMDParameters();
 
 	this->loadingProgressBar = new ProgressBar("LOADING: ");
 	this->executionProgressBar = new ProgressBar("EXECUTING: ");
@@ -292,7 +292,7 @@ inline void Control::readMainCMDParameters() {
 	setGraphicStatusInfoScreen(findPosArgv(argv, *argc, (char*) "-g") != -1);
 }
 
-inline void Control::readAdditionalCMDParameters() {
+inline void Control::readExtraCMDParameters() {
 	int p = -1;
 
 	for (map<string, void*>::const_iterator param = parameters.keys.begin(); param != parameters.keys.end(); param++) {
@@ -304,7 +304,7 @@ inline void Control::readAdditionalCMDParameters() {
 	}
 }
 
-inline void Control::readFileParameters() {
+inline void Control::readXMLFileParameters() {
 	XMLParser *parser = new XMLParser(this);
 
 	parser->parseXML(getInputParameters());
@@ -527,24 +527,60 @@ bool Control::setParameter(const char *parameter, const char *value) {
 	return parameters.setParameter(parameter, value);
 }
 
-void Control::newHeuristic(Heuristic *alg) {
-	if (alg != NULL) {
+bool Control::insertHeuristic(Heuristic *alg, bool deleteIfNotInserted) {
+	bool inserted = false;
+
+	if (alg != NULL && alg->getParameters().choiceProbability >= 0) {
+		inserted = true;
+
 		heuristics->push_back(alg);
 
 		Heuristic::heuristicsProbabilitySum += alg->getParameters().choiceProbability;
 	}
 
 	sort(heuristics->begin(), heuristics->end(), Heuristic::sortingComparator);
+
+	if (!inserted && deleteIfNotInserted) {
+		delete alg;
+	}
+
+	return inserted;
 }
 
-void Control::deleteHeuristic(Heuristic *alg) {
-	if (alg != NULL) {
-		remove(heuristics->begin(), heuristics->end(), alg);
+bool Control::removeHeuristic(Heuristic *alg, bool deleteIfRemoved) {
+	bool removed = false;
 
-		Heuristic::heuristicsProbabilitySum -= alg->getParameters().choiceProbability;
+	if (alg != NULL && alg->getParameters().choiceProbability >= 0) {
+		vector<Heuristic*>::iterator it = find(heuristics->begin(), heuristics->end(), alg);
+
+		if (it != heuristics->end()) {
+			removed = true;
+
+			heuristics->erase(it);
+
+			Heuristic::heuristicsProbabilitySum -= alg->getParameters().choiceProbability;
+		}
 	}
 
 	sort(heuristics->begin(), heuristics->end(), Heuristic::sortingComparator);
+
+	if (removed && deleteIfRemoved) {
+		delete alg;
+	}
+
+	return removed;
+}
+
+void Control::clearHeuristics(bool deleteHeuristics) {
+	if (deleteHeuristics) {
+		for (vector<Heuristic*>::iterator it = heuristics->begin(); it != heuristics->end(); it++) {
+			delete *it;
+		}
+	}
+
+	Heuristic::heuristicsProbabilitySum = 0;
+
+	heuristics->clear();
 }
 
 double Control::sumFitnessMaximize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n) {
@@ -587,14 +623,14 @@ double Control::sumFitnessMinimize(vector<Problem*> *probs, int n) {
 	return sum;
 }
 
-set<Problem*>::iterator Control::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *probs, double fitTotal) {
+set<Problem*>::const_iterator Control::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *probs, double fitTotal) {
 	// Armazena o fitness total da populacao
 	unsigned int sum = (unsigned int) fitTotal;
 	// Um numero entre zero e "sum" e sorteado
-	unsigned int randWheel = randomNumber(0, sum + 1);
+	unsigned int randWheel = randomNumber(0, sum);
 
-	set<Problem*>::iterator iter;
-	for (iter = probs->begin(); iter != probs->end(); iter++) {
+	set<Problem*>::const_iterator iter;
+	for (iter = probs->cbegin(); iter != probs->cend(); iter++) {
 		sum -= (int) (*iter)->getFitnessMaximize();
 		if (sum <= randWheel) {
 			return iter;
@@ -604,14 +640,14 @@ set<Problem*>::iterator Control::selectRouletteWheel(set<Problem*, bool (*)(Prob
 	return (probs->begin());
 }
 
-vector<Problem*>::iterator Control::selectRouletteWheel(vector<Problem*> *probs, double fitTotal) {
+vector<Problem*>::const_iterator Control::selectRouletteWheel(vector<Problem*> *probs, double fitTotal) {
 	// Armazena o fitness total da populacao
 	unsigned int sum = (unsigned int) fitTotal;
 	// Um numero entre zero e "sum" e sorteado
-	unsigned int randWheel = randomNumber(0, sum + 1);
+	unsigned int randWheel = randomNumber(0, sum);
 
-	vector<Problem*>::iterator iter;
-	for (iter = probs->begin(); iter != probs->end(); iter++) {
+	vector<Problem*>::const_iterator iter;
+	for (iter = probs->cbegin(); iter != probs->cend(); iter++) {
 		sum -= (int) (*iter)->getFitnessMaximize();
 		if (sum <= randWheel) {
 			return iter;
@@ -628,7 +664,7 @@ Heuristic* Control::selectRouletteWheel(vector<Heuristic*> *heuristic, unsigned 
 	// Armazena o fitness total da populacao
 	unsigned int sum = probTotal;
 	// Um numero entre zero e "sum" e sorteado
-	unsigned int randWheel = randomNumber(0, sum + 1);
+	unsigned int randWheel = randomNumber(0, sum);
 
 	for (int i = 0; i < (int) heuristic->size(); i++) {
 		sum -= heuristic->at(i)->getParameters().choiceProbability;
@@ -644,7 +680,8 @@ vector<Problem*>::iterator Control::selectRandom(vector<Problem*> *probs) {
 	unsigned int randWheel = randomNumber(0, probs->size());
 
 	vector<Problem*>::iterator iter = probs->begin();
-	for (unsigned long i = 0; iter != probs->end() && i < randWheel; iter++, i++);
+
+	advance(iter, randWheel);
 
 	return iter;
 }

@@ -27,7 +27,7 @@ vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> 
 
 	// Escolhe a melhor solucao para ser usada pelo BT
 	if (parameters.choicePolicy == 0 || randomPercentage() < (100 * parameters.elitismProbability)) {
-		selection = sol->begin();
+		selection = sol->cbegin();
 	} else {
 		double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
 
@@ -42,10 +42,10 @@ vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> 
 }
 
 set<Problem*>::const_iterator TabuSearch::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
-	set<Problem*>::const_iterator selection = population->begin();
+	set<Problem*>::const_iterator selection = population->cbegin();
 	int attemps = 0;
 
-	while ((selection == population->begin() || (*selection)->heuristicsInfo.tabu == true) && (attemps++ < MAX_ATTEMPTS))
+	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.tabu == true) && (attemps++ < MAX_ATTEMPTS))
 		selection = Control::selectRouletteWheel(population, fitTotal);
 
 	(*selection)->heuristicsInfo.tabu++;

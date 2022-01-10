@@ -108,8 +108,8 @@ public:
 	static double sumFitnessMinimize(vector<Problem*> *probs, int n);
 
 	/* Seleciona um individuo da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
-	static set<Problem*>::iterator selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *probs, double fitTotal);
-	static vector<Problem*>::iterator selectRouletteWheel(vector<Problem*> *probs, double fitTotal);
+	static set<Problem*>::const_iterator selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *probs, double fitTotal);
+	static vector<Problem*>::const_iterator selectRouletteWheel(vector<Problem*> *probs, double fitTotal);
 	static Heuristic* selectRouletteWheel(vector<Heuristic*> *heuristc, unsigned int probTotal);
 
 	/* Seleciona um individuo aleatoriamente */
@@ -174,10 +174,10 @@ private:
 	void readMainCMDParameters();
 
 	/* Le parametros adicionais passados por linha de comando (Sobrepujam as lidas no arquivo de configuracao) */
-	void readAdditionalCMDParameters();
+	void readExtraCMDParameters();
 
 	/* Le parametros do arquivo XML passado por linha de comando */
-	void readFileParameters();
+	void readXMLFileParameters();
 
 	void setPrintFullSolution(bool fullPrint);
 
@@ -205,9 +205,11 @@ public:
 
 	bool setParameter(const char *parameter, const char *value);
 
-	void newHeuristic(Heuristic *alg);
+	bool insertHeuristic(Heuristic *alg, bool deleteIfNotInserted);
 
-	void deleteHeuristic(Heuristic *alg);
+	bool removeHeuristic(Heuristic *alg, bool deleteIfRemoved);
+
+	void clearHeuristics(bool deleteHeuristics);
 
 	char* getInputDataFile() {
 		return inputDataFile;

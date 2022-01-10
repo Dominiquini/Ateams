@@ -17,7 +17,7 @@ bool GeneticAlgorithm::setParameter(const char *parameter, const char *value) {
 }
 
 vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *info) {
-	set<Problem*>::const_iterator selection = sol->begin();
+	set<Problem*>::const_iterator selection;
 	vector<Problem*> *popAG = new vector<Problem*>();
 	int initialPopulation = 0;
 	int solutionsCount = 0;
@@ -29,7 +29,7 @@ vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Probl
 	executionCounter++;
 
 	if (parameters.choicePolicy == 0) {
-		for (selection = sol->begin(), solutionsCount = 0; selection != sol->end() && solutionsCount < initialPopulation; selection++, solutionsCount++) {
+		for (selection = sol->cbegin(), solutionsCount = 0; selection != sol->cend() && solutionsCount < initialPopulation; selection++, solutionsCount++) {
 			popAG->push_back(Problem::copySolution(**selection));
 		}
 	} else {
@@ -50,10 +50,10 @@ vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Probl
 }
 
 set<Problem*>::const_iterator GeneticAlgorithm::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
-	set<Problem*>::const_iterator selection = population->begin();
+	set<Problem*>::const_iterator selection = population->cbegin();
 	int attemps = 0;
 
-	while ((selection == population->begin() || (*selection)->heuristicsInfo.genetic == true) && (attemps++ < MAX_ATTEMPTS))
+	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.genetic == true) && (attemps++ < MAX_ATTEMPTS))
 		selection = Control::selectRouletteWheel(population, fitTotal);
 
 	(*selection)->heuristicsInfo.genetic++;
@@ -76,7 +76,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 	filhos = new vector<pair<Problem*, Problem*>*>();
 
 	vector<pair<Problem*, Problem*>*>::const_iterator iterParProb;
-	vector<Problem*>::iterator iterProb;
+	vector<Problem*>::const_iterator iterProb;
 
 	int strengthCrossOver = (int) (parameters.crossoverPower * 100);
 	int numCrossOver;
@@ -139,7 +139,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 		}
 
 		/* Faz o cruzamento entre os individuos anteriormente escolhidos */
-		for (iterParProb = pais->begin(); iterParProb != pais->end(); iterParProb++) {
+		for (iterParProb = pais->cbegin(); iterParProb != pais->cend(); iterParProb++) {
 			if (parameters.partitionSize != -1) {
 				/* Crossover com dois pontos de particionamento escolhidos aleatoriamente e um deles com tamanho 'tamParticionmento' */
 				temp = (*iterParProb)->first->crossOver((*iterParProb)->second, parameters.partitionSize, strengthCrossOver);
@@ -166,13 +166,13 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 		}
 
 		/* Restaura a populacao dos pais */
-		for (iterProb = pop->begin(); iterProb != pop->end(); iterProb++)
+		for (iterProb = pop->cbegin(); iterProb != pop->cend(); iterProb++)
 			aux_pop->push_back(*iterProb);
 
 		pop->clear();
 
 		/* Adiciona a populacao dos filhos */
-		for (iterParProb = filhos->begin(); iterParProb != filhos->end(); iterParProb++) {
+		for (iterParProb = filhos->cbegin(); iterParProb != filhos->cend(); iterParProb++) {
 			if ((*iterParProb)->first->getFitness() != -1)
 				pop->push_back((*iterParProb)->first);
 			else
@@ -192,7 +192,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 		sort(aux_pop->begin(), aux_pop->end(), fnSortFitness);
 
 		/* Selecao dos melhores */
-		for (iterProb = aux_pop->begin(); iterProb != aux_pop->end(); iterProb++) {
+		for (iterProb = aux_pop->cbegin(); iterProb != aux_pop->cend(); iterProb++) {
 			if ((int) pop->size() < parameters.populationSize)
 				pop->push_back(*iterProb);
 			else
@@ -212,7 +212,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 		}
 	}
 
-	for (iterProb = bad_pop->begin(); iterProb != bad_pop->end(); iterProb++)
+	for (iterProb = bad_pop->cbegin(); iterProb != bad_pop->cend(); iterProb++)
 		delete *iterProb;
 
 	bad_pop->clear();

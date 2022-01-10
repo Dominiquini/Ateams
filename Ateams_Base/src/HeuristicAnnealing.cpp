@@ -27,7 +27,7 @@ vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Pro
 
 	// Escolhe a melhor solucao para ser usada pelo SA
 	if (parameters.choicePolicy == 0 || randomPercentage() < (100 * parameters.elitismProbability)) {
-		selection = sol->begin();
+		selection = sol->cbegin();
 	} else {
 		double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
 
@@ -42,10 +42,10 @@ vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Pro
 }
 
 set<Problem*>::const_iterator SimulatedAnnealing::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
-	set<Problem*>::const_iterator selection = population->begin();
+	set<Problem*>::const_iterator selection = population->cbegin();
 	int attemps = 0;
 
-	while ((selection == population->begin() || (*selection)->heuristicsInfo.annealing == true) && (attemps++ < MAX_ATTEMPTS))
+	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.annealing == true) && (attemps++ < MAX_ATTEMPTS))
 		selection = Control::selectRouletteWheel(population, fitTotal);
 
 	(*selection)->heuristicsInfo.annealing++;
