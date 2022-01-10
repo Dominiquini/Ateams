@@ -23,9 +23,6 @@ purge:					clean
 $(PATH_PROJ_BIN):
 						$(MKDIR) $(PATH_PROJ_BIN)
 
-$(PATH_PROJ_RES):
-						$(MKDIR) $(PATH_PROJ_RES)
-
 $(BASE_LIB):			$(BASE_SRCS) $(BASE_HEADERS)
 						$(MAKE) -C $(PATH_BASE)
 

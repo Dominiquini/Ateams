@@ -1,19 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import ninja_syntax
 import collections
-import platform
-import builtins
 import pathlib
 import signal
 import timeit
-import click
 import glob
-import time
 import math
 import sys
 import os
+
+import click
+import ninja_syntax
+
 
 PLATFORM = collections.namedtuple('PlatformInfo', ['windows_key', 'linux_key', 'is_windows', 'is_linux', 'system'])(windows_key := "WINDOWS", linux_key := "LINUX", is_windows := sys.platform == 'win32', is_linux := not is_windows, system := windows_key if is_windows else linux_key)
 
@@ -56,8 +55,8 @@ ALGORITHMS = ['BinPacking', 'FlowShop', 'GraphColoring', 'JobShop', 'KnapSack', 
 FILE_BINS = {A: f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}bin{PATH_SEPARATOR}{A}{BIN_EXT}" for A in ALGORITHMS}
 FILE_PARAMS = glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}Ateams_Base{PATH_SEPARATOR}parameters{PATH_SEPARATOR}*.xml")
 FILE_DEFAULT_PARAM = f"{ROOT_FOLDER}{PATH_SEPARATOR}Ateams_Base{PATH_SEPARATOR}parameters{PATH_SEPARATOR}DEFAULT.xml"
-FILE_INPUTS = {A: glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}input{PATH_SEPARATOR}*.prb") for A in ALGORITHMS}
-FILE_DEFAULT_INPUTS = {A: f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}input{PATH_SEPARATOR}{I}" for (A, I) in zip(ALGORITHMS, ['binpack1_01.prb', 'car1.prb', 'jean.prb', 'la01.prb', 'mk_gk01.prb', 'br17.prb'])}
+FILE_INPUTS = {A: glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}inputs{PATH_SEPARATOR}*.prb") for A in ALGORITHMS}
+FILE_DEFAULT_INPUTS = {A: f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}inputs{PATH_SEPARATOR}{I}" for (A, I) in zip(ALGORITHMS, ['binpack1_01.prb', 'car1.prb', 'jean.prb', 'la01.prb', 'mk_gk01.prb', 'br17.prb'])}
 PATH_DEFAULT_OUTPUTS = {A: f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}results{PATH_SEPARATOR}" for A in ALGORITHMS}
 
 
@@ -69,13 +68,16 @@ class NinjaFileWriter(ninja_syntax.Writer):
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, exc_traceback):
+    def __exit__(self, *exception):
         super().close()
+
+
+def normalize_choice(options, choice, default=None):
+    return next((opt for opt in options if choice is not None and choice.casefold() in opt.casefold()), default)
 
 
 def truncate_number(number, decimals=0):
     factor = 10.0 ** decimals
-
     return math.trunc(number) if decimals <= 0 else math.trunc(number * factor) / factor
 
 
@@ -105,6 +107,79 @@ def ateams(ctx, execute, verbose, clear, pause):
 def build(config, tool, mode, extra_args):
     """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
 
+    tool = normalize_choice(BUILD_TOOLS.tools, tool, BUILD_TOOLS.default)
+    mode = normalize_choice(BUILDING_MODES.modes, mode, BUILDING_MODES.default)
+
+    def __generate_ninja_build_file():
+        with NinjaFileWriter(ROOT_FOLDER + PATH_SEPARATOR + NINJA_BUILD_FILE) as ninja:
+            ninja.comment(f"PLATFORM: {PLATFORM.system}")
+
+            ninja.newline()
+
+            ninja.variable("BUILD_MODE", mode)
+            ninja.variable("CXXFLAGS", CXXFLAGS[mode])
+            ninja.variable("LDFLAGS", LDFLAGS[PLATFORM.system])
+
+            ninja.newline()
+
+            ninja.pool(**POOL_ASYNC._asdict())
+
+            ninja.newline()
+
+            ninja.rule(name="compile", command="g++ -MMD -MF $out.d $CXXFLAGS -c -o $out $in", description="COMPILE $out", deps="gcc", depfile="$out.d", pool=POOL_ASYNC.name)
+
+            ninja.newline()
+
+            ninja.rule(name="link", command="g++ $CXXFLAGS -o $out $in $LDFLAGS", description="LINK $out", pool=POOL_ASYNC.name)
+
+            ninja.newline()
+
+            ninja.rule(name="archive", command="ar -rsc $out $in", description="ARCHIVE $out", pool=POOL_ASYNC.name)
+
+            ninja.newline()
+
+            ninja.rule(name="generate", command="python $in --no-execute --no-verbose --no-clear --no-pause build -a ninja -m $BUILD_MODE", description="UPDATE NINJA BUILD FILE", pool=POOL_ASYNC.name, generator=True)
+
+            ninja.newline()
+
+            for src, obj in zip(BASE_SRCS, BASE_OBJS):
+                ninja.build(outputs=obj, rule="compile", inputs=src)
+
+            ninja.newline()
+
+            ninja.build(outputs=BASE_LIB, rule="archive", inputs=BASE_OBJS)
+
+            ninja.newline()
+
+            for src, obj in zip(PROJ_SRCS, PROJ_OBJS):
+                ninja.build(outputs=obj, rule="compile", inputs=src)
+
+            ninja.newline()
+
+            for obj, bin in zip(PROJ_OBJS, PROJ_BINS):
+                ninja.build(outputs=bin, rule="link", inputs=[BASE_LIB, obj])
+
+            ninja.newline()
+
+            ninja.build(outputs="Ateams", rule="phony", inputs=PROJ_BINS)
+
+            ninja.newline()
+
+            ninja.build(outputs="Base", rule="phony", inputs=BASE_LIB)
+
+            ninja.newline()
+
+            for bin in PROJ_BINS:
+                ninja.build(outputs=os.path.splitext(os.path.basename(bin))[0], rule="phony", inputs=bin)
+
+            ninja.newline()
+
+            ninja.default("Ateams")
+
+            ninja.newline()
+
+            ninja.build(outputs="update", rule="generate", inputs=THIS_FILE, implicit=NINJA_BUILD_FILE)
+
     def __compose_command_line():
         command_line = tool
 
@@ -121,74 +196,7 @@ def build(config, tool, mode, extra_args):
 
         return timeit.repeat(stmt=lambda: os.system(cmd), repeat=1, number=1)[0] if config.execute else 0
 
-    with NinjaFileWriter(ROOT_FOLDER + PATH_SEPARATOR + NINJA_BUILD_FILE) as ninja:
-        ninja.comment(f"PLATFORM: {PLATFORM.system}")
-
-        ninja.newline()
-
-        ninja.variable("BUILD_MODE", mode)
-        ninja.variable("CXXFLAGS", CXXFLAGS[mode])
-        ninja.variable("LDFLAGS", LDFLAGS[PLATFORM.system])
-
-        ninja.newline()
-
-        ninja.pool(**POOL_ASYNC._asdict())
-
-        ninja.newline()
-
-        ninja.rule(name="compile", command="g++ -MMD -MF $out.d $CXXFLAGS -c -o $out $in", description="COMPILE $out", deps="gcc", depfile="$out.d", pool=POOL_ASYNC.name)
-
-        ninja.newline()
-
-        ninja.rule(name="link", command="g++ $CXXFLAGS -o $out $in $LDFLAGS", description="LINK $out", pool=POOL_ASYNC.name)
-
-        ninja.newline()
-
-        ninja.rule(name="archive", command="ar -rsc $out $in", description="ARCHIVE $out", pool=POOL_ASYNC.name)
-
-        ninja.newline()
-
-        ninja.rule(name="generate", command="python $in --no-execute --no-verbose --no-clear --no-pause build -a ninja -m $BUILD_MODE", description="UPDATE NINJA BUILD FILE", pool=POOL_ASYNC.name, generator=True)
-
-        ninja.newline()
-
-        for src, obj in zip(BASE_SRCS, BASE_OBJS):
-            ninja.build(outputs=obj, rule="compile", inputs=src)
-
-        ninja.newline()
-
-        ninja.build(outputs=BASE_LIB, rule="archive", inputs=BASE_OBJS)
-
-        ninja.newline()
-
-        for src, obj in zip(PROJ_SRCS, PROJ_OBJS):
-            ninja.build(outputs=obj, rule="compile", inputs=src)
-
-        ninja.newline()
-
-        for obj, bin in zip(PROJ_OBJS, PROJ_BINS):
-            ninja.build(outputs=bin, rule="link", inputs=[BASE_LIB, obj])
-
-        ninja.newline()
-
-        ninja.build(outputs="Ateams", rule="phony", inputs=PROJ_BINS)
-
-        ninja.newline()
-
-        ninja.build(outputs="Base", rule="phony", inputs=BASE_LIB)
-
-        ninja.newline()
-
-        for bin in PROJ_BINS:
-            ninja.build(outputs=os.path.splitext(os.path.basename(bin))[0], rule="phony", inputs=bin)
-
-        ninja.newline()
-
-        ninja.default("Ateams")
-
-        ninja.newline()
-
-        ninja.build(outputs="update", rule="generate", inputs=THIS_FILE, implicit=NINJA_BUILD_FILE)
+    __generate_ninja_build_file()
 
     if config.clear: click.clear()
 
@@ -221,10 +229,13 @@ def build(config, tool, mode, extra_args):
 def run(config, algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, debug, memcheck, extra_args):
     """A Wrapper For Running ATEAMS Algorithms"""
 
-    def __evaluate_output_files(extension):
-        filename = pathlib.Path(input).stem
+    algorithm = normalize_choice(ALGORITHMS, algorithm)
 
-        return validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + filename + '.' + extension)
+    parameters = normalize_choice(FILE_PARAMS, parameters, FILE_DEFAULT_PARAM)
+    input = normalize_choice(FILE_INPUTS[algorithm], input, FILE_DEFAULT_INPUTS[algorithm])
+
+    if result is None and write_output: result = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".res").name)
+    if pop is None and write_output: pop = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".pop").name)
 
     def __apply_execution_modifiers(command_line):
         if debug and not memcheck: command_line = GDB_COMMAND + " " + command_line
@@ -262,13 +273,6 @@ def run(config, algorithm, parameters, input, result, pop, write_output, show_cm
         return timeit.repeat(stmt=lambda: os.system(cmd), repeat=repeat, number=1) if config.execute else [0] * repeat
 
     if config.clear: click.clear()
-
-    algorithm = next((alg for alg in ALGORITHMS if alg.casefold() == algorithm.casefold()), algorithm)
-
-    if parameters is None: parameters = FILE_DEFAULT_PARAM
-    if input is None: input = FILE_DEFAULT_INPUTS[algorithm]
-    if result is None and write_output: result = __evaluate_output_files("res")
-    if pop is None and write_output: pop = __evaluate_output_files("pop")
 
     command_line = __compose_command_line()
 
