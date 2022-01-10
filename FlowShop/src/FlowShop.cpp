@@ -12,11 +12,11 @@ double Problem::worst = 0;
 unsigned int Problem::numInst = 0;
 unsigned long long Problem::totalNumInst = 0;
 
+unsigned int Problem::neighbors = 0;
+
 char FlowShop::name[128];
 int **FlowShop::time = NULL;
 int FlowShop::njob = 0, FlowShop::nmaq = 0;
-
-int FlowShop::neighbors = 0;
 
 Problem* Problem::randomSolution() {
 	return new FlowShop();
@@ -48,7 +48,7 @@ void Problem::readProblemFromFile(char *input) {
 	}
 
 	for (int i = 1; i < FlowShop::njob; i++)
-		FlowShop::neighbors += i;
+		Problem::neighbors += i;
 
 	fclose(f);
 
@@ -154,6 +154,8 @@ void Problem::allocateMemory() {
 	Problem::numInst = 0;
 	Problem::totalNumInst = 0;
 
+	Problem::neighbors = 0;
+
 	FlowShop::time = (int**) malloc(FlowShop::njob * sizeof(int*));
 
 	for (int i = 0; i < FlowShop::njob; i++)
@@ -166,6 +168,8 @@ void Problem::deallocateMemory() {
 
 	Problem::numInst = 0;
 	Problem::totalNumInst = 0;
+
+	Problem::neighbors = 0;
 
 	for (int i = 0; i < FlowShop::njob; i++)
 		free(FlowShop::time[i]);
@@ -326,25 +330,26 @@ inline Problem* FlowShop::neighbor() {
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
 inline vector<pair<Problem*, InfoTabu*>*>* FlowShop::localSearch() {
-	if (FlowShop::neighbors > MAX_PERMUTATIONS)
-		return localSearch((float) MAX_PERMUTATIONS / (float) FlowShop::neighbors);
+	if (Problem::neighbors > MAX_PERMUTATIONS)
+		return localSearch((float) MAX_PERMUTATIONS / (float) Problem::neighbors);
 
-	Problem *job = NULL;
+	Problem *prob = NULL;
 	int p1, p2;
 	pair<Problem*, InfoTabu*> *temp;
 	vector<pair<Problem*, InfoTabu*>*> *local = new vector<pair<Problem*, InfoTabu*>*>();
 
 	for (p1 = 0; p1 < njob - 1; p1++) {
 		for (p2 = p1 + 1; p2 < njob; p2++) {
-			job = new FlowShop(*this, p1, p2);
-			if (job->getFitness() != -1) {
+			prob = new FlowShop(*this, p1, p2);
+
+			if (prob->getFitness() != -1) {
 				temp = new pair<Problem*, InfoTabu*>();
-				temp->first = job;
+				temp->first = prob;
 				temp->second = new InfoTabu_FlowShop(p1, p2);
 
 				local->push_back(temp);
 			} else {
-				delete job;
+				delete prob;
 			}
 		}
 	}
@@ -363,7 +368,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* FlowShop::localSearch(float parcela) 
 	vector<pair<Problem*, InfoTabu*>*> *local = new vector<pair<Problem*, InfoTabu*>*>();
 	int def;
 
-	def = (int) ((float) FlowShop::neighbors * parcela);
+	def = (int) ((float) Problem::neighbors * parcela);
 
 	if (def > MAX_PERMUTATIONS)
 		def = MAX_PERMUTATIONS;

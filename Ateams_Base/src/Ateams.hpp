@@ -98,6 +98,8 @@ struct ExecHeuristicsInfo {
   static random_device randomEngine;
 #endif
 
+int randomPercentage();
+
 int randomNumber();
 
 int randomNumber(int max);

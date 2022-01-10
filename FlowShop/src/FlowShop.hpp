@@ -48,14 +48,12 @@ public:
 class FlowShop: public Problem {
 protected:
 
-	static char name[128];				// Nome do problema
+	static char name[128];					// Nome do problema
 
-	static int **time;					// Matriz de maquinas e de tempos
-	static int njob, nmaq;				// Quantidade de jobs e de maquinas
+	static int **time;						// Matriz de maquinas e de tempos
+	static int njob, nmaq;					// Quantidade de jobs e de maquinas
 
-	static int neighbors;				// Numero de permutacoes possiveis
-
-	Solution_FlowShop solution;			// Representacao interna da solucao
+	Solution_FlowShop solution;				// Representacao interna da solucao
 
 public:
 

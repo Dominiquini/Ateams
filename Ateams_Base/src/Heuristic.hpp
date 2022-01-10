@@ -127,7 +127,7 @@ public:
 
 	char execInfo[HEURISTIC_INFO_MAX_LENGTH];
 
-	int newSolutionsProduced;
+	int contribution;
 
 	HeuristicExecutionInfo(Heuristic *heuristic, unsigned int executionId, uintptr_t threadId) {
 		this->heuristic = heuristic;
@@ -140,7 +140,7 @@ public:
 
 		this->status = -1.0;
 
-		this->newSolutionsProduced = 0;
+		this->contribution = 0;
 
 		configName();
 	}

@@ -225,7 +225,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 	markSolutions(pop);
 
 	if (info != NULL) {
-		info->newSolutionsProduced = pop->size();
+		info->contribution = pop->size();
 	}
 
 	return pop;

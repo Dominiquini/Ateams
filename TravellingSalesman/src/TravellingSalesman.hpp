@@ -47,14 +47,12 @@ public:
 class TravellingSalesman: public Problem {
 protected:
 
-	static char name[128];					// Nome do problema
+	static char name[128];						// Nome do problema
 
-	static double **edges;					// Peso das arestas que ligam os nos
-	static int nnodes;						// Quantidade de nos
+	static double **edges;						// Peso das arestas que ligam os nos
+	static int nnodes;							// Quantidade de nos
 
-	static int neighbors;					// Numero de permutacoes possiveis
-
-	Solution_TravellingSalesman solution;	// Representacao interna da solucao
+	Solution_TravellingSalesman solution;		// Representacao interna da solucao
 
 public:
 

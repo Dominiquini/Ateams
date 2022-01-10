@@ -12,11 +12,11 @@ double Problem::worst = 0;
 unsigned int Problem::numInst = 0;
 unsigned long long Problem::totalNumInst = 0;
 
+unsigned int Problem::neighbors = 0;
+
 char JobShop::name[128];
 int **JobShop::maq = NULL, **JobShop::time = NULL;
 int JobShop::njob = 0, JobShop::nmaq = 0;
-
-int JobShop::neighbors = 0;
 
 Problem* Problem::randomSolution() {
 	return new JobShop();
@@ -48,9 +48,9 @@ void Problem::readProblemFromFile(char *input) {
 	}
 
 	for (int i = 1; i < JobShop::njob; i++)
-		JobShop::neighbors += i;
+		Problem::neighbors += i;
 
-	JobShop::neighbors *= JobShop::nmaq;
+	Problem::neighbors *= JobShop::nmaq;
 
 	fclose(f);
 
@@ -162,6 +162,8 @@ void Problem::allocateMemory() {
 	Problem::numInst = 0;
 	Problem::totalNumInst = 0;
 
+	Problem::neighbors = 0;
+
 	JobShop::maq = (int**) malloc(JobShop::njob * sizeof(int*));
 
 	for (int i = 0; i < JobShop::njob; i++)
@@ -179,6 +181,8 @@ void Problem::deallocateMemory() {
 
 	Problem::numInst = 0;
 	Problem::totalNumInst = 0;
+
+	Problem::neighbors = 0;
 
 	for (int i = 0; i < JobShop::njob; i++)
 		free(JobShop::maq[i]);
@@ -421,10 +425,10 @@ inline Problem* JobShop::neighbor() {
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
 inline vector<pair<Problem*, InfoTabu*>*>* JobShop::localSearch() {
-	if (JobShop::neighbors > MAX_PERMUTATIONS)
-		return localSearch((float) MAX_PERMUTATIONS / (float) JobShop::neighbors);
+	if (Problem::neighbors > MAX_PERMUTATIONS)
+		return localSearch((float) MAX_PERMUTATIONS / (float) Problem::neighbors);
 
-	Problem *job = NULL;
+	Problem *prob = NULL;
 	int maq, p1, p2;
 	int numMaqs = nmaq, numJobs = njob;
 	pair<Problem*, InfoTabu*> *temp;
@@ -433,15 +437,16 @@ inline vector<pair<Problem*, InfoTabu*>*>* JobShop::localSearch() {
 	for (maq = 0; maq < numMaqs; maq++) {
 		for (p1 = 0; p1 < numJobs - 1; p1++) {
 			for (p2 = p1 + 1; p2 < numJobs; p2++) {
-				job = new JobShop(*this, maq, p1, p2);
-				if (job->getFitness() != -1) {
+				prob = new JobShop(*this, maq, p1, p2);
+
+				if (prob->getFitness() != -1) {
 					temp = new pair<Problem*, InfoTabu*>();
-					temp->first = job;
+					temp->first = prob;
 					temp->second = new InfoTabu_JobShop(maq, p1, p2);
 
 					local->push_back(temp);
 				} else {
-					delete job;
+					delete prob;
 				}
 			}
 		}
@@ -462,7 +467,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* JobShop::localSearch(float parcela) {
 	vector<pair<Problem*, InfoTabu*>*> *local = new vector<pair<Problem*, InfoTabu*>*>();
 	int def;
 
-	def = (int) ((float) JobShop::neighbors * parcela);
+	def = (int) ((float) Problem::neighbors * parcela);
 
 	if (def > MAX_PERMUTATIONS)
 		def = MAX_PERMUTATIONS;

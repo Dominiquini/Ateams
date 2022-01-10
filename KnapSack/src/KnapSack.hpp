@@ -54,8 +54,6 @@ protected:
 	static double *values, **constraint, *limit;	// Valores, limitacoes da esquerda e direita
 	static int nitens, ncontraints;					// Quantidade de itens e de limitacoes
 
-	static int neighbors;							// Numero de permutacoes possiveis
-
 	Solucao_KnapSack solution;						// Representacao interna da solucao
 
 public:

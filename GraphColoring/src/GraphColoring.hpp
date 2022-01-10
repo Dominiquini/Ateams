@@ -48,14 +48,12 @@ public:
 class GraphColoring: public Problem {
 protected:
 
-	static char name[128];				// Nome do problema
+	static char name[128];					// Nome do problema
 
-	static vector<int> **edges;			// Matriz com as arestas
-	static int nedges, nnodes;			// Quantidade de arestas e de nos
+	static vector<int> **edges;				// Matriz com as arestas
+	static int nedges, nnodes;				// Quantidade de arestas e de nos
 
-	static int neighbors;				// Numero de permutacoes possiveis
-
-	Solution_GraphColoring solution;	// Representacao interna da solucao
+	Solution_GraphColoring solution;		// Representacao interna da solucao
 
 public:
 

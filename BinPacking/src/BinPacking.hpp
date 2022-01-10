@@ -48,14 +48,12 @@ public:
 class BinPacking: public Problem {
 protected:
 
-	static char name[128];				// Nome do problema
+	static char name[128];					// Nome do problema
 
-	static double *sizes, capacity;		// Tamanho dos itens e capacidade de cada uma das bolsas
-	static int nitens;					// Quantidade de jobs e de maquinas
+	static double *sizes, capacity;			// Tamanho dos itens e capacidade de cada uma das bolsas
+	static int nitens;						// Quantidade de jobs e de maquinas
 
-	static int neighbors;				// Numero de permutacoes possiveis
-
-	Solution_BinPacking solution;		// Representacao interna da solucao
+	Solution_BinPacking solution;			// Representacao interna da solucao
 
 public:
 

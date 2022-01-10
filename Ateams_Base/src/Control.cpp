@@ -439,7 +439,7 @@ void Control::run() {
 		HeuristicExecutionInfo *info = (HeuristicExecutionInfo*) inserted;
 
 		if (info != NULL) {
-			newSolutionsCount += info->newSolutionsProduced;
+			newSolutionsCount += info->contribution;
 		}
 	}
 

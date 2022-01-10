@@ -26,7 +26,7 @@ vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Pro
 	executionCounter++;
 
 	// Escolhe a melhor solucao para ser usada pelo SA
-	if (parameters.choicePolicy == 0 || randomNumber(0, 101) < (100 * parameters.elitismProbability)) {
+	if (parameters.choicePolicy == 0 || randomPercentage() < (100 * parameters.elitismProbability)) {
 		selection = sol->begin();
 	} else {
 		double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
@@ -134,7 +134,7 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *
 	markSolutions(Sf);
 
 	if (info != NULL) {
-		info->newSolutionsProduced = Sf->size();
+		info->contribution = Sf->size();
 	}
 
 	return Sf;

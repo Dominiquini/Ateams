@@ -55,8 +55,6 @@ protected:
 	static int **maq, **time;			// Matriz de maquinas e de tempos
 	static int njob, nmaq;				// Quantidade de jobs e de maquinas
 
-	static int neighbors;				// Numero de permutacoes possiveis
-
 	Solution_JobShop solution;			// Representacao interna da solucao
 
 public:

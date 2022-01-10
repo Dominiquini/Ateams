@@ -12,11 +12,11 @@ double Problem::worst = 0;
 unsigned int Problem::numInst = 0;
 unsigned long long Problem::totalNumInst = 0;
 
+unsigned int Problem::neighbors = 0;
+
 char GraphColoring::name[128];
 vector<int> **GraphColoring::edges = NULL;
 int GraphColoring::nedges = 0, GraphColoring::nnodes = 0;
-
-int GraphColoring::neighbors = 0;
 
 Problem* Problem::randomSolution() {
 	return new GraphColoring();
@@ -51,7 +51,7 @@ void Problem::readProblemFromFile(char *input) {
 	}
 
 	for (int i = 1; i < GraphColoring::nnodes; i++)
-		GraphColoring::neighbors += i;
+		Problem::neighbors += i;
 
 	fclose(f);
 
@@ -157,6 +157,8 @@ void Problem::allocateMemory() {
 	Problem::numInst = 0;
 	Problem::totalNumInst = 0;
 
+	Problem::neighbors = 0;
+
 	GraphColoring::edges = (vector<int>**) malloc((1 + GraphColoring::nnodes) * sizeof(vector<int>*));
 
 	for (int i = 1; i <= GraphColoring::nnodes; i++)
@@ -169,6 +171,8 @@ void Problem::deallocateMemory() {
 
 	Problem::numInst = 0;
 	Problem::totalNumInst = 0;
+
+	Problem::neighbors = 0;
 
 	for (int i = 1; i <= GraphColoring::nnodes; i++)
 		delete GraphColoring::edges[i];
@@ -317,8 +321,8 @@ inline Problem* GraphColoring::neighbor() {
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
 inline vector<pair<Problem*, InfoTabu*>*>* GraphColoring::localSearch() {
-	if (GraphColoring::neighbors > MAX_PERMUTATIONS)
-		return localSearch((float) MAX_PERMUTATIONS / (float) GraphColoring::neighbors);
+	if (Problem::neighbors > MAX_PERMUTATIONS)
+		return localSearch((float) MAX_PERMUTATIONS / (float) Problem::neighbors);
 
 	Problem *prob = NULL;
 	int p1, p2;
@@ -351,7 +355,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* GraphColoring::localSearch(float parc
 	vector<pair<Problem*, InfoTabu*>*> *local = new vector<pair<Problem*, InfoTabu*>*>();
 	int def;
 
-	def = (int) ((float) GraphColoring::neighbors * parcela);
+	def = (int) ((float) Problem::neighbors * parcela);
 
 	if (def > MAX_PERMUTATIONS)
 		def = MAX_PERMUTATIONS;

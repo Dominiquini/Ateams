@@ -1,6 +1,7 @@
 #include "Ateams.hpp"
 
 #include "Control.hpp"
+
 #include "Problem.hpp"
 
 using namespace std;
@@ -19,21 +20,25 @@ int main(int argc, char *argv[]) {
 	try {
 		cout << endl;
 
-		Control *ctrl = Control::getInstance(argc, argv);
+		Control *ctrl;
 
-		ctrl->init();
+		for (int i = 0; i < 1; i++) {
+			ctrl = Control::getInstance(argc, argv);
 
-		ctrl->run();
+			ctrl->init();
 
-		ctrl->finish();
+			ctrl->run();
 
-		ctrl->printSolution();
+			ctrl->finish();
 
-		ctrl->printExecution();
+			ctrl->printSolution();
 
-		Control::terminate();
+			ctrl->printExecution();
 
-		cout << endl << endl << COLOR_GREEN << "Termination Reason: " << getTerminationInfo(STATUS) << COLOR_DEFAULT << endl << endl;
+			Control::terminate();
+
+			cout << endl << endl << COLOR_GREEN << "Termination Reason: " << getTerminationInfo(STATUS) << COLOR_DEFAULT << endl << endl;
+		}
 
 		return 0;
 	} catch (...) {
@@ -45,6 +50,10 @@ int main(int argc, char *argv[]) {
 
 		return -1;
 	}
+}
+
+int randomPercentage() {
+	return randomNumber(0, 101);
 }
 
 int randomNumber() {

@@ -12,11 +12,11 @@ double Problem::worst = 0;
 unsigned int Problem::numInst = 0;
 unsigned long long Problem::totalNumInst = 0;
 
+unsigned int Problem::neighbors = 0;
+
 char KnapSack::name[128];
 double *KnapSack::values = NULL, **KnapSack::constraint = NULL, *KnapSack::limit = NULL;
 int KnapSack::nitens = 0, KnapSack::ncontraints = 0;
-
-int KnapSack::neighbors = 0;
 
 Problem* Problem::randomSolution() {
 	return new KnapSack();
@@ -66,7 +66,9 @@ void Problem::readProblemFromFile(char *input) {
 	}
 
 	for (int i = 1; i < KnapSack::nitens + 2; i++)
-		KnapSack::neighbors += i;
+		Problem::neighbors += i;
+
+	Problem::neighbors /= 2;
 
 	fclose(f);
 
@@ -179,6 +181,8 @@ void Problem::allocateMemory() {
 	Problem::numInst = 0;
 	Problem::totalNumInst = 0;
 
+	Problem::neighbors = 0;
+
 	KnapSack::values = (double*) malloc(KnapSack::nitens * sizeof(double));
 
 	KnapSack::limit = (double*) malloc(KnapSack::ncontraints * sizeof(double));
@@ -195,6 +199,8 @@ void Problem::deallocateMemory() {
 
 	Problem::numInst = 0;
 	Problem::totalNumInst = 0;
+
+	Problem::neighbors = 0;
 
 	free(KnapSack::values);
 
@@ -343,11 +349,11 @@ inline Problem* KnapSack::neighbor() {
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
 inline vector<pair<Problem*, InfoTabu*>*>* KnapSack::localSearch() {
-	if (KnapSack::neighbors > MAX_PERMUTATIONS)
-		return localSearch((float) MAX_PERMUTATIONS / (float) KnapSack::neighbors);
+	if (Problem::neighbors > MAX_PERMUTATIONS)
+		return localSearch((float) MAX_PERMUTATIONS / (float) Problem::neighbors);
 
-	int p1, p2;
 	Problem *prob = NULL;
+	int p1, p2;
 	pair<Problem*, InfoTabu*> *temp;
 	vector<pair<Problem*, InfoTabu*>*> *local = new vector<pair<Problem*, InfoTabu*>*>();
 
@@ -378,7 +384,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* KnapSack::localSearch(float parcela) 
 	vector<pair<Problem*, InfoTabu*>*> *local = new vector<pair<Problem*, InfoTabu*>*>();
 	int def;
 
-	def = (int) ((float) KnapSack::neighbors * parcela);
+	def = (int) ((float) Problem::neighbors * parcela);
 
 	if (def > MAX_PERMUTATIONS)
 		def = MAX_PERMUTATIONS;

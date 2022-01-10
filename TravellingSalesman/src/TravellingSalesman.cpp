@@ -12,11 +12,11 @@ double Problem::worst = 0;
 unsigned int Problem::numInst = 0;
 unsigned long long Problem::totalNumInst = 0;
 
+unsigned int Problem::neighbors = 0;
+
 char TravellingSalesman::name[128];
 double **TravellingSalesman::edges = NULL;
 int TravellingSalesman::nnodes = 0;
-
-int TravellingSalesman::neighbors = 0;
 
 Problem* Problem::randomSolution() {
 	return new TravellingSalesman();
@@ -150,7 +150,7 @@ void Problem::readProblemFromFile(char *input) {
 	}
 
 	for (int i = 1; i <= TravellingSalesman::nnodes; i++)
-		TravellingSalesman::neighbors += i;
+		Problem::neighbors += i;
 
 	fclose(f);
 
@@ -258,6 +258,8 @@ void Problem::allocateMemory() {
 	Problem::numInst = 0;
 	Problem::totalNumInst = 0;
 
+	Problem::neighbors = 0;
+
 	TravellingSalesman::edges = (double**) malloc(TravellingSalesman::nnodes * sizeof(double*));
 
 	for (int i = 0; i < TravellingSalesman::nnodes; i++)
@@ -270,6 +272,8 @@ void Problem::deallocateMemory() {
 
 	Problem::numInst = 0;
 	Problem::totalNumInst = 0;
+
+	Problem::neighbors = 0;
 
 	for (int i = 0; i < TravellingSalesman::nnodes; i++)
 		free(TravellingSalesman::edges[i]);
@@ -423,8 +427,8 @@ inline Problem* TravellingSalesman::neighbor() {
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
 inline vector<pair<Problem*, InfoTabu*>*>* TravellingSalesman::localSearch() {
-	if (TravellingSalesman::neighbors > MAX_PERMUTATIONS)
-		return localSearch((float) MAX_PERMUTATIONS / (float) TravellingSalesman::neighbors);
+	if (Problem::neighbors > MAX_PERMUTATIONS)
+		return localSearch((float) MAX_PERMUTATIONS / (float) Problem::neighbors);
 
 	Problem *prob = NULL;
 	int p1, p2;
@@ -434,6 +438,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* TravellingSalesman::localSearch() {
 	for (p1 = 0; p1 < nnodes; p1++) {
 		for (p2 = p1 + 1; p2 <= nnodes; p2++) {
 			prob = new TravellingSalesman(*this, p1, p2);
+
 			if (prob->getFitness() != -1) {
 				temp = new pair<Problem*, InfoTabu*>();
 				temp->first = prob;
@@ -460,7 +465,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* TravellingSalesman::localSearch(float
 	vector<pair<Problem*, InfoTabu*>*> *local = new vector<pair<Problem*, InfoTabu*>*>();
 	int def;
 
-	def = (int) ((float) TravellingSalesman::neighbors * parcela);
+	def = (int) ((float) Problem::neighbors * parcela);
 
 	if (def > MAX_PERMUTATIONS)
 		def = MAX_PERMUTATIONS;

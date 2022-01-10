@@ -12,11 +12,11 @@ double Problem::worst = 0;
 unsigned int Problem::numInst = 0;
 unsigned long long Problem::totalNumInst = 0;
 
+unsigned int Problem::neighbors = 0;
+
 char BinPacking::name[128];
 double *BinPacking::sizes = NULL, BinPacking::capacity = 0;
 int BinPacking::nitens = 0;
-
-int BinPacking::neighbors = 0;
 
 Problem* Problem::randomSolution() {
 	return new BinPacking();
@@ -46,7 +46,7 @@ void Problem::readProblemFromFile(char *input) {
 	}
 
 	for (int i = 1; i < BinPacking::nitens; i++)
-		BinPacking::neighbors += i;
+		Problem::neighbors += i;
 
 	fclose(f);
 
@@ -160,6 +160,8 @@ void Problem::allocateMemory() {
 	Problem::numInst = 0;
 	Problem::totalNumInst = 0;
 
+	Problem::neighbors = 0;
+
 	BinPacking::sizes = (double*) malloc(BinPacking::nitens * sizeof(double));
 }
 
@@ -169,6 +171,8 @@ void Problem::deallocateMemory() {
 
 	Problem::numInst = 0;
 	Problem::totalNumInst = 0;
+
+	Problem::neighbors = 0;
 
 	free(BinPacking::sizes);
 }
@@ -369,8 +373,8 @@ inline Problem* BinPacking::neighbor() {
 
 /* Retorna um conjunto de todas as solucoes viaveis vizinhas da atual. */
 inline vector<pair<Problem*, InfoTabu*>*>* BinPacking::localSearch() {
-	if (BinPacking::neighbors > MAX_PERMUTATIONS)
-		return localSearch((float) MAX_PERMUTATIONS / (float) BinPacking::neighbors);
+	if (Problem::neighbors > MAX_PERMUTATIONS)
+		return localSearch((float) MAX_PERMUTATIONS / (float) Problem::neighbors);
 
 	Problem *prob = NULL;
 	int p1, p2;
@@ -405,7 +409,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* BinPacking::localSearch(float parcela
 	vector<pair<Problem*, InfoTabu*>*> *local = new vector<pair<Problem*, InfoTabu*>*>();
 	int def;
 
-	def = (int) ((float) BinPacking::neighbors * parcela);
+	def = (int) ((float) Problem::neighbors * parcela);
 
 	if (def > MAX_PERMUTATIONS)
 		def = MAX_PERMUTATIONS;

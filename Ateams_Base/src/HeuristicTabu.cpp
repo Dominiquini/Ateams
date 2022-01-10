@@ -26,7 +26,7 @@ vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> 
 	executionCounter++;
 
 	// Escolhe a melhor solucao para ser usada pelo BT
-	if (parameters.choicePolicy == 0 || randomNumber(0, 101) < (100 * parameters.elitismProbability)) {
+	if (parameters.choicePolicy == 0 || randomPercentage() < (100 * parameters.elitismProbability)) {
 		selection = sol->begin();
 	} else {
 		double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
@@ -60,7 +60,7 @@ void TabuSearch::markSolutions(vector<Problem*> *solutions) {
 }
 
 vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *info) {
-	vector<pair<Problem*, InfoTabu*>*> *vizinhanca;
+	vector<pair<Problem*, InfoTabu*>*> *neighborhood;
 	pair<Problem*, InfoTabu*> *local;
 
 	// Lista Tabu de movimentos repetidos
@@ -96,16 +96,16 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *info) 
 
 		if (parameters.explorationPolicy <= 0 || parameters.explorationPolicy >= 1) {
 			// Pega uma lista de todos os "vizinhos" de maxLocal
-			vizinhanca = maxLocal->localSearch();
+			neighborhood = maxLocal->localSearch();
 		} else {
 			// Pega uma parcela 'polExploracao' dos "vizinhos" de maxLocal
-			vizinhanca = maxLocal->localSearch(parameters.explorationPolicy);
+			neighborhood = maxLocal->localSearch(parameters.explorationPolicy);
 		}
 
 		// Escolhe a solucao de peso minimo
-		while (!vizinhanca->empty()) {
-			local = vizinhanca->back();
-			vizinhanca->pop_back();
+		while (!neighborhood->empty()) {
+			local = neighborhood->back();
+			neighborhood->pop_back();
 
 			// Se nao for tabu...
 			if (!isTabu(listaTabu, local->second)) {
@@ -149,16 +149,16 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *info) 
 				}
 			}
 		}
-		while (!vizinhanca->empty()) {
-			local = vizinhanca->back();
-			vizinhanca->pop_back();
+		while (!neighborhood->empty()) {
+			local = neighborhood->back();
+			neighborhood->pop_back();
 
 			delete local->first;
 			delete local->second;
 			delete local;
 		}
-		vizinhanca->clear();
-		delete vizinhanca;
+		neighborhood->clear();
+		delete neighborhood;
 	}
 	delete maxLocal;
 
@@ -172,7 +172,7 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *info) 
 	markSolutions(maxGlobal);
 
 	if (info != NULL) {
-		info->newSolutionsProduced = maxGlobal->size();
+		info->contribution = maxGlobal->size();
 	}
 
 	return maxGlobal;

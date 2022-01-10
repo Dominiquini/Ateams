@@ -37,8 +37,11 @@ public:
 
 	static double best;							// Melhor solucao do momento
 	static double worst;						// Pior solucao do momento
+
 	static unsigned int numInst;				// Quantidade de instancias criadas
 	static unsigned long long totalNumInst;		// Quantidade total de problemas processados
+
+	static unsigned int neighbors;				// Numero de permutacoes possiveis
 
 	// Le arquivo de dados de entrada
 	static void readProblemFromFile(char*);
