@@ -2,14 +2,11 @@
 
 using namespace std;
 
-pthread_mutexattr_t mutex_attr;
+pthread_mutex_t mutex_population = PTHREAD_MUTEX_INITIALIZER;	// Mutex que protege a populacao principal
+pthread_mutex_t mutex_counter = PTHREAD_MUTEX_INITIALIZER;		// Mutex que protege os contadores de novas solucoes
+pthread_mutex_t mutex_info = PTHREAD_MUTEX_INITIALIZER;			// Mutex que protege a impressao das informacoes da execucao
 
-pthread_mutex_t mutex_pop = PTHREAD_MUTEX_INITIALIZER;	// Mutex que protege a populacao principal
-pthread_mutex_t mutex_cont = PTHREAD_MUTEX_INITIALIZER;	// Mutex que protege as variaveis de criacao de novas solucoes
-pthread_mutex_t mutex_info = PTHREAD_MUTEX_INITIALIZER;	// Mutex que protege a impressao das informacoes da execucao
-pthread_mutex_t mutex_exec = PTHREAD_MUTEX_INITIALIZER;	// Mutex que protege as informacoes de execucao
-
-sem_t semaphore;			// Semaforo que controla o acesso dos algoritmos ao processador
+sem_t semaphore_executor;										// Semaforo que controla o acesso dos algoritmos ao processador
 
 Control* Control::getInstance(int argc, char **argv) {
 	if (instance == NULL) {
@@ -67,7 +64,7 @@ Control::Control(int argc, char **argv) {
 	this->graphicalOverview = new GraphicalOverview(this->showGraphicalOverview, this->argc, this->argv);
 
 	this->startTime = this->endTime = 0;
-	this->lastImprovedIteration = 0;
+	this->iterationsWithoutImprovement = 0;
 	this->executionCount = 0;
 	this->newSolutionsCount = 0;
 }
@@ -96,6 +93,7 @@ Control::~Control() {
 }
 
 HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
+	PopulationImprovement *populationImprovement = NULL;
 	vector<Problem*> *newSoluctions = NULL;
 	HeuristicExecutionInfo *info = NULL;
 	Heuristic *algorithm = NULL;
@@ -116,23 +114,21 @@ HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
 
 	newSoluctions = algorithm->start(solutions, info);
 
-	pthread_mutex_lock(&mutex_pop);
+	pthread_mutex_lock(&mutex_population);
 	{
-		executionCount++;
+		populationImprovement = insertNewSolutions(newSoluctions, true);
 
-		double oldBest = Problem::best;
-
-		insertNewSolutions(newSoluctions, true);
-
-		double newBest = Problem::best;
-
-		if (Problem::improvement(oldBest, newBest) > 0) {
-			lastImprovedIteration = 0;
+		if (populationImprovement->getImprovementOnBestSolution() > 0) {
+			iterationsWithoutImprovement = 0;
 		} else {
-			lastImprovedIteration++;
+			iterationsWithoutImprovement++;
 		}
+
+		delete populationImprovement;
+
+		executionCount++;
 	}
-	pthread_mutex_unlock(&mutex_pop);
+	pthread_mutex_unlock(&mutex_population);
 
 	newSoluctions->clear();
 	delete newSoluctions;
@@ -151,7 +147,11 @@ HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
 	return info;
 }
 
-void Control::insertNewSolutions(vector<Problem*> *newSolutions, bool autoTrim) {
+PopulationImprovement* Control::insertNewSolutions(vector<Problem*> *newSolutions, bool autoTrim) {
+	PopulationImprovement *populationImprovement = new PopulationImprovement();
+
+	populationImprovement->setOldFitness(Problem::best, Problem::worst);
+
 	for (vector<Problem*>::iterator it = newSolutions->begin(); it != newSolutions->end(); it++) {
 		if (!solutions->insert(*it).second) {
 			delete *it;
@@ -164,6 +164,10 @@ void Control::insertNewSolutions(vector<Problem*> *newSolutions, bool autoTrim) 
 
 	Problem::best = (*solutions->begin())->getFitness();
 	Problem::worst = (*solutions->rbegin())->getFitness();
+
+	populationImprovement->setNewFitness(Problem::best, Problem::worst);
+
+	return populationImprovement;
 }
 
 void Control::trimSolutions() {
@@ -325,7 +329,7 @@ inline void Control::setGraphicStatusInfoScreen(bool showGraphicalOverview) {
 }
 
 void Control::init() {
-	sem_init(&semaphore, 0, parameters.numThreads);
+	sem_init(&semaphore_executor, 0, parameters.numThreads);
 
 	/* Leitura dos dados passados por arquivos */
 	Problem::readProblemFromFile(getInputDataFile());
@@ -375,7 +379,7 @@ void Control::finish() {
 		}
 	}
 
-	sem_destroy(&semaphore);
+	sem_destroy(&semaphore_executor);
 }
 
 void Control::run() {
@@ -712,13 +716,13 @@ void* Control::pthrExecution(void *iteration) {
 
 	HeuristicExecutionInfo *inserted = NULL;
 
-	sem_wait(&semaphore);
+	sem_wait(&semaphore_executor);
 
 	if (STATUS == EXECUTING) {
 		inserted = ctrl->execute(iterationAteams->value);
 	}
 
-	sem_post(&semaphore);
+	sem_post(&semaphore_executor);
 
 	delete iterationAteams;
 
@@ -735,7 +739,7 @@ void* Control::pthrManagement(void *_) {
 		if (ctrl->parameters.maxExecutionTime != -1 && (int) difftime(rawtime, ctrl->startTime) > ctrl->parameters.maxExecutionTime)
 			STATUS = EXECUTION_TIMEOUT;
 
-		if (ctrl->parameters.attemptsWithoutImprovement != -1 && ctrl->lastImprovedIteration > ctrl->parameters.attemptsWithoutImprovement)
+		if (ctrl->parameters.attemptsWithoutImprovement != -1 && ctrl->iterationsWithoutImprovement > ctrl->parameters.attemptsWithoutImprovement)
 			STATUS = LACK_OF_IMPROVEMENT;
 
 		if (ctrl->parameters.maxSolutions != -1 && Problem::totalNumInst > (unsigned long long) ctrl->parameters.maxSolutions)

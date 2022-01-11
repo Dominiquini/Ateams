@@ -21,7 +21,7 @@ vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> 
 	set<Problem*>::const_iterator selection;
 	Problem *solBT;
 
-	pthread_mutex_lock(&mutex_pop);
+	pthread_mutex_lock(&mutex_population);
 
 	executionCounter++;
 
@@ -36,7 +36,7 @@ vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> 
 
 	solBT = Problem::copySolution(**selection);
 
-	pthread_mutex_unlock(&mutex_pop);
+	pthread_mutex_unlock(&mutex_population);
 
 	return exec(solBT, info);
 }

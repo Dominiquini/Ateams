@@ -45,6 +45,29 @@ struct ExecutionInfo {
 	unsigned long long exploredSolutions;
 };
 
+struct PopulationImprovement {
+	double oldBest, newBest;
+	double oldWorst, newWorst;
+
+	void setOldFitness(double best, double worst) {
+		oldBest = best;
+		oldWorst = worst;
+	}
+
+	void setNewFitness(double best, double worst) {
+		newBest = best;
+		newWorst = worst;
+	}
+
+	double getImprovementOnBestSolution() {
+		return Problem::improvement(oldBest, newBest);
+	}
+
+	double getImprovementOnWorstSolution() {
+		return Problem::improvement(oldWorst, newWorst);
+	}
+};
+
 struct AteamsParameters {
 	map<string, void*> keys = {
 			{"iterations", &iterations},
@@ -142,7 +165,7 @@ private:
 	vector<Heuristic*> *heuristics;								// Algoritmos disponiveis
 
 	time_t startTime, endTime = 0;		// Medidor do tempo inicial e final
-	int lastImprovedIteration = 0;		// Ultima iteracao em que houve melhora
+	int iterationsWithoutImprovement = 0;		// Ultima iteracao em que houve melhora
 	long executionCount = 0;			// Threads executadas
 	uintptr_t newSolutionsCount = 0;	// Numero de solucoes produzidas pelos algoritimos
 
@@ -159,7 +182,7 @@ private:
 	HeuristicExecutionInfo* execute(unsigned int executionId);
 
 	/* Adiciona um novo conjunto de solucoes a populacao corrente */
-	void insertNewSolutions(vector<Problem*> *newSolutions, bool autoTrim);
+	PopulationImprovement* insertNewSolutions(vector<Problem*> *newSolutions, bool autoTrim);
 
 	/* Remove soluções excedentes da população */
 	void trimSolutions();

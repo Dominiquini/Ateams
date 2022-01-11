@@ -10,7 +10,7 @@ using namespace std;
 #define HEURISTIC_NAME_MAX_LENGTH 16
 #define HEURISTIC_INFO_MAX_LENGTH 512
 
-extern pthread_mutex_t mutex_pop;
+extern pthread_mutex_t mutex_population;
 
 extern volatile TerminationInfo STATUS;
 

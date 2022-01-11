@@ -22,7 +22,7 @@ vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Probl
 	int initialPopulation = 0;
 	int solutionsCount = 0;
 
-	pthread_mutex_lock(&mutex_pop);
+	pthread_mutex_lock(&mutex_population);
 
 	initialPopulation = min(parameters.populationSize, (int) sol->size());
 
@@ -44,7 +44,7 @@ vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Probl
 
 	sort(popAG->begin(), popAG->end(), fnSortFitness);
 
-	pthread_mutex_unlock(&mutex_pop);
+	pthread_mutex_unlock(&mutex_population);
 
 	return exec(popAG, info);
 }
