@@ -79,11 +79,12 @@ PATTERN_PROJ_SRCS		= $(PATH_PROJ_SRC)%$(SRC_EXT)
 PATTERN_PROJ_HEADERS	= $(PATH_PROJ_SRC)%$(HEADER_EXT)
 PATTERN_PROJ_OBJS		= $(PATH_PROJ_BIN)%$(OBJ_EXT)
 
+BUILD_STAT_BIN_FILE		= .build_info
+
 NINJA_BUILD_FILE	= build.ninja
-NINJA_OUTPUTS		= .ninja_deps .ninja_log
+NINJA_OUTPUTS_FILE	= .ninja_deps .ninja_log
 
-PROFILE_OUTPUT = gmon.out
-
+PROFILE_OUTPUT_FILE	= gmon.out
 
 MKDIR = mkdir -p
 RM = rm -rf

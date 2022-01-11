@@ -3,6 +3,8 @@
 
 import collections
 import pathlib
+import pprint
+import pickle
 import signal
 import timeit
 import glob
@@ -13,7 +15,6 @@ import os
 import click
 import ninja_syntax
 
-
 PLATFORM = collections.namedtuple('PlatformInfo', ['windows_key', 'linux_key', 'is_windows', 'is_linux', 'system'])(windows_key := "WINDOWS", linux_key := "LINUX", is_windows := sys.platform == 'win32', is_linux := not is_windows, system := windows_key if is_windows else linux_key)
 
 PATH_SEPARATOR = os.path.sep
@@ -21,6 +22,8 @@ PATH_SEPARATOR = os.path.sep
 ROOT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 THIS_FILE = os.path.basename(__file__)
+
+LAST_BUILD_INFO_FILE = os.path.basename(f"{ROOT_FOLDER}{PATH_SEPARATOR}.build_info")
 
 NINJA_BUILD_FILE = os.path.basename(f"{ROOT_FOLDER}{PATH_SEPARATOR}build.ninja")
 
@@ -72,8 +75,36 @@ class NinjaFileWriter(ninja_syntax.Writer):
         super().close()
 
 
-def normalize_choice(options, choice, default=None):
-    return next((opt for opt in options if choice is not None and choice.casefold() in opt.casefold()), default)
+class BuildInfo:
+
+    def __init__(self, build_tool, build_mode):
+        self.platform = PLATFORM.system
+        self.build_tool = build_tool
+        self.build_mode = build_mode
+
+    def __str__(self):
+        return f"({self.platform}, {self.build_tool}, {self.build_mode})"
+
+    def write_on_file(self, file):
+        with open(file, 'wb') as info_file:
+            pickle.dump(self, info_file, pickle.DEFAULT_PROTOCOL)
+
+        return self
+
+    @classmethod
+    def load_from_file(cls, file):
+        if not os.path.exists(file):
+            return None
+        else: 
+            with open(file, 'rb') as info_file: return pickle.load(info_file)
+
+    @staticmethod
+    def compare(info1, info2):
+        return info1 is None or info2 is None or info1.platform != info2.platform or info1.build_tool != info2.build_tool or info1.build_mode != info2.build_mode
+
+
+def normalize_choice(options, choice, default=None, preprocessor=lambda e: e.casefold()):
+    return next((opt for opt in options if choice is not None and preprocessor(choice) in preprocessor(opt)), default)
 
 
 def truncate_number(number, decimals=0):
@@ -102,16 +133,19 @@ def ateams(ctx, execute, verbose, clear, pause):
 @ateams.command(context_settings=dict(ignore_unknown_options=True, help_option_names=['-h', '--help']))
 @click.option('-a', '--tool', type=click.Choice(BUILD_TOOLS.tools, case_sensitive=False), required=True, default=BUILD_TOOLS.default, help='Building Tool')
 @click.option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, help='Building Mode')
+@click.option('--rebuild', type=click.BOOL, is_flag=True, help='Force A Rebuild')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def build(config, tool, mode, extra_args):
+def build(config, tool, mode, rebuild, extra_args):
     """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
 
-    tool = normalize_choice(BUILD_TOOLS.tools, tool, BUILD_TOOLS.default)
-    mode = normalize_choice(BUILDING_MODES.modes, mode, BUILDING_MODES.default)
-
+    tool = normalize_choice(BUILD_TOOLS.tools, tool, BUILD_TOOLS.default, lambda e: e.casefold())
+    mode = normalize_choice(BUILDING_MODES.modes, mode, BUILDING_MODES.default, lambda e: e.casefold())
+    
     def __generate_ninja_build_file():
-        with NinjaFileWriter(ROOT_FOLDER + PATH_SEPARATOR + NINJA_BUILD_FILE) as ninja:
+        ninja_file = ROOT_FOLDER + PATH_SEPARATOR + NINJA_BUILD_FILE
+
+        with NinjaFileWriter(ninja_file) as ninja:
             ninja.comment(f"PLATFORM: {PLATFORM.system}")
 
             ninja.newline()
@@ -180,6 +214,17 @@ def build(config, tool, mode, extra_args):
 
             ninja.build(outputs="update", rule="generate", inputs=THIS_FILE, implicit=NINJA_BUILD_FILE)
 
+    def __update_timestamps_if_needed():
+        file = ROOT_FOLDER + PATH_SEPARATOR + LAST_BUILD_INFO_FILE
+
+        current_build = BuildInfo(tool, mode)
+
+        if rebuild or BuildInfo.compare(current_build, BuildInfo.load_from_file(file)):
+            for src in BASE_SRCS + PROJ_SRCS:
+                pathlib.Path(src).touch()
+
+        current_build.write_on_file(file)
+
     def __compose_command_line():
         command_line = tool
 
@@ -191,8 +236,10 @@ def build(config, tool, mode, extra_args):
 
         return command_line
 
-    def __build_ateams(cmd, change_to_root_folder=True):
+    def __build_ateams(cmd, change_to_root_folder=True, rebuild_if_needed=True):
         if change_to_root_folder: os.chdir(ROOT_FOLDER)
+
+        if rebuild_if_needed: __update_timestamps_if_needed()
 
         return timeit.repeat(stmt=lambda: os.system(cmd), repeat=1, number=1)[0] if config.execute else 0
 
@@ -229,20 +276,20 @@ def build(config, tool, mode, extra_args):
 def run(config, algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, debug, memcheck, extra_args):
     """A Wrapper For Running ATEAMS Algorithms"""
 
-    algorithm = normalize_choice(ALGORITHMS, algorithm)
+    algorithm = normalize_choice(ALGORITHMS, algorithm, None, lambda e: e.casefold())
 
-    parameters = normalize_choice(FILE_PARAMS, parameters, FILE_DEFAULT_PARAM)
-    input = normalize_choice(FILE_INPUTS[algorithm], input, FILE_DEFAULT_INPUTS[algorithm])
+    parameters = normalize_choice(FILE_PARAMS, parameters, FILE_DEFAULT_PARAM, lambda e: os.path.basename(e).casefold())
+    input = normalize_choice(FILE_INPUTS[algorithm], input, FILE_DEFAULT_INPUTS[algorithm], lambda e: os.path.basename(e).casefold())
 
     if result is None and write_output: result = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".res").name)
     if pop is None and write_output: pop = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".pop").name)
 
-    def __apply_execution_modifiers(command_line):
-        if debug and not memcheck: command_line = GDB_COMMAND + " " + command_line
-        if not debug and memcheck: command_line = VALGRIND_COMMAND + " " + command_line
+    def __apply_execution_modifiers(cmd):
+        if debug and not memcheck: cmd = GDB_COMMAND + " " + cmd
+        if not debug and memcheck: cmd = VALGRIND_COMMAND + " " + cmd
         if debug and memcheck: raise Exception("Don't Use '-d' And '-m' At Same Time!")
 
-        return command_line
+        return cmd
 
     def __compose_command_line(): 
         command_line = FILE_BINS[algorithm]
@@ -267,7 +314,7 @@ def run(config, algorithm, parameters, input, result, pop, write_output, show_cm
 
         return command_line
 
-    def __execute_ateams(cmd, repeat=1, change_to_root_folder=True):
+    def __execute_ateams(cmd, change_to_root_folder=True):
         if change_to_root_folder: os.chdir(ROOT_FOLDER)
 
         return timeit.repeat(stmt=lambda: os.system(cmd), repeat=repeat, number=1) if config.execute else [0] * repeat
@@ -278,7 +325,7 @@ def run(config, algorithm, parameters, input, result, pop, write_output, show_cm
 
     if config.verbose: click.echo(f"\n*** Command: '{command_line}' ***\n")
 
-    timers = __execute_ateams(command_line, repeat)
+    timers = __execute_ateams(command_line)
     total = sum(timers)
     average = total / len(timers)
 

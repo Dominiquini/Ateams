@@ -43,11 +43,13 @@ base:				Base
 
 clean:				COMMAND=clean
 clean:				--delete
+					$(RM) $(BUILD_STAT_BIN_FILE)
 
 purge:				COMMAND=purge
 purge:				--delete
-					$(RM) $(NINJA_OUTPUTS)
-					$(RM) $(PROFILE_OUTPUT)
+					$(RM) $(NINJA_OUTPUTS_FILE)
+					$(RM) $(BUILD_STAT_BIN_FILE)
+					$(RM) $(PROFILE_OUTPUT_FILE)
 
 --delete:
 					$(MAKE) -s $(COMMAND) -C $(PATH_BASE)
