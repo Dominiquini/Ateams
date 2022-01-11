@@ -33,7 +33,7 @@ BUILD_TOOLS = collections.namedtuple('BuildTools', ['tools', 'default'])(tools :
 
 BUILDING_MODES = collections.namedtuple('BuildModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
 
-CXXFLAGS = {BUILDING_MODES.modes[0]: "-Wall -pedantic -O3 -march=native -mtune=native -masm=intel", BUILDING_MODES.modes[1]: "-Wall -pedantic -O0 -g3 -march=native -mtune=native -masm=intel", BUILDING_MODES.modes[2]: "-Wall -pedantic -O0 -pg -march=native -mtune=native -masm=intel"}
+CXXFLAGS = {BUILDING_MODES.modes[0]: "-Wall -pedantic -pthread -O3 -march=native -mtune=native -masm=intel", BUILDING_MODES.modes[1]: "-Wall -pedantic -pthread -O0 -g3 -march=native -mtune=native -masm=intel", BUILDING_MODES.modes[2]: "-Wall -pedantic -pthread -O0 -pg -march=native -mtune=native -masm=intel"}
 
 LDFLAGS = {PLATFORM.windows_key: "-lpthread -lopengl32 -lGLU32 -lfreeglut -lxerces-c", PLATFORM.linux_key: "-lpthread -lGL -lGLU -lglut -lxerces-c"}
 
@@ -104,7 +104,7 @@ class BuildInfo:
 
 
 def normalize_choice(options, choice, default=None, preprocessor=lambda e: e.casefold()):
-    return next((opt for opt in options if choice is not None and preprocessor(choice) in preprocessor(opt)), default)
+    return default if choice is None else next((opt for opt in options if preprocessor(choice) in preprocessor(opt)), default)
 
 
 def truncate_number(number, decimals=0):
@@ -160,7 +160,7 @@ def build(config, tool, mode, rebuild, extra_args):
 
             ninja.newline()
 
-            ninja.rule(name="compile", command="g++ -MMD -MF $out.d $CXXFLAGS -c -o $out $in", description="COMPILE $out", deps="gcc", depfile="$out.d", pool=POOL_ASYNC.name)
+            ninja.rule(name="compile", command="g++ $CXXFLAGS -MMD -MF $out.d -c -o $out $in", description="COMPILE $out", deps="gcc", depfile="$out.d", pool=POOL_ASYNC.name)
 
             ninja.newline()
 

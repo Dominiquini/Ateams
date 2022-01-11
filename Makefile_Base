@@ -7,11 +7,11 @@ RANLIB = ranlib
 
 
 ifeq ($(DEBUG), true)
-  CXXFLAGS = -Wall -pedantic -O0 -g3 -march=native -mtune=native -masm=intel
+  CXXFLAGS = -Wall -pedantic -pthread -O0 -g3 -march=native -mtune=native -masm=intel
 else ifeq ($(PROFILE), true)
-  CXXFLAGS	= -Wall -pedantic -O0 -pg -march=native -mtune=native -masm=intel
+  CXXFLAGS	= -Wall -pedantic -pthread -O0 -pg -march=native -mtune=native -masm=intel
 else
-  CXXFLAGS	= -Wall -pedantic -O3 -march=native -mtune=native -masm=intel
+  CXXFLAGS	= -Wall -pedantic -pthread -O3 -march=native -mtune=native -masm=intel
 endif
 
 
