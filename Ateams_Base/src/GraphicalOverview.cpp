@@ -92,7 +92,7 @@ void GraphicalOverview::display() {
 	float linha = 1.4;
 	float coluna = -5;
 
-	pthread_mutex_lock(&mutex_info);
+	pthread_lock(&mutex_info);
 	{
 		for (list<HeuristicExecutionInfo*>::const_iterator iter = Heuristic::runningHeuristics->cbegin(); iter != Heuristic::runningHeuristics->cend() && STATUS == EXECUTING; iter++) {
 			glColor3f(1.0f, 0.0f, 0.0f);
@@ -112,7 +112,7 @@ void GraphicalOverview::display() {
 			}
 		}
 	}
-	pthread_mutex_unlock(&mutex_info);
+	pthread_unlock(&mutex_info);
 
 	glutSwapBuffers();
 

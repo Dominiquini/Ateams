@@ -21,7 +21,7 @@ vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Pro
 	set<Problem*>::const_iterator selection;
 	Problem *solSA;
 
-	pthread_mutex_lock(&mutex_population);
+	pthread_lock(&mutex_population);
 
 	executionCounter++;
 
@@ -36,7 +36,7 @@ vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Pro
 
 	solSA = Problem::copySolution(**selection);
 
-	pthread_mutex_unlock(&mutex_population);
+	pthread_unlock(&mutex_population);
 
 	return exec(solSA, info);
 }

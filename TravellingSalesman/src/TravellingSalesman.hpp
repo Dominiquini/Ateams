@@ -8,8 +8,7 @@ using namespace std;
 #ifndef _TravellingSalesman_
 #define _TravellingSalesman_
 
-class Solution_TravellingSalesman: public Solution {
-protected:
+struct Solution_TravellingSalesman: public Solution {
 
 	short int *ordemNodes;		// Ordem em que os itens serao alocados nas bolsas
 

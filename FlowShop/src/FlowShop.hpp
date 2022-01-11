@@ -8,8 +8,7 @@ using namespace std;
 #ifndef _FlowShop_
 #define _FlowShop_
 
-class Solution_FlowShop: public Solution {
-protected:
+struct Solution_FlowShop: public Solution {
 
 	short int *scaling;			// Solucao
 	short int ***staggering;	// Escalonamento nas maquinas - Grafico de Gant

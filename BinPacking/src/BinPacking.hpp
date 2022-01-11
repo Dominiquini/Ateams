@@ -8,8 +8,7 @@ using namespace std;
 #ifndef _BinPacking_
 #define _BinPacking_
 
-class Solution_BinPacking: public Solution {
-protected:
+struct Solution_BinPacking: public Solution {
 
 	short int *ordemItens;		// Ordem em que os itens serao alocados nas bolsas
 	short int *bins;			// Itens para cada uma das bolsas

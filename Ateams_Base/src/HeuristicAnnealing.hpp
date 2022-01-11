@@ -10,6 +10,7 @@ using namespace std;
 #define SIMULATED_ANNEALING_NAME "SimulatedAnnealing"
 
 struct SimulatedAnnealingParameters : HeuristicParameters {
+
 	map<string, void*> simulatedAnnealingKeys = {
 			{"probSA", &choiceProbability},
 			{"choicePolicySA", &choicePolicy},

@@ -10,6 +10,7 @@ using namespace std;
 #define TABU_SEARCH_NAME "TabuSearch"
 
 struct TabuSearchParameters : HeuristicParameters {
+
 	map<string, void*> tabuSearchKeys = {
 			{"probBT", &choiceProbability},
 			{"choicePolicyTS", &choicePolicy},

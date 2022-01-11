@@ -17,6 +17,7 @@ extern volatile TerminationInfo STATUS;
 class HeuristicExecutionInfo;
 
 struct HeuristicParameters {
+
 	map<string, void*> keys;
 
 	string name;
@@ -61,6 +62,10 @@ public:
 	static inline void allocateMemory();
 
 	static inline void deallocateMemory();
+
+	static inline void heuristicStarted(HeuristicExecutionInfo *info);
+
+	static inline void heuristicFinished(HeuristicExecutionInfo *info);
 
 	static bool sortingComparator(Heuristic *h1, Heuristic *h2) {
 		return h1->getParameters().choiceProbability < h2->getParameters().choiceProbability;
@@ -193,6 +198,16 @@ inline void Heuristic::deallocateMemory() {
 	runningHeuristics->clear();
 	delete runningHeuristics;
 	runningHeuristics = NULL;
+}
+
+inline void Heuristic::heuristicStarted(HeuristicExecutionInfo *info) {
+	allHeuristics->push_back(info);
+	runningHeuristics->push_back(info);
+}
+
+inline void Heuristic::heuristicFinished(HeuristicExecutionInfo *info) {
+	list<HeuristicExecutionInfo*>::iterator executed = find(runningHeuristics->begin(), runningHeuristics->end(), info);
+	runningHeuristics->erase(executed);
 }
 
 #endif

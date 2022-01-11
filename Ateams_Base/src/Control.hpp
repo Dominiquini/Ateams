@@ -25,8 +25,6 @@ using namespace std;
 
 #define BUFFER_SIZE 4096
 
-#define pthread_return(VALUE) pthread_exit((void*) VALUE) ; return (void*) VALUE ;
-
 extern volatile TerminationInfo STATUS;
 
 class ProgressBar;
@@ -36,6 +34,7 @@ class TabuSearch;
 class GeneticAlgorithm;
 
 struct ExecutionInfo {
+
 	double executionTime;
 	long executionCount;
 
@@ -46,6 +45,7 @@ struct ExecutionInfo {
 };
 
 struct PopulationImprovement {
+
 	double oldBest, newBest;
 	double oldWorst, newWorst;
 

@@ -10,6 +10,7 @@ using namespace std;
 #define GENETIC_ALGORITHM_NAME "GeneticAlgorithm"
 
 struct GeneticAlgorithmParameters : HeuristicParameters {
+
 	map<string, void*> geneticAlgorithmKeys = {
 			{"probAG", &choiceProbability},
 			{"choicePolicyGA", &choicePolicy},

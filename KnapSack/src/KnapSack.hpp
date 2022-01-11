@@ -8,8 +8,7 @@ using namespace std;
 #ifndef _KnapSack_
 #define _KnapSack_
 
-class Solucao_KnapSack: public Solution {
-protected:
+struct Solucao_KnapSack: public Solution {
 
 	short int *ordemItens;		// Solucao
 	short int limit;			// Ponto onde nao cabe mais itens

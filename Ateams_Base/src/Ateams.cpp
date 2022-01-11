@@ -72,9 +72,9 @@ int randomNumber(int min, int max) {
 	uniform_int_distribution<int> randomDistribution(min, max - 1);
 
 #if RANDOM_THREAD_SAFE
-	pthread_mutex_lock(&mutex_rand);
+	pthread_lock(&mutex_rand);
 	int rand = randomDistribution(randomEngine);
-	pthread_mutex_unlock(&mutex_rand);
+	pthread_unlock(&mutex_rand);
 #else
 	int rand = randomDistribution(randomEngine);
 #endif

@@ -251,6 +251,7 @@ BinPacking::BinPacking() : Problem::Problem() {
 	}
 
 	solution.bins = NULL;
+
 	calcFitness();
 }
 

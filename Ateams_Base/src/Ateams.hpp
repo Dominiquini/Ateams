@@ -35,15 +35,26 @@ using namespace std;
 #ifndef _ATEAMS_
 #define _ATEAMS_
 
-#ifdef _WIN32
-  #define fix_terminal() ios_base::sync_with_stdio(false);
+#ifdef WIN64
+  #define fix_terminal() ios_base::sync_with_stdio(false) ;
 #else
-  #define fix_terminal() ios_base::sync_with_stdio(true);
+  #define fix_terminal() ios_base::sync_with_stdio(true) ;
 #endif
 
-#define sleep_ms(milliseconds) usleep(milliseconds * 1000)
+#ifdef __linux__
+  #define PTHREAD_NORMAL_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
+  #define PTHREAD_ERRORCHECK_MUTEX_INITIALIZER PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP
+  #define PTHREAD_RECURSIVE_MUTEX_INITIALIZER PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+#endif
 
-#define beep() cout << BEEP_ASCII_CHAR
+#define pthread_return(VALUE) pthread_exit((void*) VALUE) ; return (void*) VALUE ;
+
+#define pthread_lock(MUTEX) if(pthread_mutex_lock(MUTEX) != 0) { throw "MUTEX_LOCK_ERROR: " quote(MUTEX) ; }
+#define pthread_unlock(MUTEX) if(pthread_mutex_unlock(MUTEX) != 0) { throw "MUTEX_UNLOCK_ERROR: " quote(MUTEX) ; }
+
+#define sleep_ms(milliseconds) usleep(milliseconds * 1000) ;
+
+#define beep() cout << BEEP_ASCII_CHAR ;
 
 #define quote(x) #x
 
@@ -74,6 +85,7 @@ enum TerminationInfo {
 
 template<typename T>
 struct PrimitiveWrapper {
+
 	static_assert(!is_pointer<T>::value, "T can't be a pointer!");
 	static_assert(is_arithmetic<T>::value, "T must be a primitive!");
 
@@ -85,6 +97,7 @@ struct PrimitiveWrapper {
 };
 
 struct ExecHeuristicsInfo {
+
 	unsigned int tabu = 0;
 	unsigned int genetic = 0;
 	unsigned int annealing = 0;
@@ -237,7 +250,6 @@ private:
 	int currentProgress;
 	int amountOfFiller;
 	int currUpdateVal;
-
 };
 
 #endif

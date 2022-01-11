@@ -17,10 +17,9 @@ enum ProblemType {
 	MINIMIZATION, MAXIMIZATION
 };
 
-class Solution {
-protected:
+struct Solution {
 
-	double fitness = -1;			// Fitness da solucao
+	double fitness = -1;								// Fitness da solucao
 
 	friend class Problem;
 
@@ -84,19 +83,19 @@ public:
 
 public:
 
-	ExecHeuristicsInfo heuristicsInfo;	// Algoritmos executados na solucao
+	ExecHeuristicsInfo heuristicsInfo;		// Algoritmos executados na solucao
 
 	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
-	Problem() {
-		pthread_mutex_lock(&mutex_counter);
+	Problem() noexcept(false) {
+		pthread_lock(&mutex_counter);
 		numInst++;
 		totalNumInst++;
-		pthread_mutex_unlock(&mutex_counter);
+		pthread_unlock(&mutex_counter);
 	}
-	virtual ~Problem() {
-		pthread_mutex_lock(&mutex_counter);
+	virtual ~Problem() noexcept(false) {
+		pthread_lock(&mutex_counter);
 		numInst--;
-		pthread_mutex_unlock(&mutex_counter);
+		pthread_unlock(&mutex_counter);
 	}
 
 	virtual bool calcFitness() = 0;		// Calcula o makespan

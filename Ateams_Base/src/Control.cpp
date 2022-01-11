@@ -2,11 +2,11 @@
 
 using namespace std;
 
-pthread_mutex_t mutex_population = PTHREAD_MUTEX_INITIALIZER;	// Mutex que protege a populacao principal
-pthread_mutex_t mutex_counter = PTHREAD_MUTEX_INITIALIZER;		// Mutex que protege os contadores de novas solucoes
-pthread_mutex_t mutex_info = PTHREAD_MUTEX_INITIALIZER;			// Mutex que protege a impressao das informacoes da execucao
+pthread_mutex_t mutex_population = PTHREAD_MUTEX_INITIALIZER;		// Mutex que protege a populacao principal
+pthread_mutex_t mutex_counter = PTHREAD_MUTEX_INITIALIZER;			// Mutex que protege os contadores de novas solucoes
+pthread_mutex_t mutex_info = PTHREAD_MUTEX_INITIALIZER;				// Mutex que protege a impressao das informacoes da execucao
 
-sem_t semaphore_executor;										// Semaforo que controla o acesso dos algoritmos ao processador
+sem_t semaphore_executor;											// Semaforo que controla o acesso dos algoritmos ao processador
 
 Control* Control::getInstance(int argc, char **argv) {
 	if (instance == NULL) {
@@ -95,27 +95,29 @@ Control::~Control() {
 HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
 	PopulationImprovement *populationImprovement = NULL;
 	vector<Problem*> *newSoluctions = NULL;
+
 	HeuristicExecutionInfo *info = NULL;
 	Heuristic *algorithm = NULL;
 
 	algorithm = selectRouletteWheel(heuristics, Heuristic::heuristicsProbabilitySum);
 	info = new HeuristicExecutionInfo(algorithm, executionId, pthread_self());
 
-	pthread_mutex_lock(&mutex_info);
+	pthread_lock(&mutex_info);
 	{
 		runningThreads++;
 
-		Heuristic::allHeuristics->push_back(info);
-		Heuristic::runningHeuristics->push_back(info);
+		Heuristic::heuristicStarted(info);
 
 		Control::printProgress(info);
 	}
-	pthread_mutex_unlock(&mutex_info);
+	pthread_unlock(&mutex_info);
 
 	newSoluctions = algorithm->start(solutions, info);
 
-	pthread_mutex_lock(&mutex_population);
+	pthread_lock(&mutex_population);
 	{
+		executionCount++;
+
 		populationImprovement = insertNewSolutions(newSoluctions, true);
 
 		if (populationImprovement->getImprovementOnBestSolution() > 0) {
@@ -125,24 +127,21 @@ HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
 		}
 
 		delete populationImprovement;
-
-		executionCount++;
 	}
-	pthread_mutex_unlock(&mutex_population);
+	pthread_unlock(&mutex_population);
 
 	newSoluctions->clear();
 	delete newSoluctions;
 
-	pthread_mutex_lock(&mutex_info);
+	pthread_lock(&mutex_info);
 	{
 		runningThreads--;
 
-		list<HeuristicExecutionInfo*>::iterator executed = find(Heuristic::runningHeuristics->begin(), Heuristic::runningHeuristics->end(), info);
-		Heuristic::runningHeuristics->erase(executed);
+		Heuristic::heuristicFinished(info);
 
 		Control::printProgress(info);
 	}
-	pthread_mutex_unlock(&mutex_info);
+	pthread_unlock(&mutex_info);
 
 	return info;
 }
@@ -501,7 +500,7 @@ void Control::printExecution() {
 
 	cout << endl << "Executions: " << executionCount << " (" << (100 * executionCount) / parameters.iterations << "%) " << endl << endl;
 
-	for (vector<Heuristic*>::reverse_iterator it = heuristics->rbegin(); it != heuristics->rend(); it++) {
+	for (vector<Heuristic*>::const_reverse_iterator it = heuristics->crbegin(); it != heuristics->crend(); it++) {
 		(*it)->printStatistics('-', executionCount);
 	}
 
@@ -695,10 +694,10 @@ void Control::printProgress(HeuristicExecutionInfo *heuristic) {
 		Control::buffer[0] = '\0';
 
 		if (!heuristic->isFinished()) {
-			snprintf(Control::buffer, BUFFER_SIZE, ">>> {%.3ld} ALG: %s | ....................... | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, runningThreads, execNames.c_str());
+			snprintf(Control::buffer, BUFFER_SIZE, ">>> {%.4ld} ALG: %s | ....................... | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, runningThreads, execNames.c_str());
 			color = COLOR_GREEN;
 		} else {
-			snprintf(Control::buffer, BUFFER_SIZE, "<<< {%.3ld} ALG: %s | FITNESS: %.6ld::%.6ld | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, (long) Problem::best, (long) Problem::worst, runningThreads, execNames.c_str());
+			snprintf(Control::buffer, BUFFER_SIZE, "<<< {%.4ld} ALG: %s | FITNESS: %.6ld::%.6ld | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, (long) Problem::best, (long) Problem::worst, runningThreads, execNames.c_str());
 			color = COLOR_YELLOW;
 		}
 

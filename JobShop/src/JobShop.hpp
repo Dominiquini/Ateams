@@ -8,8 +8,7 @@ using namespace std;
 #ifndef _JobShop_
 #define _JobShop_
 
-class Solution_JobShop: public Solution {
-protected:
+struct Solution_JobShop: public Solution {
 
 	short int **scaling;		// Solucao
 	short int ***staggering;	// Escalonamento nas maquinas - Grafico de Gant

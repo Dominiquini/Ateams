@@ -285,7 +285,6 @@ void Problem::deallocateMemory() {
 
 TravellingSalesman::TravellingSalesman() : Problem::Problem() {
 	solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1);
-	solution.fitness = -1;
 
 	if (randomPercentage() <= 20) { // Tenta uma solucao gulosa
 		int currentNode = randomNumber(0, nnodes);
@@ -329,7 +328,6 @@ TravellingSalesman::TravellingSalesman() : Problem::Problem() {
 
 TravellingSalesman::TravellingSalesman(short int *prob) : Problem::Problem() {
 	solution.ordemNodes = prob;
-	solution.fitness = -1;
 
 	calcFitness();
 }
@@ -361,8 +359,6 @@ TravellingSalesman::TravellingSalesman(const Problem &prob, int pos1, int pos2) 
 		solution.ordemNodes[nnodes] = solution.ordemNodes[0];
 	else if (pos1 == nnodes || pos2 == nnodes)
 		solution.ordemNodes[0] = solution.ordemNodes[nnodes];
-
-	solution.fitness = -1;
 
 	calcFitness();
 }

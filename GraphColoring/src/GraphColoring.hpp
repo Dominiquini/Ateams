@@ -8,8 +8,7 @@ using namespace std;
 #ifndef _GraphColoring_
 #define _GraphColoring_
 
-class Solution_GraphColoring: public Solution {
-protected:
+struct Solution_GraphColoring: public Solution {
 
 	short int *ordemNodes;		// Ordem em que os nos serao coloridos
 	short int *colors;			// Cores de cada um dos nos
