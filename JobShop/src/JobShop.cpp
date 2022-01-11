@@ -200,7 +200,7 @@ void Problem::deallocateMemory() {
 JobShop::JobShop() : Problem::Problem() {
 	solution.scaling = (short int**) allocateMatrix<short int>(2, nmaq, njob, 1);
 
-	if (randomNumber(0, 2) == 0) { // Tenta uma solucao gulosa
+	if (randomPercentage() <= 50) { // Tenta uma solucao gulosa
 		short int *aux_vet = (short int*) allocateMatrix<short int>(1, njob, 1, 1);
 		short int *aux_maq = (short int*) allocateMatrix<short int>(1, nmaq, 1, 1);
 

@@ -33,7 +33,7 @@ BUILD_TOOLS = collections.namedtuple('BuildTools', ['tools', 'default'])(tools :
 
 BUILDING_MODES = collections.namedtuple('BuildModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
 
-CXXFLAGS = {BUILDING_MODES.modes[0]: "-Wall -pedantic -pthread -O3 -march=native -mtune=native -masm=intel", BUILDING_MODES.modes[1]: "-Wall -pedantic -pthread -O0 -g3 -march=native -mtune=native -masm=intel", BUILDING_MODES.modes[2]: "-Wall -pedantic -pthread -O0 -pg -march=native -mtune=native -masm=intel"}
+CXXFLAGS = {BUILDING_MODES.modes[0]: "-Wall -pedantic -pthread -O3 -march=native", BUILDING_MODES.modes[1]: "-Wall -pedantic -pthread -O0 -g3 -march=native", BUILDING_MODES.modes[2]: "-Wall -pedantic -pthread -O0 -pg -march=native"}
 
 LDFLAGS = {PLATFORM.windows_key: "-lpthread -lopengl32 -lGLU32 -lfreeglut -lxerces-c", PLATFORM.linux_key: "-lpthread -lGL -lGLU -lglut -lxerces-c"}
 
@@ -51,7 +51,7 @@ PROJ_BINS = [obj.replace(".o", BIN_EXT) for obj in PROJ_OBJS]
 
 GDB_COMMAND = "gdb --args"
 
-VALGRIND_COMMAND = "valgrind --leak-check=full -s"
+VALGRIND_COMMANDS = {"memcheck": "valgrind --tool=memcheck --leak-check=full -s", "callgrind": "valgrind --tool=callgrind", "cachegrind": "valgrind --tool=cachegrind", "helgrind": "valgrind --tool=helgrind -s", "drd": "valgrind --tool=drd -s"}
 
 ALGORITHMS = ['BinPacking', 'FlowShop', 'GraphColoring', 'JobShop', 'KnapSack', 'TravellingSalesman']
 
@@ -269,11 +269,11 @@ def build(config, tool, mode, rebuild, extra_args):
 @click.option('-g', '--show-graphical-info', type=click.BOOL, is_flag=True, help='Show Graphical Overview')
 @click.option('-s', '--show-solution', type=click.BOOL, is_flag=True, help='Show Solution')
 @click.option('-n', '--repeat', type=click.INT, default=1, help='Repeat N Times')
-@click.option('-d', '--debug', type=click.BOOL, is_flag=True, help='Run With GDB')
-@click.option('-m', '--memcheck', type=click.BOOL, is_flag=True, help='Run With Valgrind')
+@click.option('--valgrind', type=click.Choice(VALGRIND_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With VALGRIND')
+@click.option('--debug', type=click.BOOL, is_flag=True, help='Run With GDB')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def run(config, algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, debug, memcheck, extra_args):
+def run(config, algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, debug, valgrind, extra_args):
     """A Wrapper For Running ATEAMS Algorithms"""
 
     algorithm = normalize_choice(ALGORITHMS, algorithm, None, lambda e: e.casefold())
@@ -285,9 +285,9 @@ def run(config, algorithm, parameters, input, result, pop, write_output, show_cm
     if pop is None and write_output: pop = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".pop").name)
 
     def __apply_execution_modifiers(cmd):
-        if debug and not memcheck: cmd = GDB_COMMAND + " " + cmd
-        if not debug and memcheck: cmd = VALGRIND_COMMAND + " " + cmd
-        if debug and memcheck: raise Exception("Don't Use '-d' And '-m' At Same Time!")
+        if debug and not valgrind: cmd = GDB_COMMAND + " " + cmd
+        if not debug and valgrind: cmd = VALGRIND_COMMANDS[valgrind] + " " + cmd
+        if debug and valgrind: raise Exception("Don't Use GDB And VALGRIND At Same Time!")
 
         return cmd
 

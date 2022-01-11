@@ -287,7 +287,7 @@ TravellingSalesman::TravellingSalesman() : Problem::Problem() {
 	solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1);
 	solution.fitness = -1;
 
-	if (randomNumber(0, 5) == 0) { // Tenta uma solucao gulosa
+	if (randomPercentage() <= 20) { // Tenta uma solucao gulosa
 		int currentNode = randomNumber(0, nnodes);
 		int nextNode = 0;
 		int position = 0;

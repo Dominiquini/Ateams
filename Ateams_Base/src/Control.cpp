@@ -4,10 +4,10 @@ using namespace std;
 
 pthread_mutexattr_t mutex_attr;
 
-pthread_mutex_t mutex_pop;	// Mutex que protege a populacao principal
-pthread_mutex_t mutex_cont;	// Mutex que protege as variaveis de criacao de novas solucoes
-pthread_mutex_t mutex_info;	// Mutex que protege a impressao das informacoes da execucao
-pthread_mutex_t mutex_exec;	// Mutex que protege as informacoes de execucao
+pthread_mutex_t mutex_pop = PTHREAD_MUTEX_INITIALIZER;	// Mutex que protege a populacao principal
+pthread_mutex_t mutex_cont = PTHREAD_MUTEX_INITIALIZER;	// Mutex que protege as variaveis de criacao de novas solucoes
+pthread_mutex_t mutex_info = PTHREAD_MUTEX_INITIALIZER;	// Mutex que protege a impressao das informacoes da execucao
+pthread_mutex_t mutex_exec = PTHREAD_MUTEX_INITIALIZER;	// Mutex que protege as informacoes de execucao
 
 sem_t semaphore;			// Semaforo que controla o acesso dos algoritmos ao processador
 
@@ -325,14 +325,6 @@ inline void Control::setGraphicStatusInfoScreen(bool showGraphicalOverview) {
 }
 
 void Control::init() {
-	pthread_mutexattr_init(&mutex_attr);
-	pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE);
-
-	pthread_mutex_init(&mutex_pop, &mutex_attr);
-	pthread_mutex_init(&mutex_cont, &mutex_attr);
-	pthread_mutex_init(&mutex_info, &mutex_attr);
-	pthread_mutex_init(&mutex_exec, &mutex_attr);
-
 	sem_init(&semaphore, 0, parameters.numThreads);
 
 	/* Leitura dos dados passados por arquivos */
@@ -384,13 +376,6 @@ void Control::finish() {
 	}
 
 	sem_destroy(&semaphore);
-
-	pthread_mutexattr_destroy(&mutex_attr);
-
-	pthread_mutex_destroy(&mutex_pop);
-	pthread_mutex_destroy(&mutex_cont);
-	pthread_mutex_destroy(&mutex_info);
-	pthread_mutex_destroy(&mutex_exec);
 }
 
 void Control::run() {

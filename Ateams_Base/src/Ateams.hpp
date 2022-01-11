@@ -49,6 +49,8 @@ using namespace std;
 
 #define RANDOM_TYPE -1
 
+#define RANDOM_THREAD_SAFE false
+
 #define DEFAULT_PROGRESS_SIZE 100
 #define DEFAULT_PROGRESS_COLOR COLOR_RED
 
@@ -97,6 +99,8 @@ struct ExecHeuristicsInfo {
 #elif (RANDOM_TYPE == -3)
   static random_device randomEngine;
 #endif
+
+bool randomBool();
 
 int randomPercentage();
 

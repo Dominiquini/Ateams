@@ -2,10 +2,10 @@
 
 using namespace std;
 
-extern pthread_mutex_t mutex_cont;
-
 #ifndef _PROBLEM_
 #define _PROBLEM_
+
+extern pthread_mutex_t mutex_cont;
 
 struct ExecutionInfo;
 

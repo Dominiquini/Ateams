@@ -2,9 +2,9 @@
 
 #include "Control.hpp"
 
-#include "Problem.hpp"
-
 using namespace std;
+
+pthread_mutex_t mutex_rand = PTHREAD_MUTEX_INITIALIZER;	// Mutex que protege a geracao de numeros aleatorios
 
 volatile TerminationInfo STATUS;
 
@@ -52,6 +52,10 @@ int main(int argc, char *argv[]) {
 	}
 }
 
+bool randomBool() {
+	return randomNumber(0, 2) == 1;
+}
+
 int randomPercentage() {
 	return randomNumber(0, 101);
 }
@@ -67,7 +71,15 @@ int randomNumber(int max) {
 int randomNumber(int min, int max) {
 	uniform_int_distribution<int> randomDistribution(min, max - 1);
 
-	return randomDistribution(randomEngine);
+#if RANDOM_THREAD_SAFE
+	pthread_mutex_lock(&mutex_rand);
+	int rand = randomDistribution(randomEngine);
+	pthread_mutex_unlock(&mutex_rand);
+#else
+	int rand = randomDistribution(randomEngine);
+#endif
+
+	return rand;
 }
 
 void internalSignalHandler(int signal) {
