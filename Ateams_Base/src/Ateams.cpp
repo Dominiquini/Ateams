@@ -73,7 +73,9 @@ int randomNumber(int min, int max) {
 
 #if RANDOM_THREAD_SAFE
 	pthread_lock(&mutex_rand);
+
 	int rand = randomDistribution(randomEngine);
+
 	pthread_unlock(&mutex_rand);
 #else
 	int rand = randomDistribution(randomEngine);

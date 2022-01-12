@@ -7,7 +7,7 @@
    populationSize = "100"
    maxPopulationSize = "-1"
    attemptsWithoutImprovement = "-1"
-   maxExecutionTime = "30"
+   maxExecutionTime = "60"
    maxSolutions = "-1"
    bestKnownFitness = "-1">
 
@@ -15,7 +15,7 @@
 
     <SimulatedAnnealing
        name = "SA"
-       probSA = "33"
+       probSA = "1"
        choicePolicySA = "100"
        elitismProbabilitySA = "0.25"
        maxIterationsSA = "50"
@@ -26,7 +26,7 @@
 
     <TabuSearch
        name = "TS"
-       probBT = "33"
+       probBT = "1"
        choicePolicyTS = "100"
        elitismProbabilityTS = "0.1"
        aspirationCriteriaTS = "0.5"
@@ -38,7 +38,7 @@
 
     <GeneticAlgorithm
        name = "GA"
-       probAG = "33"
+       probAG = "1"
        choicePolicyGA = "-1"
        iterationsGA = "50"
        populationSizeAG = "100"

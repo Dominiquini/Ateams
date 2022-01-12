@@ -1,34 +1,25 @@
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <signal.h>
+#include <unistd.h>
+
 #include <semaphore.h>
 #include <pthread.h>
-#include <stdarg.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <math.h>
 
-#include <functional>
-#include <exception>
-#include <algorithm>
 #include <iostream>
-#include <sstream>
-#include <fstream>
-#include <iomanip>
 #include <cstdlib>
-#include <cstdint>
-#include <limits>
-#include <vector>
-#include <bitset>
+#include <cstdarg>
+#include <cstdio>
+#include <cmath>
+
+#include <algorithm>
 #include <string>
-#include <chrono>
-#include <random>
-#include <cctype>
-#include <ctime>
+#include <vector>
+#include <array>
 #include <list>
-#include <map>
 #include <set>
+#include <map>
+
+#include <random>
+#include <chrono>
 
 using namespace std;
 
@@ -47,16 +38,16 @@ using namespace std;
   #define PTHREAD_RECURSIVE_MUTEX_INITIALIZER PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 #endif
 
-#define pthread_return(VALUE) pthread_exit((void*) VALUE) ; return (void*) VALUE ;
+#define pthread_return(value) pthread_exit((void*) value) ; return (void*) value ;
 
-#define pthread_lock(MUTEX) if(pthread_mutex_lock(MUTEX) != 0) { throw "MUTEX_LOCK_ERROR: " quote(MUTEX) ; }
-#define pthread_unlock(MUTEX) if(pthread_mutex_unlock(MUTEX) != 0) { throw "MUTEX_UNLOCK_ERROR: " quote(MUTEX) ; }
+#define pthread_lock(mutex) if(pthread_mutex_lock(mutex) != 0) { throw "MUTEX_LOCK_ERROR: " quote(mutex) ; }
+#define pthread_unlock(mutex) if(pthread_mutex_unlock(mutex) != 0) { throw "MUTEX_UNLOCK_ERROR: " quote(mutex) ; }
 
 #define sleep_ms(milliseconds) usleep(milliseconds * 1000) ;
 
-#define beep() cout << BEEP_ASCII_CHAR ;
+#define beep() cout << BEEP_ASCII_CHAR << flush;
 
-#define quote(x) #x
+#define quote(var) #var
 
 #define RANDOM_TYPE -1
 
