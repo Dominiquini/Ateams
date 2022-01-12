@@ -54,7 +54,7 @@ set<Problem*>::const_iterator GeneticAlgorithm::selectRouletteWheel(set<Problem*
 	int attemps = 0;
 
 	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.genetic == true) && (attemps++ < MAX_ATTEMPTS))
-		selection = Control::selectRouletteWheel(population, fitTotal);
+		selection = Control::selectOpportunisticSolution(population, fitTotal);
 
 	(*selection)->heuristicsInfo.genetic++;
 
@@ -115,10 +115,10 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 			temp = new pair<Problem*, Problem*>();
 
 			if (randomNumber() < RAND_MAX * parameters.mutationProbability && (int) bad_pop->size() > 0) {
-				iterProb = Control::selectRandom(bad_pop);
+				iterProb = Control::selectRandomSolution(bad_pop);
 				temp->first = *iterProb;
 			} else {
-				iterProb = Control::selectRouletteWheel(pop, sumP);
+				iterProb = Control::selectOpportunisticSolution(pop, sumP);
 				sumP -= (*iterProb)->getFitnessMaximize();
 				aux_pop->push_back(*iterProb);
 				temp->first = *iterProb;
@@ -126,10 +126,10 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 			}
 
 			if (randomNumber() < RAND_MAX * parameters.mutationProbability && (int) bad_pop->size() > 0) {
-				iterProb = Control::selectRandom(bad_pop);
+				iterProb = Control::selectRandomSolution(bad_pop);
 				temp->second = *iterProb;
 			} else {
-				iterProb = Control::selectRouletteWheel(pop, sumP);
+				iterProb = Control::selectOpportunisticSolution(pop, sumP);
 				sumP -= (*iterProb)->getFitnessMaximize();
 				aux_pop->push_back(*iterProb);
 				temp->second = *iterProb;

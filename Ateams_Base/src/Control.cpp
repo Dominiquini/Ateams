@@ -52,6 +52,7 @@ Control::Control(int argc, char **argv) {
 
 	this->solutions = new set<Problem*, bool (*)(Problem*, Problem*)>(fnSortSolution);
 
+	this->heuristicsProbabilitySum = 0;
 	this->heuristics = new vector<Heuristic*>();
 
 	this->readMainCMDParameters();
@@ -99,7 +100,7 @@ HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
 	HeuristicExecutionInfo *info = NULL;
 	Heuristic *algorithm = NULL;
 
-	algorithm = selectRouletteWheel(heuristics, Heuristic::heuristicsProbabilitySum);
+	algorithm = selectOpportunisticHeuristic(heuristics, heuristicsProbabilitySum);
 	info = new HeuristicExecutionInfo(algorithm, executionId, pthread_self());
 
 	pthread_lock(&mutex_info);
@@ -183,13 +184,13 @@ void Control::trimSolutions() {
 	Problem::worst = (*solutions->rbegin())->getFitness();
 }
 
-void Control::generatePopulation() {
+void Control::generateInitialPopulation() {
 	cout << endl;
 
 	loadingProgressBar->init(parameters.populationSize);
 
-	if (initialPopulation != NULL) {
-		for (list<Problem*>::iterator iter = initialPopulation->begin(); iter != initialPopulation->end(); iter++) {
+	if (savedPopulation != NULL) {
+		for (list<Problem*>::iterator iter = savedPopulation->begin(); iter != savedPopulation->end(); iter++) {
 			if ((int) solutions->size() >= parameters.populationSize || !solutions->insert(*iter).second) {
 				delete *iter;
 			}
@@ -334,9 +335,9 @@ void Control::init() {
 	Problem::readProblemFromFile(getInputDataFile());
 
 	/* Le memoria prinipal do disco, se especificado */
-	initialPopulation = Problem::readPopulationFromLog(getOutputLogFile());
+	savedPopulation = Problem::readPopulationFromLog(getOutputLogFile());
 
-	generatePopulation();
+	generateInitialPopulation();
 
 	cout << COLOR_CYAN;
 
@@ -356,8 +357,8 @@ void Control::finish() {
 
 	cout << COLOR_DEFAULT;
 
-	delete initialPopulation;
-	initialPopulation = NULL;
+	delete savedPopulation;
+	savedPopulation = NULL;
 
 	list<Problem*> *finalSolutions = getSolutions();
 
@@ -397,8 +398,12 @@ void Control::run() {
 	pthread_attr_init(&attrJoinable);
 	pthread_attr_setdetachstate(&attrJoinable, PTHREAD_CREATE_JOINABLE);
 
-	if (solutions->size() == 0) {
-		throw "No Initial Solution Found!";
+	if (solutions->empty()) {
+		throw string("No Initial Solution Found!");
+	}
+
+	if (heuristics->empty()) {
+		throw string("No Heuristics Defined!");
 	}
 
 	if (!showTextOverview) {
@@ -523,7 +528,7 @@ bool Control::insertHeuristic(Heuristic *alg, bool deleteIfNotInserted) {
 
 		heuristics->push_back(alg);
 
-		Heuristic::heuristicsProbabilitySum += alg->getParameters().choiceProbability;
+		heuristicsProbabilitySum += alg->getParameters().choiceProbability;
 	}
 
 	sort(heuristics->begin(), heuristics->end(), Heuristic::sortingComparator);
@@ -546,7 +551,7 @@ bool Control::removeHeuristic(Heuristic *alg, bool deleteIfRemoved) {
 
 			heuristics->erase(it);
 
-			Heuristic::heuristicsProbabilitySum -= alg->getParameters().choiceProbability;
+			heuristicsProbabilitySum -= alg->getParameters().choiceProbability;
 		}
 	}
 
@@ -566,7 +571,7 @@ void Control::clearHeuristics(bool deleteHeuristics) {
 		}
 	}
 
-	Heuristic::heuristicsProbabilitySum = 0;
+	heuristicsProbabilitySum = 0;
 
 	heuristics->clear();
 }
@@ -611,67 +616,66 @@ double Control::sumFitnessMinimize(vector<Problem*> *probs, int n) {
 	return sum;
 }
 
-set<Problem*>::const_iterator Control::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *probs, double fitTotal) {
-	// Armazena o fitness total da populacao
+vector<Problem*>::iterator Control::selectRandomSolution(vector<Problem*> *population) {
+	unsigned int randWheel = randomNumber(0, population->size());
+
+	vector<Problem*>::iterator iter = population->begin();
+
+	advance(iter, randWheel);
+
+	return iter;
+}
+
+set<Problem*>::const_iterator Control::selectOpportunisticSolution(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
 	unsigned int sum = (unsigned int) fitTotal;
-	// Um numero entre zero e "sum" e sorteado
 	unsigned int randWheel = randomNumber(0, sum);
 
 	set<Problem*>::const_iterator iter;
-	for (iter = probs->cbegin(); iter != probs->cend(); iter++) {
+	for (iter = population->cbegin(); iter != population->cend(); iter++) {
 		sum -= (int) (*iter)->getFitnessMaximize();
 		if (sum <= randWheel) {
 			return iter;
 		}
 	}
 
-	return (probs->begin());
+	return population->begin();
 }
 
-vector<Problem*>::const_iterator Control::selectRouletteWheel(vector<Problem*> *probs, double fitTotal) {
-	// Armazena o fitness total da populacao
+vector<Problem*>::const_iterator Control::selectOpportunisticSolution(vector<Problem*> *population, double fitTotal) {
 	unsigned int sum = (unsigned int) fitTotal;
-	// Um numero entre zero e "sum" e sorteado
 	unsigned int randWheel = randomNumber(0, sum);
 
 	vector<Problem*>::const_iterator iter;
-	for (iter = probs->cbegin(); iter != probs->cend(); iter++) {
+	for (iter = population->cbegin(); iter != population->cend(); iter++) {
 		sum -= (int) (*iter)->getFitnessMaximize();
 		if (sum <= randWheel) {
 			return iter;
 		}
 	}
 
-	return probs->begin();
+	return population->begin();
 }
 
-Heuristic* Control::selectRouletteWheel(vector<Heuristic*> *heuristic, unsigned int probTotal) {
-	if (heuristic == NULL || heuristic->size() == 0)
-		throw "No Heuristics Defined!";
+Heuristic* Control::selectOpportunisticHeuristic(vector<Heuristic*> *heuristics, unsigned int probTotal) {
+	if (heuristics == NULL || heuristics->size() == 0) {
+		throw string("No Heuristics Defined!");
+	}
 
 	// Armazena o fitness total da populacao
 	unsigned int sum = probTotal;
 	// Um numero entre zero e "sum" e sorteado
 	unsigned int randWheel = randomNumber(0, sum);
 
-	for (int i = 0; i < (int) heuristic->size(); i++) {
-		sum -= heuristic->at(i)->getParameters().choiceProbability;
+	for (int i = 0; i < (int) heuristics->size(); i++) {
+		sum -= heuristics->at(i)->getParameters().choiceProbability;
 		if (sum <= randWheel) {
-			return heuristic->at(i);
+			return heuristics->at(i);
 		}
 	}
 
-	return heuristic->at(0);
-}
+	throw string("No Heuristics Selected!");
 
-vector<Problem*>::iterator Control::selectRandom(vector<Problem*> *probs) {
-	unsigned int randWheel = randomNumber(0, probs->size());
-
-	vector<Problem*>::iterator iter = probs->begin();
-
-	advance(iter, randWheel);
-
-	return iter;
+	return heuristics->at(0);
 }
 
 list<Problem*>::iterator Control::findSolution(list<Problem*> *vect, Problem *p) {
@@ -773,6 +777,5 @@ int Control::runningThreads = 0;
 
 char Control::buffer[BUFFER_SIZE];
 
-int Heuristic::heuristicsProbabilitySum = 0;
 list<HeuristicExecutionInfo*> *Heuristic::allHeuristics = NULL;
 list<HeuristicExecutionInfo*> *Heuristic::runningHeuristics = NULL;

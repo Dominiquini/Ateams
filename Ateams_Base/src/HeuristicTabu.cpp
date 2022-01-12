@@ -46,7 +46,7 @@ set<Problem*>::const_iterator TabuSearch::selectRouletteWheel(set<Problem*, bool
 	int attemps = 0;
 
 	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.tabu == true) && (attemps++ < MAX_ATTEMPTS))
-		selection = Control::selectRouletteWheel(population, fitTotal);
+		selection = Control::selectOpportunisticSolution(population, fitTotal);
 
 	(*selection)->heuristicsInfo.tabu++;
 

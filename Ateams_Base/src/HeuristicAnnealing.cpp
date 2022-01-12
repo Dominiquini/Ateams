@@ -46,7 +46,7 @@ set<Problem*>::const_iterator SimulatedAnnealing::selectRouletteWheel(set<Proble
 	int attemps = 0;
 
 	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.annealing == true) && (attemps++ < MAX_ATTEMPTS))
-		selection = Control::selectRouletteWheel(population, fitTotal);
+		selection = Control::selectOpportunisticSolution(population, fitTotal);
 
 	(*selection)->heuristicsInfo.annealing++;
 

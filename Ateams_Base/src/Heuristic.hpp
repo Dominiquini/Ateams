@@ -54,8 +54,6 @@ struct HeuristicParameters {
 class Heuristic {
 public:
 
-	static int heuristicsProbabilitySum;							// Soma das probabilidades de todos os algoritimos
-
 	static list<HeuristicExecutionInfo*> *allHeuristics;			// Algoritmos executados ate o momento
 	static list<HeuristicExecutionInfo*> *runningHeuristics;		// Algoritmos em execucao no momento
 
@@ -178,15 +176,11 @@ private:
 };
 
 inline void Heuristic::allocateMemory() {
-	heuristicsProbabilitySum = 0;
-
 	allHeuristics = new list<HeuristicExecutionInfo*>;
 	runningHeuristics = new list<HeuristicExecutionInfo*>;
 }
 
 inline void Heuristic::deallocateMemory() {
-	heuristicsProbabilitySum = 0;
-
 	for (list<HeuristicExecutionInfo*>::iterator it = allHeuristics->begin(); it != allHeuristics->end(); it++) {
 		delete *it;
 	}

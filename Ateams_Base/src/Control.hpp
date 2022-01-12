@@ -130,13 +130,15 @@ public:
 	static double sumFitnessMinimize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n);
 	static double sumFitnessMinimize(vector<Problem*> *probs, int n);
 
-	/* Seleciona um individuo da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
-	static set<Problem*>::const_iterator selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *probs, double fitTotal);
-	static vector<Problem*>::const_iterator selectRouletteWheel(vector<Problem*> *probs, double fitTotal);
-	static Heuristic* selectRouletteWheel(vector<Heuristic*> *heuristc, unsigned int probTotal);
+	/* Seleciona uma solucao aleatoriamente */
+	static vector<Problem*>::iterator selectRandomSolution(vector<Problem*> *probs);
 
-	/* Seleciona um individuo aleatoriamente */
-	static vector<Problem*>::iterator selectRandom(vector<Problem*> *probs);
+	/* Seleciona uma solucao da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
+	static set<Problem*>::const_iterator selectOpportunisticSolution(set<Problem*, bool (*)(Problem*, Problem*)> *probs, double fitTotal);
+	static vector<Problem*>::const_iterator selectOpportunisticSolution(vector<Problem*> *probs, double fitTotal);
+
+	/* Seleciona uma heuristica da lista aleatoriamente, mas diretamente proporcional a sua prioridade */
+	static Heuristic* selectOpportunisticHeuristic(vector<Heuristic*> *heuristcs, unsigned int probTotal);
 
 	static list<Problem*>::iterator findSolution(list<Problem*> *vect, Problem *p);
 
@@ -159,9 +161,11 @@ private:
 
 	AteamsParameters parameters;
 
-	list<Problem*> *initialPopulation = NULL;	// Populacao inicial do arquivo de log
+	list<Problem*> *savedPopulation = NULL;	// Populacao inicial do arquivo de log
 
 	set<Problem*, bool (*)(Problem*, Problem*)> *solutions;		// Populacao principal
+
+	int heuristicsProbabilitySum;								// Soma das probabilidades de todos os algoritimos
 	vector<Heuristic*> *heuristics;								// Algoritmos disponiveis
 
 	time_t startTime, endTime = 0;		// Medidor do tempo inicial e final
@@ -188,7 +192,7 @@ private:
 	void trimSolutions();
 
 	/* Gera uma populacao inicial aleatoria com 'populationSize' elementos */
-	void generatePopulation();
+	void generateInitialPopulation();
 
 	/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
 	int findPosArgv(char **in, int num, char *key);
