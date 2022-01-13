@@ -141,7 +141,7 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo inf
 
 		fprintf(f, "%*d%*d", -16, (int) info.bestFitness, -16, (int) info.worstFitness);
 		fprintf(f, "%*d%*d%*d", -16, (int) info.executionCount, -16, (int) info.executionTime.count(), -24, (int) info.exploredSolutions);
-		fprintf(f, "%*s%s\n", -24, Utils::getFileName(string(dados)).c_str(), Utils::getFileName(string(parametros)).c_str());
+		fprintf(f, "%*s%s\n", -24, FileUtils::getFileName(string(dados)).c_str(), FileUtils::getFileName(string(parametros)).c_str());
 
 		fclose(f);
 	}
@@ -186,7 +186,7 @@ FlowShop::FlowShop() : Problem::Problem() {
 		solution.scaling[j] = j;
 	}
 
-	random_shuffle(&solution.scaling[0], &solution.scaling[njob], pointer_to_unary_function<int, int>(randomNumber));
+	random_shuffle(&solution.scaling[0], &solution.scaling[njob], pointer_to_unary_function<int, int>(Random::randomNumber));
 
 	solution.staggering = NULL;
 
@@ -313,11 +313,11 @@ inline void FlowShop::print(bool esc) {
 
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problem* FlowShop::neighbor() {
-	int p1 = randomNumber(0, njob), p2 = randomNumber(0, njob);
+	int p1 = Random::randomNumber(0, njob), p2 = Random::randomNumber(0, njob);
 	Problem *job = NULL;
 
 	while (p2 == p1)
-		p2 = randomNumber(0, njob);
+		p2 = Random::randomNumber(0, njob);
 
 	job = new FlowShop(*this, p1, p2);
 	if (job->getFitness() != -1) {
@@ -354,7 +354,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* FlowShop::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(randomNumber));
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(Random::randomNumber));
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
@@ -374,10 +374,10 @@ inline vector<pair<Problem*, InfoTabu*>*>* FlowShop::localSearch(float parcela) 
 		def = MAX_PERMUTATIONS;
 
 	for (int i = 0; i < def; i++) {
-		p1 = randomNumber(0, njob), p2 = randomNumber(0, njob);
+		p1 = Random::randomNumber(0, njob), p2 = Random::randomNumber(0, njob);
 
 		while (p2 == p1)
-			p2 = randomNumber(0, njob);
+			p2 = Random::randomNumber(0, njob);
 
 		job = new FlowShop(*this, p1, p2);
 		if (job->getFitness() != -1) {
@@ -405,7 +405,7 @@ inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem *parceiro, in
 
 	FlowShop *other = dynamic_cast<FlowShop*>(const_cast<Problem*>(parceiro));
 
-	inicioPart = randomNumber(0, njob);
+	inicioPart = Random::randomNumber(0, njob);
 	fimPart = inicioPart + particao <= njob ? inicioPart + particao : njob;
 
 	swap_vect(this->solution.scaling, other->solution.scaling, f1, inicioPart, fimPart - inicioPart);
@@ -425,7 +425,7 @@ inline pair<Problem*, Problem*>* FlowShop::crossOver(const Problem *parceiro, in
 
 	FlowShop *other = dynamic_cast<FlowShop*>(const_cast<Problem*>(parceiro));
 
-	particao = randomNumber(1, njob);
+	particao = Random::randomNumber(1, njob);
 
 	swap_vect(this->solution.scaling, other->solution.scaling, f1, 0, particao);
 	swap_vect(other->solution.scaling, this->solution.scaling, f2, 0, particao);

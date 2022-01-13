@@ -617,7 +617,7 @@ double Control::sumFitnessMinimize(vector<Problem*> *probs, int n) {
 }
 
 vector<Problem*>::iterator Control::selectRandomSolution(vector<Problem*> *population) {
-	unsigned int randWheel = randomNumber(0, population->size());
+	unsigned int randWheel = Random::randomNumber(0, population->size());
 
 	vector<Problem*>::iterator iter = population->begin();
 
@@ -628,7 +628,7 @@ vector<Problem*>::iterator Control::selectRandomSolution(vector<Problem*> *popul
 
 set<Problem*>::const_iterator Control::selectOpportunisticSolution(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
 	unsigned int sum = (unsigned int) fitTotal;
-	unsigned int randWheel = randomNumber(0, sum);
+	unsigned int randWheel = Random::randomNumber(0, sum);
 
 	set<Problem*>::const_iterator iter;
 	for (iter = population->cbegin(); iter != population->cend(); iter++) {
@@ -643,7 +643,7 @@ set<Problem*>::const_iterator Control::selectOpportunisticSolution(set<Problem*,
 
 vector<Problem*>::const_iterator Control::selectOpportunisticSolution(vector<Problem*> *population, double fitTotal) {
 	unsigned int sum = (unsigned int) fitTotal;
-	unsigned int randWheel = randomNumber(0, sum);
+	unsigned int randWheel = Random::randomNumber(0, sum);
 
 	vector<Problem*>::const_iterator iter;
 	for (iter = population->cbegin(); iter != population->cend(); iter++) {
@@ -661,10 +661,8 @@ Heuristic* Control::selectOpportunisticHeuristic(vector<Heuristic*> *heuristics,
 		throw string("No Heuristics Defined!");
 	}
 
-	// Armazena o fitness total da populacao
 	unsigned int sum = probTotal;
-	// Um numero entre zero e "sum" e sorteado
-	unsigned int randWheel = randomNumber(0, sum);
+	unsigned int randWheel = Random::randomNumber(0, sum);
 
 	for (int i = 0; i < (int) heuristics->size(); i++) {
 		sum -= heuristics->at(i)->getParameters().choiceProbability;
@@ -673,7 +671,7 @@ Heuristic* Control::selectOpportunisticHeuristic(vector<Heuristic*> *heuristics,
 		}
 	}
 
-	throw string("No Heuristics Selected!");
+	throw string("No Heuristic Selected!");
 
 	return heuristics->at(0);
 }

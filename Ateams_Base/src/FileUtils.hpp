@@ -2,10 +2,10 @@
 #include <string>
 #include <cctype>
 
-#ifndef _UTILS_
-#define _UTILS_
+#ifndef _FILE_UTILS_
+#define _FILE_UTILS_
 
-class Utils {
+class FileUtils {
 public:
 
 	/**

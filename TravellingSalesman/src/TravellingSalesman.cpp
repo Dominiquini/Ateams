@@ -245,7 +245,7 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo inf
 
 		fprintf(f, "%*d%*d", -16, (int) info.bestFitness, -16, (int) info.worstFitness);
 		fprintf(f, "%*d%*d%*d", -16, (int) info.executionCount, -16, (int) info.executionTime.count(), -24, (int) info.exploredSolutions);
-		fprintf(f, "%*s%s\n", -24, Utils::getFileName(string(dados)).c_str(), Utils::getFileName(string(parametros)).c_str());
+		fprintf(f, "%*s%s\n", -24, FileUtils::getFileName(string(dados)).c_str(), FileUtils::getFileName(string(parametros)).c_str());
 
 		fclose(f);
 	}
@@ -286,8 +286,8 @@ void Problem::deallocateMemory() {
 TravellingSalesman::TravellingSalesman() : Problem::Problem() {
 	solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1);
 
-	if (randomPercentage() <= 20) { // Tenta uma solucao gulosa
-		int currentNode = randomNumber(0, nnodes);
+	if (Random::randomPercentage() <= 20) { // Tenta uma solucao gulosa
+		int currentNode = Random::randomNumber(0, nnodes);
 		int nextNode = 0;
 		int position = 0;
 		double d = 0;
@@ -319,7 +319,7 @@ TravellingSalesman::TravellingSalesman() : Problem::Problem() {
 			solution.ordemNodes[i] = i;
 		}
 
-		random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], pointer_to_unary_function<int, int>(randomNumber));
+		random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], pointer_to_unary_function<int, int>(Random::randomNumber));
 		solution.ordemNodes[nnodes] = solution.ordemNodes[0];
 	}
 
@@ -406,11 +406,11 @@ inline void TravellingSalesman::print(bool esc) {
 
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problem* TravellingSalesman::neighbor() {
-	int p1 = randomNumber(0, nnodes + 1), p2 = randomNumber(0, nnodes + 1);
+	int p1 = Random::randomNumber(0, nnodes + 1), p2 = Random::randomNumber(0, nnodes + 1);
 	Problem *prob = NULL;
 
 	while (p2 == p1)
-		p2 = randomNumber(0, nnodes + 1);
+		p2 = Random::randomNumber(0, nnodes + 1);
 
 	prob = new TravellingSalesman(*this, p1, p2);
 	if (prob->getFitness() != -1) {
@@ -447,7 +447,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* TravellingSalesman::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(randomNumber));
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(Random::randomNumber));
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
@@ -467,10 +467,10 @@ inline vector<pair<Problem*, InfoTabu*>*>* TravellingSalesman::localSearch(float
 		def = MAX_PERMUTATIONS;
 
 	for (int i = 0; i < def; i++) {
-		p1 = randomNumber(0, nnodes + 1), p2 = randomNumber(0, nnodes + 1);
+		p1 = Random::randomNumber(0, nnodes + 1), p2 = Random::randomNumber(0, nnodes + 1);
 
 		while (p2 == p1)
-			p2 = randomNumber(0, nnodes + 1);
+			p2 = Random::randomNumber(0, nnodes + 1);
 
 		prob = new TravellingSalesman(*this, p1, p2);
 		if (prob->getFitness() != -1) {
@@ -498,7 +498,7 @@ inline pair<Problem*, Problem*>* TravellingSalesman::crossOver(const Problem *pa
 
 	TravellingSalesman *other = dynamic_cast<TravellingSalesman*>(const_cast<Problem*>(parceiro));
 
-	inicioPart = randomNumber(0, nnodes);
+	inicioPart = Random::randomNumber(0, nnodes);
 	fimPart = inicioPart + particao <= nnodes ? inicioPart + particao : nnodes;
 
 	swap_vect(this->solution.ordemNodes, other->solution.ordemNodes, f1, inicioPart, fimPart - inicioPart);
@@ -518,7 +518,7 @@ inline pair<Problem*, Problem*>* TravellingSalesman::crossOver(const Problem *pa
 
 	TravellingSalesman *other = dynamic_cast<TravellingSalesman*>(const_cast<Problem*>(parceiro));
 
-	particao = randomNumber(1, nnodes);
+	particao = Random::randomNumber(1, nnodes);
 
 	swap_vect(this->solution.ordemNodes, other->solution.ordemNodes, f1, 0, particao);
 	swap_vect(other->solution.ordemNodes, this->solution.ordemNodes, f2, 0, particao);

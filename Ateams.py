@@ -33,7 +33,7 @@ BUILD_TOOLS = collections.namedtuple('BuildTools', ['tools', 'default'])(tools :
 
 BUILDING_MODES = collections.namedtuple('BuildModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
 
-CXXFLAGS = {BUILDING_MODES.modes[0]: "-std=c++17 -pthread -Wall -pedantic -O3 -march=native", BUILDING_MODES.modes[1]: "-std=c++17 -pthread -Wall -pedantic -O0 -g3 -march=native", BUILDING_MODES.modes[2]: "-std=c++17 -pthread -Wall -pedantic -O0 -pg -march=native"}
+CXXFLAGS = {BUILDING_MODES.modes[0]: "-std=c++17 -pthread -O3 -march=native", BUILDING_MODES.modes[1]: "-std=c++17 -pthread -O0 -g3 -march=native", BUILDING_MODES.modes[2]: "-std=c++17 -pthread -O0 -pg -march=native"}
 
 LDFLAGS = {PLATFORM.windows_key: "-lopengl32 -lGLU32 -lfreeglut -lxerces-c", PLATFORM.linux_key: "-lGL -lGLU -lglut -lxerces-c"}
 

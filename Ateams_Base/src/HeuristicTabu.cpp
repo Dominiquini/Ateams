@@ -27,7 +27,7 @@ vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> 
 		executionCounter++;
 
 		// Escolhe a melhor solucao para ser usada pelo BT
-		if (parameters.choicePolicy == 0 || randomPercentage() < (100 * parameters.elitismProbability)) {
+		if (parameters.choicePolicy == 0 || Random::randomPercentage() < (100 * parameters.elitismProbability)) {
 			selection = sol->cbegin();
 		} else {
 			double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);

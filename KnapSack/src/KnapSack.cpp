@@ -168,7 +168,7 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo inf
 
 		fprintf(f, "%*d%*d", -16, (int) info.bestFitness, -16, (int) info.worstFitness);
 		fprintf(f, "%*d%*d%*d", -16, (int) info.executionCount, -16, (int) info.executionTime.count(), -24, (int) info.exploredSolutions);
-		fprintf(f, "%*s%s\n", -24, Utils::getFileName(string(dados)).c_str(), Utils::getFileName(string(parametros)).c_str());
+		fprintf(f, "%*s%s\n", -24, FileUtils::getFileName(string(dados)).c_str(), FileUtils::getFileName(string(parametros)).c_str());
 
 		fclose(f);
 	}
@@ -221,7 +221,7 @@ KnapSack::KnapSack() : Problem::Problem() {
 		solution.ordemItens[i] = i;
 	}
 
-	random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens], pointer_to_unary_function<int, int>(randomNumber));
+	random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens], pointer_to_unary_function<int, int>(Random::randomNumber));
 
 	solution.limit = -1;
 
@@ -339,7 +339,7 @@ inline void KnapSack::print(bool esc) {
 
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problem* KnapSack::neighbor() {
-	int p1 = randomNumber(0, solution.limit), p2 = randomNumber(solution.limit, nitens);
+	int p1 = Random::randomNumber(0, solution.limit), p2 = Random::randomNumber(solution.limit, nitens);
 	Problem *prob = NULL;
 
 	prob = new KnapSack(*this, p1, p2);
@@ -369,7 +369,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* KnapSack::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(randomNumber));
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(Random::randomNumber));
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
@@ -390,7 +390,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* KnapSack::localSearch(float parcela) 
 		def = MAX_PERMUTATIONS;
 
 	for (int i = 0; i < def; i++) {
-		p1 = randomNumber(0, solution.limit), p2 = randomNumber(solution.limit, numItens);
+		p1 = Random::randomNumber(0, solution.limit), p2 = Random::randomNumber(solution.limit, numItens);
 
 		prob = new KnapSack(*this, p1, p2);
 
@@ -415,7 +415,7 @@ inline pair<Problem*, Problem*>* KnapSack::crossOver(const Problem *parceiro, in
 
 	KnapSack *other = dynamic_cast<KnapSack*>(const_cast<Problem*>(parceiro));
 
-	inicioPart = randomNumber(0, nitens);
+	inicioPart = Random::randomNumber(0, nitens);
 	fimPart = inicioPart + particao <= nitens ? inicioPart + particao : nitens;
 
 	swap_vect(this->solution.ordemItens, other->solution.ordemItens, f1, inicioPart, fimPart - inicioPart);
@@ -435,7 +435,7 @@ inline pair<Problem*, Problem*>* KnapSack::crossOver(const Problem *parceiro, in
 
 	KnapSack *other = dynamic_cast<KnapSack*>(const_cast<Problem*>(parceiro));
 
-	particao = randomNumber(1, nitens);
+	particao = Random::randomNumber(1, nitens);
 
 	swap_vect(this->solution.ordemItens, other->solution.ordemItens, f1, 0, particao);
 	swap_vect(other->solution.ordemItens, this->solution.ordemItens, f2, 0, particao);

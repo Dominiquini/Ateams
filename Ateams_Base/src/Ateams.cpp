@@ -4,8 +4,6 @@
 
 using namespace std;
 
-mutex mutex_rand;								// Mutex que protege a geracao de numeros aleatorios
-
 volatile TerminationInfo STATUS;
 
 int main(int argc, char *argv[]) {
@@ -52,32 +50,6 @@ int main(int argc, char *argv[]) {
 
 		return -1;
 	}
-}
-
-bool randomBool() {
-	return randomNumber(0, 2) == 1;
-}
-
-int randomPercentage() {
-	return randomNumber(0, 101);
-}
-
-int randomNumber() {
-	return randomNumber(RAND_MAX);
-}
-
-int randomNumber(int max) {
-	return randomNumber(0, max);
-}
-
-int randomNumber(int min, int max) {
-	uniform_int_distribution<int> randomDistribution(min, max - 1);
-
-#if RANDOM_THREAD_SAFE
-	scoped_lock<decltype(mutex_rand)> lock_info_start(mutex_rand);
-#endif
-
-	return randomDistribution(randomEngine);
 }
 
 void internalSignalHandler(int signal) {

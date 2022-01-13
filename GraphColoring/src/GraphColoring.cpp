@@ -144,7 +144,7 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo inf
 
 		fprintf(f, "%*d%*d", -16, (int) info.bestFitness, -16, (int) info.worstFitness);
 		fprintf(f, "%*d%*d%*d", -16, (int) info.executionCount, -16, (int) info.executionTime.count(), -24, (int) info.exploredSolutions);
-		fprintf(f, "%*s%s\n", -24, Utils::getFileName(string(dados)).c_str(), Utils::getFileName(string(parametros)).c_str());
+		fprintf(f, "%*s%s\n", -24, FileUtils::getFileName(string(dados)).c_str(), FileUtils::getFileName(string(parametros)).c_str());
 
 		fclose(f);
 	}
@@ -189,7 +189,7 @@ GraphColoring::GraphColoring() : Problem::Problem() {
 		solution.ordemNodes[i] = i + 1;
 	}
 
-	random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], pointer_to_unary_function<int, int>(randomNumber));
+	random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], pointer_to_unary_function<int, int>(Random::randomNumber));
 
 	solution.colors = NULL;
 
@@ -308,11 +308,11 @@ inline void GraphColoring::print(bool esc) {
 
 /* Retorna um vizinho aleatorio da solucao atual. */
 inline Problem* GraphColoring::neighbor() {
-	int p1 = randomNumber(0, nnodes), p2 = randomNumber(0, nnodes);
+	int p1 = Random::randomNumber(0, nnodes), p2 = Random::randomNumber(0, nnodes);
 	Problem *prob = NULL;
 
 	while (p2 == p1)
-		p2 = randomNumber(0, nnodes);
+		p2 = Random::randomNumber(0, nnodes);
 
 	prob = new GraphColoring(*this, p1, p2);
 
@@ -341,7 +341,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* GraphColoring::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(randomNumber));
+	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(Random::randomNumber));
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
@@ -361,10 +361,10 @@ inline vector<pair<Problem*, InfoTabu*>*>* GraphColoring::localSearch(float parc
 		def = MAX_PERMUTATIONS;
 
 	for (int i = 0; i < def; i++) {
-		p1 = randomNumber(0, nnodes), p2 = randomNumber(0, nnodes);
+		p1 = Random::randomNumber(0, nnodes), p2 = Random::randomNumber(0, nnodes);
 
 		while (p2 == p1)
-			p2 = randomNumber(0, nnodes);
+			p2 = Random::randomNumber(0, nnodes);
 
 		prob = new GraphColoring(*this, p1, p2);
 
@@ -389,7 +389,7 @@ inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem *parceir
 
 	GraphColoring *other = dynamic_cast<GraphColoring*>(const_cast<Problem*>(parceiro));
 
-	inicioPart = randomNumber(0, nnodes);
+	inicioPart = Random::randomNumber(0, nnodes);
 	fimPart = inicioPart + particao <= nnodes ? inicioPart + particao : nnodes;
 
 	swap_vect(this->solution.ordemNodes, other->solution.ordemNodes, f1, inicioPart, fimPart - inicioPart);
@@ -409,7 +409,7 @@ inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem *parceir
 
 	GraphColoring *other = dynamic_cast<GraphColoring*>(const_cast<Problem*>(parceiro));
 
-	particao = randomNumber(1, nnodes);
+	particao = Random::randomNumber(1, nnodes);
 
 	swap_vect(this->solution.ordemNodes, other->solution.ordemNodes, f1, 0, particao);
 	swap_vect(other->solution.ordemNodes, this->solution.ordemNodes, f2, 0, particao);
