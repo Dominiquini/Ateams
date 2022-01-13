@@ -145,7 +145,9 @@ public:
 
 		this->contribution = 0;
 
-		configName();
+		configHeuristicName();
+
+		setupInfo("");
 	}
 
 	~HeuristicExecutionInfo() {
@@ -168,7 +170,7 @@ public:
 
 private:
 
-	inline void configName() {
+	inline void configHeuristicName() {
 		if (heuristic != NULL) {
 			snprintf(heuristicInfo, HEURISTIC_NAME_MAX_LENGTH, "%s(%04d)", heuristic->getParameters().name.c_str(), executionId);
 		}
