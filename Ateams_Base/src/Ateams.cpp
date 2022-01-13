@@ -3,6 +3,7 @@
 #include "Control.hpp"
 
 using namespace std;
+using namespace chrono;
 
 volatile TerminationInfo STATUS;
 
@@ -20,7 +21,7 @@ int main(int argc, char *argv[]) {
 
 		Control *ctrl;
 
-		ExecutionInfo executionTime;
+		ExecutionInfo *executionInfo;
 
 		for (int i = 0; i < 1; i++) {
 			ctrl = Control::getInstance(argc, argv);
@@ -35,10 +36,12 @@ int main(int argc, char *argv[]) {
 
 			ctrl->printExecution();
 
-			executionTime = Control::terminate();
+			executionInfo = Control::terminate();
 
-			cout << endl << endl << COLOR_GREEN << "Termination Reason: " << getTerminationInfo(STATUS) << " (" <<  executionTime.executionTime.count() << "s) " << COLOR_DEFAULT << endl << endl;
+			cout << endl << endl << COLOR_GREEN << "Termination Reason: " << getTerminationInfo(STATUS) << " (" <<  getExecutionTime(executionInfo->executionTime) << ") " << COLOR_DEFAULT << endl << endl;
 		}
+
+		delete executionInfo;
 
 		return 0;
 	} catch (...) {

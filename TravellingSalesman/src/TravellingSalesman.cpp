@@ -201,17 +201,17 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 	}
 }
 
-void Problem::writeCurrentPopulationInLog(char *log, list<Problem*> *popInicial) {
+void Problem::writeCurrentPopulationInLog(char *log, list<Problem*> *initialPopulation) {
 	FILE *f = fopen(log, "w");
 
 	if (f != NULL) {
-		int sizePop = (int) popInicial->size();
+		int sizePop = (int) initialPopulation->size();
 		list<Problem*>::iterator iter;
 		short int *ordem;
 
 		fprintf(f, "%d %d\n\n", sizePop, TravellingSalesman::nnodes);
 
-		for (iter = popInicial->begin(); iter != popInicial->end(); iter++) {
+		for (iter = initialPopulation->begin(); iter != initialPopulation->end(); iter++) {
 			TravellingSalesman *ts = dynamic_cast<TravellingSalesman*>(*iter);
 
 			ordem = ts->getSoluction().ordemNodes;
@@ -229,23 +229,23 @@ void Problem::writeCurrentPopulationInLog(char *log, list<Problem*> *popInicial)
 	}
 }
 
-void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo info, char *resultado) {
+void Problem::writeResultInFile(char *input, char *parameters, char *result, ExecutionInfo *info) {
 	FILE *f;
 
-	if (*resultado != '\0') {
-		if ((f = fopen(resultado, "r+")) != NULL) {
+	if (*result != '\0') {
+		if ((f = fopen(result, "r+")) != NULL) {
 			fseek(f, 0, SEEK_END);
 		} else {
-			f = fopen(resultado, "w");
+			f = fopen(result, "w");
 
 			fprintf(f, "%*s%*s", -16, "bestFitness", -16, "worstFitness");
-			fprintf(f, "%*s%*s%*s", -16, "numExecs", -16, "diffTime", -24, "expSol");
+			fprintf(f, "%*s%*s%*s", -16, "executions", -16, "diffTime", -24, "expSol");
 			fprintf(f, "%*s%s\n", -24, "input", "parameters");
 		}
 
-		fprintf(f, "%*d%*d", -16, (int) info.bestFitness, -16, (int) info.worstFitness);
-		fprintf(f, "%*d%*d%*d", -16, (int) info.executionCount, -16, (int) info.executionTime.count(), -24, (int) info.exploredSolutions);
-		fprintf(f, "%*s%s\n", -24, FileUtils::getFileName(string(dados)).c_str(), FileUtils::getFileName(string(parametros)).c_str());
+		fprintf(f, "%*d%*d", -16, (int) info->bestFitness, -16, (int) info->worstFitness);
+		fprintf(f, "%*d%*d%*d", -16, (int) info->executionCount, -16, (int) info->executionTime.count(), -24, (int) info->exploredSolutions);
+		fprintf(f, "%*s%s\n", -24, FileUtils::getFileName(string(input)).c_str(), FileUtils::getFileName(string(parameters)).c_str());
 
 		fclose(f);
 	}

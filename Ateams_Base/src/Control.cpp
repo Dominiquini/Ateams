@@ -41,8 +41,8 @@ Control* Control::getInstance(int argc, char **argv) {
 	return instance;
 }
 
-ExecutionInfo Control::terminate() {
-	ExecutionInfo executionInfo = instance->getExecutionInfo();
+ExecutionInfo* Control::terminate() {
+	ExecutionInfo *executionInfo = instance->getExecutionInfo();
 
 	delete instance;
 	instance = NULL;
@@ -385,13 +385,15 @@ void Control::finish() {
 	savedPopulation = NULL;
 
 	list<Problem*> *finalSolutions = getSolutions();
+	ExecutionInfo *executionInfo = getExecutionInfo();
 
 	/* Escreve solucao em arquivo no disco */
-	Problem::writeResultInFile(getInputDataFile(), getInputParameters(), getExecutionInfo(), getOutputResultFile());
+	Problem::writeResultInFile(getInputDataFile(), getInputParameters(), getOutputResultFile(), executionInfo);
 
 	/* Escreve memoria principal no disco */
 	Problem::writeCurrentPopulationInLog(getOutputLogFile(), finalSolutions);
 
+	delete executionInfo;
 	delete finalSolutions;
 
 	/* Testa a memoria principal por solucoes repetidas ou fora de ordem */
@@ -407,9 +409,9 @@ void Control::finish() {
 }
 
 void Control::run() {
-	STATUS = EXECUTING;
+	startTime = steady_clock::now();
 
-	startTime = system_clock::now();
+	STATUS = EXECUTING;
 
 	if (showTextOverview) {
 		cout << endl << flush;
@@ -452,7 +454,7 @@ void Control::run() {
 		executionProgressBar->end();
 	}
 
-	endTime = system_clock::now();
+	endTime = steady_clock::now();
 }
 
 list<Problem*>* Control::getSolutions() {
@@ -471,18 +473,8 @@ Problem* Control::getSolution(int n) {
 	return *iter;
 }
 
-ExecutionInfo Control::getExecutionInfo() {
-	ExecutionInfo info;
-
-	info.executionTime = endTime - startTime;
-	info.executionCount = executionCount;
-
-	info.worstFitness = Problem::worst;
-	info.bestFitness = Problem::best;
-
-	info.exploredSolutions = Problem::totalNumInst;
-
-	return info;
+ExecutionInfo* Control::getExecutionInfo() {
+	return new ExecutionInfo(startTime, endTime, executionCount);
 }
 
 void Control::printSolution() {
@@ -610,8 +602,9 @@ double Control::sumFitnessMinimize(vector<Problem*> *probs, int n) {
 	vector<Problem*>::const_iterator iter;
 	double sum = 0, i = 0;
 
-	for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
+	for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++) {
 		sum += (*iter)->getFitnessMinimize();
+	}
 
 	return sum;
 }
@@ -733,9 +726,7 @@ TerminationInfo Control::pthrManagement() {
 	while (STATUS == EXECUTING) {
 		sleep_ms(THREAD_MANAGEMENT_UPDATE_INTERVAL);
 
-		system_clock::time_point currentTime = system_clock::now();
-
-		if (ctrl->parameters.maxExecutionTime != -1 && duration_cast<chrono::seconds>(currentTime - ctrl->startTime).count() > ctrl->parameters.maxExecutionTime)
+		if (ctrl->parameters.maxExecutionTime != -1 && duration_cast<seconds>(steady_clock::now() - ctrl->startTime).count() > ctrl->parameters.maxExecutionTime)
 			STATUS = EXECUTION_TIMEOUT;
 
 		if (ctrl->parameters.attemptsWithoutImprovement != -1 && ctrl->iterationsWithoutImprovement > ctrl->parameters.attemptsWithoutImprovement)

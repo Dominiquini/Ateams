@@ -37,13 +37,23 @@ class GeneticAlgorithm;
 
 struct ExecutionInfo {
 
-	duration<double> executionTime;
+	milliseconds executionTime;
 	unsigned int executionCount;
 
 	double worstFitness;
 	double bestFitness;
 
 	unsigned long long exploredSolutions;
+
+	ExecutionInfo(steady_clock::time_point startTime, steady_clock::time_point endTime, int executionCount) {
+		this->executionTime = duration_cast<milliseconds>(endTime - startTime);
+		this->executionCount = executionCount;
+
+		this->worstFitness = Problem::worst;
+		this->bestFitness = Problem::best;
+
+		this->exploredSolutions = Problem::totalNumInst;
+	}
 };
 
 struct PopulationImprovement {
@@ -122,7 +132,7 @@ private:
 public:
 
 	static Control* getInstance(int argc, char **argv);
-	static ExecutionInfo terminate();
+	static ExecutionInfo* terminate();
 
 	static Heuristic* instantiateHeuristic(char *name);
 
@@ -173,7 +183,7 @@ private:
 	int heuristicsProbabilitySum;								// Soma das probabilidades de todos os algoritimos
 	vector<Heuristic*> *heuristics;								// Algoritmos disponiveis
 
-	system_clock::time_point startTime, endTime;				// Medidor do tempo inicial e final
+	steady_clock::time_point startTime, endTime;				// Medidor do tempo inicial e final
 	int iterationsWithoutImprovement = 0;						// Ultima iteracao em que houve melhora
 	int executionCount = 0;										// Threads executadas
 	int heuristicsSolutionsCount = 0;							// Numero de solucoes produzidas pelos algoritimos
@@ -224,7 +234,7 @@ public:
 	list<Problem*>* getSolutions();				// Retorna a populacao da memoria principal
 	Problem* getSolution(int n);				// Retorna a solucao n da memoria principal
 
-	ExecutionInfo getExecutionInfo();			// Retorna algumas informacoes da ultima execucao
+	ExecutionInfo* getExecutionInfo();			// Retorna algumas informacoes da ultima execucao
 
 	void printSolution();
 

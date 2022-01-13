@@ -31,6 +31,7 @@
 #include "Random.hpp"
 
 using namespace std;
+using namespace chrono;
 
 #ifndef _ATEAMS_
 #define _ATEAMS_
@@ -75,7 +76,7 @@ using namespace std;
 #define BEEP_ASCII_CHAR '\a'
 
 enum TerminationInfo {
-	EXECUTING, FINISHED_NORMALLY, INCOMPLETE, USER_SIGNALED, EXECUTION_TIMEOUT, LACK_OF_IMPROVEMENT, TOO_MANY_SOLUTIONS, RESULT_ACHIEVED
+	EXECUTING, FINISHED_NORMALLY, USER_SIGNALED, EXECUTION_TIMEOUT, LACK_OF_IMPROVEMENT, TOO_MANY_SOLUTIONS, RESULT_ACHIEVED
 };
 
 template<typename T>
@@ -121,8 +122,6 @@ inline string getTerminationInfo(TerminationInfo info) {
 			return "EXECUTING";
 		case FINISHED_NORMALLY:
 			return "FINISHED_NORMALLY";
-		case INCOMPLETE:
-			return "INCOMPLETE";
 		case USER_SIGNALED:
 			return "USER_SIGNALED";
 		case EXECUTION_TIMEOUT:
@@ -136,6 +135,10 @@ inline string getTerminationInfo(TerminationInfo info) {
 		default:
 			return "UNKNOWN";
 	}
+}
+
+inline string getExecutionTime(milliseconds duration) {
+	return to_string(duration_cast<seconds>(duration).count()) + 's';
 }
 
 class ProgressBar {
