@@ -1,6 +1,8 @@
 #include "Ateams.hpp"
 
 using namespace std;
+using namespace chrono;
+using namespace this_thread;
 
 #ifndef _CONTROL_
 #define _CONTROL_
@@ -35,8 +37,8 @@ class GeneticAlgorithm;
 
 struct ExecutionInfo {
 
-	double executionTime;
-	long executionCount;
+	duration<double> executionTime;
+	unsigned int executionCount;
 
 	double worstFitness;
 	double bestFitness;
@@ -120,9 +122,12 @@ private:
 public:
 
 	static Control* getInstance(int argc, char **argv);
-	static void terminate();
+	static ExecutionInfo terminate();
 
 	static Heuristic* instantiateHeuristic(char *name);
+
+	/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
+	static int findPosArgv(char **in, int num, char *key);
 
 	/* Retorna a soma de fitness de uma populacao */
 	static double sumFitnessMaximize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n);
@@ -168,10 +173,10 @@ private:
 	int heuristicsProbabilitySum;								// Soma das probabilidades de todos os algoritimos
 	vector<Heuristic*> *heuristics;								// Algoritmos disponiveis
 
-	time_t startTime, endTime = 0;			// Medidor do tempo inicial e final
-	int iterationsWithoutImprovement = 0;	// Ultima iteracao em que houve melhora
-	long executionCount = 0;				// Threads executadas
-	uintptr_t newSolutionsCount = 0;		// Numero de solucoes produzidas pelos algoritimos
+	system_clock::time_point startTime, endTime;				// Medidor do tempo inicial e final
+	int iterationsWithoutImprovement = 0;						// Ultima iteracao em que houve melhora
+	int executionCount = 0;										// Threads executadas
+	int heuristicsSolutionsCount = 0;							// Numero de solucoes produzidas pelos algoritimos
 
 	ProgressBar *loadingProgressBar;
 	ProgressBar *executionProgressBar;
@@ -193,9 +198,6 @@ private:
 
 	/* Gera uma populacao inicial aleatoria com 'populationSize' elementos */
 	void generateInitialPopulation();
-
-	/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
-	int findPosArgv(char **in, int num, char *key);
 
 	/* Leitura dos parametros passados por linha de comando */
 	void readMainCMDParameters();

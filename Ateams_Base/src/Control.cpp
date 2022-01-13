@@ -1,6 +1,27 @@
 #include "Control.hpp"
 
+#include <algorithm>
+#include <chrono>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <future>
+#include <iostream>
+#include <iterator>
+#include <list>
+#include <map>
+#include <mutex>
+#include <set>
+#include <string>
+#include <thread>
+#include <utility>
+#include <vector>
+
+#include "Semaphore.hpp"
+
 using namespace std;
+using namespace chrono;
+using namespace this_thread;
 
 mutex mutex_population;			// Mutex que protege a populacao principal
 mutex mutex_counter;			// Mutex que protege os contadores de novas solucoes
@@ -20,7 +41,9 @@ Control* Control::getInstance(int argc, char **argv) {
 	return instance;
 }
 
-void Control::terminate() {
+ExecutionInfo Control::terminate() {
+	ExecutionInfo executionInfo = instance->getExecutionInfo();
+
 	delete instance;
 	instance = NULL;
 
@@ -29,6 +52,8 @@ void Control::terminate() {
 	}
 
 	Problem::deallocateMemory();
+
+	return executionInfo;
 }
 
 Heuristic* Control::instantiateHeuristic(char *name) {
@@ -42,6 +67,15 @@ Heuristic* Control::instantiateHeuristic(char *name) {
 		return new TabuSearch();
 
 	return NULL;
+}
+
+int Control::findPosArgv(char **in, int num, char *key) {
+	for (int i = 0; i < num; i++) {
+		if (!strcmp(in[i], key))
+			return i + 1;
+	}
+
+	return -1;
 }
 
 Control::Control(int argc, char **argv) {
@@ -64,10 +98,9 @@ Control::Control(int argc, char **argv) {
 
 	this->graphicalOverview = new GraphicalOverview(this->showGraphicalOverview, this->argc, this->argv);
 
-	this->startTime = this->endTime = 0;
 	this->iterationsWithoutImprovement = 0;
 	this->executionCount = 0;
-	this->newSolutionsCount = 0;
+	this->heuristicsSolutionsCount = 0;
 }
 
 Control::~Control() {
@@ -101,7 +134,7 @@ HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
 	Heuristic *algorithm = NULL;
 
 	algorithm = selectOpportunisticHeuristic(heuristics, heuristicsProbabilitySum);
-	info = new HeuristicExecutionInfo(algorithm, executionId, this_thread::get_id());
+	info = new HeuristicExecutionInfo(algorithm, executionId, get_id());
 
 	{
 		scoped_lock<decltype(mutex_info)> lock_info_start(mutex_info);
@@ -226,21 +259,12 @@ void Control::generateInitialPopulation() {
 	return;
 }
 
-inline int Control::findPosArgv(char **in, int num, char *key) {
-	for (int i = 0; i < num; i++) {
-		if (!strcmp(in[i], key))
-			return i + 1;
-	}
-
-	return -1;
-}
-
 inline void Control::readMainCMDParameters() {
 	int p = -1;
 
 	Control::buffer[0] = '\0';
 
-	if ((p = findPosArgv(argv, *argc, (char*) "-p")) != -1) {
+	if ((p = Control::findPosArgv(argv, *argc, (char*) "-p")) != -1) {
 		strcpy(inputParameters, argv[p]);
 
 		cout << COLOR_GREEN << "Parameters File: " << inputParameters << COLOR_DEFAULT << endl;
@@ -252,7 +276,7 @@ inline void Control::readMainCMDParameters() {
 		strcat(Control::buffer, "Parameters File Cannot Be Empty! ");
 	}
 
-	if ((p = findPosArgv(argv, *argc, (char*) "-i")) != -1) {
+	if ((p = Control::findPosArgv(argv, *argc, (char*) "-i")) != -1) {
 		strcpy(inputDataFile, argv[p]);
 
 		cout << COLOR_GREEN << "Data File: " << inputDataFile << COLOR_DEFAULT << endl;
@@ -264,7 +288,7 @@ inline void Control::readMainCMDParameters() {
 		strcat(Control::buffer, "Data File Cannot Be Empty! ");
 	}
 
-	if ((p = findPosArgv(argv, *argc, (char*) "-r")) != -1) {
+	if ((p = Control::findPosArgv(argv, *argc, (char*) "-r")) != -1) {
 		strcpy(outputResultFile, argv[p]);
 
 		cout << COLOR_GREEN << "Result File: " << outputResultFile << COLOR_DEFAULT << endl;
@@ -274,7 +298,7 @@ inline void Control::readMainCMDParameters() {
 		cout << COLOR_YELLOW << "Result File: " << "---" << COLOR_DEFAULT << endl;
 	}
 
-	if ((p = findPosArgv(argv, *argc, (char*) "-t")) != -1) {
+	if ((p = Control::findPosArgv(argv, *argc, (char*) "-t")) != -1) {
 		strcpy(populationFile, argv[p]);
 
 		cout << COLOR_GREEN << "Population File: " << populationFile << COLOR_DEFAULT << endl;
@@ -290,10 +314,10 @@ inline void Control::readMainCMDParameters() {
 		Control::buffer[0] = '\0';
 	}
 
-	setPrintFullSolution(findPosArgv(argv, *argc, (char*) "-s") != -1);
+	setPrintFullSolution(Control::findPosArgv(argv, *argc, (char*) "-s") != -1);
 
-	setCMDStatusInfoScreen(findPosArgv(argv, *argc, (char*) "-c") != -1);
-	setGraphicStatusInfoScreen(findPosArgv(argv, *argc, (char*) "-g") != -1);
+	setCMDStatusInfoScreen(Control::findPosArgv(argv, *argc, (char*) "-c") != -1);
+	setGraphicStatusInfoScreen(Control::findPosArgv(argv, *argc, (char*) "-g") != -1);
 }
 
 inline void Control::readExtraCMDParameters() {
@@ -302,7 +326,7 @@ inline void Control::readExtraCMDParameters() {
 	for (map<string, void*>::const_iterator param = parameters.keys.begin(); param != parameters.keys.end(); param++) {
 		string cmdParameter = COMMAND_LINE_PARAMETER_SUFFIX + param->first;
 
-		if ((p = findPosArgv(argv, *argc, const_cast<char*>(cmdParameter.c_str()))) != -1) {
+		if ((p = Control::findPosArgv(argv, *argc, const_cast<char*>(cmdParameter.c_str()))) != -1) {
 			setParameter(param->first.c_str(), argv[p]);
 		}
 	}
@@ -385,7 +409,7 @@ void Control::finish() {
 void Control::run() {
 	STATUS = EXECUTING;
 
-	time(&startTime);
+	startTime = system_clock::now();
 
 	if (showTextOverview) {
 		cout << endl << flush;
@@ -418,7 +442,7 @@ void Control::run() {
 		HeuristicExecutionInfo *info = it->get();
 
 		if (info != NULL) {
-			newSolutionsCount += info->contribution;
+			heuristicsSolutionsCount += info->contribution;
 		}
 	}
 
@@ -428,7 +452,7 @@ void Control::run() {
 		executionProgressBar->end();
 	}
 
-	time(&endTime);
+	endTime = system_clock::now();
 }
 
 list<Problem*>* Control::getSolutions() {
@@ -450,7 +474,7 @@ Problem* Control::getSolution(int n) {
 ExecutionInfo Control::getExecutionInfo() {
 	ExecutionInfo info;
 
-	info.executionTime = difftime(endTime, startTime);
+	info.executionTime = endTime - startTime;
 	info.executionCount = executionCount;
 
 	info.worstFitness = Problem::worst;
@@ -477,7 +501,7 @@ void Control::printExecution() {
 	cout << endl << COLOR_BLUE;
 
 	cout << endl << "Explored Solutions: " << Problem::totalNumInst << endl;
-	cout << endl << "Returned Solutions: " << newSolutionsCount << endl;
+	cout << endl << "Returned Solutions: " << heuristicsSolutionsCount << endl;
 
 	cout << endl << "Executions: " << executionCount << " (" << (100 * executionCount) / parameters.iterations << "%) " << endl << endl;
 
@@ -674,10 +698,10 @@ void Control::printProgress(HeuristicExecutionInfo *heuristic) {
 		Control::buffer[0] = '\0';
 
 		if (!heuristic->isFinished()) {
-			snprintf(Control::buffer, BUFFER_SIZE, ">>> {%.4ld} ALG: %s | ....................... | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, runningThreads, execNames.c_str());
+			snprintf(Control::buffer, BUFFER_SIZE, ">>> {%.4d} ALG: %s | ....................... | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, runningThreads, execNames.c_str());
 			color = COLOR_GREEN;
 		} else {
-			snprintf(Control::buffer, BUFFER_SIZE, "<<< {%.4ld} ALG: %s | FITNESS: %.6ld::%.6ld | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, (long) Problem::best, (long) Problem::worst, runningThreads, execNames.c_str());
+			snprintf(Control::buffer, BUFFER_SIZE, "<<< {%.4d} ALG: %s | FITNESS: %.6ld::%.6ld | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, (long) Problem::best, (long) Problem::worst, runningThreads, execNames.c_str());
 			color = COLOR_YELLOW;
 		}
 
@@ -708,14 +732,12 @@ HeuristicExecutionInfo* Control::pthrExecution(unsigned int iteration) {
 TerminationInfo Control::pthrManagement() {
 	Control *ctrl = Control::instance;
 
-	time_t rawtime;
-
 	while (STATUS == EXECUTING) {
 		sleep_ms(THREAD_MANAGEMENT_UPDATE_INTERVAL);
 
-		time(&rawtime);
+		system_clock::time_point currentTime = system_clock::now();
 
-		if (ctrl->parameters.maxExecutionTime != -1 && (int) difftime(rawtime, ctrl->startTime) > ctrl->parameters.maxExecutionTime)
+		if (ctrl->parameters.maxExecutionTime != -1 && duration_cast<chrono::seconds>(currentTime - ctrl->startTime).count() > ctrl->parameters.maxExecutionTime)
 			STATUS = EXECUTION_TIMEOUT;
 
 		if (ctrl->parameters.attemptsWithoutImprovement != -1 && ctrl->iterationsWithoutImprovement > ctrl->parameters.attemptsWithoutImprovement)

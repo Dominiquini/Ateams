@@ -22,6 +22,8 @@ int main(int argc, char *argv[]) {
 
 		Control *ctrl;
 
+		ExecutionInfo executionTime;
+
 		for (int i = 0; i < 1; i++) {
 			ctrl = Control::getInstance(argc, argv);
 
@@ -35,9 +37,9 @@ int main(int argc, char *argv[]) {
 
 			ctrl->printExecution();
 
-			Control::terminate();
+			executionTime = Control::terminate();
 
-			cout << endl << endl << COLOR_GREEN << "Termination Reason: " << getTerminationInfo(STATUS) << COLOR_DEFAULT << endl << endl;
+			cout << endl << endl << COLOR_GREEN << "Termination Reason: " << getTerminationInfo(STATUS) << " (" <<  executionTime.executionTime.count() << "s) " << COLOR_DEFAULT << endl << endl;
 		}
 
 		return 0;

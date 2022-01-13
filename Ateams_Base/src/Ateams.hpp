@@ -15,6 +15,8 @@
 #include <cmath>
 
 #include <algorithm>
+#include <iterator>
+#include <utility>
 #include <string>
 #include <vector>
 #include <array>
@@ -24,6 +26,8 @@
 
 #include <random>
 #include <chrono>
+
+#include "Utils.hpp"
 
 using namespace std;
 
@@ -44,7 +48,7 @@ using namespace std;
   #define PTHREAD_RECURSIVE_MUTEX_INITIALIZER PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 #endif
 
-#define sleep_ms(milliseconds) usleep(milliseconds * 1000) ;
+#define sleep_ms(time) this_thread::sleep_for(chrono::milliseconds(time)) ;
 
 #define fix_terminal() ios_base::sync_with_stdio(IS_LINUX) ;
 

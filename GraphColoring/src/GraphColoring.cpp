@@ -143,8 +143,8 @@ void Problem::writeResultInFile(char *dados, char *parametros, ExecutionInfo inf
 		}
 
 		fprintf(f, "%*d%*d", -16, (int) info.bestFitness, -16, (int) info.worstFitness);
-		fprintf(f, "%*d%*d%*d", -16, (int) info.executionCount, -16, (int) info.executionTime, -24, (int) info.exploredSolutions);
-		fprintf(f, "%*s%s\n", -24, dados, parametros);
+		fprintf(f, "%*d%*d%*d", -16, (int) info.executionCount, -16, (int) info.executionTime.count(), -24, (int) info.exploredSolutions);
+		fprintf(f, "%*s%s\n", -24, Utils::getFileName(string(dados)).c_str(), Utils::getFileName(string(parametros)).c_str());
 
 		fclose(f);
 	}
