@@ -21,22 +21,22 @@ vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> 
 	set<Problem*>::const_iterator selection;
 	Problem *solBT;
 
-	pthread_lock(&mutex_population);
+	{
+		scoped_lock<decltype(mutex_population)> lock_population(mutex_population);
 
-	executionCounter++;
+		executionCounter++;
 
-	// Escolhe a melhor solucao para ser usada pelo BT
-	if (parameters.choicePolicy == 0 || randomPercentage() < (100 * parameters.elitismProbability)) {
-		selection = sol->cbegin();
-	} else {
-		double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
+		// Escolhe a melhor solucao para ser usada pelo BT
+		if (parameters.choicePolicy == 0 || randomPercentage() < (100 * parameters.elitismProbability)) {
+			selection = sol->cbegin();
+		} else {
+			double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
 
-		selection = selectRouletteWheel(sol, fitTotal);
+			selection = selectRouletteWheel(sol, fitTotal);
+		}
+
+		solBT = Problem::copySolution(**selection);
 	}
-
-	solBT = Problem::copySolution(**selection);
-
-	pthread_unlock(&mutex_population);
 
 	return exec(solBT, info);
 }

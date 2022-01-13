@@ -10,7 +10,7 @@ using namespace std;
 #define HEURISTIC_NAME_MAX_LENGTH 16
 #define HEURISTIC_INFO_MAX_LENGTH 512
 
-extern pthread_mutex_t mutex_population;
+extern mutex mutex_population;
 
 extern volatile TerminationInfo STATUS;
 
@@ -120,7 +120,7 @@ public:
 	Heuristic *heuristic;
 
 	unsigned int executionId;
-	uintptr_t threadId;
+	thread::id threadId;
 
 	char heuristicInfo[HEURISTIC_NAME_MAX_LENGTH];
 
@@ -132,7 +132,7 @@ public:
 
 	int contribution;
 
-	HeuristicExecutionInfo(Heuristic *heuristic, unsigned int executionId, uintptr_t threadId) {
+	HeuristicExecutionInfo(Heuristic *heuristic, unsigned int executionId, thread::id threadId) {
 		this->heuristic = heuristic;
 
 		this->executionId = executionId;

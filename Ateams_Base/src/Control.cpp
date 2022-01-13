@@ -2,11 +2,11 @@
 
 using namespace std;
 
-pthread_mutex_t mutex_population = PTHREAD_MUTEX_INITIALIZER;		// Mutex que protege a populacao principal
-pthread_mutex_t mutex_counter = PTHREAD_MUTEX_INITIALIZER;			// Mutex que protege os contadores de novas solucoes
-pthread_mutex_t mutex_info = PTHREAD_MUTEX_INITIALIZER;				// Mutex que protege a impressao das informacoes da execucao
+mutex mutex_population;			// Mutex que protege a populacao principal
+mutex mutex_counter;			// Mutex que protege os contadores de novas solucoes
+mutex mutex_info;				// Mutex que protege a impressao das informacoes da execucao
 
-sem_t semaphore_executor;											// Semaforo que controla o acesso dos algoritmos ao processador
+semaphore semaphore_executor;	// Semaforo que controla o acesso dos algoritmos ao processador
 
 Control* Control::getInstance(int argc, char **argv) {
 	if (instance == NULL) {
@@ -101,22 +101,23 @@ HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
 	Heuristic *algorithm = NULL;
 
 	algorithm = selectOpportunisticHeuristic(heuristics, heuristicsProbabilitySum);
-	info = new HeuristicExecutionInfo(algorithm, executionId, pthread_self());
+	info = new HeuristicExecutionInfo(algorithm, executionId, this_thread::get_id());
 
-	pthread_lock(&mutex_info);
 	{
+		scoped_lock<decltype(mutex_info)> lock_info_start(mutex_info);
+
 		runningThreads++;
 
 		Heuristic::heuristicStarted(info);
 
 		Control::printProgress(info);
 	}
-	pthread_unlock(&mutex_info);
 
 	newSoluctions = algorithm->start(solutions, info);
 
-	pthread_lock(&mutex_population);
 	{
+		scoped_lock<decltype(mutex_population)> lock_population(mutex_population);
+
 		executionCount++;
 
 		populationImprovement = insertNewSolutions(newSoluctions, true);
@@ -129,20 +130,19 @@ HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
 
 		delete populationImprovement;
 	}
-	pthread_unlock(&mutex_population);
 
 	newSoluctions->clear();
 	delete newSoluctions;
 
-	pthread_lock(&mutex_info);
 	{
+		scoped_lock<decltype(mutex_info)> lock_info_end(mutex_info);
+
 		runningThreads--;
 
 		Heuristic::heuristicFinished(info);
 
 		Control::printProgress(info);
 	}
-	pthread_unlock(&mutex_info);
 
 	return info;
 }
@@ -329,7 +329,7 @@ inline void Control::setGraphicStatusInfoScreen(bool showGraphicalOverview) {
 }
 
 void Control::init() {
-	sem_init(&semaphore_executor, 0, parameters.numThreads);
+	semaphore_executor.setup(parameters.numThreads);
 
 	/* Leitura dos dados passados por arquivos */
 	Problem::readProblemFromFile(getInputDataFile());
@@ -379,7 +379,7 @@ void Control::finish() {
 		}
 	}
 
-	sem_destroy(&semaphore_executor);
+	semaphore_executor.setup(0);
 }
 
 void Control::run() {
@@ -391,13 +391,6 @@ void Control::run() {
 		cout << endl << flush;
 	}
 
-	pthread_t *threads = (pthread_t*) malloc(parameters.iterations * sizeof(pthread_t));
-	pthread_t threadManagement;
-
-	pthread_attr_t attrJoinable;
-	pthread_attr_init(&attrJoinable);
-	pthread_attr_setdetachstate(&attrJoinable, PTHREAD_CREATE_JOINABLE);
-
 	if (solutions->empty()) {
 		throw string("No Initial Solution Found!");
 	}
@@ -406,50 +399,33 @@ void Control::run() {
 		throw string("No Heuristics Defined!");
 	}
 
-	if (!showTextOverview) {
-		executionProgressBar->init(parameters.iterations);
-	}
-
 	if (showGraphicalOverview) {
 		graphicalOverview->run();
 	}
 
-	if (pthread_create(&threadManagement, &attrJoinable, Control::pthrManagement, NULL) != 0) {
-		throw "Thread Creation Error! (pthrManagement)";
+	if (!showTextOverview) {
+		executionProgressBar->init(parameters.iterations);
 	}
 
-	for (int execAteams = 0; execAteams < parameters.iterations; execAteams++) {
-		PrimitiveWrapper<unsigned int> *iteration = new PrimitiveWrapper<unsigned int>(execAteams + 1);
+	future<TerminationInfo> management = async(launch::async, Control::pthrManagement);
 
-		if (pthread_create(&threads[execAteams], &attrJoinable, Control::pthrExecution, (void*) iteration) != 0) {
-			throw "Thread Creation Error! (pthrExecution)";
-		}
+	vector<future<HeuristicExecutionInfo*>> executions;
+	for (int execAteams = 1; execAteams <= parameters.iterations; execAteams++) {
+		executions.push_back(async(launch::async, Control::pthrExecution, execAteams));
 	}
 
-	for (uintptr_t execAteams = 0, *inserted = NULL; execAteams < (uintptr_t) parameters.iterations; execAteams++) {
-		pthread_join(threads[execAteams], (void**) &inserted);
-
-		HeuristicExecutionInfo *info = (HeuristicExecutionInfo*) inserted;
+	for (vector<future<HeuristicExecutionInfo*>>::iterator it = executions.begin(); it != executions.end(); it++) {
+		HeuristicExecutionInfo *info = it->get();
 
 		if (info != NULL) {
 			newSolutionsCount += info->contribution;
 		}
 	}
 
-	if (STATUS == EXECUTING) {
-		STATUS = (executionCount == parameters.iterations && (int) Heuristic::allHeuristics->size() == parameters.iterations) ? FINISHED_NORMALLY : INCOMPLETE;
-	}
+	STATUS = management.get();
 
-	pthread_join(threadManagement, NULL);
-
-	free(threads);
-
-	pthread_attr_destroy(&attrJoinable);
-
-	executionProgressBar->end();
-
-	if (showTextOverview) {
-		cout << PREVIOUS_LINE << flush;
+	if (!showTextOverview) {
+		executionProgressBar->end();
 	}
 
 	time(&endTime);
@@ -713,30 +689,30 @@ void Control::printProgress(HeuristicExecutionInfo *heuristic) {
 	}
 }
 
-void* Control::pthrExecution(void *iteration) {
+HeuristicExecutionInfo* Control::pthrExecution(unsigned int iteration) {
 	Control *ctrl = Control::instance;
-	PrimitiveWrapper<unsigned int> *iterationAteams = (PrimitiveWrapper<unsigned int>*) iteration;
 
 	HeuristicExecutionInfo *inserted = NULL;
 
-	sem_wait(&semaphore_executor);
+	semaphore_executor.wait();
 
 	if (STATUS == EXECUTING) {
-		inserted = ctrl->execute(iterationAteams->value);
+		inserted = ctrl->execute(iteration);
 	}
 
-	sem_post(&semaphore_executor);
+	semaphore_executor.notify();
 
-	delete iterationAteams;
-
-	pthread_return(inserted);
+	return inserted;
 }
 
-void* Control::pthrManagement(void *_) {
+TerminationInfo Control::pthrManagement() {
 	Control *ctrl = Control::instance;
+
 	time_t rawtime;
 
 	while (STATUS == EXECUTING) {
+		sleep_ms(THREAD_MANAGEMENT_UPDATE_INTERVAL);
+
 		time(&rawtime);
 
 		if (ctrl->parameters.maxExecutionTime != -1 && (int) difftime(rawtime, ctrl->startTime) > ctrl->parameters.maxExecutionTime)
@@ -751,10 +727,12 @@ void* Control::pthrManagement(void *_) {
 		if ((ctrl->parameters.bestKnownFitness != -1 ? Problem::improvement(ctrl->parameters.bestKnownFitness, Problem::best) : -1) >= 0)
 			STATUS = RESULT_ACHIEVED;
 
-		sleep_ms(THREAD_MANAGEMENT_UPDATE_INTERVAL);
+		if (ctrl->executionCount == ctrl->parameters.iterations && (int) Heuristic::allHeuristics->size() == ctrl->parameters.iterations) {
+			STATUS = FINISHED_NORMALLY;
+		}
 	}
 
-	pthread_return(NULL);
+	return STATUS;
 }
 
 inline string Heuristic::getHeuristicNames(list<HeuristicExecutionInfo*> *heuristicsList) {

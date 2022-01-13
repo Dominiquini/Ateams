@@ -7,7 +7,7 @@
 
 #define GRAPHICAL_BUFFER_SIZE 64
 
-extern pthread_mutex_t mutex_info;
+extern mutex mutex_info;
 
 extern volatile TerminationInfo STATUS;
 
@@ -16,7 +16,7 @@ private:
 
 	static char graphical_buffer[GRAPHICAL_BUFFER_SIZE];
 
-	static void* asyncRun(void*);
+	static void asyncRun(char*);
 
 	static void setup(char*);											// Cria e configura a tela
 	static void display();                                      		// Desenha a tela

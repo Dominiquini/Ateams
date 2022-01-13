@@ -22,29 +22,29 @@ vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Probl
 	int initialPopulation = 0;
 	int solutionsCount = 0;
 
-	pthread_lock(&mutex_population);
+	{
+		scoped_lock<decltype(mutex_population)> lock_population(mutex_population);
 
-	initialPopulation = min(parameters.populationSize, (int) sol->size());
+		initialPopulation = min(parameters.populationSize, (int) sol->size());
 
-	executionCounter++;
+		executionCounter++;
 
-	if (parameters.choicePolicy == 0) {
-		for (selection = sol->cbegin(), solutionsCount = 0; selection != sol->cend() && solutionsCount < initialPopulation; selection++, solutionsCount++) {
-			popAG->push_back(Problem::copySolution(**selection));
+		if (parameters.choicePolicy == 0) {
+			for (selection = sol->cbegin(), solutionsCount = 0; selection != sol->cend() && solutionsCount < initialPopulation; selection++, solutionsCount++) {
+				popAG->push_back(Problem::copySolution(**selection));
+			}
+		} else {
+			double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
+
+			for (solutionsCount = 0; solutionsCount < initialPopulation; solutionsCount++) {
+				selection = selectRouletteWheel(sol, fitTotal);
+
+				popAG->push_back(Problem::copySolution(**selection));
+			}
 		}
-	} else {
-		double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
 
-		for (solutionsCount = 0; solutionsCount < initialPopulation; solutionsCount++) {
-			selection = selectRouletteWheel(sol, fitTotal);
-
-			popAG->push_back(Problem::copySolution(**selection));
-		}
+		sort(popAG->begin(), popAG->end(), fnSortFitness);
 	}
-
-	sort(popAG->begin(), popAG->end(), fnSortFitness);
-
-	pthread_unlock(&mutex_population);
 
 	return exec(popAG, info);
 }

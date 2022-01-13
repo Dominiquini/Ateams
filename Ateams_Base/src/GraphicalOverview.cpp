@@ -24,23 +24,15 @@ GraphicalOverview::~GraphicalOverview() {
 
 void GraphicalOverview::run() {
 	if (enabled) {
-		pthread_t threadAnimation;
+		thread threadAnimation(GraphicalOverview::asyncRun, this->argv[0]);
 
-		pthread_attr_t attrDetached;
-		pthread_attr_init(&attrDetached);
-		pthread_attr_setdetachstate(&attrDetached, PTHREAD_CREATE_DETACHED);
-
-		if (pthread_create(&threadAnimation, &attrDetached, GraphicalOverview::asyncRun, (void*) this->argv[0]) != 0) {
-			throw "Thread Creation Error! (GraphicalOverview::asyncRun)";
-		}
-
-		pthread_attr_destroy(&attrDetached);
+		threadAnimation.detach();
 	}
 }
 
-void* GraphicalOverview::asyncRun(void *title) {
+void GraphicalOverview::asyncRun(char *title) {
 	if (STATUS == EXECUTING) {
-		GraphicalOverview::setup((char*) title);
+		GraphicalOverview::setup(title);
 
 		/* Inicia loop principal da janela de informações */
 		glutMainLoop();
@@ -48,8 +40,6 @@ void* GraphicalOverview::asyncRun(void *title) {
 		/* Finaliza loop principal da janela de informações */
 		glutLeaveMainLoop();
 	}
-
-	pthread_return(NULL);
 }
 
 void GraphicalOverview::setup(char *title) {
@@ -92,8 +82,9 @@ void GraphicalOverview::display() {
 	float linha = 1.4;
 	float coluna = -5;
 
-	pthread_lock(&mutex_info);
 	{
+		scoped_lock<decltype(mutex_counter)> lock_info(mutex_info);
+
 		for (list<HeuristicExecutionInfo*>::const_iterator iter = Heuristic::runningHeuristics->cbegin(); iter != Heuristic::runningHeuristics->cend() && STATUS == EXECUTING; iter++) {
 			glColor3f(1.0f, 0.0f, 0.0f);
 			GraphicalOverview::drawstr(coluna, linha + 0.4, GLUT_BITMAP_TIMES_ROMAN_24, "%s -> STATUS: %.2f %\n", (*iter)->heuristicInfo, (*iter)->status);
@@ -112,7 +103,6 @@ void GraphicalOverview::display() {
 			}
 		}
 	}
-	pthread_unlock(&mutex_info);
 
 	glutSwapBuffers();
 

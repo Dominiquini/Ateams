@@ -1,9 +1,13 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include <semaphore.h>
-#include <pthread.h>
+#include <thread>
+#include <future>
+#include <mutex>
+#include <condition_variable>
+#include "Semaphore.hpp"
 
+#include <type_traits>
 #include <iostream>
 #include <cstdlib>
 #include <cstdarg>
@@ -26,24 +30,23 @@ using namespace std;
 #ifndef _ATEAMS_
 #define _ATEAMS_
 
-#ifdef WIN64
-  #define fix_terminal() ios_base::sync_with_stdio(false) ;
-#else
-  #define fix_terminal() ios_base::sync_with_stdio(true) ;
+#if defined(_WIN64) || defined(WIN64)
+  #define IS_WINDOWS true
+  #define IS_LINUX false
+#elif defined(__linux__) || defined(__unix__)
+  #define IS_WINDOWS false
+  #define IS_LINUX true
 #endif
 
-#ifdef __linux__
+#if IS_LINUX
   #define PTHREAD_NORMAL_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
   #define PTHREAD_ERRORCHECK_MUTEX_INITIALIZER PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP
   #define PTHREAD_RECURSIVE_MUTEX_INITIALIZER PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 #endif
 
-#define pthread_return(value) pthread_exit((void*) value) ; return (void*) value ;
-
-#define pthread_lock(mutex) if(pthread_mutex_lock(mutex) != 0) { throw "MUTEX_LOCK_ERROR: " quote(mutex) ; }
-#define pthread_unlock(mutex) if(pthread_mutex_unlock(mutex) != 0) { throw "MUTEX_UNLOCK_ERROR: " quote(mutex) ; }
-
 #define sleep_ms(milliseconds) usleep(milliseconds * 1000) ;
+
+#define fix_terminal() ios_base::sync_with_stdio(IS_LINUX) ;
 
 #define beep() cout << BEEP_ASCII_CHAR << flush;
 

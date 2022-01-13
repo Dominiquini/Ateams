@@ -17,7 +17,7 @@ using namespace std;
 
 #define COMMAND_LINE_PARAMETER_SUFFIX "--"
 
-#define THREAD_MANAGEMENT_UPDATE_INTERVAL 1000
+#define THREAD_MANAGEMENT_UPDATE_INTERVAL 500
 
 #define WINDOW_WIDTH 1250
 #define WINDOW_HEIGHT 500
@@ -112,10 +112,10 @@ private:
 	static char buffer[BUFFER_SIZE];
 
 	/* Funcao que executa em multiplas threads e retorna o numero de solucoes inseridas */
-	static void* pthrExecution(void *iteration);
+	static HeuristicExecutionInfo* pthrExecution(unsigned int iteration);
 
 	/* Funcao que cotrola o tempo de execucao */
-	static void* pthrManagement(void *_);
+	static TerminationInfo pthrManagement();
 
 public:
 
@@ -168,10 +168,10 @@ private:
 	int heuristicsProbabilitySum;								// Soma das probabilidades de todos os algoritimos
 	vector<Heuristic*> *heuristics;								// Algoritmos disponiveis
 
-	time_t startTime, endTime = 0;		// Medidor do tempo inicial e final
-	int iterationsWithoutImprovement = 0;		// Ultima iteracao em que houve melhora
-	long executionCount = 0;			// Threads executadas
-	uintptr_t newSolutionsCount = 0;	// Numero de solucoes produzidas pelos algoritimos
+	time_t startTime, endTime = 0;			// Medidor do tempo inicial e final
+	int iterationsWithoutImprovement = 0;	// Ultima iteracao em que houve melhora
+	long executionCount = 0;				// Threads executadas
+	uintptr_t newSolutionsCount = 0;		// Numero de solucoes produzidas pelos algoritimos
 
 	ProgressBar *loadingProgressBar;
 	ProgressBar *executionProgressBar;

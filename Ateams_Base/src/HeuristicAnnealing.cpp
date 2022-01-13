@@ -21,22 +21,22 @@ vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Pro
 	set<Problem*>::const_iterator selection;
 	Problem *solSA;
 
-	pthread_lock(&mutex_population);
+	{
+		scoped_lock<decltype(mutex_population)> lock_population(mutex_population);
 
-	executionCounter++;
+		executionCounter++;
 
-	// Escolhe a melhor solucao para ser usada pelo SA
-	if (parameters.choicePolicy == 0 || randomPercentage() < (100 * parameters.elitismProbability)) {
-		selection = sol->cbegin();
-	} else {
-		double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
+		// Escolhe a melhor solucao para ser usada pelo SA
+		if (parameters.choicePolicy == 0 || randomPercentage() < (100 * parameters.elitismProbability)) {
+			selection = sol->cbegin();
+		} else {
+			double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
 
-		selection = selectRouletteWheel(sol, fitTotal);
+			selection = selectRouletteWheel(sol, fitTotal);
+		}
+
+		solSA = Problem::copySolution(**selection);
 	}
-
-	solSA = Problem::copySolution(**selection);
-
-	pthread_unlock(&mutex_population);
 
 	return exec(solSA, info);
 }

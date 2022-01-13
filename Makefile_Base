@@ -7,18 +7,18 @@ RANLIB = ranlib
 
 
 ifeq ($(DEBUG), true)
-  CXXFLAGS = -Wall -pedantic -pthread -O0 -g3 -march=native
+  CXXFLAGS = -std=c++17 -pthread -Wall -pedantic -O0 -g3 -march=native
 else ifeq ($(PROFILE), true)
-  CXXFLAGS	= -Wall -pedantic -pthread -O0 -pg -march=native
+  CXXFLAGS	= -std=c++17 -pthread -Wall -pedantic -O0 -pg -march=native
 else
-  CXXFLAGS	= -Wall -pedantic -pthread -O3 -march=native
+  CXXFLAGS	= -std=c++17 -pthread -Wall -pedantic -O3 -march=native
 endif
 
 
 ifeq ($(OS), Windows_NT)
-  LDFLAGS	= -lpthread -lopengl32 -lGLU32 -lfreeglut -lxerces-c
+  LDFLAGS	= -lopengl32 -lGLU32 -lfreeglut -lxerces-c
 else
-  LDFLAGS 	= -lpthread -lGL -lGLU -lglut -lxerces-c
+  LDFLAGS 	= -lGL -lGLU -lglut -lxerces-c
 endif
 
 

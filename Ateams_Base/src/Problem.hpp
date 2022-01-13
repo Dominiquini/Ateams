@@ -5,7 +5,7 @@ using namespace std;
 #ifndef _PROBLEM_
 #define _PROBLEM_
 
-extern pthread_mutex_t mutex_counter;
+extern mutex mutex_counter;
 
 struct ExecutionInfo;
 
@@ -87,15 +87,15 @@ public:
 
 	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
 	Problem() noexcept(false) {
-		pthread_lock(&mutex_counter);
+		scoped_lock<decltype(mutex_counter)> lock(mutex_counter);
+
 		numInst++;
 		totalNumInst++;
-		pthread_unlock(&mutex_counter);
 	}
 	virtual ~Problem() noexcept(false) {
-		pthread_lock(&mutex_counter);
+		scoped_lock<decltype(mutex_counter)> lock(mutex_counter);
+
 		numInst--;
-		pthread_unlock(&mutex_counter);
 	}
 
 	virtual bool calcFitness() = 0;		// Calcula o makespan
