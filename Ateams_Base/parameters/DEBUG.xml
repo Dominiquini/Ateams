@@ -30,9 +30,9 @@
        choicePolicyTS = "100"
        elitismProbabilityTS = "0.1"
        aspirationCriteriaTS = "0.5"
-       iterationsTS = "50"
+       iterationsTS = "25"
        attemptsWithoutImprovementTS = "25"
-       listSizeTS = "10"
+       listSizeTS = "25"
        explorationPolicyTS = "0.5">
     </TabuSearch>
 
@@ -40,7 +40,7 @@
        name = "GA"
        probAG = "1"
        choicePolicyGA = "-1"
-       iterationsGA = "50"
+       iterationsGA = "25"
        populationSizeAG = "100"
        partitionSizeAG = "-1"
        crossoverProbabilityAG = "0.8"

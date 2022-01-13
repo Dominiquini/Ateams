@@ -30,9 +30,9 @@ vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Pro
 		if (parameters.choicePolicy == 0 || Random::randomPercentage() < (100 * parameters.elitismProbability)) {
 			selection = sol->cbegin();
 		} else {
-			double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
+			double fitTotal = parameters.choicePolicy < 0 ? Problem::sumFitnessMaximize(sol, sol->size()) : Problem::sumFitnessMaximize(sol, parameters.choicePolicy);
 
-			selection = selectRouletteWheel(sol, fitTotal);
+			selection = selectOpportunisticSolution(sol, fitTotal);
 		}
 
 		solSA = Problem::copySolution(**selection);
@@ -41,12 +41,12 @@ vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Pro
 	return exec(solSA, info);
 }
 
-set<Problem*>::const_iterator SimulatedAnnealing::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
+set<Problem*>::const_iterator SimulatedAnnealing::selectOpportunisticSolution(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
 	set<Problem*>::const_iterator selection = population->cbegin();
 	int attemps = 0;
 
 	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.annealing == true) && (attemps++ < MAX_ATTEMPTS))
-		selection = Control::selectOpportunisticSolution(population, fitTotal);
+		selection = Problem::selectOpportunisticSolution(population, fitTotal);
 
 	(*selection)->heuristicsInfo.annealing++;
 

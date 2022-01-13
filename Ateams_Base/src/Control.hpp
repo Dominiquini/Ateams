@@ -139,24 +139,6 @@ public:
 	/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
 	static int findPosArgv(char **in, int num, char *key);
 
-	/* Retorna a soma de fitness de uma populacao */
-	static double sumFitnessMaximize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n);
-	static double sumFitnessMaximize(vector<Problem*> *probs, int n);
-	static double sumFitnessMinimize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n);
-	static double sumFitnessMinimize(vector<Problem*> *probs, int n);
-
-	/* Seleciona uma solucao aleatoriamente */
-	static vector<Problem*>::iterator selectRandomSolution(vector<Problem*> *probs);
-
-	/* Seleciona uma solucao da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
-	static set<Problem*>::const_iterator selectOpportunisticSolution(set<Problem*, bool (*)(Problem*, Problem*)> *probs, double fitTotal);
-	static vector<Problem*>::const_iterator selectOpportunisticSolution(vector<Problem*> *probs, double fitTotal);
-
-	/* Seleciona uma heuristica da lista aleatoriamente, mas diretamente proporcional a sua prioridade */
-	static Heuristic* selectOpportunisticHeuristic(vector<Heuristic*> *heuristcs, unsigned int probTotal);
-
-	static list<Problem*>::iterator findSolution(list<Problem*> *vect, Problem *p);
-
 	static void printProgress(HeuristicExecutionInfo *heuristic);
 
 private:

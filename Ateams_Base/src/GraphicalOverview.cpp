@@ -83,7 +83,7 @@ void GraphicalOverview::display() {
 	float coluna = -5;
 
 	{
-		scoped_lock<decltype(mutex_counter)> lock_info(mutex_info);
+		scoped_lock<decltype(mutex_info)> lock_info(mutex_info);
 
 		for (list<HeuristicExecutionInfo*>::const_iterator iter = Heuristic::runningHeuristics->cbegin(); iter != Heuristic::runningHeuristics->cend() && STATUS == EXECUTING; iter++) {
 			glColor3f(1.0f, 0.0f, 0.0f);

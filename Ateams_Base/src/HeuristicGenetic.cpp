@@ -34,10 +34,10 @@ vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Probl
 				popAG->push_back(Problem::copySolution(**selection));
 			}
 		} else {
-			double fitTotal = parameters.choicePolicy < 0 ? Control::sumFitnessMaximize(sol, sol->size()) : Control::sumFitnessMaximize(sol, parameters.choicePolicy);
+			double fitTotal = parameters.choicePolicy < 0 ? Problem::sumFitnessMaximize(sol, sol->size()) : Problem::sumFitnessMaximize(sol, parameters.choicePolicy);
 
 			for (solutionsCount = 0; solutionsCount < initialPopulation; solutionsCount++) {
-				selection = selectRouletteWheel(sol, fitTotal);
+				selection = selectOpportunisticSolution(sol, fitTotal);
 
 				popAG->push_back(Problem::copySolution(**selection));
 			}
@@ -49,12 +49,12 @@ vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Probl
 	return exec(popAG, info);
 }
 
-set<Problem*>::const_iterator GeneticAlgorithm::selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
+set<Problem*>::const_iterator GeneticAlgorithm::selectOpportunisticSolution(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
 	set<Problem*>::const_iterator selection = population->cbegin();
 	int attemps = 0;
 
 	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.genetic == true) && (attemps++ < MAX_ATTEMPTS))
-		selection = Control::selectOpportunisticSolution(population, fitTotal);
+		selection = Problem::selectOpportunisticSolution(population, fitTotal);
 
 	(*selection)->heuristicsInfo.genetic++;
 
@@ -108,17 +108,17 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 
 		numCrossOver = (int) ((float) pop->size() * parameters.crossoverProbability);
 
-		sumP = Control::sumFitnessMaximize(pop, pop->size());
+		sumP = Problem::sumFitnessMaximize(pop, pop->size());
 
 		/* Escolhe os casais de 'pop' que se cruzarao */
 		for (int j = 0; j < numCrossOver / 2; j++) {
 			temp = new pair<Problem*, Problem*>();
 
 			if (Random::randomNumber() < RAND_MAX * parameters.mutationProbability && (int) bad_pop->size() > 0) {
-				iterProb = Control::selectRandomSolution(bad_pop);
+				iterProb = Problem::selectRandomSolution(bad_pop);
 				temp->first = *iterProb;
 			} else {
-				iterProb = Control::selectOpportunisticSolution(pop, sumP);
+				iterProb = Problem::selectOpportunisticSolution(pop, sumP);
 				sumP -= (*iterProb)->getFitnessMaximize();
 				aux_pop->push_back(*iterProb);
 				temp->first = *iterProb;
@@ -126,10 +126,10 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 			}
 
 			if (Random::randomNumber() < RAND_MAX * parameters.mutationProbability && (int) bad_pop->size() > 0) {
-				iterProb = Control::selectRandomSolution(bad_pop);
+				iterProb = Problem::selectRandomSolution(bad_pop);
 				temp->second = *iterProb;
 			} else {
-				iterProb = Control::selectOpportunisticSolution(pop, sumP);
+				iterProb = Problem::selectOpportunisticSolution(pop, sumP);
 				sumP -= (*iterProb)->getFitnessMaximize();
 				aux_pop->push_back(*iterProb);
 				temp->second = *iterProb;

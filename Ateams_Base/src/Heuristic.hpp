@@ -65,6 +65,8 @@ public:
 
 	static inline void heuristicFinished(HeuristicExecutionInfo *info);
 
+	static inline Heuristic* selectOpportunisticHeuristic(vector<Heuristic*> *heuristics, unsigned int probTotal);
+
 	static bool sortingComparator(Heuristic *h1, Heuristic *h2) {
 		return h1->getParameters().choiceProbability < h2->getParameters().choiceProbability;
 	}
@@ -80,6 +82,8 @@ public:
 	static inline string getRunningHeuristics() {
 		return getHeuristicNames(runningHeuristics);
 	}
+
+public:
 
 	int executionCounter;
 
@@ -103,7 +107,7 @@ public:
 		}
 	}
 
-	virtual set<Problem*>::const_iterator selectRouletteWheel(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) = 0;
+	virtual set<Problem*>::const_iterator selectOpportunisticSolution(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) = 0;
 
 	virtual vector<Problem*>* start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) = 0;
 
@@ -204,6 +208,27 @@ inline void Heuristic::heuristicStarted(HeuristicExecutionInfo *info) {
 inline void Heuristic::heuristicFinished(HeuristicExecutionInfo *info) {
 	list<HeuristicExecutionInfo*>::iterator executed = find(runningHeuristics->begin(), runningHeuristics->end(), info);
 	runningHeuristics->erase(executed);
+}
+
+/* Seleciona uma heuristica da lista aleatoriamente, mas diretamente proporcional a sua prioridade */
+inline Heuristic* Heuristic::selectOpportunisticHeuristic(vector<Heuristic*> *heuristics, unsigned int probTotal) {
+	if (heuristics == NULL || heuristics->size() == 0) {
+		throw string("No Heuristics Defined!");
+	}
+
+	unsigned int sum = probTotal;
+	unsigned int randWheel = Random::randomNumber(0, sum);
+
+	for (int i = 0; i < (int) heuristics->size(); i++) {
+		sum -= heuristics->at(i)->getParameters().choiceProbability;
+		if (sum <= randWheel) {
+			return heuristics->at(i);
+		}
+	}
+
+	throw string("No Heuristic Selected!");
+
+	return heuristics->at(0);
 }
 
 #endif

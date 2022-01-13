@@ -73,6 +73,104 @@ public:
 		}
 	}
 
+	/* Retorna a soma de fitness de uma populacao */
+	static inline double sumFitnessMaximize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n) {
+		set<Problem*>::const_iterator iter;
+		double sum = 0, i = 0;
+
+		for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
+			sum += (*iter)->getFitnessMaximize();
+
+		return sum;
+	}
+
+	/* Retorna a soma de fitness de uma populacao */
+	static inline double sumFitnessMaximize(vector<Problem*> *probs, int n) {
+		vector<Problem*>::const_iterator iter;
+		double sum = 0, i = 0;
+
+		for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
+			sum += (*iter)->getFitnessMaximize();
+
+		return sum;
+	}
+
+	/* Retorna a soma de fitness de uma populacao */
+	static inline double sumFitnessMinimize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n) {
+		set<Problem*>::const_iterator iter;
+		double sum = 0, i = 0;
+
+		for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
+			sum += (*iter)->getFitnessMinimize();
+
+		return sum;
+	}
+
+	/* Retorna a soma de fitness de uma populacao */
+	static inline double sumFitnessMinimize(vector<Problem*> *probs, int n) {
+		vector<Problem*>::const_iterator iter;
+		double sum = 0, i = 0;
+
+		for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++) {
+			sum += (*iter)->getFitnessMinimize();
+		}
+
+		return sum;
+	}
+
+	/* Seleciona uma solucao aleatoriamente */
+	static inline vector<Problem*>::iterator selectRandomSolution(vector<Problem*> *population) {
+		unsigned int randWheel = Random::randomNumber(0, population->size());
+
+		vector<Problem*>::iterator iter = population->begin();
+
+		advance(iter, randWheel);
+
+		return iter;
+	}
+
+	/* Seleciona uma solucao da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
+	static inline set<Problem*>::const_iterator selectOpportunisticSolution(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
+		unsigned int sum = (unsigned int) fitTotal;
+		unsigned int randWheel = Random::randomNumber(0, sum);
+
+		set<Problem*>::const_iterator iter;
+		for (iter = population->cbegin(); iter != population->cend(); iter++) {
+			sum -= (int) (*iter)->getFitnessMaximize();
+			if (sum <= randWheel) {
+				return iter;
+			}
+		}
+
+		return population->begin();
+	}
+
+	/* Seleciona uma solucao da lista aleatoriamente, mas diretamente proporcional a sua qualidade */
+	static inline vector<Problem*>::const_iterator selectOpportunisticSolution(vector<Problem*> *population, double fitTotal) {
+		unsigned int sum = (unsigned int) fitTotal;
+		unsigned int randWheel = Random::randomNumber(0, sum);
+
+		vector<Problem*>::const_iterator iter;
+		for (iter = population->cbegin(); iter != population->cend(); iter++) {
+			sum -= (int) (*iter)->getFitnessMaximize();
+			if (sum <= randWheel) {
+				return iter;
+			}
+		}
+
+		return population->begin();
+	}
+
+	static inline list<Problem*>::iterator findSolution(list<Problem*> *vect, Problem *p) {
+		list<Problem*>::iterator iter;
+
+		for (iter = vect->begin(); iter != vect->end(); iter++)
+			if (fnEqualSolution((*iter), p))
+				return iter;
+
+		return iter;
+	}
+
 	static inline bool ptcomp(pair<Problem*, InfoTabu*> *p1, pair<Problem*, InfoTabu*> *p2) {
 		switch(TYPE) {
 			case MINIMIZATION: return (p1->first->getFitness() > p2->first->getFitness());

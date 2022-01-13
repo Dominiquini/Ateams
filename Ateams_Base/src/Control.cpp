@@ -133,7 +133,7 @@ HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
 	HeuristicExecutionInfo *info = NULL;
 	Heuristic *algorithm = NULL;
 
-	algorithm = selectOpportunisticHeuristic(heuristics, heuristicsProbabilitySum);
+	algorithm = Heuristic::selectOpportunisticHeuristic(heuristics, heuristicsProbabilitySum);
 	info = new HeuristicExecutionInfo(algorithm, executionId, get_id());
 
 	{
@@ -568,117 +568,6 @@ void Control::clearHeuristics(bool deleteHeuristics) {
 	heuristics->clear();
 }
 
-double Control::sumFitnessMaximize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n) {
-	set<Problem*>::const_iterator iter;
-	double sum = 0, i = 0;
-
-	for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
-		sum += (*iter)->getFitnessMaximize();
-
-	return sum;
-}
-
-double Control::sumFitnessMaximize(vector<Problem*> *probs, int n) {
-	vector<Problem*>::const_iterator iter;
-	double sum = 0, i = 0;
-
-	for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
-		sum += (*iter)->getFitnessMaximize();
-
-	return sum;
-}
-
-double Control::sumFitnessMinimize(set<Problem*, bool (*)(Problem*, Problem*)> *probs, int n) {
-	set<Problem*>::const_iterator iter;
-	double sum = 0, i = 0;
-
-	for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++)
-		sum += (*iter)->getFitnessMinimize();
-
-	return sum;
-}
-
-double Control::sumFitnessMinimize(vector<Problem*> *probs, int n) {
-	vector<Problem*>::const_iterator iter;
-	double sum = 0, i = 0;
-
-	for (i = 0, iter = probs->begin(); i < n && iter != probs->end(); i++, iter++) {
-		sum += (*iter)->getFitnessMinimize();
-	}
-
-	return sum;
-}
-
-vector<Problem*>::iterator Control::selectRandomSolution(vector<Problem*> *population) {
-	unsigned int randWheel = Random::randomNumber(0, population->size());
-
-	vector<Problem*>::iterator iter = population->begin();
-
-	advance(iter, randWheel);
-
-	return iter;
-}
-
-set<Problem*>::const_iterator Control::selectOpportunisticSolution(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) {
-	unsigned int sum = (unsigned int) fitTotal;
-	unsigned int randWheel = Random::randomNumber(0, sum);
-
-	set<Problem*>::const_iterator iter;
-	for (iter = population->cbegin(); iter != population->cend(); iter++) {
-		sum -= (int) (*iter)->getFitnessMaximize();
-		if (sum <= randWheel) {
-			return iter;
-		}
-	}
-
-	return population->begin();
-}
-
-vector<Problem*>::const_iterator Control::selectOpportunisticSolution(vector<Problem*> *population, double fitTotal) {
-	unsigned int sum = (unsigned int) fitTotal;
-	unsigned int randWheel = Random::randomNumber(0, sum);
-
-	vector<Problem*>::const_iterator iter;
-	for (iter = population->cbegin(); iter != population->cend(); iter++) {
-		sum -= (int) (*iter)->getFitnessMaximize();
-		if (sum <= randWheel) {
-			return iter;
-		}
-	}
-
-	return population->begin();
-}
-
-Heuristic* Control::selectOpportunisticHeuristic(vector<Heuristic*> *heuristics, unsigned int probTotal) {
-	if (heuristics == NULL || heuristics->size() == 0) {
-		throw string("No Heuristics Defined!");
-	}
-
-	unsigned int sum = probTotal;
-	unsigned int randWheel = Random::randomNumber(0, sum);
-
-	for (int i = 0; i < (int) heuristics->size(); i++) {
-		sum -= heuristics->at(i)->getParameters().choiceProbability;
-		if (sum <= randWheel) {
-			return heuristics->at(i);
-		}
-	}
-
-	throw string("No Heuristic Selected!");
-
-	return heuristics->at(0);
-}
-
-list<Problem*>::iterator Control::findSolution(list<Problem*> *vect, Problem *p) {
-	list<Problem*>::iterator iter;
-
-	for (iter = vect->begin(); iter != vect->end(); iter++)
-		if (fnEqualSolution((*iter), p))
-			return iter;
-
-	return iter;
-}
-
 void Control::printProgress(HeuristicExecutionInfo *heuristic) {
 	if (instance->showTextOverview) {
 		string execNames;
@@ -726,20 +615,34 @@ TerminationInfo Control::pthrManagement() {
 	while (STATUS == EXECUTING) {
 		sleep_ms(THREAD_MANAGEMENT_UPDATE_INTERVAL);
 
-		if (ctrl->parameters.maxExecutionTime != -1 && duration_cast<seconds>(steady_clock::now() - ctrl->startTime).count() > ctrl->parameters.maxExecutionTime)
-			STATUS = EXECUTION_TIMEOUT;
-
-		if (ctrl->parameters.attemptsWithoutImprovement != -1 && ctrl->iterationsWithoutImprovement > ctrl->parameters.attemptsWithoutImprovement)
-			STATUS = LACK_OF_IMPROVEMENT;
-
-		if (ctrl->parameters.maxSolutions != -1 && Problem::totalNumInst > (unsigned long long) ctrl->parameters.maxSolutions)
-			STATUS = TOO_MANY_SOLUTIONS;
-
-		if ((ctrl->parameters.bestKnownFitness != -1 ? Problem::improvement(ctrl->parameters.bestKnownFitness, Problem::best) : -1) >= 0)
-			STATUS = RESULT_ACHIEVED;
-
 		if (ctrl->executionCount == ctrl->parameters.iterations && (int) Heuristic::allHeuristics->size() == ctrl->parameters.iterations) {
 			STATUS = FINISHED_NORMALLY;
+
+			break;
+		}
+
+		if (ctrl->parameters.maxExecutionTime != -1 && duration_cast<seconds>(steady_clock::now() - ctrl->startTime).count() > ctrl->parameters.maxExecutionTime) {
+			STATUS = EXECUTION_TIMEOUT;
+
+			break;
+		}
+
+		if (ctrl->parameters.attemptsWithoutImprovement != -1 && ctrl->iterationsWithoutImprovement > ctrl->parameters.attemptsWithoutImprovement) {
+			STATUS = LACK_OF_IMPROVEMENT;
+
+			break;
+		}
+
+		if (ctrl->parameters.maxSolutions != -1 && Problem::totalNumInst > (unsigned long long) ctrl->parameters.maxSolutions) {
+			STATUS = TOO_MANY_SOLUTIONS;
+
+			break;
+		}
+
+		if ((ctrl->parameters.bestKnownFitness != -1 ? Problem::improvement(ctrl->parameters.bestKnownFitness, Problem::best) : -1) >= 0) {
+			STATUS = RESULT_ACHIEVED;
+
+			break;
 		}
 	}
 
