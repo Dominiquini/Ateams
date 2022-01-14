@@ -1,34 +1,34 @@
 #include "GraphicalOverview.hpp"
 
 GraphicalOverview::GraphicalOverview(Control *ctrl) {
-	this->ctrl = ctrl;
+	GraphicalOverview::ctrl = ctrl;
 
-	if (ctrl->showGraphicalOverview) {
-		glutInit(ctrl->argc, ctrl->argv);
+	if (GraphicalOverview::ctrl->showGraphicalOverview) {
+		glutInit(GraphicalOverview::ctrl->argc, GraphicalOverview::ctrl->argv);
 	}
 }
 
 GraphicalOverview::~GraphicalOverview() {
-	if (ctrl->showGraphicalOverview) {
+	if (GraphicalOverview::ctrl->showGraphicalOverview) {
 		if (int window = glutGetWindow() != 0) {
 			glutDestroyWindow(window);
 		}
 	}
 
-	this->ctrl = NULL;
+	GraphicalOverview::ctrl = NULL;
 }
 
 void GraphicalOverview::run() {
-	if (ctrl->showGraphicalOverview) {
-		thread threadAnimation(GraphicalOverview::asyncRun, ctrl);
+	if (GraphicalOverview::ctrl->showGraphicalOverview) {
+		thread threadAnimation(GraphicalOverview::asyncRun);
 
 		threadAnimation.detach();
 	}
 }
 
-void GraphicalOverview::asyncRun(Control *ctrl) {
+void GraphicalOverview::asyncRun() {
 	if (STATUS == EXECUTING) {
-		GraphicalOverview::setup(ctrl);
+		GraphicalOverview::setup();
 
 		/* Inicia loop principal da janela de informações */
 		glutMainLoop();
@@ -38,14 +38,15 @@ void GraphicalOverview::asyncRun(Control *ctrl) {
 	}
 }
 
-void GraphicalOverview::setup(Control *ctrl) {
+void GraphicalOverview::setup() {
+	strcpy(screen_title, FileUtils::getFileName(string(ctrl->argv[0])).c_str());
+
 	/* Cria a tela */
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	glutInitWindowPosition(0, 0);
 
-	glutCreateWindow(ctrl->argv[0]);
-	glutSetWindowData(ctrl);
+	glutCreateWindow(screen_title);
 
 	/* Define as funcoes de desenho */
 	glutDisplayFunc(GraphicalOverview::display);
@@ -82,9 +83,7 @@ void GraphicalOverview::display() {
 	{
 		scoped_lock<decltype(mutex_info)> lock_info(mutex_info);
 
-		Control *ctrl = (Control*)glutGetWindowData();
-
-		snprintf(graphical_buffer, GRAPHICAL_BUFFER_SIZE, "%s (%d)", ctrl->argv[0], ctrl->executionCount);
+		snprintf(graphical_buffer, GRAPHICAL_BUFFER_SIZE, "%s - Threads: %d | Iteration: %d", screen_title, ctrl->runningThreads, ctrl->executionCount);
 		glutSetWindowTitle(graphical_buffer);
 
 		for (list<HeuristicExecutionInfo*>::const_iterator iter = Heuristic::runningHeuristics->cbegin(); iter != Heuristic::runningHeuristics->cend() && STATUS == EXECUTING; iter++) {
@@ -98,7 +97,6 @@ void GraphicalOverview::display() {
 			GraphicalOverview::drawstr(coluna, linha, GLUT_BITMAP_9_BY_15, (*iter)->execInfo);
 
 			coluna += 3.4;
-
 			if (coluna > 1.8) {
 				coluna = -5;
 				linha -= 1;
@@ -109,7 +107,7 @@ void GraphicalOverview::display() {
 	glutSwapBuffers();
 
 	if (STATUS != EXECUTING) {
-		GraphicalOverview::asyncRun(NULL);
+		GraphicalOverview::asyncRun();
 	}
 
 	sleep_ms(WINDOW_ANIMATION_UPDATE_INTERVAL);
@@ -152,4 +150,7 @@ void GraphicalOverview::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, const 
 	}
 }
 
+Control *GraphicalOverview::ctrl = NULL;
+
+char GraphicalOverview::screen_title[GRAPHICAL_BUFFER_SIZE];
 char GraphicalOverview::graphical_buffer[GRAPHICAL_BUFFER_SIZE];

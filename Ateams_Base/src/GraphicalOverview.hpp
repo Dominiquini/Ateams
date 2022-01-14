@@ -20,18 +20,18 @@ class Control;
 class GraphicalOverview {
 private:
 
+	static Control *ctrl;
+
+	static char screen_title[GRAPHICAL_BUFFER_SIZE];
+
 	static char graphical_buffer[GRAPHICAL_BUFFER_SIZE];
 
-	static void asyncRun(Control*);
+	static void asyncRun();
 
-	static void setup(Control *);											// Cria e configura a tela
+	static void setup();												// Cria e configura a tela
 	static void display();                                      		// Desenha a tela
 	static void reshape(GLint, GLint);                             	 	// Redesenha a tela
 	static void drawstr(GLfloat, GLfloat, GLvoid*, const char*, ...); 	// Desenha uma string na tela
-
-private:
-
-	Control *ctrl;
 
 public:
 
