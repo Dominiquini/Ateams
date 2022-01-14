@@ -11,14 +11,15 @@ public:
 
 	using native_handle_type = typename CondVar::native_handle_type;
 
-	explicit basic_semaphore(size_t count = 0);
+	explicit basic_semaphore(unsigned int count = 0);
 	basic_semaphore(const basic_semaphore&) = delete;
 	basic_semaphore(basic_semaphore&&) = delete;
 	basic_semaphore& operator=(const basic_semaphore&) = delete;
 	basic_semaphore& operator=(basic_semaphore&&) = delete;
 
-	size_t getCounter();
-	void setup(size_t count);
+	unsigned int getCounter();
+	bool isEnabled();
+	void setup(int count);
 	void notify();
 	void wait();
 	bool try_wait();
@@ -34,34 +35,43 @@ private:
 	Mutex mMutex;
 	CondVar mCondVar;
 
-	size_t mCount = 0;
+	unsigned int mCount = 0;
+	bool mEnabled = false;
 };
 
 using semaphore = basic_semaphore<std::mutex, std::condition_variable>;
 
 template<typename Mutex, typename CondVar>
-basic_semaphore<Mutex, CondVar>::basic_semaphore(size_t count) : mCount { count } {
+basic_semaphore<Mutex, CondVar>::basic_semaphore(unsigned int count) : mCount { count }, mEnabled { true } {
 }
 
 template<typename Mutex, typename CondVar>
-size_t basic_semaphore<Mutex, CondVar>::getCounter() {
-	std::lock_guard<Mutex> lock { mMutex };
+unsigned int basic_semaphore<Mutex, CondVar>::getCounter() {
+	std::scoped_lock<Mutex> lock { mMutex };
 
 	return mCount;
 }
 
 template<typename Mutex, typename CondVar>
-void basic_semaphore<Mutex, CondVar>::setup(size_t count) {
-	std::lock_guard<Mutex> lock { mMutex };
+bool basic_semaphore<Mutex, CondVar>::isEnabled() {
+	std::scoped_lock<Mutex> lock { mMutex };
 
-	mCount = count;
+	return mEnabled;
+}
+
+template<typename Mutex, typename CondVar>
+void basic_semaphore<Mutex, CondVar>::setup(int count) {
+	std::scoped_lock<Mutex> lock { mMutex };
+
+	mEnabled = count >= 0;
+	mCount = std::max(0, count);
 
 	mCondVar.notify_all();
 }
 
 template<typename Mutex, typename CondVar>
 void basic_semaphore<Mutex, CondVar>::notify() {
-	std::lock_guard<Mutex> lock { mMutex };
+	std::scoped_lock<Mutex> lock { mMutex };
 
 	++mCount;
 
@@ -73,7 +83,7 @@ void basic_semaphore<Mutex, CondVar>::wait() {
 	std::unique_lock<Mutex> lock { mMutex };
 
 	mCondVar.wait(lock, [&] {
-		return mCount > 0;
+		return !mEnabled || mCount != 0;
 	});
 
 	--mCount;
@@ -81,9 +91,9 @@ void basic_semaphore<Mutex, CondVar>::wait() {
 
 template<typename Mutex, typename CondVar>
 bool basic_semaphore<Mutex, CondVar>::try_wait() {
-	std::lock_guard<Mutex> lock { mMutex };
+	std::scoped_lock<Mutex> lock { mMutex };
 
-	if (mCount > 0) {
+	if (!mEnabled || mCount != 0) {
 		--mCount;
 
 		return true;
@@ -98,7 +108,7 @@ bool basic_semaphore<Mutex, CondVar>::wait_for(const std::chrono::duration<Rep, 
 	std::unique_lock<Mutex> lock { mMutex };
 
 	auto finished = mCondVar.wait_for(lock, d, [&] {
-		return mCount > 0;
+		return !mEnabled || mCount != 0;
 	});
 
 	if (finished) {
@@ -114,7 +124,7 @@ bool basic_semaphore<Mutex, CondVar>::wait_until(const std::chrono::time_point<C
 	std::unique_lock<Mutex> lock { mMutex };
 
 	auto finished = mCondVar.wait_until(lock, t, [&] {
-		return mCount > 0;
+		return !mEnabled || mCount != 0;
 	});
 
 	if (finished) {

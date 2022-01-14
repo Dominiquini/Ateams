@@ -27,6 +27,9 @@
 #include <random>
 #include <chrono>
 
+#include "Constants.hpp"
+
+#include "ProgressBar.hpp"
 #include "FileUtils.hpp"
 #include "Random.hpp"
 
@@ -54,26 +57,9 @@ using namespace chrono;
 
 #define fix_terminal() ios_base::sync_with_stdio(IS_LINUX) ;
 
-#define beep() cout << BEEP_ASCII_CHAR << flush;
+#define beep() cout << BEEP_ASCII_CHAR << flush ;
 
 #define quote(var) #var
-
-#define DEFAULT_PROGRESS_SIZE 100
-#define DEFAULT_PROGRESS_COLOR COLOR_RED
-
-#define COLOR_BLACK "[30m"
-#define COLOR_RED "[31m"
-#define COLOR_GREEN "[32m"
-#define COLOR_YELLOW "[33m"
-#define COLOR_BLUE "[34m"
-#define COLOR_MAGENTA "[35m"
-#define COLOR_CYAN "[36m"
-#define COLOR_WHITE "[37m"
-#define COLOR_DEFAULT "[39m"
-
-#define PREVIOUS_LINE "\033[F"
-
-#define BEEP_ASCII_CHAR '\a'
 
 enum TerminationInfo {
 	EXECUTING, FINISHED_NORMALLY, USER_SIGNALED, EXECUTION_TIMEOUT, LACK_OF_IMPROVEMENT, TOO_MANY_SOLUTIONS, RESULT_ACHIEVED
@@ -140,95 +126,5 @@ inline string getTerminationInfo(TerminationInfo info) {
 inline string getExecutionTime(milliseconds duration) {
 	return to_string(duration_cast<seconds>(duration).count()) + 's';
 }
-
-class ProgressBar {
-public:
-
-	ProgressBar(string label, string color, int progressBarLength) {
-		this->label = label;
-		this->color = color;
-		this->progressBarLength = progressBarLength - label.size();
-
-		this->maxProgress = -1;
-		this->currentProgress = -1;
-
-		this->amountOfFiller = 0;
-		this->currUpdateVal = 0;
-	}
-	ProgressBar(string label) : ProgressBar(label, DEFAULT_PROGRESS_COLOR, DEFAULT_PROGRESS_SIZE) {
-	}
-	ProgressBar() : ProgressBar("", DEFAULT_PROGRESS_COLOR, DEFAULT_PROGRESS_SIZE) {
-	}
-	~ProgressBar() {
-	}
-
-	void init(int maxProgress) {
-		this->maxProgress = maxProgress;
-
-		cout << endl << color;
-
-		update(0);
-	}
-
-	void end() {
-		this->maxProgress = -1;
-
-		update(currentProgress);
-
-		cout << endl << COLOR_DEFAULT;
-	}
-
-	void update(int newProgress) {
-		if (maxProgress != -1) {
-			int oldProgress = currentProgress;
-			currentProgress = min(maxProgress, newProgress);
-
-			if (oldProgress != currentProgress) {
-				amountOfFiller = (int) (progress() * (double) progressBarLength);
-
-				print();
-			}
-		}
-	}
-
-	void print() {
-		currUpdateVal %= pBarUpdater.length();
-
-		cout << "\r" << label << firstPartOfpBar;
-		for (int a = 0; a < amountOfFiller; a++) {
-			cout << pBarFiller;
-		}
-		cout << pBarUpdater[currUpdateVal];
-		for (int b = 0; b < progressBarLength - amountOfFiller; b++) {
-			cout << " ";
-		}
-		cout << lastPartOfpBar << " (" << percentage() << "%)";
-
-		currUpdateVal += 1;
-
-		cout << flush;
-	}
-
-	float progress() {
-		return (float) currentProgress / (float) maxProgress;
-	}
-
-	int percentage() {
-		return progress() * 100;
-	}
-
-private:
-
-	const string firstPartOfpBar = "[", lastPartOfpBar = "]", pBarFiller = "|", pBarUpdater = "|";
-
-	string label;
-	string color;
-	int maxProgress;
-	int progressBarLength;
-
-	int currentProgress;
-	int amountOfFiller;
-	int currUpdateVal;
-};
 
 #endif

@@ -205,13 +205,15 @@ PopulationImprovement* Control::insertNewSolutions(vector<Problem*> *newSolution
 
 void Control::trimSolutions() {
 	set<Problem*>::iterator lastViableSolution = solutions->begin();
-	advance(lastViableSolution, max(parameters.maxPopulationSize, parameters.populationSize));
+	advance(lastViableSolution, min((int) solutions->size(), max(parameters.maxPopulationSize, parameters.populationSize)));
 
 	while (lastViableSolution != solutions->end()) {
 		delete *lastViableSolution;
 
 		lastViableSolution = solutions->erase(lastViableSolution);
 	}
+
+	int size = solutions->size();
 
 	Problem::best = (*solutions->begin())->getFitness();
 	Problem::worst = (*solutions->rbegin())->getFitness();
@@ -232,11 +234,9 @@ void Control::generateInitialPopulation() {
 
 	loadingProgressBar->update(solutions->size());
 
-	Problem *soluction = NULL;
-	unsigned long int limit = pow(parameters.populationSize, 3), failedAttempts = 0;
-
+	unsigned long int limit = pow(10 * parameters.populationSize, 2), failedAttempts = 0;
 	while ((int) solutions->size() < parameters.populationSize && failedAttempts < limit) {
-		soluction = Problem::randomSolution();
+		Problem *soluction = Problem::randomSolution();
 
 		if (soluction->getFitness() == -1 || !solutions->insert(soluction).second) {
 			failedAttempts++;
@@ -248,8 +248,6 @@ void Control::generateInitialPopulation() {
 	}
 
 	loadingProgressBar->end();
-
-	cout << endl;
 
 	if (!solutions->empty()) {
 		Problem::best = (*solutions->begin())->getFitness();
@@ -355,6 +353,10 @@ inline void Control::setGraphicStatusInfoScreen(bool showGraphicalOverview) {
 void Control::init() {
 	semaphore_executor.setup(parameters.numThreads);
 
+	if (heuristics->empty()) {
+		throw string("No Heuristics Defined!");
+	}
+
 	/* Leitura dos dados passados por arquivos */
 	Problem::readProblemFromFile(getInputDataFile());
 
@@ -363,7 +365,11 @@ void Control::init() {
 
 	generateInitialPopulation();
 
-	cout << COLOR_CYAN;
+	if (solutions->empty()) {
+		throw string("No Initial Solution Found!");
+	}
+
+	cout << endl << COLOR_CYAN;
 
 	cout << endl << "Initial Population Size: : " << solutions->size() << endl;
 	cout << endl << "Worst Initial Solution: " << Problem::worst << endl;
@@ -413,45 +419,39 @@ void Control::run() {
 
 	STATUS = EXECUTING;
 
-	if (showTextOverview) {
-		cout << endl << flush;
-	}
-
-	if (solutions->empty()) {
-		throw string("No Initial Solution Found!");
-	}
-
-	if (heuristics->empty()) {
-		throw string("No Heuristics Defined!");
-	}
-
 	if (showGraphicalOverview) {
 		graphicalOverview->run();
 	}
 
 	if (!showTextOverview) {
 		executionProgressBar->init(parameters.iterations);
+	} else {
+		cout << endl << flush;
 	}
 
-	future<TerminationInfo> management = async(launch::async, Control::pthrManagement);
+	if (parameters.iterations >= 0) {
+		future<TerminationInfo> management = async(launch::async, Control::pthrManagement);
 
-	vector<future<HeuristicExecutionInfo*>> executions;
-	for (int execAteams = 1; execAteams <= parameters.iterations; execAteams++) {
-		executions.push_back(async(launch::async, Control::pthrExecution, execAteams));
-	}
-
-	for (vector<future<HeuristicExecutionInfo*>>::iterator it = executions.begin(); it != executions.end(); it++) {
-		HeuristicExecutionInfo *info = it->get();
-
-		if (info != NULL) {
-			heuristicsSolutionsCount += info->contribution;
+		vector<future<HeuristicExecutionInfo*>> executions;
+		for (int execAteams = 1; execAteams <= parameters.iterations; execAteams++) {
+			executions.push_back(async(launch::async, Control::pthrExecution, execAteams));
 		}
-	}
 
-	STATUS = management.get();
+		for (vector<future<HeuristicExecutionInfo*>>::iterator it = executions.begin(); it != executions.end(); it++) {
+			HeuristicExecutionInfo *info = it->get();
+
+			if (info != NULL) {
+				heuristicsSolutionsCount += info->contribution;
+			}
+		}
+
+		STATUS = management.get();
+	}
 
 	if (!showTextOverview) {
 		executionProgressBar->end();
+	} else {
+		cout << flush;
 	}
 
 	endTime = steady_clock::now();
@@ -495,7 +495,9 @@ void Control::printExecution() {
 	cout << endl << "Explored Solutions: " << Problem::totalNumInst << endl;
 	cout << endl << "Returned Solutions: " << heuristicsSolutionsCount << endl;
 
-	cout << endl << "Executions: " << executionCount << " (" << (100 * executionCount) / parameters.iterations << "%) " << endl << endl;
+	int executionPercentage = parameters.iterations != 0 ? (100 * executionCount) / parameters.iterations : 100;
+
+	cout << endl << "Executions: " << executionCount << " (" << executionPercentage << "%) " << endl << endl;
 
 	for (vector<Heuristic*>::const_reverse_iterator it = heuristics->crbegin(); it != heuristics->crend(); it++) {
 		(*it)->printStatistics('-', executionCount);
