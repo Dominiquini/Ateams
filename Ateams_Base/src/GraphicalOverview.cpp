@@ -1,38 +1,34 @@
 #include "GraphicalOverview.hpp"
 
-GraphicalOverview::GraphicalOverview(bool enabled, int *argc, char **argv) {
-	this->enabled = enabled;
+GraphicalOverview::GraphicalOverview(Control *ctrl) {
+	this->ctrl = ctrl;
 
-	this->argc = argc;
-	this->argv = argv;
-
-	if (this->enabled) {
-		glutInit(this->argc, this->argv);
+	if (ctrl->showGraphicalOverview) {
+		glutInit(ctrl->argc, ctrl->argv);
 	}
 }
 
 GraphicalOverview::~GraphicalOverview() {
-	this->argc = NULL;
-	this->argv = NULL;
-
-	if (this->enabled) {
+	if (ctrl->showGraphicalOverview) {
 		if (int window = glutGetWindow() != 0) {
 			glutDestroyWindow(window);
 		}
 	}
+
+	this->ctrl = NULL;
 }
 
 void GraphicalOverview::run() {
-	if (enabled) {
-		thread threadAnimation(GraphicalOverview::asyncRun, this->argv[0]);
+	if (ctrl->showGraphicalOverview) {
+		thread threadAnimation(GraphicalOverview::asyncRun, ctrl);
 
 		threadAnimation.detach();
 	}
 }
 
-void GraphicalOverview::asyncRun(char *title) {
+void GraphicalOverview::asyncRun(Control *ctrl) {
 	if (STATUS == EXECUTING) {
-		GraphicalOverview::setup(title);
+		GraphicalOverview::setup(ctrl);
 
 		/* Inicia loop principal da janela de informações */
 		glutMainLoop();
@@ -42,13 +38,14 @@ void GraphicalOverview::asyncRun(char *title) {
 	}
 }
 
-void GraphicalOverview::setup(char *title) {
+void GraphicalOverview::setup(Control *ctrl) {
 	/* Cria a tela */
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	glutInitWindowPosition(0, 0);
 
-	glutCreateWindow(title);
+	glutCreateWindow(ctrl->argv[0]);
+	glutSetWindowData(ctrl);
 
 	/* Define as funcoes de desenho */
 	glutDisplayFunc(GraphicalOverview::display);
@@ -84,6 +81,11 @@ void GraphicalOverview::display() {
 
 	{
 		scoped_lock<decltype(mutex_info)> lock_info(mutex_info);
+
+		Control *ctrl = (Control*)glutGetWindowData();
+
+		snprintf(graphical_buffer, GRAPHICAL_BUFFER_SIZE, "%s (%d)", ctrl->argv[0], ctrl->executionCount);
+		glutSetWindowTitle(graphical_buffer);
 
 		for (list<HeuristicExecutionInfo*>::const_iterator iter = Heuristic::runningHeuristics->cbegin(); iter != Heuristic::runningHeuristics->cend() && STATUS == EXECUTING; iter++) {
 			glColor3f(1.0f, 0.0f, 0.0f);

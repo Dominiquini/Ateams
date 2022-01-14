@@ -21,11 +21,9 @@ using namespace this_thread;
 
 #define THREAD_MANAGEMENT_UPDATE_INTERVAL 500
 
-#define WINDOW_WIDTH 1250
-#define WINDOW_HEIGHT 500
-#define WINDOW_ANIMATION_UPDATE_INTERVAL 100
-
 #define BUFFER_SIZE 4096
+
+#define MAX_ITERATIONS_CHUNK 1000
 
 extern volatile TerminationInfo STATUS;
 
@@ -44,9 +42,11 @@ struct ExecutionInfo {
 	double bestFitness;
 
 	unsigned long long exploredSolutions;
+	unsigned int heuristicsSolutionsCount;
 
-	ExecutionInfo(steady_clock::time_point startTime, steady_clock::time_point endTime, int executionCount) {
+	ExecutionInfo(steady_clock::time_point startTime, steady_clock::time_point endTime, int executionCount, int heuristicsSolutionsCount) {
 		this->executionTime = duration_cast<milliseconds>(endTime - startTime);
+		this->heuristicsSolutionsCount = heuristicsSolutionsCount;
 		this->executionCount = executionCount;
 
 		this->worstFitness = Problem::worst;
@@ -247,6 +247,8 @@ public:
 	char* getOutputResultFile() {
 		return outputResultFile;
 	}
+
+	friend class GraphicalOverview;
 };
 
 #endif

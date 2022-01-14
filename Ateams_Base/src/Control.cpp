@@ -96,7 +96,7 @@ Control::Control(int argc, char **argv) {
 	this->loadingProgressBar = new ProgressBar("LOADING: ");
 	this->executionProgressBar = new ProgressBar("EXECUTING: ");
 
-	this->graphicalOverview = new GraphicalOverview(this->showGraphicalOverview, this->argc, this->argv);
+	this->graphicalOverview = new GraphicalOverview(this);
 
 	this->iterationsWithoutImprovement = 0;
 	this->executionCount = 0;
@@ -474,7 +474,7 @@ Problem* Control::getSolution(int n) {
 }
 
 ExecutionInfo* Control::getExecutionInfo() {
-	return new ExecutionInfo(startTime, endTime, executionCount);
+	return new ExecutionInfo(startTime, endTime, executionCount, heuristicsSolutionsCount);
 }
 
 void Control::printSolution() {
