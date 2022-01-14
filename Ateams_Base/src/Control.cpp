@@ -93,6 +93,8 @@ Control::Control(int argc, char **argv) {
 	this->readXMLFileParameters();
 	this->readExtraCMDParameters();
 
+	this->parameters.sanitizeParameters();
+
 	this->loadingProgressBar = new ProgressBar("LOADING: ");
 	this->executionProgressBar = new ProgressBar("EXECUTING: ");
 
@@ -429,24 +431,22 @@ void Control::run() {
 		cout << endl << flush;
 	}
 
-	if (parameters.iterations >= 0) {
-		future<TerminationInfo> management = async(launch::async, Control::pthrManagement);
+	future<TerminationInfo> management = async(launch::async, Control::pthrManagement);
 
-		vector<future<HeuristicExecutionInfo*>> executions;
-		for (int execAteams = 1; execAteams <= parameters.iterations; execAteams++) {
-			executions.push_back(async(launch::async, Control::pthrExecution, execAteams));
-		}
-
-		for (vector<future<HeuristicExecutionInfo*>>::iterator it = executions.begin(); it != executions.end(); it++) {
-			HeuristicExecutionInfo *info = it->get();
-
-			if (info != NULL) {
-				heuristicsSolutionsCount += info->contribution;
-			}
-		}
-
-		STATUS = management.get();
+	vector<future<HeuristicExecutionInfo*>> executions;
+	for (int execAteams = 1; execAteams <= parameters.iterations; execAteams++) {
+		executions.push_back(async(launch::async, Control::pthrExecution, execAteams));
 	}
+
+	for (vector<future<HeuristicExecutionInfo*>>::iterator it = executions.begin(); it != executions.end(); it++) {
+		HeuristicExecutionInfo *info = it->get();
+
+		if (info != NULL) {
+			heuristicsSolutionsCount += info->contribution;
+		}
+	}
+
+	STATUS = management.get();
 
 	if (!showTextOverview) {
 		executionProgressBar->end();

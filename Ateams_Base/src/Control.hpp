@@ -23,7 +23,8 @@ using namespace this_thread;
 
 #define BUFFER_SIZE 4096
 
-#define MAX_ITERATIONS_CHUNK 1000
+#define MAX_ITERATIONS 25000
+#define MAX_POPULATION 1000
 
 extern volatile TerminationInfo STATUS;
 
@@ -111,6 +112,20 @@ struct AteamsParameters {
 		}
 
 		return read != EOF;
+	}
+
+	void sanitizeParameters() {
+		if (iterations < 0 || iterations > MAX_ITERATIONS) {
+			iterations = MAX_ITERATIONS;
+		}
+
+		if (populationSize < 0 || populationSize > MAX_POPULATION) {
+			populationSize = MAX_POPULATION;
+		}
+
+		if (maxPopulationSize > MAX_POPULATION) {
+			maxPopulationSize = MAX_POPULATION;
+		}
 	}
 };
 
