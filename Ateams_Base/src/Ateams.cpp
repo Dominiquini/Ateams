@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 
 			executionInfo = Control::terminate();
 
-			cout << endl << endl << COLOR_GREEN << "Termination Reason: " << getTerminationInfo(STATUS) << " (" <<  getExecutionTime(executionInfo->executionTime) << ") " << COLOR_DEFAULT << endl << endl;
+			cout << endl << endl << COLOR_GREEN << "Termination Reason: " << getTerminationInfo(STATUS) << " (" << getExecutionTime(executionInfo->executionTime) << ") " << COLOR_DEFAULT << endl << endl;
 		}
 
 		delete executionInfo;

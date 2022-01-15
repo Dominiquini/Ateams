@@ -152,5 +152,5 @@ void GraphicalOverview::drawstr(GLfloat x, GLfloat y, GLvoid *font_style, const 
 
 Control *GraphicalOverview::ctrl = NULL;
 
-char GraphicalOverview::screen_title[GRAPHICAL_BUFFER_SIZE];
+char GraphicalOverview::screen_title[SCREEN_TITLE_SIZE];
 char GraphicalOverview::graphical_buffer[GRAPHICAL_BUFFER_SIZE];

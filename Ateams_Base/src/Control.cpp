@@ -11,12 +11,15 @@
 #include <list>
 #include <map>
 #include <mutex>
+#include <queue>
 #include <set>
 #include <string>
 #include <thread>
 #include <utility>
 #include <vector>
 
+#include "Constants.hpp"
+#include "ProgressBar.hpp"
 #include "Semaphore.hpp"
 
 using namespace std;
@@ -24,6 +27,7 @@ using namespace chrono;
 using namespace this_thread;
 
 mutex mutex_population;			// Mutex que protege a populacao principal
+mutex mutex_execution;			// Mutex que protege o executor de algoritimos
 mutex mutex_counter;			// Mutex que protege os contadores de novas solucoes
 mutex mutex_info;				// Mutex que protege a impressao das informacoes da execucao
 
@@ -153,8 +157,6 @@ HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
 	{
 		scoped_lock<decltype(mutex_population)> lock_population(mutex_population);
 
-		executionCount++;
-
 		populationImprovement = insertNewSolutions(newSoluctions, true);
 
 		if (populationImprovement->getImprovementOnBestSolution() > 0) {
@@ -171,6 +173,8 @@ HeuristicExecutionInfo* Control::execute(unsigned int executionId) {
 
 	{
 		scoped_lock<decltype(mutex_info)> lock_info_end(mutex_info);
+
+		executionCount++;
 
 		runningThreads--;
 
@@ -431,20 +435,44 @@ void Control::run() {
 		cout << endl << flush;
 	}
 
-	future<TerminationInfo> management = async(launch::async, Control::pthrManagement);
+	future<TerminationInfo> management = async(launch::async, Control::threadManagement);
 
-	vector<future<HeuristicExecutionInfo*>> executions;
-	for (int execAteams = 1; execAteams <= parameters.iterations; execAteams++) {
-		executions.push_back(async(launch::async, Control::pthrExecution, execAteams));
+#if JOB_MANAGER
+	queue<unsigned int> ids;
+	for (int executionId = 1; executionId <= parameters.iterations; executionId++) {
+		ids.push(executionId);
 	}
 
-	for (vector<future<HeuristicExecutionInfo*>>::iterator it = executions.begin(); it != executions.end(); it++) {
-		HeuristicExecutionInfo *info = it->get();
+	vector<future<list<HeuristicExecutionInfo*>>> executions;
+	for (int job = 0; job < parameters.numThreads; job++) {
+		executions.push_back(async(launch::async, Control::threadExecutions, &ids));
+	}
+
+	for (vector<future<list<HeuristicExecutionInfo*>>>::iterator futureIterator = executions.begin(); futureIterator != executions.end(); futureIterator++) {
+		list<HeuristicExecutionInfo*> infos = futureIterator->get();
+
+		for (list<HeuristicExecutionInfo*>::iterator infoIterator = infos.begin(); infoIterator != infos.end(); infoIterator++) {
+			HeuristicExecutionInfo *info = *infoIterator;
+
+			if (info != NULL) {
+				heuristicsSolutionsCount += info->contribution;
+			}
+		}
+	}
+#else
+	vector<future<HeuristicExecutionInfo*>> executions;
+	for (int executionId = 1; executionId <= parameters.iterations; executionId++) {
+		executions.push_back(async(launch::async, Control::threadExecution, executionId));
+	}
+
+	for (vector<future<HeuristicExecutionInfo*>>::iterator futureIterator = executions.begin(); futureIterator != executions.end(); futureIterator++) {
+		HeuristicExecutionInfo *info = futureIterator->get();
 
 		if (info != NULL) {
 			heuristicsSolutionsCount += info->contribution;
 		}
 	}
+#endif
 
 	STATUS = management.get();
 
@@ -570,7 +598,7 @@ void Control::clearHeuristics(bool deleteHeuristics) {
 	heuristics->clear();
 }
 
-void Control::printProgress(HeuristicExecutionInfo *heuristic) {
+void Control::printProgress(HeuristicExecutionInfo *info) {
 	if (instance->showTextOverview) {
 		string execNames;
 		string color;
@@ -579,12 +607,12 @@ void Control::printProgress(HeuristicExecutionInfo *heuristic) {
 
 		Control::buffer[0] = '\0';
 
-		if (!heuristic->isFinished()) {
-			snprintf(Control::buffer, BUFFER_SIZE, ">>> {%.4d} ALG: %s | ....................... | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, runningThreads, execNames.c_str());
-			color = COLOR_GREEN;
-		} else {
-			snprintf(Control::buffer, BUFFER_SIZE, "<<< {%.4d} ALG: %s | FITNESS: %.6ld::%.6ld | QUEUE: %02d::[%s]", instance->executionCount, heuristic->heuristicInfo, (long) Problem::best, (long) Problem::worst, runningThreads, execNames.c_str());
+		if (!info->isFinished()) {
+			snprintf(Control::buffer, BUFFER_SIZE, ">>> {%.4d} ALG: %s | ....................... | QUEUE: %02d::[%s]", instance->executionCount, info->heuristicInfo, runningThreads, execNames.c_str());
 			color = COLOR_YELLOW;
+		} else {
+			snprintf(Control::buffer, BUFFER_SIZE, "<<< {%.4d} ALG: %s | FITNESS: %.6ld::%.6ld | QUEUE: %02d::[%s]", instance->executionCount, info->heuristicInfo, (long) Problem::best, (long) Problem::worst, runningThreads, execNames.c_str());
+			color = COLOR_GREEN;
 		}
 
 		cout << color << Control::buffer << COLOR_DEFAULT << endl << flush;
@@ -595,7 +623,7 @@ void Control::printProgress(HeuristicExecutionInfo *heuristic) {
 	}
 }
 
-HeuristicExecutionInfo* Control::pthrExecution(unsigned int iteration) {
+HeuristicExecutionInfo* Control::threadExecution(unsigned int executionId) {
 	Control *ctrl = Control::instance;
 
 	HeuristicExecutionInfo *inserted = NULL;
@@ -603,7 +631,7 @@ HeuristicExecutionInfo* Control::pthrExecution(unsigned int iteration) {
 	semaphore_executor.wait();
 
 	if (STATUS == EXECUTING) {
-		inserted = ctrl->execute(iteration);
+		inserted = ctrl->execute(executionId);
 	}
 
 	semaphore_executor.notify();
@@ -611,7 +639,40 @@ HeuristicExecutionInfo* Control::pthrExecution(unsigned int iteration) {
 	return inserted;
 }
 
-TerminationInfo Control::pthrManagement() {
+list<HeuristicExecutionInfo*> Control::threadExecutions(queue<unsigned int> *ids) {
+	Control *ctrl = Control::instance;
+
+	list<HeuristicExecutionInfo*> infos;
+
+	HeuristicExecutionInfo *inserted = NULL;
+
+	semaphore_executor.wait();
+
+	while (STATUS == EXECUTING) {
+		int executionId = -1;
+
+		{
+			scoped_lock<decltype(mutex_execution)> lock(mutex_execution);
+
+			if (!ids->empty()) {
+				executionId = ids->front();
+				ids->pop();
+			} else {
+				break;
+			}
+		}
+
+		inserted = ctrl->execute(executionId);
+
+		infos.push_back(inserted);
+	}
+
+	semaphore_executor.notify();
+
+	return infos;
+}
+
+TerminationInfo Control::threadManagement() {
 	Control *ctrl = Control::instance;
 
 	while (STATUS == EXECUTING) {

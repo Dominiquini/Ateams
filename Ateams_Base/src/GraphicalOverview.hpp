@@ -5,7 +5,8 @@
 #ifndef _GRAPHICAL_OVERVIEW_
 #define _GRAPHICAL_OVERVIEW_
 
-#define GRAPHICAL_BUFFER_SIZE 64
+#define SCREEN_TITLE_SIZE 64
+#define GRAPHICAL_BUFFER_SIZE 512
 
 #define WINDOW_WIDTH 1250
 #define WINDOW_HEIGHT 500
@@ -22,7 +23,7 @@ private:
 
 	static Control *ctrl;
 
-	static char screen_title[GRAPHICAL_BUFFER_SIZE];
+	static char screen_title[SCREEN_TITLE_SIZE];
 
 	static char graphical_buffer[GRAPHICAL_BUFFER_SIZE];
 

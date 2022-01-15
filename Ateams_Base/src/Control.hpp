@@ -23,8 +23,11 @@ using namespace this_thread;
 
 #define BUFFER_SIZE 4096
 
-#define MAX_ITERATIONS 25000
+#define JOB_MANAGER true
+
+#define MAX_ITERATIONS 1000000
 #define MAX_POPULATION 1000
+#define MAX_THREADS 512
 
 extern volatile TerminationInfo STATUS;
 
@@ -119,6 +122,10 @@ struct AteamsParameters {
 			iterations = MAX_ITERATIONS;
 		}
 
+		if (numThreads < 0 || numThreads > MAX_THREADS) {
+			numThreads = MAX_THREADS;
+		}
+
 		if (populationSize < 0 || populationSize > MAX_POPULATION) {
 			populationSize = MAX_POPULATION;
 		}
@@ -138,11 +145,14 @@ private:
 
 	static char buffer[BUFFER_SIZE];
 
-	/* Funcao que executa em multiplas threads e retorna o numero de solucoes inseridas */
-	static HeuristicExecutionInfo* pthrExecution(unsigned int iteration);
+	/* Funcao que executa um algitimo (em thread separada) */
+	static HeuristicExecutionInfo* threadExecution(unsigned int executionId);
 
-	/* Funcao que cotrola o tempo de execucao */
-	static TerminationInfo pthrManagement();
+	/* Funcao que executa diversos algotitmos (em thread separada) */
+	static list<HeuristicExecutionInfo*> threadExecutions(queue<unsigned int> *ids);
+
+	/* Funcao que cotrola a execucao (em thread separada) */
+	static TerminationInfo threadManagement();
 
 public:
 
