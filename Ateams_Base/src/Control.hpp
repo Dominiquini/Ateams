@@ -145,11 +145,11 @@ private:
 
 	static char buffer[BUFFER_SIZE];
 
-	/* Funcao que executa um algitimo (em thread separada) */
-	static HeuristicExecutionInfo* threadExecution(unsigned int executionId);
-
 	/* Funcao que executa diversos algotitmos (em thread separada) */
 	static list<HeuristicExecutionInfo*> threadExecutions(queue<unsigned int> *ids);
+
+	/* Funcao que executa um algitimo (em thread separada) */
+	static HeuristicExecutionInfo* threadExecution(unsigned int executionId);
 
 	/* Funcao que cotrola a execucao (em thread separada) */
 	static TerminationInfo threadManagement();

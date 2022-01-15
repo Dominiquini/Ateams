@@ -210,8 +210,9 @@ PopulationImprovement* Control::insertNewSolutions(vector<Problem*> *newSolution
 }
 
 void Control::trimSolutions() {
+	int trimPosition = min((int) solutions->size(), max(parameters.maxPopulationSize, parameters.populationSize));
 	set<Problem*>::iterator lastViableSolution = solutions->begin();
-	advance(lastViableSolution, min((int) solutions->size(), max(parameters.maxPopulationSize, parameters.populationSize)));
+	advance(lastViableSolution, trimPosition);
 
 	while (lastViableSolution != solutions->end()) {
 		delete *lastViableSolution;
@@ -423,6 +424,8 @@ void Control::finish() {
 void Control::run() {
 	startTime = steady_clock::now();
 
+	list<HeuristicExecutionInfo*> returnedHeuristics;
+
 	STATUS = EXECUTING;
 
 	if (showGraphicalOverview) {
@@ -451,13 +454,7 @@ void Control::run() {
 	for (vector<future<list<HeuristicExecutionInfo*>>>::iterator futureIterator = executions.begin(); futureIterator != executions.end(); futureIterator++) {
 		list<HeuristicExecutionInfo*> infos = futureIterator->get();
 
-		for (list<HeuristicExecutionInfo*>::iterator infoIterator = infos.begin(); infoIterator != infos.end(); infoIterator++) {
-			HeuristicExecutionInfo *info = *infoIterator;
-
-			if (info != NULL) {
-				heuristicsSolutionsCount += info->contribution;
-			}
-		}
+		returnedHeuristics.merge(infos);
 	}
 #else
 	vector<future<HeuristicExecutionInfo*>> executions;
@@ -469,7 +466,7 @@ void Control::run() {
 		HeuristicExecutionInfo *info = futureIterator->get();
 
 		if (info != NULL) {
-			heuristicsSolutionsCount += info->contribution;
+			returnedHeuristics.push_back(info);
 		}
 	}
 #endif
@@ -481,6 +478,8 @@ void Control::run() {
 	} else {
 		cout << flush;
 	}
+
+	heuristicsSolutionsCount = HeuristicExecutionInfo::getContributionSum(returnedHeuristics);
 
 	endTime = steady_clock::now();
 }
@@ -623,30 +622,12 @@ void Control::printProgress(HeuristicExecutionInfo *info) {
 	}
 }
 
-HeuristicExecutionInfo* Control::threadExecution(unsigned int executionId) {
-	Control *ctrl = Control::instance;
-
-	HeuristicExecutionInfo *inserted = NULL;
-
-	semaphore_executor.wait();
-
-	if (STATUS == EXECUTING) {
-		inserted = ctrl->execute(executionId);
-	}
-
-	semaphore_executor.notify();
-
-	return inserted;
-}
-
 list<HeuristicExecutionInfo*> Control::threadExecutions(queue<unsigned int> *ids) {
 	Control *ctrl = Control::instance;
 
 	list<HeuristicExecutionInfo*> infos;
 
 	HeuristicExecutionInfo *inserted = NULL;
-
-	semaphore_executor.wait();
 
 	while (STATUS == EXECUTING) {
 		int executionId = -1;
@@ -662,14 +643,28 @@ list<HeuristicExecutionInfo*> Control::threadExecutions(queue<unsigned int> *ids
 			}
 		}
 
-		inserted = ctrl->execute(executionId);
+		inserted = Control::threadExecution(executionId);
 
 		infos.push_back(inserted);
 	}
 
+	return infos;
+}
+
+HeuristicExecutionInfo* Control::threadExecution(unsigned int executionId) {
+	Control *ctrl = Control::instance;
+
+	HeuristicExecutionInfo *inserted = NULL;
+
+	semaphore_executor.wait();
+
+	if (STATUS == EXECUTING) {
+		inserted = ctrl->execute(executionId);
+	}
+
 	semaphore_executor.notify();
 
-	return infos;
+	return inserted;
 }
 
 TerminationInfo Control::threadManagement() {

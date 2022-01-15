@@ -136,6 +136,20 @@ public:
 
 	int contribution;
 
+	static int getContributionSum(list<HeuristicExecutionInfo*> infos) {
+		int contributionSum = 0;
+
+		for (list<HeuristicExecutionInfo*>::iterator it = infos.begin(); it != infos.end(); it++) {
+			HeuristicExecutionInfo *info = *it;
+
+			if (info != NULL) {
+				contributionSum += info->contribution;
+			}
+		}
+
+		return contributionSum;
+	}
+
 	HeuristicExecutionInfo(Heuristic *heuristic, unsigned int executionId, thread::id threadId) {
 		this->heuristic = heuristic;
 
