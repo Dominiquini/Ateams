@@ -321,8 +321,8 @@ inline void Control::readMainCMDParameters() {
 
 	setPrintFullSolution(Control::findPosArgv(argv, *argc, (char*) "-s") != -1);
 
-	setCMDStatusInfoScreen(Control::findPosArgv(argv, *argc, (char*) "-c") != -1);
 	setGraphicStatusInfoScreen(Control::findPosArgv(argv, *argc, (char*) "-g") != -1);
+	setCMDStatusInfoScreen(Control::findPosArgv(argv, *argc, (char*) "-c") != -1, Control::findPosArgv(argv, *argc, (char*) "-cc") != -1);
 }
 
 inline void Control::readExtraCMDParameters() {
@@ -349,12 +349,13 @@ inline void Control::setPrintFullSolution(bool fullPrint) {
 	this->printFullSolution = fullPrint;
 }
 
-inline void Control::setCMDStatusInfoScreen(bool showCMDOverview) {
-	this->showTextOverview = showCMDOverview;
-}
-
 inline void Control::setGraphicStatusInfoScreen(bool showGraphicalOverview) {
 	this->showGraphicalOverview = showGraphicalOverview;
+}
+
+inline void Control::setCMDStatusInfoScreen(bool showTextOverview, bool showQueueTextOverview) {
+	this->showTextOverview = showTextOverview || showQueueTextOverview;
+	this->showQueueTextOverview = showQueueTextOverview;
 }
 
 void Control::init() {
@@ -599,18 +600,20 @@ void Control::clearHeuristics(bool deleteHeuristics) {
 
 void Control::printProgress(HeuristicExecutionInfo *info) {
 	if (instance->showTextOverview) {
-		string execNames;
+		string queue;
 		string color;
 
-		execNames = Heuristic::getRunningHeuristics();
+		if (instance->showQueueTextOverview) {
+			queue = "[" + Heuristic::getRunningHeuristics() + "]";
+		}
 
 		Control::buffer[0] = '\0';
 
 		if (!info->isFinished()) {
-			snprintf(Control::buffer, BUFFER_SIZE, ">>> {%.4d} ALG: %s | ....................... | QUEUE: %02d::[%s]", instance->executionCount, info->heuristicInfo, runningThreads, execNames.c_str());
+			snprintf(Control::buffer, BUFFER_SIZE, ">>> {%.4d} ALG: %s | ....................... | QUEUE: %02d %s", instance->executionCount, info->heuristicInfo, runningThreads, queue.c_str());
 			color = COLOR_YELLOW;
 		} else {
-			snprintf(Control::buffer, BUFFER_SIZE, "<<< {%.4d} ALG: %s | FITNESS: %.6ld::%.6ld | QUEUE: %02d::[%s]", instance->executionCount, info->heuristicInfo, (long) Problem::best, (long) Problem::worst, runningThreads, execNames.c_str());
+			snprintf(Control::buffer, BUFFER_SIZE, "<<< {%.4d} ALG: %s | FITNESS: %.6ld::%.6ld | QUEUE: %02d %s", instance->executionCount, info->heuristicInfo, (long) Problem::best, (long) Problem::worst, runningThreads, queue.c_str());
 			color = COLOR_GREEN;
 		}
 

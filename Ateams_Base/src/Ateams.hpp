@@ -58,7 +58,7 @@ using namespace chrono;
 
 #define fix_terminal() ios_base::sync_with_stdio(IS_LINUX) ;
 
-#define beep() cout << BEEP_ASCII_CHAR << flush ;
+#define beep() cout << BEEP << flush ;
 
 #define quote(var) #var
 

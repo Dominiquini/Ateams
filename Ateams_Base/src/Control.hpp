@@ -179,6 +179,7 @@ private:
 	bool printFullSolution = false;		// Imprime melhor solucao por completo
 
 	bool showTextOverview = false;		// Informa se as heuristicas serao visualizadas no prompt
+	bool showQueueTextOverview = false;
 	bool showGraphicalOverview = false;	// Informa se as heuristicas serao visualizadas graficamente
 
 	AteamsParameters parameters;
@@ -227,8 +228,8 @@ private:
 
 	void setPrintFullSolution(bool fullPrint);
 
-	void setCMDStatusInfoScreen(bool showCMDOverview);
 	void setGraphicStatusInfoScreen(bool showGraphicalOverview);
+	void setCMDStatusInfoScreen(bool showTextOverview, bool showQueueTextOverview);
 
 public:
 

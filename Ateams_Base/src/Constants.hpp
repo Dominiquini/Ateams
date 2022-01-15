@@ -13,6 +13,6 @@
 
 #define PREVIOUS_LINE "\033[F"
 
-#define BEEP_ASCII_CHAR '\a'
+#define BEEP '\a'
 
 #endif
