@@ -329,7 +329,7 @@ inline void Control::readExtraCMDParameters() {
 	int p = -1;
 
 	for (map<string, void*>::const_iterator param = parameters.keys.begin(); param != parameters.keys.end(); param++) {
-		string cmdParameter = COMMAND_LINE_PARAMETER_SUFFIX + param->first;
+		string cmdParameter = "--" + param->first;
 
 		if ((p = Control::findPosArgv(argv, *argc, const_cast<char*>(cmdParameter.c_str()))) != -1) {
 			setParameter(param->first.c_str(), argv[p]);
@@ -610,10 +610,10 @@ void Control::printProgress(HeuristicExecutionInfo *info) {
 		Control::buffer[0] = '\0';
 
 		if (!info->isFinished()) {
-			snprintf(Control::buffer, BUFFER_SIZE, ">>> {%.4d} ALG: %s | ....................... | QUEUE: %02d %s", instance->executionCount, info->heuristicInfo, runningThreads, queue.c_str());
+			snprintf(Control::buffer, CONTROL_BUFFER_SIZE, ">>> {%.4d} ALG: %s | ....................... | QUEUE: %02d %s", instance->executionCount, info->heuristicInfo, runningThreads, queue.c_str());
 			color = COLOR_YELLOW;
 		} else {
-			snprintf(Control::buffer, BUFFER_SIZE, "<<< {%.4d} ALG: %s | FITNESS: %.6ld::%.6ld | QUEUE: %02d %s", instance->executionCount, info->heuristicInfo, (long) Problem::best, (long) Problem::worst, runningThreads, queue.c_str());
+			snprintf(Control::buffer, CONTROL_BUFFER_SIZE, "<<< {%.4d} ALG: %s | FITNESS: %.6ld::%.6ld | QUEUE: %02d %s", instance->executionCount, info->heuristicInfo, (long) Problem::best, (long) Problem::worst, runningThreads, queue.c_str());
 			color = COLOR_GREEN;
 		}
 
@@ -674,7 +674,7 @@ TerminationInfo Control::threadManagement() {
 	Control *ctrl = Control::instance;
 
 	while (STATUS == EXECUTING) {
-		sleep_ms(THREAD_MANAGEMENT_UPDATE_INTERVAL);
+		sleep_ms(CONTROL_MANAGEMENT_UPDATE_INTERVAL);
 
 		if (ctrl->executionCount == ctrl->parameters.iterations && (int) Heuristic::allHeuristics->size() == ctrl->parameters.iterations) {
 			STATUS = FINISHED_NORMALLY;
@@ -728,7 +728,7 @@ Control *Control::instance = NULL;
 
 int Control::runningThreads = 0;
 
-char Control::buffer[BUFFER_SIZE];
+char Control::buffer[CONTROL_BUFFER_SIZE];
 
 list<HeuristicExecutionInfo*> *Heuristic::allHeuristics = NULL;
 list<HeuristicExecutionInfo*> *Heuristic::runningHeuristics = NULL;

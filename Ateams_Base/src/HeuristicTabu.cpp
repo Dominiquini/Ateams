@@ -45,7 +45,7 @@ set<Problem*>::const_iterator TabuSearch::selectOpportunisticSolution(set<Proble
 	set<Problem*>::const_iterator selection = population->cbegin();
 	int attemps = 0;
 
-	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.tabu == true) && (attemps++ < MAX_ATTEMPTS))
+	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.tabu == true) && (attemps++ < HEURISTIC_SELECTION_MAX_ATTEMPTS))
 		selection = Problem::selectOpportunisticSolution(population, fitTotal);
 
 	(*selection)->heuristicsInfo.tabu++;

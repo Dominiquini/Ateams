@@ -45,7 +45,7 @@ set<Problem*>::const_iterator SimulatedAnnealing::selectOpportunisticSolution(se
 	set<Problem*>::const_iterator selection = population->cbegin();
 	int attemps = 0;
 
-	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.annealing == true) && (attemps++ < MAX_ATTEMPTS))
+	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.annealing == true) && (attemps++ < HEURISTIC_SELECTION_MAX_ATTEMPTS))
 		selection = Problem::selectOpportunisticSolution(population, fitTotal);
 
 	(*selection)->heuristicsInfo.annealing++;

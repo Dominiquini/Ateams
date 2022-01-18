@@ -5,11 +5,6 @@ using namespace std;
 #ifndef _HEURISTIC_
 #define _HEURISTIC_
 
-#define MAX_ATTEMPTS 50
-
-#define HEURISTIC_NAME_MAX_LENGTH 16
-#define HEURISTIC_INFO_MAX_LENGTH 512
-
 extern mutex mutex_population;
 
 extern volatile TerminationInfo STATUS;

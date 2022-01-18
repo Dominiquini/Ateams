@@ -17,18 +17,6 @@ using namespace this_thread;
 #include "HeuristicGenetic.hpp"
 #include "HeuristicAnnealing.hpp"
 
-#define COMMAND_LINE_PARAMETER_SUFFIX "--"
-
-#define THREAD_MANAGEMENT_UPDATE_INTERVAL 500
-
-#define BUFFER_SIZE 4096
-
-#define JOB_MANAGER true
-
-#define MAX_ITERATIONS 1000000
-#define MAX_POPULATION 1000
-#define MAX_THREADS 512
-
 extern volatile TerminationInfo STATUS;
 
 class ProgressBar;
@@ -143,7 +131,7 @@ private:
 
 	static int runningThreads;
 
-	static char buffer[BUFFER_SIZE];
+	static char buffer[CONTROL_BUFFER_SIZE];
 
 	/* Funcao que executa diversos algotitmos (em thread separada) */
 	static list<HeuristicExecutionInfo*> threadExecutions(queue<unsigned int> *ids);

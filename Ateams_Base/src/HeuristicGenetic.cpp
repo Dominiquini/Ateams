@@ -53,7 +53,7 @@ set<Problem*>::const_iterator GeneticAlgorithm::selectOpportunisticSolution(set<
 	set<Problem*>::const_iterator selection = population->cbegin();
 	int attemps = 0;
 
-	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.genetic == true) && (attemps++ < MAX_ATTEMPTS))
+	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.genetic == true) && (attemps++ < HEURISTIC_SELECTION_MAX_ATTEMPTS))
 		selection = Problem::selectOpportunisticSolution(population, fitTotal);
 
 	(*selection)->heuristicsInfo.genetic++;

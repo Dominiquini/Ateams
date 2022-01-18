@@ -5,10 +5,6 @@
 #ifndef _RANDOM_
 #define _RANDOM_
 
-#define RANDOM_TYPE -1
-
-#define RANDOM_THREAD_SAFE false
-
 #if (RANDOM_TYPE > 0)
   static std::default_random_engine randomEngine(RANDOM_TYPE);
 #elif (RANDOM_TYPE == -1)

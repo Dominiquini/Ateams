@@ -40,14 +40,6 @@ using namespace chrono;
 #ifndef _ATEAMS_
 #define _ATEAMS_
 
-#if defined(_WIN64) || defined(WIN64)
-  #define IS_WINDOWS true
-  #define IS_LINUX false
-#elif defined(__linux__) || defined(__unix__)
-  #define IS_WINDOWS false
-  #define IS_LINUX true
-#endif
-
 #if IS_LINUX
   #define PTHREAD_NORMAL_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
   #define PTHREAD_ERRORCHECK_MUTEX_INITIALIZER PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP
@@ -58,7 +50,11 @@ using namespace chrono;
 
 #define fix_terminal() ios_base::sync_with_stdio(IS_LINUX) ;
 
-#define beep() cout << BEEP << flush ;
+#define previous_line() cout << ASCII_PREVIOUS_LINE << flush ;
+
+#define clear_line() cout << ASCII_CLEAR_LINE << flush ;
+
+#define beep() cout << CHAR_BEEP << flush ;
 
 #define quote(var) #var
 
