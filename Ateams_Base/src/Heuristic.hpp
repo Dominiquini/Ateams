@@ -98,7 +98,7 @@ public:
 
 	virtual bool setParameter(const char *parameter, const char *value) = 0;
 
-	virtual void printStatistics(char bullet, int total) {
+	virtual void printStatistics(int total) {
 		const char *heuristicName = getParameters().name.c_str();
 		int heuristicChoiceProbability = getParameters().choiceProbability;
 		float heuristicTotalExecutionPercentage = total != 0 ? (100.0 * totalExecutionCounter) / total : 0.0;
@@ -106,9 +106,9 @@ public:
 		int heuristicAverageTime = total != 0 ? duration_cast<milliseconds>(totalExecutionTime).count() / total : 0;
 
 		if (total == 0) {
-			printf(" %c %s [%03d] :: %03d (%% ------ %%) :: %04ds (~ ------ ~)\n", bullet, heuristicName, heuristicChoiceProbability, totalExecutionCounter, heuristicTotalTime);
+			printf(" - %s [%03d] :: %03d (%% ------ %%) :: %04ds (~ ------ ~)\n", heuristicName, heuristicChoiceProbability, totalExecutionCounter, heuristicTotalTime);
 		} else {
-			printf(" %c %s [%03d] :: %03d (%% %06.2f %%) :: %04ds (~ %04dms ~)\n", bullet, heuristicName, heuristicChoiceProbability, totalExecutionCounter, heuristicTotalExecutionPercentage, heuristicTotalTime, heuristicAverageTime);
+			printf(" - %s [%03d] :: %03d (%% %06.2f %%) :: %04ds (~ %04dms ~)\n", heuristicName, heuristicChoiceProbability, totalExecutionCounter, heuristicTotalExecutionPercentage, heuristicTotalTime, heuristicAverageTime);
 		}
 	}
 
@@ -207,6 +207,10 @@ public:
 
 	inline bool isFinished() {
 		return status == 100.0;
+	}
+
+	inline bool isRunning() {
+		return isStarted() && !isFinished();
 	}
 
 private:

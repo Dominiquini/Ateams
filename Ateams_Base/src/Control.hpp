@@ -134,8 +134,6 @@ private:
 
 	static int runningThreads;
 
-	static char buffer[CONTROL_BUFFER_SIZE];
-
 	/* Funcao que executa diversos algotitmos (em thread separada) */
 	static list<HeuristicExecutionInfo*> threadExecutions(queue<unsigned int> *ids);
 
@@ -167,7 +165,11 @@ private:
 	bool printFullSolution = false;				// Imprime melhor solucao por completo
 
 	bool showTextOverview = false;				// Informa se as heuristicas serao visualizadas no prompt
-	bool showQueueTextOverview = false;
+	bool showTextFitnessOverview = false;		// Informa o melhor e pior fitness atual
+	bool showTextImprovementOverview = false;	// Informa o melhor fitness antes e depois da execucao
+	bool showTextThreadOverview = false;		// Informa se serao exibidas informacoes das threads no prompt
+	bool showTextQueueOverview = false;			// Informa se serao exibidas informacoes da queue no prompt
+
 	bool showGraphicalOverview = false;			// Informa se as heuristicas serao visualizadas graficamente
 
 	bool singleExecutionPerThread = false;		// Cria uma thread para cada iteracao
@@ -223,7 +225,7 @@ private:
 	void setPrintFullSolution(bool fullPrint);
 
 	void setGraphicStatusInfoScreen(bool showGraphicalOverview);
-	void setCMDStatusInfoScreen(bool showTextOverview, bool showQueueTextOverview);
+	void setCMDStatusInfoScreen(bool showText, bool showFitness, bool showImprovement, bool showThread, bool showQueue);
 
 	void setSingleExecutionPerThread(bool singleExecutionPerThread);
 
@@ -243,11 +245,11 @@ public:
 
 	ExecutionInfo* getExecutionInfo();			// Retorna algumas informacoes da ultima execucao
 
-	void printPopulation(string status);
+	void printPopulationInfo(string status);
 
-	void printSolution();
+	void printSolutionInfo();
 
-	void printExecution();
+	void printExecutionInfo();
 
 	AteamsParameters getParameters();
 

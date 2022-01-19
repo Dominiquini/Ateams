@@ -8,15 +8,19 @@
 #include "Semaphore.hpp"
 
 #include <type_traits>
+#include <charconv>
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <cstdarg>
 #include <cstdio>
+#include <limits>
 #include <cmath>
 
 #include <algorithm>
 #include <iterator>
 #include <utility>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <queue>
@@ -57,6 +61,8 @@ using namespace chrono;
 #define beep() cout << CHAR_BEEP << flush ;
 
 #define quote(var) #var
+
+#define stream_formatter(width, fill) setw(width) << setfill(fill)
 
 enum TerminationInfo {
 	EXECUTING, FINISHED_NORMALLY, USER_SIGNALED, EXECUTION_TIMEOUT, LACK_OF_IMPROVEMENT, TOO_MANY_SOLUTIONS, RESULT_ACHIEVED

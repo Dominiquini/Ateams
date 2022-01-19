@@ -264,7 +264,7 @@ def build(config, tool, mode, rebuild, extra_args):
 @click.option('-i', '--input', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Input Data File')
 @click.option('-r', '--result', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Output Result File')
 @click.option('-o', '--pop', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Population File')
-@click.option('-c', '--show-cmd-info', type=click.IntRange(0, 2), count=True, help='Show Prompt Overview')
+@click.option('-c', '--show-cmd-info', type=click.IntRange(0, 5), count=True, help='Show Prompt Overview')
 @click.option('-g', '--show-graphical-info', type=click.BOOL, is_flag=True, help='Show Graphical Overview')
 @click.option('-s', '--show-solution', type=click.BOOL, is_flag=True, help='Show Solution')
 @click.option('--executor/--threads', default=True, help='Pause Terminal')

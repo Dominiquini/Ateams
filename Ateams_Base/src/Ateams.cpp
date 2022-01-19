@@ -17,8 +17,6 @@ int main(int argc, char *argv[]) {
 	srand(unsigned(time(NULL)));
 
 	try {
-		cout << endl;
-
 		Control *ctrl;
 
 		ExecutionInfo *executionInfo;
@@ -32,13 +30,13 @@ int main(int argc, char *argv[]) {
 
 			ctrl->finish();
 
-			ctrl->printSolution();
+			ctrl->printSolutionInfo();
 
-			ctrl->printExecution();
+			ctrl->printExecutionInfo();
 
 			executionInfo = Control::terminate();
 
-			cout << endl << endl << COLOR_GREEN << "Termination Reason: " << getTerminationInfo(STATUS) << " (" << getExecutionTime(executionInfo->executionTime) << ") " << COLOR_DEFAULT << endl << endl;
+			cout << endl <<  COLOR_GREEN << "Termination Reason: " << getTerminationInfo(STATUS) << " (" << getExecutionTime(executionInfo->executionTime) << ") " << COLOR_DEFAULT << endl;
 		}
 
 		delete executionInfo;
@@ -49,7 +47,7 @@ int main(int argc, char *argv[]) {
 
 		exception_ptr exception = current_exception();
 
-		cerr << endl << endl << COLOR_RED << "Exception: " << getExceptionMessage(exception) << COLOR_DEFAULT << endl << endl;
+		cerr << endl << COLOR_RED << "Exception: " << getExceptionMessage(exception) << COLOR_DEFAULT << endl;
 
 		return -1;
 	}
