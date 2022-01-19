@@ -80,14 +80,18 @@ public:
 
 public:
 
-	int executionCounter;
+	unsigned int totalExecutionCounter;
+
+	milliseconds totalExecutionTime;
 
 	Heuristic() {
-		executionCounter = 0;
+		totalExecutionCounter = 0;
+		totalExecutionTime = milliseconds::zero();
 	}
 
 	virtual ~Heuristic() {
-		executionCounter = -1;
+		totalExecutionCounter = 0;
+		totalExecutionTime = milliseconds::zero();
 	}
 
 	virtual HeuristicParameters getParameters() = 0;
@@ -95,16 +99,24 @@ public:
 	virtual bool setParameter(const char *parameter, const char *value) = 0;
 
 	virtual void printStatistics(char bullet, int total) {
+		const char *heuristicName = getParameters().name.c_str();
+		int heuristicChoiceProbability = getParameters().choiceProbability;
+		float heuristicTotalExecutionPercentage = total != 0 ? (100.0 * totalExecutionCounter) / total : 0.0;
+		int heuristicTotalTime = duration_cast<seconds>(totalExecutionTime).count();
+		int heuristicAverageTime = total != 0 ? duration_cast<milliseconds>(totalExecutionTime).count() / total : 0;
+
 		if (total == 0) {
-			printf(" %c %s |%% %03d %%| -> %03d (%% ------ %%)\n", bullet, getParameters().name.c_str(), getParameters().choiceProbability, executionCounter);
+			printf(" %c %s [%03d] :: %03d (%% ------ %%) :: %04ds (~ ------ ~)\n", bullet, heuristicName, heuristicChoiceProbability, totalExecutionCounter, heuristicTotalTime);
 		} else {
-			printf(" %c %s |%% %03d %%| -> %03d (%% %06.2f %%)\n", bullet, getParameters().name.c_str(), getParameters().choiceProbability, executionCounter, (100.0f * executionCounter) / total);
+			printf(" %c %s [%03d] :: %03d (%% %06.2f %%) :: %04ds (~ %04dms ~)\n", bullet, heuristicName, heuristicChoiceProbability, totalExecutionCounter, heuristicTotalExecutionPercentage, heuristicTotalTime, heuristicAverageTime);
 		}
 	}
 
 	virtual set<Problem*>::const_iterator selectOpportunisticSolution(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) = 0;
 
 	virtual vector<Problem*>* start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) = 0;
+
+	virtual milliseconds updateExecutionTime(steady_clock::time_point startTime, steady_clock::time_point endTime) = 0;
 
 	virtual void markSolutions(vector<Problem*> *solutions) = 0;
 
@@ -121,6 +133,10 @@ public:
 	unsigned int executionId;
 	thread::id threadId;
 
+	milliseconds executionTime;
+
+	int contribution;
+
 	char heuristicInfo[HEURISTIC_NAME_MAX_LENGTH];
 
 	double bestInitialFitness, bestActualFitness;
@@ -129,9 +145,7 @@ public:
 
 	char execInfo[HEURISTIC_INFO_MAX_LENGTH];
 
-	int contribution;
-
-	static int getContributionSum(list<HeuristicExecutionInfo*> infos) {
+	static unsigned int getContributionSum(list<HeuristicExecutionInfo*> infos) {
 		int contributionSum = 0;
 
 		for (list<HeuristicExecutionInfo*>::iterator it = infos.begin(); it != infos.end(); it++) {
@@ -143,6 +157,20 @@ public:
 		}
 
 		return contributionSum;
+	}
+
+	static milliseconds getTotalExecutionTime(list<HeuristicExecutionInfo*> infos) {
+		milliseconds totalExecutionTime = milliseconds::zero();
+
+		for (list<HeuristicExecutionInfo*>::iterator it = infos.begin(); it != infos.end(); it++) {
+			HeuristicExecutionInfo *info = *it;
+
+			if (info != NULL) {
+				totalExecutionTime += info->executionTime;
+			}
+		}
+
+		return totalExecutionTime;
 	}
 
 	HeuristicExecutionInfo(Heuristic *heuristic, unsigned int executionId, thread::id threadId) {

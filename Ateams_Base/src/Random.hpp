@@ -2,6 +2,8 @@
 #include <random>
 #include <mutex>
 
+#include "Constants.hpp"
+
 #ifndef _RANDOM_
 #define _RANDOM_
 

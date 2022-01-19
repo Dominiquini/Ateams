@@ -14,14 +14,16 @@
 
 extern mutex mutex_info;
 
-extern volatile TerminationInfo STATUS;
-
 class Control;
+
+enum GraphicalOverviewStatus {
+	STARTED, STOPPED
+};
 
 class GraphicalOverview {
 private:
 
-	static Control *ctrl;
+	static GraphicalOverview *instance;
 
 	static char screen_title[SCREEN_TITLE_SIZE];
 
@@ -34,12 +36,20 @@ private:
 	static void reshape(GLint, GLint);                             	 	// Redesenha a tela
 	static void drawstr(GLfloat, GLfloat, GLvoid*, const char*, ...); 	// Desenha uma string na tela
 
-public:
+	GraphicalOverviewStatus status;
+
+	Control *ctrl;
 
 	GraphicalOverview(Control*);
 	~GraphicalOverview();
 
-	void run();
+public:
+
+	static GraphicalOverview* getInstance(Control*);
+	static void destroyInstance();
+
+	void start();
+	void stop();
 };
 
 #endif

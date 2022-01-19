@@ -62,7 +62,7 @@ public:
 	void print() {
 		currUpdateVal %= pBarUpdater.length();
 
-		std::cout << CHAR_BACKSPACE << label << firstPartOfpBar;
+		std::cout << CHAR_CARRIAGE_RETURN << label << firstPartOfpBar;
 		for (int a = 0; a < amountOfFiller; a++) {
 			std::cout << pBarFiller;
 		}

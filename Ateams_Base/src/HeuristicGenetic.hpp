@@ -7,7 +7,7 @@ using namespace std;
 #ifndef _GENETIC_
 #define _GENETIC_
 
-#define GENETIC_ALGORITHM_NAME "GeneticAlgorithm"
+#define GENETIC_ALGORITHM_TAG_NAME "GeneticAlgorithm"
 
 struct GeneticAlgorithmParameters : HeuristicParameters {
 
@@ -50,6 +50,8 @@ public:
 	set<Problem*>::const_iterator selectOpportunisticSolution(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) override;
 
 	vector<Problem*>* start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) override;
+
+	milliseconds updateExecutionTime(steady_clock::time_point startTime, steady_clock::time_point endTime) override;
 
 	void markSolutions(vector<Problem*>* solutions) override;
 

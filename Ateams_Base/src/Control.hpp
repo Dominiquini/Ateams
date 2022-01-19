@@ -35,10 +35,12 @@ struct ExecutionInfo {
 
 	unsigned long long exploredSolutions;
 	unsigned int heuristicsSolutionsCount;
+	milliseconds heuristicsExecutionTime;
 
-	ExecutionInfo(steady_clock::time_point startTime, steady_clock::time_point endTime, int executionCount, int heuristicsSolutionsCount) {
+	ExecutionInfo(steady_clock::time_point startTime, steady_clock::time_point endTime, int executionCount, int heuristicsSolutionsCount, milliseconds heuristicsExecutionTime) {
 		this->executionTime = duration_cast<milliseconds>(endTime - startTime);
 		this->heuristicsSolutionsCount = heuristicsSolutionsCount;
+		this->heuristicsExecutionTime = heuristicsExecutionTime;
 		this->executionCount = executionCount;
 
 		this->worstFitness = Problem::worst;
@@ -180,9 +182,12 @@ private:
 	vector<Heuristic*> *heuristics;								// Algoritmos disponiveis
 
 	steady_clock::time_point startTime, endTime;				// Medidor do tempo inicial e final
-	int iterationsWithoutImprovement = 0;						// Ultima iteracao em que houve melhora
 	int executionCount = 0;										// Threads executadas
-	int heuristicsSolutionsCount = 0;							// Numero de solucoes produzidas pelos algoritimos
+
+	int iterationsWithoutImprovement = 0;						// Ultima iteracao em que houve melhora
+
+	unsigned int heuristicsSolutionsCount = 0;							// Numero de solucoes produzidas pelos algoritimos
+	milliseconds heuristicsTotalExecutionTime = milliseconds::zero();	// Tempo total gasto pelas heurísticas
 
 	ProgressBar *loadingProgressBar;
 	ProgressBar *executionProgressBar;
@@ -221,7 +226,7 @@ private:
 
 public:
 
-	void init();
+	void start();
 
 	void finish();
 

@@ -24,7 +24,7 @@ vector<Problem*>* TabuSearch::start(set<Problem*, bool (*)(Problem*, Problem*)> 
 	{
 		scoped_lock<decltype(mutex_population)> lock_population(mutex_population);
 
-		executionCounter++;
+		totalExecutionCounter++;
 
 		// Escolhe a melhor solucao para ser usada pelo BT
 		if (parameters.choicePolicy == 0 || Random::randomPercentage() < (100 * parameters.elitismProbability)) {
@@ -45,17 +45,25 @@ set<Problem*>::const_iterator TabuSearch::selectOpportunisticSolution(set<Proble
 	set<Problem*>::const_iterator selection = population->cbegin();
 	int attemps = 0;
 
-	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.tabu == true) && (attemps++ < HEURISTIC_SELECTION_MAX_ATTEMPTS))
+	while ((selection == population->cbegin() || (*selection)->heuristicsCounter.tabu == true) && (attemps++ < HEURISTIC_SELECTION_MAX_ATTEMPTS))
 		selection = Problem::selectOpportunisticSolution(population, fitTotal);
 
-	(*selection)->heuristicsInfo.tabu++;
+	(*selection)->heuristicsCounter.tabu++;
 
 	return selection;
 }
 
+milliseconds TabuSearch::updateExecutionTime(steady_clock::time_point startTime, steady_clock::time_point endTime) {
+	milliseconds executionTime = duration_cast<milliseconds>(endTime - startTime);
+
+	totalExecutionTime += executionTime;
+
+	return executionTime;
+}
+
 void TabuSearch::markSolutions(vector<Problem*> *solutions) {
 	for (auto solution = solutions->cbegin(); solution != solutions->cend(); ++solution) {
-		(*solution)->heuristicsInfo.tabu++;
+		(*solution)->heuristicsCounter.tabu++;
 	}
 }
 
@@ -70,9 +78,11 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *info) 
 	vector<Problem*> *maxGlobal = new vector<Problem*>();
 	Problem *maxLocal = init;
 
+	steady_clock::time_point startTime = steady_clock::now();
+
 	maxGlobal->push_back(Problem::copySolution(*maxLocal));
 
-	if (info != NULL) {
+	{
 		info->bestInitialFitness = (*maxGlobal->begin())->getFitness();
 		info->bestActualFitness = (*maxGlobal->rbegin())->getFitness();
 
@@ -83,12 +93,12 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *info) 
 
 	// Loop principal
 	for (int i = 0, j = 0; i < parameters.iterations && j < parameters.attemptsWithoutImprovement; i++, j++) {
-		if (STATUS != EXECUTING)
+		if (HEURISTIC_ALLOW_TERMINATION && STATUS != EXECUTING) {
 			break;
+		}
 
-		if (info != NULL) {
+		{
 			info->status = (100.00 * (double) (i + 1)) / (double) parameters.iterations;
-
 			info->bestActualFitness = (*maxGlobal->rbegin())->getFitness();
 
 			info->setupInfo("Iteration: %d", i + 1);
@@ -171,7 +181,12 @@ vector<Problem*>* TabuSearch::exec(Problem *init, HeuristicExecutionInfo *info) 
 
 	markSolutions(maxGlobal);
 
-	if (info != NULL) {
+	steady_clock::time_point endTime = steady_clock::now();
+
+	milliseconds executionTime = updateExecutionTime(startTime, endTime);
+
+	{
+		info->executionTime = executionTime;
 		info->contribution = maxGlobal->size();
 	}
 

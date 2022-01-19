@@ -24,6 +24,10 @@ XMLParser::~XMLParser() {
 void XMLParser::parseXML(char *parameters) {
 	try {
 		parser->parse(parameters);
+	} catch(string &message) {
+		throw message;
+	} catch(const char *message) {
+		throw string(message);
 	} catch (...) {
 		throw "Unable To Parse: " + string(parameters);
 	}
@@ -33,7 +37,7 @@ void XMLParser::parseXML(char *parameters) {
 void XMLParser::startElement(const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) {
 	char *element = XMLString::transcode(localname);
 
-	if (strcasecmp(element, "Controller") == 0) {
+	if (strcasecmp(element, TAG_CONTROLLER) == 0) {
 		char *parameter = NULL;
 		char *value = NULL;
 
@@ -42,13 +46,13 @@ void XMLParser::startElement(const XMLCh *const uri, const XMLCh *const localnam
 			value = XMLString::transcode(attrs.getValue(ix));
 
 			if (!ctrl->setParameter(parameter, value)) {
-				throw string("Invalid Ateams Parameter: ").append(parameter);
+				throw string("Invalid Control Parameter: ").append(parameter);
 			}
 
 			XMLString::release(&parameter);
 			XMLString::release(&value);
 		}
-	} else if (strcasecmp(element, "Heuristics") == 0) {
+	} else if (strcasecmp(element, TAG_HEURISTICS) == 0) {
 		ctrl->clearHeuristics(true);
 	} else {
 		Heuristic *newHeuristic = Control::instantiateHeuristic(element);
@@ -70,6 +74,8 @@ void XMLParser::startElement(const XMLCh *const uri, const XMLCh *const localnam
 			}
 
 			ctrl->insertHeuristic(newHeuristic, true);
+		} else {
+			throw string("Invalid Heuristic Name: ").append(element);
 		}
 	}
 

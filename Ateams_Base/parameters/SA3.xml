@@ -15,13 +15,13 @@
 
     <SimulatedAnnealing
        name = "SA3"
-       probSA = "5"
-       choicePolicySA = "10"
-       elitismProbabilitySA = "0.125"
-       maxIterationsSA = "2500"
+       probSA = "10"
+       choicePolicySA = "100"
+       elitismProbabilitySA = "0.25"
+       maxIterationsSA = "500"
        startTempSA = "250.0"
-       endTempSA = "0.25"
-       alphaSA = "0.9">
+       endTempSA = "0.75"
+       alphaSA = "0.999">
     </SimulatedAnnealing>
 
   </Heuristics>

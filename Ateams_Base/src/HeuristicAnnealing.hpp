@@ -7,7 +7,7 @@ using namespace std;
 #ifndef _ANNEALING_
 #define _ANNEALING_
 
-#define SIMULATED_ANNEALING_NAME "SimulatedAnnealing"
+#define SIMULATED_ANNEALING_TAG_NAME "SimulatedAnnealing"
 
 struct SimulatedAnnealingParameters : HeuristicParameters {
 
@@ -49,6 +49,8 @@ public:
 	set<Problem*>::const_iterator selectOpportunisticSolution(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) override;
 
 	vector<Problem*>* start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) override;
+
+	milliseconds updateExecutionTime(steady_clock::time_point startTime, steady_clock::time_point endTime) override;
 
 	void markSolutions(vector<Problem*>* solutions) override;
 

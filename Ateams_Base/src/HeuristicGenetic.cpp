@@ -27,7 +27,7 @@ vector<Problem*>* GeneticAlgorithm::start(set<Problem*, bool (*)(Problem*, Probl
 
 		initialPopulation = min(parameters.populationSize, (int) sol->size());
 
-		executionCounter++;
+		totalExecutionCounter++;
 
 		if (parameters.choicePolicy == 0) {
 			for (selection = sol->cbegin(), solutionsCount = 0; selection != sol->cend() && solutionsCount < initialPopulation; selection++, solutionsCount++) {
@@ -53,17 +53,25 @@ set<Problem*>::const_iterator GeneticAlgorithm::selectOpportunisticSolution(set<
 	set<Problem*>::const_iterator selection = population->cbegin();
 	int attemps = 0;
 
-	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.genetic == true) && (attemps++ < HEURISTIC_SELECTION_MAX_ATTEMPTS))
+	while ((selection == population->cbegin() || (*selection)->heuristicsCounter.genetic == true) && (attemps++ < HEURISTIC_SELECTION_MAX_ATTEMPTS))
 		selection = Problem::selectOpportunisticSolution(population, fitTotal);
 
-	(*selection)->heuristicsInfo.genetic++;
+	(*selection)->heuristicsCounter.genetic++;
 
 	return selection;
 }
 
+milliseconds GeneticAlgorithm::updateExecutionTime(steady_clock::time_point startTime, steady_clock::time_point endTime) {
+	milliseconds executionTime = duration_cast<milliseconds>(endTime - startTime);
+
+	totalExecutionTime += executionTime;
+
+	return executionTime;
+}
+
 void GeneticAlgorithm::markSolutions(vector<Problem*> *solutions) {
 	for (auto solution = solutions->cbegin(); solution != solutions->cend(); ++solution) {
-		(*solution)->heuristicsInfo.genetic++;
+		(*solution)->heuristicsCounter.genetic++;
 	}
 }
 
@@ -84,7 +92,9 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 
 	vector<Problem*> *bad_pop = new vector<Problem*>();
 
-	if (info != NULL) {
+	steady_clock::time_point startTime = steady_clock::now();
+
+	{
 		info->bestInitialFitness = (*pop->begin())->getFitness();
 		info->bestActualFitness = (*pop->begin())->getFitness();
 
@@ -95,12 +105,12 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 
 	/* Iteracao principal do AG */
 	for (int i = 0; i < parameters.iterations; i++) {
-		if (STATUS != EXECUTING)
+		if (HEURISTIC_ALLOW_TERMINATION && STATUS != EXECUTING) {
 			break;
+		}
 
-		if (info != NULL) {
+		{
 			info->status = (100.00 * (double) (i + 1)) / (double) parameters.iterations;
-
 			info->bestActualFitness = (*pop->begin())->getFitness();
 
 			info->setupInfo("Generation: %d", i + 1);
@@ -224,7 +234,12 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 
 	markSolutions(pop);
 
-	if (info != NULL) {
+	steady_clock::time_point endTime = steady_clock::now();
+
+	milliseconds executionTime = updateExecutionTime(startTime, endTime);
+
+	{
+		info->executionTime = executionTime;
 		info->contribution = pop->size();
 	}
 

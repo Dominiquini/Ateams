@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 		for (int i = 0; i < 1; i++) {
 			ctrl = Control::getInstance(argc, argv);
 
-			ctrl->init();
+			ctrl->start();
 
 			ctrl->run();
 

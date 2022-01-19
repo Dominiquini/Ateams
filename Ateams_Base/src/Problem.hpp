@@ -181,7 +181,7 @@ public:
 
 public:
 
-	ExecHeuristicsInfo heuristicsInfo;		// Algoritmos executados na solucao
+	HeuristicsCounter heuristicsCounter;			// Algoritmos executados na solucao
 
 	// Contrutor/Destrutor padrao: Incrementa ou decrementa um contador de instancias
 	Problem() noexcept(false) {

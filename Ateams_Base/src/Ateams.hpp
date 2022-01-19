@@ -75,7 +75,7 @@ struct PrimitiveWrapper {
 	}
 };
 
-struct ExecHeuristicsInfo {
+struct HeuristicsCounter {
 
 	unsigned int tabu = 0;
 	unsigned int genetic = 0;

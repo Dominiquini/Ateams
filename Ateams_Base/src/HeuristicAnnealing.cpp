@@ -24,7 +24,7 @@ vector<Problem*>* SimulatedAnnealing::start(set<Problem*, bool (*)(Problem*, Pro
 	{
 		scoped_lock<decltype(mutex_population)> lock_population(mutex_population);
 
-		executionCounter++;
+		totalExecutionCounter++;
 
 		// Escolhe a melhor solucao para ser usada pelo SA
 		if (parameters.choicePolicy == 0 || Random::randomPercentage() < (100 * parameters.elitismProbability)) {
@@ -45,17 +45,25 @@ set<Problem*>::const_iterator SimulatedAnnealing::selectOpportunisticSolution(se
 	set<Problem*>::const_iterator selection = population->cbegin();
 	int attemps = 0;
 
-	while ((selection == population->cbegin() || (*selection)->heuristicsInfo.annealing == true) && (attemps++ < HEURISTIC_SELECTION_MAX_ATTEMPTS))
+	while ((selection == population->cbegin() || (*selection)->heuristicsCounter.annealing == true) && (attemps++ < HEURISTIC_SELECTION_MAX_ATTEMPTS))
 		selection = Problem::selectOpportunisticSolution(population, fitTotal);
 
-	(*selection)->heuristicsInfo.annealing++;
+	(*selection)->heuristicsCounter.annealing++;
 
 	return selection;
 }
 
+milliseconds SimulatedAnnealing::updateExecutionTime(steady_clock::time_point startTime, steady_clock::time_point endTime) {
+	milliseconds executionTime = duration_cast<milliseconds>(endTime - startTime);
+
+	totalExecutionTime += executionTime;
+
+	return executionTime;
+}
+
 void SimulatedAnnealing::markSolutions(vector<Problem*> *solutions) {
 	for (auto solution = solutions->cbegin(); solution != solutions->cend(); ++solution) {
-		(*solution)->heuristicsInfo.annealing++;
+		(*solution)->heuristicsCounter.annealing++;
 	}
 }
 
@@ -65,6 +73,8 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *
 	double Ti, Tf, T;
 	int L = parameters.maxIterations;
 	double Ds;
+
+	steady_clock::time_point startTime = steady_clock::now();
 
 	Ti = parameters.startTemp != -1 ? parameters.startTemp : (Problem::best - Problem::worst) / log(0.5);
 	Tf = parameters.endTemp > 0 ? parameters.endTemp : 1;
@@ -76,7 +86,7 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *
 
 	Sf->push_back(Problem::copySolution(*Si));
 
-	if (info != NULL) {
+	{
 		info->bestInitialFitness = (*Sf->begin())->getFitness();
 		info->bestActualFitness = (*Sf->rbegin())->getFitness();
 
@@ -85,22 +95,21 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *
 		info->setupInfo("Temperature: %f", T);
 	}
 
-	bool exec = true;
+	bool continueExecution = true;
 
-	while (exec) {
-		if (STATUS != EXECUTING)
+	while (continueExecution) {
+		if (HEURISTIC_ALLOW_TERMINATION && STATUS != EXECUTING) {
 			break;
+		}
 
-		if (info != NULL) {
+		{
 			info->status = 100.00 - (100.00 * (T - Tf)) / diff;
-
 			info->bestActualFitness = (*Sf->rbegin())->getFitness();
 
 			info->setupInfo("Temperature: %f", T);
 		}
 
-		if (T == Tf)
-			exec = false;
+		continueExecution = T != Tf;
 
 		for (int i = 1; i < L; i++) {
 			Sn = S->neighbor();
@@ -133,7 +142,12 @@ vector<Problem*>* SimulatedAnnealing::exec(Problem *Si, HeuristicExecutionInfo *
 
 	markSolutions(Sf);
 
-	if (info != NULL) {
+	steady_clock::time_point endTime = steady_clock::now();
+
+	milliseconds executionTime = updateExecutionTime(startTime, endTime);
+
+	{
+		info->executionTime = executionTime;
 		info->contribution = Sf->size();
 	}
 

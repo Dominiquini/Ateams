@@ -7,7 +7,7 @@ using namespace std;
 #ifndef _TABU_
 #define _TABU_
 
-#define TABU_SEARCH_NAME "TabuSearch"
+#define TABU_SEARCH_TAG_NAME "TabuSearch"
 
 struct TabuSearchParameters : HeuristicParameters {
 
@@ -51,6 +51,8 @@ public:
 	set<Problem*>::const_iterator selectOpportunisticSolution(set<Problem*, bool (*)(Problem*, Problem*)> *population, double fitTotal) override;
 
 	vector<Problem*>* start(set<Problem*, bool (*)(Problem*, Problem*)> *sol, HeuristicExecutionInfo *listener) override;
+
+	milliseconds updateExecutionTime(steady_clock::time_point startTime, steady_clock::time_point endTime) override;
 
 	void markSolutions(vector<Problem*>* solutions) override;
 

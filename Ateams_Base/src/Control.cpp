@@ -61,13 +61,13 @@ ExecutionInfo* Control::terminate() {
 }
 
 Heuristic* Control::instantiateHeuristic(char *name) {
-	if (strcasecmp(name, SIMULATED_ANNEALING_NAME) == 0)
+	if (strcasecmp(name, SIMULATED_ANNEALING_TAG_NAME) == 0)
 		return new SimulatedAnnealing();
 
-	if (strcasecmp(name, GENETIC_ALGORITHM_NAME) == 0)
+	if (strcasecmp(name, GENETIC_ALGORITHM_TAG_NAME) == 0)
 		return new GeneticAlgorithm();
 
-	if (strcasecmp(name, TABU_SEARCH_NAME) == 0)
+	if (strcasecmp(name, TABU_SEARCH_TAG_NAME) == 0)
 		return new TabuSearch();
 
 	return NULL;
@@ -102,11 +102,13 @@ Control::Control(int argc, char **argv) {
 	this->loadingProgressBar = new ProgressBar("LOADING: ");
 	this->executionProgressBar = new ProgressBar("EXECUTING: ");
 
-	this->graphicalOverview = new GraphicalOverview(this);
+	this->graphicalOverview = GraphicalOverview::getInstance(this);
 
-	this->iterationsWithoutImprovement = 0;
 	this->executionCount = 0;
+	this->iterationsWithoutImprovement = 0;
+
 	this->heuristicsSolutionsCount = 0;
+	this->heuristicsTotalExecutionTime = milliseconds::zero();
 }
 
 Control::~Control() {
@@ -127,7 +129,7 @@ Control::~Control() {
 	delete loadingProgressBar;
 	delete executionProgressBar;
 
-	delete graphicalOverview;
+	GraphicalOverview::destroyInstance();
 
 	Heuristic::deallocateMemory();
 }
@@ -358,7 +360,7 @@ inline void Control::setCMDStatusInfoScreen(bool showTextOverview, bool showQueu
 	this->showQueueTextOverview = showQueueTextOverview;
 }
 
-void Control::init() {
+void Control::start() {
 	semaphore_executor.setup(parameters.numThreads);
 
 	if (heuristics->empty()) {
@@ -377,6 +379,8 @@ void Control::init() {
 		throw string("No Initial Solution Found!");
 	}
 
+	graphicalOverview->start();
+
 	cout << endl << COLOR_CYAN;
 
 	cout << endl << "Initial Population Size: : " << solutions->size() << endl;
@@ -394,6 +398,8 @@ void Control::finish() {
 	cout << endl << "Best Final Solution: " << Problem::best << endl;
 
 	cout << COLOR_DEFAULT;
+
+	graphicalOverview->stop();
 
 	delete savedPopulation;
 	savedPopulation = NULL;
@@ -429,10 +435,6 @@ void Control::run() {
 
 	STATUS = EXECUTING;
 
-	if (showGraphicalOverview) {
-		graphicalOverview->run();
-	}
-
 	if (!showTextOverview) {
 		executionProgressBar->init(parameters.iterations);
 	} else {
@@ -441,7 +443,7 @@ void Control::run() {
 
 	future<TerminationInfo> management = async(launch::async, Control::threadManagement);
 
-#if JOB_MANAGER
+#if CONTROL_JOB_MANAGER
 	queue<unsigned int> ids;
 	for (int executionId = 1; executionId <= parameters.iterations; executionId++) {
 		ids.push(executionId);
@@ -481,6 +483,7 @@ void Control::run() {
 	}
 
 	heuristicsSolutionsCount = HeuristicExecutionInfo::getContributionSum(returnedHeuristics);
+	heuristicsTotalExecutionTime = HeuristicExecutionInfo::getTotalExecutionTime(returnedHeuristics);
 
 	endTime = steady_clock::now();
 }
@@ -502,7 +505,7 @@ Problem* Control::getSolution(int n) {
 }
 
 ExecutionInfo* Control::getExecutionInfo() {
-	return new ExecutionInfo(startTime, endTime, executionCount, heuristicsSolutionsCount);
+	return new ExecutionInfo(startTime, endTime, executionCount, heuristicsSolutionsCount, heuristicsTotalExecutionTime);
 }
 
 void Control::printSolution() {
@@ -524,8 +527,9 @@ void Control::printExecution() {
 	cout << endl << "Returned Solutions: " << heuristicsSolutionsCount << endl;
 
 	int executionPercentage = parameters.iterations != 0 ? (100 * executionCount) / parameters.iterations : 100;
+	int executionTime = duration_cast<seconds>(heuristicsTotalExecutionTime).count();
 
-	cout << endl << "Executions: " << executionCount << " (" << executionPercentage << "%) " << endl << endl;
+	cout << endl << "Executions: " << executionCount << " (" << executionPercentage << "%) " << "-" << " " << executionTime << "s" << endl << endl;
 
 	for (vector<Heuristic*>::const_reverse_iterator it = heuristics->crbegin(); it != heuristics->crend(); it++) {
 		(*it)->printStatistics('-', executionCount);

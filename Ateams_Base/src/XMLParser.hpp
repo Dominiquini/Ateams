@@ -16,6 +16,9 @@ using namespace xercesc;
 #ifndef _XML_PARSER_
 #define _XML_PARSER_
 
+#define TAG_CONTROLLER "Controller"
+#define TAG_HEURISTICS "Heuristics"
+
 class Control;
 
 class XMLParser: public DefaultHandler {
