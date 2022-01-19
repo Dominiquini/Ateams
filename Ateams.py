@@ -263,26 +263,27 @@ def build(config, tool, mode, rebuild, extra_args):
 @click.option('-p', '--parameters', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Input Parameters File')
 @click.option('-i', '--input', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Input Data File')
 @click.option('-r', '--result', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Output Result File')
-@click.option('-t', '--pop', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Population File')
-@click.option('-o', '--write-output', type=click.BOOL, is_flag=True, help='Force Write Output Files')
+@click.option('-o', '--pop', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Population File')
 @click.option('-c', '--show-cmd-info', type=click.IntRange(0, 2), count=True, help='Show Prompt Overview')
 @click.option('-g', '--show-graphical-info', type=click.BOOL, is_flag=True, help='Show Graphical Overview')
 @click.option('-s', '--show-solution', type=click.BOOL, is_flag=True, help='Show Solution')
+@click.option('--executor/--threads', default=True, help='Pause Terminal')
 @click.option('-n', '--repeat', type=click.INT, default=1, help='Repeat N Times')
+@click.option('--output', type=click.BOOL, is_flag=True, help='Force Write Output Files')
 @click.option('--valgrind', type=click.Choice(VALGRIND_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With VALGRIND')
 @click.option('--debug', type=click.BOOL, is_flag=True, help='Run With GDB')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def run(config, algorithm, parameters, input, result, pop, write_output, show_cmd_info, show_graphical_info, show_solution, repeat, debug, valgrind, extra_args):
+def run(config, algorithm, parameters, input, result, pop, show_cmd_info, show_graphical_info, show_solution, executor, repeat, output, debug, valgrind, extra_args):
     """A Wrapper For Running ATEAMS Algorithms"""
-
+    
     algorithm = normalize_choice(ALGORITHMS, algorithm, None, lambda e: e.casefold())
 
     parameters = normalize_choice(FILE_PARAMS, parameters, FILE_DEFAULT_PARAM, lambda e: os.path.basename(e).casefold())
     input = normalize_choice(FILE_INPUTS[algorithm], input, FILE_DEFAULT_INPUTS[algorithm], lambda e: os.path.basename(e).casefold())
 
-    if result is None and write_output: result = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".res").name)
-    if pop is None and write_output: pop = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".pop").name)
+    if result is None and output: result = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".res").name)
+    if pop is None and output: pop = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".pop").name)
 
     def __apply_execution_modifiers(cmd):
         if debug and not valgrind: cmd = GDB_COMMAND + " " + cmd
@@ -300,13 +301,15 @@ def run(config, algorithm, parameters, input, result, pop, write_output, show_cm
 
         if result is not None: command_line += f" -r {result}"
 
-        if pop is not None: command_line += f" -t {pop}"
+        if pop is not None: command_line += f" -o {pop}"
 
         if show_cmd_info: command_line += f" -{'c' * show_cmd_info}"
 
         if show_graphical_info: command_line += f" -g"
 
         if show_solution: command_line += f" -s"
+        
+        if not executor: command_line += f" -t"
 
         for arg in extra_args: command_line += f" {arg}"
 

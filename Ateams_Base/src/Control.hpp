@@ -37,11 +37,12 @@ struct ExecutionInfo {
 	unsigned int heuristicsSolutionsCount;
 	milliseconds heuristicsExecutionTime;
 
-	ExecutionInfo(steady_clock::time_point startTime, steady_clock::time_point endTime, int executionCount, int heuristicsSolutionsCount, milliseconds heuristicsExecutionTime) {
-		this->executionTime = duration_cast<milliseconds>(endTime - startTime);
+	ExecutionInfo(int executionCount, milliseconds executionTime, int heuristicsSolutionsCount, milliseconds heuristicsExecutionTime) {
+		this->executionTime = executionTime;
+		this->executionCount = executionCount;
+
 		this->heuristicsSolutionsCount = heuristicsSolutionsCount;
 		this->heuristicsExecutionTime = heuristicsExecutionTime;
-		this->executionCount = executionCount;
 
 		this->worstFitness = Problem::worst;
 		this->bestFitness = Problem::best;
@@ -151,9 +152,6 @@ public:
 
 	static Heuristic* instantiateHeuristic(char *name);
 
-	/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
-	static int findPosArgv(char **in, int num, char *key);
-
 	static void printProgress(HeuristicExecutionInfo *heuristic);
 
 private:
@@ -166,15 +164,17 @@ private:
 	char outputResultFile[128];
 	char populationFile[128];
 
-	bool printFullSolution = false;		// Imprime melhor solucao por completo
+	bool printFullSolution = false;				// Imprime melhor solucao por completo
 
-	bool showTextOverview = false;		// Informa se as heuristicas serao visualizadas no prompt
+	bool showTextOverview = false;				// Informa se as heuristicas serao visualizadas no prompt
 	bool showQueueTextOverview = false;
-	bool showGraphicalOverview = false;	// Informa se as heuristicas serao visualizadas graficamente
+	bool showGraphicalOverview = false;			// Informa se as heuristicas serao visualizadas graficamente
+
+	bool singleExecutionPerThread = false;		// Cria uma thread para cada iteracao
 
 	AteamsParameters parameters;
 
-	list<Problem*> *savedPopulation = NULL;	// Populacao inicial do arquivo de log
+	list<Problem*> *savedPopulation = NULL;						// Populacao inicial do arquivo de log
 
 	set<Problem*, bool (*)(Problem*, Problem*)> *solutions;		// Populacao principal
 
@@ -182,6 +182,7 @@ private:
 	vector<Heuristic*> *heuristics;								// Algoritmos disponiveis
 
 	steady_clock::time_point startTime, endTime;				// Medidor do tempo inicial e final
+	milliseconds executionTime = milliseconds::zero();			// Medidor da duracao de execucao
 	int executionCount = 0;										// Threads executadas
 
 	int iterationsWithoutImprovement = 0;						// Ultima iteracao em que houve melhora
@@ -224,6 +225,11 @@ private:
 	void setGraphicStatusInfoScreen(bool showGraphicalOverview);
 	void setCMDStatusInfoScreen(bool showTextOverview, bool showQueueTextOverview);
 
+	void setSingleExecutionPerThread(bool singleExecutionPerThread);
+
+	/* Retorna a posicao em que o parametro esta em argv, ou -1 se nao existir */
+	int findCMDArgumentPosition(string key);
+
 public:
 
 	void start();
@@ -236,6 +242,8 @@ public:
 	Problem* getSolution(int n);				// Retorna a solucao n da memoria principal
 
 	ExecutionInfo* getExecutionInfo();			// Retorna algumas informacoes da ultima execucao
+
+	void printPopulation(string status);
 
 	void printSolution();
 

@@ -73,15 +73,6 @@ Heuristic* Control::instantiateHeuristic(char *name) {
 	return NULL;
 }
 
-int Control::findPosArgv(char **in, int num, char *key) {
-	for (int i = 0; i < num; i++) {
-		if (!strcmp(in[i], key))
-			return i + 1;
-	}
-
-	return -1;
-}
-
 Control::Control(int argc, char **argv) {
 	Heuristic::allocateMemory();
 
@@ -271,7 +262,7 @@ inline void Control::readMainCMDParameters() {
 
 	Control::buffer[0] = '\0';
 
-	if ((p = Control::findPosArgv(argv, *argc, (char*) "-p")) != -1) {
+	if ((p = findCMDArgumentPosition("-p")) != -1) {
 		strcpy(inputParameters, argv[p]);
 
 		cout << COLOR_GREEN << "Parameters File: " << inputParameters << COLOR_DEFAULT << endl;
@@ -283,7 +274,7 @@ inline void Control::readMainCMDParameters() {
 		strcat(Control::buffer, "Parameters File Cannot Be Empty! ");
 	}
 
-	if ((p = Control::findPosArgv(argv, *argc, (char*) "-i")) != -1) {
+	if ((p = findCMDArgumentPosition("-i")) != -1) {
 		strcpy(inputDataFile, argv[p]);
 
 		cout << COLOR_GREEN << "Data File: " << inputDataFile << COLOR_DEFAULT << endl;
@@ -295,7 +286,7 @@ inline void Control::readMainCMDParameters() {
 		strcat(Control::buffer, "Data File Cannot Be Empty! ");
 	}
 
-	if ((p = Control::findPosArgv(argv, *argc, (char*) "-r")) != -1) {
+	if ((p = findCMDArgumentPosition("-r")) != -1) {
 		strcpy(outputResultFile, argv[p]);
 
 		cout << COLOR_GREEN << "Result File: " << outputResultFile << COLOR_DEFAULT << endl;
@@ -305,7 +296,7 @@ inline void Control::readMainCMDParameters() {
 		cout << COLOR_YELLOW << "Result File: " << "---" << COLOR_DEFAULT << endl;
 	}
 
-	if ((p = Control::findPosArgv(argv, *argc, (char*) "-t")) != -1) {
+	if ((p = findCMDArgumentPosition("-o")) != -1) {
 		strcpy(populationFile, argv[p]);
 
 		cout << COLOR_GREEN << "Population File: " << populationFile << COLOR_DEFAULT << endl;
@@ -321,10 +312,12 @@ inline void Control::readMainCMDParameters() {
 		Control::buffer[0] = '\0';
 	}
 
-	setPrintFullSolution(Control::findPosArgv(argv, *argc, (char*) "-s") != -1);
+	setPrintFullSolution(findCMDArgumentPosition("-s") != -1);
 
-	setGraphicStatusInfoScreen(Control::findPosArgv(argv, *argc, (char*) "-g") != -1);
-	setCMDStatusInfoScreen(Control::findPosArgv(argv, *argc, (char*) "-c") != -1, Control::findPosArgv(argv, *argc, (char*) "-cc") != -1);
+	setGraphicStatusInfoScreen(findCMDArgumentPosition("-g") != -1);
+	setCMDStatusInfoScreen(findCMDArgumentPosition("-c") != -1, findCMDArgumentPosition("-cc") != -1);
+
+	setSingleExecutionPerThread(findCMDArgumentPosition("-t") != -1);
 }
 
 inline void Control::readExtraCMDParameters() {
@@ -333,7 +326,7 @@ inline void Control::readExtraCMDParameters() {
 	for (map<string, void*>::const_iterator param = parameters.keys.begin(); param != parameters.keys.end(); param++) {
 		string cmdParameter = "--" + param->first;
 
-		if ((p = Control::findPosArgv(argv, *argc, const_cast<char*>(cmdParameter.c_str()))) != -1) {
+		if ((p = findCMDArgumentPosition(cmdParameter)) != -1) {
 			setParameter(param->first.c_str(), argv[p]);
 		}
 	}
@@ -360,6 +353,19 @@ inline void Control::setCMDStatusInfoScreen(bool showTextOverview, bool showQueu
 	this->showQueueTextOverview = showQueueTextOverview;
 }
 
+inline void Control::setSingleExecutionPerThread(bool singleExecutionPerThread) {
+	this->singleExecutionPerThread = singleExecutionPerThread;
+}
+
+inline int Control::findCMDArgumentPosition(string key) {
+	for (int i = 0; i < *argc; i++) {
+		if (!strcmp(argv[i], key.c_str()))
+			return i + 1;
+	}
+
+	return -1;
+}
+
 void Control::start() {
 	semaphore_executor.setup(parameters.numThreads);
 
@@ -381,23 +387,15 @@ void Control::start() {
 
 	graphicalOverview->start();
 
-	cout << endl << COLOR_CYAN;
+	executionTime = milliseconds::zero();
 
-	cout << endl << "Initial Population Size: : " << solutions->size() << endl;
-	cout << endl << "Worst Initial Solution: " << Problem::worst << endl;
-	cout << endl << "Best Initial Solution: " << Problem::best << endl;
-
-	cout << endl << COLOR_DEFAULT;
+	printPopulation("Initial");
 }
 
 void Control::finish() {
-	cout << endl << COLOR_CYAN;
+	printPopulation("Final");
 
-	cout << endl << "Final Population Size: : " << solutions->size() << endl;
-	cout << endl << "Worst Final Solution: " << Problem::worst << endl;
-	cout << endl << "Best Final Solution: " << Problem::best << endl;
-
-	cout << COLOR_DEFAULT;
+	executionTime = duration_cast<milliseconds>(endTime - startTime);
 
 	graphicalOverview->stop();
 
@@ -429,9 +427,9 @@ void Control::finish() {
 }
 
 void Control::run() {
-	startTime = steady_clock::now();
-
 	list<HeuristicExecutionInfo*> returnedHeuristics;
+
+	startTime = steady_clock::now();
 
 	STATUS = EXECUTING;
 
@@ -443,36 +441,36 @@ void Control::run() {
 
 	future<TerminationInfo> management = async(launch::async, Control::threadManagement);
 
-#if CONTROL_JOB_MANAGER
-	queue<unsigned int> ids;
-	for (int executionId = 1; executionId <= parameters.iterations; executionId++) {
-		ids.push(executionId);
-	}
+	if (singleExecutionPerThread) {
+		vector<future<HeuristicExecutionInfo*>> executions;
+		for (int executionId = 1; executionId <= parameters.iterations; executionId++) {
+			executions.push_back(async(launch::async, Control::threadExecution, executionId));
+		}
 
-	vector<future<list<HeuristicExecutionInfo*>>> executions;
-	for (int job = 0; job < parameters.numThreads; job++) {
-		executions.push_back(async(launch::async, Control::threadExecutions, &ids));
-	}
+		for (vector<future<HeuristicExecutionInfo*>>::iterator futureIterator = executions.begin(); futureIterator != executions.end(); futureIterator++) {
+			HeuristicExecutionInfo *info = futureIterator->get();
 
-	for (vector<future<list<HeuristicExecutionInfo*>>>::iterator futureIterator = executions.begin(); futureIterator != executions.end(); futureIterator++) {
-		list<HeuristicExecutionInfo*> infos = futureIterator->get();
+			if (info != NULL) {
+				returnedHeuristics.push_back(info);
+			}
+		}
+	} else {
+		queue<unsigned int> ids;
+		for (int executionId = 1; executionId <= parameters.iterations; executionId++) {
+			ids.push(executionId);
+		}
 
-		returnedHeuristics.merge(infos);
-	}
-#else
-	vector<future<HeuristicExecutionInfo*>> executions;
-	for (int executionId = 1; executionId <= parameters.iterations; executionId++) {
-		executions.push_back(async(launch::async, Control::threadExecution, executionId));
-	}
+		vector<future<list<HeuristicExecutionInfo*>>> executions;
+		for (int job = 0; job < parameters.numThreads; job++) {
+			executions.push_back(async(launch::async, Control::threadExecutions, &ids));
+		}
 
-	for (vector<future<HeuristicExecutionInfo*>>::iterator futureIterator = executions.begin(); futureIterator != executions.end(); futureIterator++) {
-		HeuristicExecutionInfo *info = futureIterator->get();
+		for (vector<future<list<HeuristicExecutionInfo*>>>::iterator futureIterator = executions.begin(); futureIterator != executions.end(); futureIterator++) {
+			list<HeuristicExecutionInfo*> infos = futureIterator->get();
 
-		if (info != NULL) {
-			returnedHeuristics.push_back(info);
+			returnedHeuristics.merge(infos);
 		}
 	}
-#endif
 
 	STATUS = management.get();
 
@@ -505,7 +503,17 @@ Problem* Control::getSolution(int n) {
 }
 
 ExecutionInfo* Control::getExecutionInfo() {
-	return new ExecutionInfo(startTime, endTime, executionCount, heuristicsSolutionsCount, heuristicsTotalExecutionTime);
+	return new ExecutionInfo(executionCount, executionTime, heuristicsSolutionsCount, heuristicsTotalExecutionTime);
+}
+
+void Control::printPopulation(string status) {
+	cout << endl << COLOR_CYAN;
+
+	cout << endl << status << " " << "Population Size: : " << solutions->size() << endl;
+	cout << endl << "Worst" << " " << status << " " << "Solution: " << Problem::worst << endl;
+	cout << endl << "Best" << " " << status << " " << "Solution: " << Problem::best << endl;
+
+	cout << endl << COLOR_DEFAULT;
 }
 
 void Control::printSolution() {
@@ -513,7 +521,7 @@ void Control::printSolution() {
 
 	cout << COLOR_MAGENTA;
 
-	cout << endl << endl << "Best Solution: " << solution->getFitness() << endl << endl;
+	cout << endl << "Best Solution: " << solution->getFitness() << endl << endl;
 
 	solution->print(printFullSolution);
 
@@ -529,7 +537,7 @@ void Control::printExecution() {
 	int executionPercentage = parameters.iterations != 0 ? (100 * executionCount) / parameters.iterations : 100;
 	int executionTime = duration_cast<seconds>(heuristicsTotalExecutionTime).count();
 
-	cout << endl << "Executions: " << executionCount << " (" << executionPercentage << "%) " << "-" << " " << executionTime << "s" << endl << endl;
+	cout << endl << "Executions: " << executionCount << " (" << executionPercentage << "%) " << "|" << " " << executionTime << "s" << endl << endl;
 
 	for (vector<Heuristic*>::const_reverse_iterator it = heuristics->crbegin(); it != heuristics->crend(); it++) {
 		(*it)->printStatistics('-', executionCount);
