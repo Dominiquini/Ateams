@@ -356,7 +356,7 @@ inline void Control::readXMLFileParameters() {
 		auto parameter = controllerAttr.name();
 		auto value = controllerAttr.value();
 
-		if (!setParameter(parameter, value)) {
+		if (!setParameter(parameter.data(), value.data())) {
 			throw string("Invalid Controller Parameter: ").append(parameter);
 		}
 	}
@@ -370,7 +370,7 @@ inline void Control::readXMLFileParameters() {
 	for (xml_node heuristicNode : heuristicsNode.children()) {
 		auto heuristicName = heuristicNode.name();
 
-		Heuristic *newHeuristic = Control::instantiateHeuristic(heuristicName);
+		Heuristic *newHeuristic = Control::instantiateHeuristic(heuristicName.data());
 
 		if (newHeuristic == NULL) {
 			throw string("Invalid Heuristic Name: ").append(heuristicName);
@@ -380,7 +380,7 @@ inline void Control::readXMLFileParameters() {
 			auto parameter = heuristicAttr.name();
 			auto value = heuristicAttr.value();
 
-			if (!newHeuristic->setParameter(parameter, value)) {
+			if (!newHeuristic->setParameter(parameter.data(), value.data())) {
 				throw string("Invalid Heuristic Parameter: ").append(parameter).append(" (").append(newHeuristic->getParameters().name).append(") ");
 			}
 		}
