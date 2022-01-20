@@ -1,3 +1,6 @@
+#include <bits/stdc++.h>
+#include <strings.h>
+#include <string.h>
 #include <signal.h>
 #include <unistd.h>
 

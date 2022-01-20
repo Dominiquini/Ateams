@@ -60,7 +60,7 @@ ExecutionInfo* Control::terminate() {
 	return executionInfo;
 }
 
-Heuristic* Control::instantiateHeuristic(char *name) {
+Heuristic* Control::instantiateHeuristic(const char *name) {
 	if (strcasecmp(name, SIMULATED_ANNEALING_TAG_NAME) == 0)
 		return new SimulatedAnnealing();
 

@@ -254,7 +254,7 @@ inline void Heuristic::heuristicFinished(HeuristicExecutionInfo *info) {
 /* Seleciona uma heuristica da lista aleatoriamente, mas diretamente proporcional a sua prioridade */
 inline Heuristic* Heuristic::selectOpportunisticHeuristic(vector<Heuristic*> *heuristics, unsigned int probTotal) {
 	if (heuristics == NULL || heuristics->size() == 0) {
-		throw string("No Heuristics Defined!");
+		throw string("No Heuristics Found!");
 	}
 
 	unsigned int sum = probTotal;

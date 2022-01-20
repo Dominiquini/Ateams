@@ -16,9 +16,9 @@ endif
 
 
 ifeq ($(OS), Windows_NT)
-  LDFLAGS	= -lopengl32 -lGLU32 -lfreeglut -lxerces-c
+  LDFLAGS	= -lopengl32 -lGLU32 -lfreeglut
 else
-  LDFLAGS 	= -lGL -lGLU -lglut -lxerces-c
+  LDFLAGS 	= -lGL -lGLU -lglut
 endif
 
 

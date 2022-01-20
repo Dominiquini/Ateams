@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 
 			executionInfo = Control::terminate();
 
-			cout << endl <<  COLOR_GREEN << "Termination Reason: " << getTerminationInfo(STATUS) << " (" << getExecutionTime(executionInfo->executionTime) << ") " << COLOR_DEFAULT << endl;
+			cout << endl <<  COLOR_GREEN << "Termination Reason: " << getTerminationInfo(STATUS) << " (" << getExecutionTime(executionInfo->executionTime) << ") " << COLOR_DEFAULT << endl << endl;
 		}
 
 		delete executionInfo;
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 
 		exception_ptr exception = current_exception();
 
-		cerr << endl << COLOR_RED << "Exception: " << getExceptionMessage(exception) << COLOR_DEFAULT << endl;
+		cerr << endl << COLOR_RED << "Exception: " << getExceptionMessage(exception) << COLOR_DEFAULT << endl << endl;
 
 		return -1;
 	}

@@ -35,7 +35,7 @@ BUILDING_MODES = collections.namedtuple('BuildModes', ['modes', 'default'])(mode
 
 CXXFLAGS = {BUILDING_MODES.modes[0]: "-std=c++17 -pthread -O3 -march=native", BUILDING_MODES.modes[1]: "-std=c++17 -pthread -O0 -g3 -march=native", BUILDING_MODES.modes[2]: "-std=c++17 -pthread -O0 -pg -march=native"}
 
-LDFLAGS = {PLATFORM.windows_key: "-lopengl32 -lGLU32 -lfreeglut -lxerces-c", PLATFORM.linux_key: "-lGL -lGLU -lglut -lxerces-c"}
+LDFLAGS = {PLATFORM.windows_key: "-lopengl32 -lGLU32 -lfreeglut", PLATFORM.linux_key: "-lGL -lGLU -lglut"}
 
 POOL_ASYNC = collections.namedtuple('NinjaPool', ['name', 'depth'])("threaded", 16)
 

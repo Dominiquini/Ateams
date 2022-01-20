@@ -148,7 +148,7 @@ public:
 	static Control* getInstance(int argc, char **argv);
 	static ExecutionInfo* terminate();
 
-	static Heuristic* instantiateHeuristic(char *name);
+	static Heuristic* instantiateHeuristic(const char *name);
 
 	static void printProgress(HeuristicExecutionInfo *heuristic);
 
