@@ -1,6 +1,9 @@
 #include "Ateams.hpp"
 
+#include "PugiXML.hpp"
+
 using namespace std;
+using namespace pugi;
 using namespace chrono;
 using namespace this_thread;
 
@@ -8,7 +11,6 @@ using namespace this_thread;
 #define _CONTROL_
 
 #include "GraphicalOverview.hpp"
-#include "XMLParser.hpp"
 
 #include "Problem.hpp"
 

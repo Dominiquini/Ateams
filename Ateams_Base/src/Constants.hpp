@@ -32,6 +32,9 @@
 
 #define RANDOM_THREAD_SAFE false
 
+#define XML_TAG_CONTROLLER "Controller"
+#define XML_TAG_HEURISTICS "Heuristics"
+
 #define CONTROL_MANAGEMENT_UPDATE_INTERVAL 500
 
 #define CONTROL_MAX_ERROR_SIZE 4096

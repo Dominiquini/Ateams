@@ -23,6 +23,7 @@
 #include "Semaphore.hpp"
 
 using namespace std;
+using namespace pugi;
 using namespace chrono;
 using namespace this_thread;
 
@@ -337,11 +338,55 @@ inline void Control::readExtraCMDParameters() {
 }
 
 inline void Control::readXMLFileParameters() {
-	XMLParser *parser = new XMLParser(this);
+	clearHeuristics(true);
 
-	parser->parseXML(getInputParameters());
+	xml_document parametersFile;
 
-	delete parser;
+	if (!parametersFile.load_file(getInputParameters())) {
+		throw string("Unable To Parse: ") + string(getInputParameters());
+	}
+
+	xml_node controllerNode = parametersFile.child(XML_TAG_CONTROLLER);
+
+	if (controllerNode.empty()) {
+		throw string("No Controller Defined!");
+	}
+
+	for (xml_attribute controllerAttr : controllerNode.attributes()) {
+		auto parameter = controllerAttr.name();
+		auto value = controllerAttr.value();
+
+		if (!setParameter(parameter, value)) {
+			throw string("Invalid Controller Parameter: ").append(parameter);
+		}
+	}
+
+	xml_node heuristicsNode = controllerNode.child(XML_TAG_HEURISTICS);
+
+	if (heuristicsNode.empty()) {
+		throw string("No Heuristics Defined!");
+	}
+
+	for (xml_node heuristicNode : heuristicsNode.children()) {
+		auto heuristicName = heuristicNode.name();
+
+		Heuristic *newHeuristic = Control::instantiateHeuristic(heuristicName);
+
+		if (newHeuristic == NULL) {
+			throw string("Invalid Heuristic Name: ").append(heuristicName);
+		}
+
+		for (xml_attribute heuristicAttr : heuristicNode.attributes()) {
+			auto parameter = heuristicAttr.name();
+			auto value = heuristicAttr.value();
+
+			if (!newHeuristic->setParameter(parameter, value)) {
+				throw string("Invalid Heuristic Parameter: ").append(parameter).append(" (").append(newHeuristic->getParameters().name).append(") ");
+			}
+		}
+
+		insertHeuristic(newHeuristic, true);
+	}
 }
 
 inline void Control::setPrintFullSolution(bool fullPrint) {
