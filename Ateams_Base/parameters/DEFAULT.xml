@@ -2,122 +2,122 @@
 <!DOCTYPE xml>
 
 <Controller
-   iterations = "250"
-   numThreads = "8"
-   populationSize = "500"
-   maxPopulationSize = "-1"
-   attemptsWithoutImprovement = "100"
-   maxExecutionTime = "3600"
-   maxSolutions = "-1"
-   bestKnownFitness = "-1">
+	iterations="250"
+	numThreads="8"
+	populationSize="500"
+	maxPopulationSize="-1"
+	attemptsWithoutImprovement="100"
+	maxExecutionTime="3600"
+	maxSolutions="-1"
+	bestKnownFitness="-1">
 
-  <Heuristics>
+	<Heuristics>
 
-    <SimulatedAnnealing
-       name = "SA1"
-       probSA = "24"
-       choicePolicySA = "250"
-       elitismProbabilitySA = "0.25"
-       maxIterationsSA = "250"
-       startTempSA = "125.0"
-       endTempSA = "0.75"
-       alphaSA = "0.99">
-    </SimulatedAnnealing>
+		<SimulatedAnnealing
+			name="SA1"
+			probSA="24"
+			choicePolicySA="250"
+			elitismProbabilitySA="0.25"
+			maxIterationsSA="250"
+			startTempSA="125.0"
+			endTempSA="0.75"
+			alphaSA="0.99">
+		</SimulatedAnnealing>
 
-    <SimulatedAnnealing
-       name = "SA2"
-       probSA = "5"
-       choicePolicySA = "10"
-       elitismProbabilitySA = "0.125"
-       maxIterationsSA = "2500"
-       startTempSA = "250.0"
-       endTempSA = "0.25"
-       alphaSA = "0.9">
-    </SimulatedAnnealing>
+		<SimulatedAnnealing
+			name="SA2"
+			probSA="5"
+			choicePolicySA="10"
+			elitismProbabilitySA="0.125"
+			maxIterationsSA="2500"
+			startTempSA="250.0"
+			endTempSA="0.25"
+			alphaSA="0.9">
+		</SimulatedAnnealing>
 
-    <SimulatedAnnealing
-       name = "SA3"
-       probSA = "10"
-       choicePolicySA = "100"
-       elitismProbabilitySA = "0.25"
-       maxIterationsSA = "500"
-       startTempSA = "250.0"
-       endTempSA = "0.75"
-       alphaSA = "0.999">
-    </SimulatedAnnealing>
+		<SimulatedAnnealing
+			name="SA3"
+			probSA="10"
+			choicePolicySA="100"
+			elitismProbabilitySA="0.25"
+			maxIterationsSA="500"
+			startTempSA="250.0"
+			endTempSA="0.75"
+			alphaSA="0.999">
+		</SimulatedAnnealing>
 
-    <TabuSearch
-       name = "TS1"
-       probBT = "22"
-       choicePolicyTS = "500"
-       elitismProbabilityTS = "0.25"
-       aspirationCriteriaTS = "0.5"
-       iterationsTS = "500"
-       attemptsWithoutImprovementTS = "500"
-       listSizeTS = "10"
-       explorationPolicyTS = "0.25">
-    </TabuSearch>
+		<TabuSearch
+			name="TS1"
+			probTS="22"
+			choicePolicyTS="500"
+			elitismProbabilityTS="0.25"
+			aspirationCriteriaTS="0.5"
+			iterationsTS="500"
+			attemptsWithoutImprovementTS="500"
+			listSizeTS="10"
+			explorationPolicyTS="0.25">
+		</TabuSearch>
 
-    <TabuSearch
-       name = "TS2"
-       probBT = "10"
-       choicePolicyTS = "250"
-       elitismProbabilityTS = "0.25"
-       aspirationCriteriaTS = "0.5"
-       iterationsTS = "750"
-       attemptsWithoutImprovementTS = "750"
-       listSizeTS = "25"
-       explorationPolicyTS = "0.5">
-    </TabuSearch>
+		<TabuSearch
+			name="TS2"
+			probTS="10"
+			choicePolicyTS="250"
+			elitismProbabilityTS="0.25"
+			aspirationCriteriaTS="0.5"
+			iterationsTS="750"
+			attemptsWithoutImprovementTS="750"
+			listSizeTS="25"
+			explorationPolicyTS="0.5">
+		</TabuSearch>
 
-    <TabuSearch
-       name = "TS3"
-       probBT = "8"
-       choicePolicyTS = "100"
-       elitismProbabilityTS = "0.125"
-       aspirationCriteriaTS = "0.5"
-       iterationsTS = "1000"
-       attemptsWithoutImprovementTS = "750"
-       listSizeTS = "250"
-       explorationPolicyTS = "1.0">
-    </TabuSearch>
+		<TabuSearch
+			name="TS3"
+			probTS="8"
+			choicePolicyTS="100"
+			elitismProbabilityTS="0.125"
+			aspirationCriteriaTS="0.5"
+			iterationsTS="1000"
+			attemptsWithoutImprovementTS="750"
+			listSizeTS="250"
+			explorationPolicyTS="1.0">
+		</TabuSearch>
 
-    <GeneticAlgorithm
-       name = "GA1"
-       probAG = "12"
-       choicePolicyGA = "-1"
-       iterationsGA = "500"
-       populationSizeAG = "50"
-       partitionSizeAG = "0"
-       crossoverProbabilityAG = "0.8"
-       crossoverPowerAG = "0.25"
-       mutationProbabilityAG = "0.08">
-    </GeneticAlgorithm>
+		<GeneticAlgorithm
+			name="GA1"
+			probGA="12"
+			choicePolicyGA="-1"
+			iterationsGA="500"
+			populationSizeGA="50"
+			partitionSizeGA="0"
+			crossoverProbabilityGA="0.8"
+			crossoverPowerGA="0.25"
+			mutationProbabilityGA="0.08">
+		</GeneticAlgorithm>
 
-    <GeneticAlgorithm
-       name = "GA2"
-       probAG = "6"
-       choicePolicyGA = "-1"
-       iterationsGA = "750"
-       populationSizeAG = "100"
-       partitionSizeAG = "-1"
-       crossoverProbabilityAG = "0.8"
-       crossoverPowerAG = "0.5"
-       mutationProbabilityAG = "0.14">
-    </GeneticAlgorithm>
-    
-    <GeneticAlgorithm
-       name = "GA3"
-       probAG = "3"
-       choicePolicyGA = "-1"
-       iterationsGA = "1000"
-       populationSizeAG = "250"
-       partitionSizeAG = "-1"
-       crossoverProbabilityAG = "0.99"
-       crossoverPowerAG = "0.75"
-       mutationProbabilityAG = "0.2">
-    </GeneticAlgorithm>
+		<GeneticAlgorithm
+			name="GA2"
+			probGA="6"
+			choicePolicyGA="-1"
+			iterationsGA="750"
+			populationSizeGA="100"
+			partitionSizeGA="-1"
+			crossoverProbabilityGA="0.8"
+			crossoverPowerGA="0.5"
+			mutationProbabilityGA="0.14">
+		</GeneticAlgorithm>
 
-  </Heuristics>
+		<GeneticAlgorithm
+			name="GA3"
+			probGA="3"
+			choicePolicyGA="-1"
+			iterationsGA="1000"
+			populationSizeGA="250"
+			partitionSizeGA="-1"
+			crossoverProbabilityGA="0.99"
+			crossoverPowerGA="0.75"
+			mutationProbabilityGA="0.2">
+		</GeneticAlgorithm>
+
+	</Heuristics>
 
 </Controller>

@@ -91,7 +91,6 @@ struct HeuristicsCounter {
 	unsigned int annealing = 0;
 };
 
-
 void internalSignalHandler(int signal);
 
 inline string getExceptionMessage(exception_ptr &eptr) {
@@ -131,6 +130,24 @@ inline string getTerminationInfo(TerminationInfo info) {
 
 inline string getExecutionTime(milliseconds duration) {
 	return to_string(duration_cast<seconds>(duration).count()) + 's';
+}
+
+inline string toProperCase(string in) {
+	bool check = true;
+
+	string out;
+
+	for (auto c : in) {
+		if (check) {
+			out.push_back(toupper(c));
+			check = false;
+		} else {
+			out.push_back(c);
+			check = isspace(c) || ispunct(c);
+		}
+	}
+
+	return out;
 }
 
 #endif

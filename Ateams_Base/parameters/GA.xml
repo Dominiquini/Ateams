@@ -2,53 +2,53 @@
 <!DOCTYPE xml>
 
 <Controller
-   iterations = "250"
-   numThreads = "8"
-   populationSize = "500"
-   maxPopulationSize = "-1"
-   attemptsWithoutImprovement = "100"
-   maxExecutionTime = "3600"
-   maxSolutions = "-1"
-   bestKnownFitness = "-1">
+	iterations="250"
+	numThreads="8"
+	populationSize="500"
+	maxPopulationSize="-1"
+	attemptsWithoutImprovement="100"
+	maxExecutionTime="3600"
+	maxSolutions="-1"
+	bestKnownFitness="-1">
 
-  <Heuristics>
+	<Heuristics>
 
-    <GeneticAlgorithm
-       name = "GA1"
-       probAG = "12"
-       choicePolicyGA = "-1"
-       iterationsGA = "500"
-       populationSizeAG = "50"
-       partitionSizeAG = "0"
-       crossoverProbabilityAG = "0.8"
-       crossoverPowerAG = "0.25"
-       mutationProbabilityAG = "0.08">
-    </GeneticAlgorithm>
+		<GeneticAlgorithm
+			name="GA1"
+			probGA="12"
+			choicePolicyGA="-1"
+			iterationsGA="500"
+			populationSizeGA="50"
+			partitionSizeGA="0"
+			crossoverProbabilityGA="0.8"
+			crossoverPowerGA="0.25"
+			mutationProbabilityGA="0.08">
+		</GeneticAlgorithm>
 
-    <GeneticAlgorithm
-       name = "GA2"
-       probAG = "6"
-       choicePolicyGA = "-1"
-       iterationsGA = "750"
-       populationSizeAG = "100"
-       partitionSizeAG = "-1"
-       crossoverProbabilityAG = "0.8"
-       crossoverPowerAG = "0.5"
-       mutationProbabilityAG = "0.14">
-    </GeneticAlgorithm>
-    
-    <GeneticAlgorithm
-       name = "GA3"
-       probAG = "3"
-       choicePolicyGA = "-1"
-       iterationsGA = "1000"
-       populationSizeAG = "250"
-       partitionSizeAG = "-1"
-       crossoverProbabilityAG = "0.99"
-       crossoverPowerAG = "0.75"
-       mutationProbabilityAG = "0.2">
-    </GeneticAlgorithm>
+		<GeneticAlgorithm
+			name="GA2"
+			probGA="6"
+			choicePolicyGA="-1"
+			iterationsGA="750"
+			populationSizeGA="100"
+			partitionSizeGA="-1"
+			crossoverProbabilityGA="0.8"
+			crossoverPowerGA="0.5"
+			mutationProbabilityGA="0.14">
+		</GeneticAlgorithm>
 
-  </Heuristics>
+		<GeneticAlgorithm
+			name="GA3"
+			probGA="3"
+			choicePolicyGA="-1"
+			iterationsGA="1000"
+			populationSizeGA="250"
+			partitionSizeGA="-1"
+			crossoverProbabilityGA="0.99"
+			crossoverPowerGA="0.75"
+			mutationProbabilityGA="0.2">
+		</GeneticAlgorithm>
+
+	</Heuristics>
 
 </Controller>

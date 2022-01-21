@@ -12,14 +12,14 @@ using namespace std;
 struct GeneticAlgorithmParameters : HeuristicParameters {
 
 	map<string, void*> geneticAlgorithmKeys = {
-			{"probAG", &choiceProbability},
+			{"probGA", &choiceProbability},
 			{"choicePolicyGA", &choicePolicy},
 			{"iterationsGA", &iterations},
-			{"populationSizeAG", &populationSize},
-			{"partitionSizeAG", &partitionSize},
-			{"crossoverProbabilityAG", &crossoverProbability},
-			{"crossoverPowerAG", &crossoverPower},
-			{"mutationProbabilityAG", &mutationProbability}
+			{"populationSizeGA", &populationSize},
+			{"partitionSizeGA", &partitionSize},
+			{"crossoverProbabilityGA", &crossoverProbability},
+			{"crossoverPowerGA", &crossoverPower},
+			{"mutationProbabilityGA", &mutationProbability}
 	};
 
 	int iterations = 500;

@@ -12,7 +12,7 @@ using namespace std;
 struct TabuSearchParameters : HeuristicParameters {
 
 	map<string, void*> tabuSearchKeys = {
-			{"probBT", &choiceProbability},
+			{"probTS", &choiceProbability},
 			{"choicePolicyTS", &choicePolicy},
 			{"iterationsTS", &iterations},
 			{"listSizeTS", &listSize},

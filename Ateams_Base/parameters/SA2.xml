@@ -2,28 +2,28 @@
 <!DOCTYPE xml>
 
 <Controller
-   iterations = "250"
-   numThreads = "8"
-   populationSize = "500"
-   maxPopulationSize = "-1"
-   attemptsWithoutImprovement = "100"
-   maxExecutionTime = "3600"
-   maxSolutions = "-1"
-   bestKnownFitness = "-1">
+	iterations="250"
+	numThreads="8"
+	populationSize="500"
+	maxPopulationSize="-1"
+	attemptsWithoutImprovement="100"
+	maxExecutionTime="3600"
+	maxSolutions="-1"
+	bestKnownFitness="-1">
 
-  <Heuristics>
+	<Heuristics>
 
-    <SimulatedAnnealing
-       name = "SA2"
-       probSA = "5"
-       choicePolicySA = "10"
-       elitismProbabilitySA = "0.125"
-       maxIterationsSA = "2500"
-       startTempSA = "250.0"
-       endTempSA = "0.25"
-       alphaSA = "0.9">
-    </SimulatedAnnealing>
+		<SimulatedAnnealing
+			name="SA2"
+			probSA="5"
+			choicePolicySA="10"
+			elitismProbabilitySA="0.125"
+			maxIterationsSA="2500"
+			startTempSA="250.0"
+			endTempSA="0.25"
+			alphaSA="0.9">
+		</SimulatedAnnealing>
 
-  </Heuristics>
+	</Heuristics>
 
 </Controller>

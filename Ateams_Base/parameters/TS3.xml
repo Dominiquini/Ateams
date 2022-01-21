@@ -2,29 +2,29 @@
 <!DOCTYPE xml>
 
 <Controller
-   iterations = "250"
-   numThreads = "8"
-   populationSize = "500"
-   maxPopulationSize = "-1"
-   attemptsWithoutImprovement = "100"
-   maxExecutionTime = "3600"
-   maxSolutions = "-1"
-   bestKnownFitness = "-1">
+	iterations="250"
+	numThreads="8"
+	populationSize="500"
+	maxPopulationSize="-1"
+	attemptsWithoutImprovement="100"
+	maxExecutionTime="3600"
+	maxSolutions="-1"
+	bestKnownFitness="-1">
 
-  <Heuristics>
+	<Heuristics>
 
-    <TabuSearch
-       name = "TS3"
-       probBT = "8"
-       choicePolicyTS = "100"
-       elitismProbabilityTS = "0.125"
-       aspirationCriteriaTS = "0.5"
-       iterationsTS = "1000"
-       attemptsWithoutImprovementTS = "750"
-       listSizeTS = "250"
-       explorationPolicyTS = "1.0">
-    </TabuSearch>
+		<TabuSearch
+			name="TS3"
+			probTS="8"
+			choicePolicyTS="100"
+			elitismProbabilityTS="0.125"
+			aspirationCriteriaTS="0.5"
+			iterationsTS="1000"
+			attemptsWithoutImprovementTS="750"
+			listSizeTS="250"
+			explorationPolicyTS="1.0">
+		</TabuSearch>
 
-  </Heuristics>
+	</Heuristics>
 
 </Controller>

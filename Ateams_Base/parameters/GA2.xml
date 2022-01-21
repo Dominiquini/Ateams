@@ -2,29 +2,29 @@
 <!DOCTYPE xml>
 
 <Controller
-   iterations = "250"
-   numThreads = "8"
-   populationSize = "500"
-   maxPopulationSize = "-1"
-   attemptsWithoutImprovement = "100"
-   maxExecutionTime = "3600"
-   maxSolutions = "-1"
-   bestKnownFitness = "-1">
+	iterations="250"
+	numThreads="8"
+	populationSize="500"
+	maxPopulationSize="-1"
+	attemptsWithoutImprovement="100"
+	maxExecutionTime="3600"
+	maxSolutions="-1"
+	bestKnownFitness="-1">
 
-  <Heuristics>
+	<Heuristics>
 
-    <GeneticAlgorithm
-       name = "GA2"
-       probAG = "6"
-       choicePolicyGA = "-1"
-       iterationsGA = "750"
-       populationSizeAG = "100"
-       partitionSizeAG = "-1"
-       crossoverProbabilityAG = "0.8"
-       crossoverPowerAG = "0.5"
-       mutationProbabilityAG = "0.14">
-    </GeneticAlgorithm>
+		<GeneticAlgorithm
+			name="GA2"
+			probGA="6"
+			choicePolicyGA="-1"
+			iterationsGA="750"
+			populationSizeGA="100"
+			partitionSizeGA="-1"
+			crossoverProbabilityGA="0.8"
+			crossoverPowerGA="0.5"
+			mutationProbabilityGA="0.14">
+		</GeneticAlgorithm>
 
-  </Heuristics>
+	</Heuristics>
 
 </Controller>

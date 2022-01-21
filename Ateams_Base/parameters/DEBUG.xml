@@ -2,52 +2,52 @@
 <!DOCTYPE xml>
 
 <Controller
-   iterations = "10"
-   numThreads = "1"
-   populationSize = "100"
-   maxPopulationSize = "-1"
-   attemptsWithoutImprovement = "-1"
-   maxExecutionTime = "60"
-   maxSolutions = "-1"
-   bestKnownFitness = "-1">
+	iterations="10"
+	numThreads="1"
+	populationSize="100"
+	maxPopulationSize="-1"
+	attemptsWithoutImprovement="-1"
+	maxExecutionTime="60"
+	maxSolutions="-1"
+	bestKnownFitness="-1">
 
-  <Heuristics>
+	<Heuristics>
 
-    <SimulatedAnnealing
-       name = "SA"
-       probSA = "1"
-       choicePolicySA = "100"
-       elitismProbabilitySA = "0.25"
-       maxIterationsSA = "50"
-       startTempSA = "50"
-       endTempSA = "1"
-       alphaSA = "0.9">
-    </SimulatedAnnealing>
+		<SimulatedAnnealing
+			name="SA"
+			probSA="1"
+			choicePolicySA="100"
+			elitismProbabilitySA="0.25"
+			maxIterationsSA="50"
+			startTempSA="50"
+			endTempSA="1"
+			alphaSA="0.9">
+		</SimulatedAnnealing>
 
-    <TabuSearch
-       name = "TS"
-       probBT = "1"
-       choicePolicyTS = "100"
-       elitismProbabilityTS = "0.1"
-       aspirationCriteriaTS = "0.5"
-       iterationsTS = "25"
-       attemptsWithoutImprovementTS = "25"
-       listSizeTS = "25"
-       explorationPolicyTS = "0.5">
-    </TabuSearch>
+		<TabuSearch
+			name="TS"
+			probTS="1"
+			choicePolicyTS="100"
+			elitismProbabilityTS="0.1"
+			aspirationCriteriaTS="0.5"
+			iterationsTS="25"
+			attemptsWithoutImprovementTS="25"
+			listSizeTS="25"
+			explorationPolicyTS="0.5">
+		</TabuSearch>
 
-    <GeneticAlgorithm
-       name = "GA"
-       probAG = "1"
-       choicePolicyGA = "-1"
-       iterationsGA = "25"
-       populationSizeAG = "100"
-       partitionSizeAG = "-1"
-       crossoverProbabilityAG = "0.8"
-       crossoverPowerAG = "0.25"
-       mutationProbabilityAG = "0.08">
-    </GeneticAlgorithm>
+		<GeneticAlgorithm
+			name="GA"
+			probGA="1"
+			choicePolicyGA="-1"
+			iterationsGA="25"
+			populationSizeGA="100"
+			partitionSizeGA="-1"
+			crossoverProbabilityGA="0.8"
+			crossoverPowerGA="0.25"
+			mutationProbabilityGA="0.08">
+		</GeneticAlgorithm>
 
-  </Heuristics>
+	</Heuristics>
 
 </Controller>

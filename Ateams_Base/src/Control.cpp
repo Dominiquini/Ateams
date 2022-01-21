@@ -320,8 +320,10 @@ inline void Control::readXMLFileParameters() {
 
 	xml_document parametersFile;
 
-	if (!parametersFile.load_file(getInputParameters())) {
-		throw string("Unable To Parse: ") + string(getInputParameters());
+	xml_parse_result parseResult = parametersFile.load_file(getInputParameters());
+
+	if (!parseResult) {
+		throw string("Unable To Parse: ") + string(getInputParameters()) + string(" :: ") + string("(") + toProperCase(parseResult.description()) + string(")");
 	}
 
 	xml_node controllerNode = parametersFile.child(XML_TAG_CONTROLLER);
