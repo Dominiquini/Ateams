@@ -1,7 +1,5 @@
 #include "Ateams.hpp"
 
-#include "PugiXML.hpp"
-
 using namespace std;
 using namespace pugi;
 using namespace chrono;
@@ -10,6 +8,7 @@ using namespace this_thread;
 #ifndef _CONTROL_
 #define _CONTROL_
 
+#include "ProgressBar.hpp"
 #include "GraphicalOverview.hpp"
 
 #include "Problem.hpp"

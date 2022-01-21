@@ -1,27 +1,5 @@
 #include "Control.hpp"
 
-#include <algorithm>
-#include <chrono>
-#include <cmath>
-#include <cstdio>
-#include <cstring>
-#include <future>
-#include <iostream>
-#include <iterator>
-#include <list>
-#include <map>
-#include <mutex>
-#include <queue>
-#include <set>
-#include <string>
-#include <thread>
-#include <utility>
-#include <vector>
-
-#include "Constants.hpp"
-#include "ProgressBar.hpp"
-#include "Semaphore.hpp"
-
 using namespace std;
 using namespace pugi;
 using namespace chrono;

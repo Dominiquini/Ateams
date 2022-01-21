@@ -8,7 +8,6 @@
 #include <future>
 #include <mutex>
 #include <condition_variable>
-#include "Semaphore.hpp"
 
 #include <type_traits>
 #include <charconv>
@@ -24,6 +23,7 @@
 #include <iterator>
 #include <utility>
 #include <sstream>
+#include <cstring>
 #include <string>
 #include <vector>
 #include <queue>
@@ -37,9 +37,9 @@
 
 #include "Constants.hpp"
 
-#include "ProgressBar.hpp"
-#include "FileUtils.hpp"
 #include "Random.hpp"
+#include "PugiXML.hpp"
+#include "Semaphore.hpp"
 
 using namespace std;
 using namespace chrono;
