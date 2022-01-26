@@ -122,8 +122,8 @@ void Problem::readProblemFromFile(char *input) {
 			}
 		}
 	} else if (!strcmp(edge_weight_type, "EUC_2D")) {
-		double *X = (double*) allocateMatrix<double>(1, TravellingSalesman::nnodes, 1, 1);
-		double *Y = (double*) allocateMatrix<double>(1, TravellingSalesman::nnodes, 1, 1);
+		double *X = (double*) allocateMatrix<double>(1, TravellingSalesman::nnodes);
+		double *Y = (double*) allocateMatrix<double>(1, TravellingSalesman::nnodes);
 		int no = 0;
 
 		for (int i = 0; i < TravellingSalesman::nnodes; i++) {
@@ -174,7 +174,7 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 			throw "Wrong Log File!";
 
 		for (int i = 0; i < npop; i++) {
-			ordem = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1);
+			ordem = (short int*) allocateMatrix<short int>(1, nnodes + 1);
 			;
 
 			if (!fscanf(f, "%lf", &peso))
@@ -284,7 +284,7 @@ void Problem::deallocateMemory() {
 /* Metodos */
 
 TravellingSalesman::TravellingSalesman() : Problem::Problem() {
-	solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1);
+	solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes + 1);
 
 	if (Random::randomPercentage() <= 20) { // Tenta uma solucao gulosa
 		int currentNode = Random::randomNumber(0, nnodes);
@@ -335,7 +335,7 @@ TravellingSalesman::TravellingSalesman(short int *prob) : Problem::Problem() {
 TravellingSalesman::TravellingSalesman(const Problem &prob) : Problem::Problem() {
 	TravellingSalesman *other = dynamic_cast<TravellingSalesman*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1);
+	this->solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes + 1);
 
 	for (int i = 0; i <= nnodes; i++)
 		this->solution.ordemNodes[i] = other->solution.ordemNodes[i];
@@ -346,7 +346,7 @@ TravellingSalesman::TravellingSalesman(const Problem &prob) : Problem::Problem()
 TravellingSalesman::TravellingSalesman(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
 	TravellingSalesman *other = dynamic_cast<TravellingSalesman*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1);
+	this->solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes + 1);
 
 	for (int i = 0; i <= nnodes; i++)
 		this->solution.ordemNodes[i] = other->solution.ordemNodes[i];
@@ -364,7 +364,7 @@ TravellingSalesman::TravellingSalesman(const Problem &prob, int pos1, int pos2) 
 }
 
 TravellingSalesman::~TravellingSalesman() {
-	deallocateMatrix<short int>(1, solution.ordemNodes, nnodes + 1, 1);
+	deallocateMatrix<short int>(1, solution.ordemNodes);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
@@ -491,7 +491,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* TravellingSalesman::localSearch(float
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
 inline pair<Problem*, Problem*>* TravellingSalesman::crossOver(const Problem *parceiro, int partitionSize, int strength) {
-	short int *f1 = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1), *f2 = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1);
+	short int *f1 = (short int*) allocateMatrix<short int>(1, nnodes + 1), *f2 = (short int*) allocateMatrix<short int>(1, nnodes + 1);
 	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = partitionSize == 0 ? (TravellingSalesman::nnodes) / 2 : partitionSize;
 	int inicioPart = 0, fimPart = 0;
@@ -512,7 +512,7 @@ inline pair<Problem*, Problem*>* TravellingSalesman::crossOver(const Problem *pa
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
 inline pair<Problem*, Problem*>* TravellingSalesman::crossOver(const Problem *parceiro, int strength) {
-	short int *f1 = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1), *f2 = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1);
+	short int *f1 = (short int*) allocateMatrix<short int>(1, nnodes + 1), *f2 = (short int*) allocateMatrix<short int>(1, nnodes + 1);
 	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = 0;
 
@@ -531,7 +531,7 @@ inline pair<Problem*, Problem*>* TravellingSalesman::crossOver(const Problem *pa
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
 inline Problem* TravellingSalesman::mutation(int mutMax) {
-	short int *mut = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1);
+	short int *mut = (short int*) allocateMatrix<short int>(1, nnodes + 1);
 	Problem *vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
 	for (int j = 0; j <= nnodes; j++)

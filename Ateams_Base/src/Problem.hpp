@@ -235,7 +235,7 @@ bool fnSortSolution(Problem*, Problem*);	//Se P1 for menor que P2
 bool fnSortFitness(Problem*, Problem*); 	//Se P1 for menor que P2, considerando apenas o fitness
 
 template<typename T>
-T* allocateMatrix(int dim, int a, int b, int c) {
+T* allocateMatrix(int dim, int a, int b = 1, int c = 1) {
 	if (dim == 1) {
 		T *M = (T*) malloc(a * sizeof(T));
 
@@ -264,7 +264,7 @@ T* allocateMatrix(int dim, int a, int b, int c) {
 }
 
 template<typename T>
-void deallocateMatrix(int dim, void *MMM, int a, int b) {
+void deallocateMatrix(int dim, void *MMM, int a = 1, int b = 1) {
 	if (MMM != NULL) {
 		if (dim == 1) {
 			T *M = (T*) MMM;

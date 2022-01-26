@@ -38,9 +38,9 @@ void Problem::readProblemFromFile(char *input) {
 	while (fgets(tempLine, 128, f)) {
 		if (tempLine[0] == 'p') {
 			sscanf(tempLine, "%*c %s %d %d\n", GraphColoring::name, &GraphColoring::nnodes, &GraphColoring::nedges);
-		}
 
-		Problem::allocateMemory();
+			Problem::allocateMemory();
+		}
 
 		if (tempLine[0] == 'e') {
 			sscanf(tempLine, "%*c %d %d", &n1, &n2);
@@ -74,7 +74,7 @@ list<Problem*>* Problem::readPopulationFromLog(char *log) {
 			throw "Wrong Log File!";
 
 		for (int i = 0; i < npop; i++) {
-			ordem = (short int*) allocateMatrix<short int>(1, nnodes, 1, 1);
+			ordem = (short int*) allocateMatrix<short int>(1, nnodes);
 
 			if (!fscanf(f, "%d", &ncolors))
 				throw "Wrong Log File!";
@@ -183,7 +183,7 @@ void Problem::deallocateMemory() {
 /* Metodos */
 
 GraphColoring::GraphColoring() : Problem::Problem() {
-	solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes, 1, 1);
+	solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes);
 
 	for (int i = 0; i < nnodes; i++) {
 		solution.ordemNodes[i] = i + 1;
@@ -207,7 +207,7 @@ GraphColoring::GraphColoring(short int *prob) : Problem::Problem() {
 GraphColoring::GraphColoring(const Problem &prob) : Problem::Problem() {
 	GraphColoring *other = dynamic_cast<GraphColoring*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes, 1, 1);
+	this->solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes);
 
 	for (int i = 0; i < nnodes; i++)
 		this->solution.ordemNodes[i] = other->solution.ordemNodes[i];
@@ -216,7 +216,7 @@ GraphColoring::GraphColoring(const Problem &prob) : Problem::Problem() {
 	this->solution.fitness = other->solution.fitness;
 
 	if (other->solution.colors != NULL) {
-		this->solution.colors = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1);
+		this->solution.colors = (short int*) allocateMatrix<short int>(1, nnodes + 1);
 
 		for (int i = 0; i <= nnodes; i++)
 			this->solution.colors[i] = other->solution.colors[i];
@@ -226,7 +226,7 @@ GraphColoring::GraphColoring(const Problem &prob) : Problem::Problem() {
 GraphColoring::GraphColoring(const Problem &prob, int pos1, int pos2) : Problem::Problem() {
 	GraphColoring *other = dynamic_cast<GraphColoring*>(const_cast<Problem*>(&prob));
 
-	this->solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes, 1, 1);
+	this->solution.ordemNodes = (short int*) allocateMatrix<short int>(1, nnodes);
 
 	for (int i = 0; i < nnodes; i++)
 		this->solution.ordemNodes[i] = other->solution.ordemNodes[i];
@@ -241,16 +241,16 @@ GraphColoring::GraphColoring(const Problem &prob, int pos1, int pos2) : Problem:
 }
 
 GraphColoring::~GraphColoring() {
-	deallocateMatrix<short int>(1, solution.ordemNodes, nnodes, 1);
+	deallocateMatrix<short int>(1, solution.ordemNodes);
 
-	deallocateMatrix<short int>(1, solution.colors, nnodes + 1, 1);
+	deallocateMatrix<short int>(1, solution.colors);
 }
 
 /* Devolve o makespan  e o escalonamento quando a solucao for factivel, ou -1 quando for invalido. */
 inline bool GraphColoring::calcFitness() {
-	deallocateMatrix<short int>(1, solution.colors, nnodes + 1, 1);
+	deallocateMatrix<short int>(1, solution.colors);
 
-	short int *aux_colors = (short int*) allocateMatrix<short int>(1, nnodes + 1, 1, 1);
+	short int *aux_colors = (short int*) allocateMatrix<short int>(1, nnodes + 1);
 
 	for (int i = 1; i <= nnodes; i++)
 		aux_colors[i] = 0;
@@ -382,7 +382,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* GraphColoring::localSearch(float parc
 
 /* Realiza um crossover com uma outra solucao. Usa 2 pivos. */
 inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem *parceiro, int partitionSize, int strength) {
-	short int *f1 = (short int*) allocateMatrix<short int>(1, nnodes, 1, 1), *f2 = (short int*) allocateMatrix<short int>(1, nnodes, 1, 1);
+	short int *f1 = (short int*) allocateMatrix<short int>(1, nnodes), *f2 = (short int*) allocateMatrix<short int>(1, nnodes);
 	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = partitionSize == 0 ? (GraphColoring::nnodes) / 2 : partitionSize;
 	int inicioPart = 0, fimPart = 0;
@@ -403,7 +403,7 @@ inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem *parceir
 
 /* Realiza um crossover com uma outra solucao. Usa 1 pivo. */
 inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem *parceiro, int strength) {
-	short int *f1 = (short int*) allocateMatrix<short int>(1, nnodes, 1, 1), *f2 = (short int*) allocateMatrix<short int>(1, nnodes, 1, 1);
+	short int *f1 = (short int*) allocateMatrix<short int>(1, nnodes), *f2 = (short int*) allocateMatrix<short int>(1, nnodes);
 	pair<Problem*, Problem*> *filhos = new pair<Problem*, Problem*>();
 	int particao = 0;
 
@@ -422,7 +422,7 @@ inline pair<Problem*, Problem*>* GraphColoring::crossOver(const Problem *parceir
 
 /* Devolve uma mutacao aleatoria na solucao atual. */
 inline Problem* GraphColoring::mutation(int mutMax) {
-	short int *mut = (short int*) allocateMatrix<short int>(1, nnodes, 1, 1);
+	short int *mut = (short int*) allocateMatrix<short int>(1, nnodes);
 	Problem *vizinho = NULL, *temp = NULL, *mutacao = NULL;
 
 	for (int j = 0; j < nnodes; j++)
