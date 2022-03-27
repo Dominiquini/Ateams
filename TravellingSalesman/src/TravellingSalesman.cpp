@@ -319,7 +319,7 @@ TravellingSalesman::TravellingSalesman() : Problem::Problem() {
 			solution.ordemNodes[i] = i;
 		}
 
-		random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], pointer_to_unary_function<int, int>(Random::randomNumber));
+		random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], as_lambda(Random::randomNumber));
 		solution.ordemNodes[nnodes] = solution.ordemNodes[0];
 	}
 
@@ -447,7 +447,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* TravellingSalesman::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(Random::randomNumber));
+	random_shuffle(local->begin(), local->end(), as_lambda(Random::randomNumber));
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;

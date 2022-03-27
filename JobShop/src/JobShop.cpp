@@ -211,7 +211,7 @@ JobShop::JobShop() : Problem::Problem() {
 			aux_vet[i] = i;
 
 		for (int i = 0; i < nmaq; i++) {
-			random_shuffle(&aux_vet[0], &aux_vet[njob], pointer_to_unary_function<int, int>(Random::randomNumber));
+			random_shuffle(&aux_vet[0], &aux_vet[njob], as_lambda(Random::randomNumber));
 			for (int j = 0; j < njob; j++) {
 				solution.scaling[maq[aux_vet[j]][i]][aux_maq[maq[aux_vet[j]][i]]] = aux_vet[j];
 				aux_maq[maq[aux_vet[j]][i]] += 1;
@@ -226,7 +226,7 @@ JobShop::JobShop() : Problem::Problem() {
 				solution.scaling[i][j] = j;
 			}
 
-			random_shuffle(&solution.scaling[i][0], &solution.scaling[i][njob], pointer_to_unary_function<int, int>(Random::randomNumber));
+			random_shuffle(&solution.scaling[i][0], &solution.scaling[i][njob], as_lambda(Random::randomNumber));
 		}
 	}
 
@@ -452,7 +452,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* JobShop::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(Random::randomNumber));
+	random_shuffle(local->begin(), local->end(), as_lambda(Random::randomNumber));
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
@@ -509,7 +509,7 @@ inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem *parceiro, int
 	for (int i = 0; i < nmaq; i++)
 		maqs[i] = i;
 
-	random_shuffle(&maqs[0], &maqs[nmaq], pointer_to_unary_function<int, int>(Random::randomNumber));
+	random_shuffle(&maqs[0], &maqs[nmaq], as_lambda(Random::randomNumber));
 
 	for (int i = 0, j; i < nmaq; i++) {
 		j = maqs[i];
@@ -547,7 +547,7 @@ inline pair<Problem*, Problem*>* JobShop::crossOver(const Problem *parceiro, int
 	for (int i = 0; i < nmaq; i++)
 		maqs[i] = i;
 
-	random_shuffle(&maqs[0], &maqs[nmaq], pointer_to_unary_function<int, int>(Random::randomNumber));
+	random_shuffle(&maqs[0], &maqs[nmaq], as_lambda(Random::randomNumber));
 
 	for (int i = 0, j; i < nmaq; i++) {
 		j = maqs[i];

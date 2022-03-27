@@ -67,6 +67,8 @@ using namespace chrono;
 
 #define stream_formatter(width, fill) setw(width) << setfill(fill)
 
+#define as_lambda(func) [&](auto&&... args) -> decltype(func(std::forward<decltype(args)>(args)...)) { return func(std::forward<decltype(args)>(args)...); }
+
 enum TerminationInfo {
 	EXECUTING, FINISHED_NORMALLY, USER_SIGNALED, EXECUTION_TIMEOUT, LACK_OF_IMPROVEMENT, TOO_MANY_SOLUTIONS, RESULT_ACHIEVED
 };

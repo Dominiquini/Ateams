@@ -214,7 +214,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 		sort(pop->begin(), pop->end(), fnSortFitness);
 
 		/* Mantem a populacao auxiliar sob controle */
-		random_shuffle(bad_pop->begin(), bad_pop->end(), pointer_to_unary_function<int, int>(Random::randomNumber));
+		random_shuffle(bad_pop->begin(), bad_pop->end(), as_lambda(Random::randomNumber));
 
 		while ((int) bad_pop->size() > 10 * parameters.populationSize) {
 			delete bad_pop->back();

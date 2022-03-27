@@ -221,7 +221,7 @@ KnapSack::KnapSack() : Problem::Problem() {
 		solution.ordemItens[i] = i;
 	}
 
-	random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens], pointer_to_unary_function<int, int>(Random::randomNumber));
+	random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens], as_lambda(Random::randomNumber));
 
 	solution.limit = -1;
 
@@ -369,7 +369,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* KnapSack::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), pointer_to_unary_function<int, int>(Random::randomNumber));
+	random_shuffle(local->begin(), local->end(), as_lambda(Random::randomNumber));
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
