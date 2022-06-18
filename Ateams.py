@@ -95,7 +95,7 @@ class BuildInfo:
     def load_from_file(cls, file):
         if not os.path.exists(file):
             return None
-        else: 
+        else:
             with open(file, 'rb') as info_file: return pickle.load(info_file)
 
     @staticmethod
@@ -141,7 +141,7 @@ def build(config, tool, mode, rebuild, extra_args):
 
     tool = normalize_choice(BUILD_TOOLS.tools, tool, BUILD_TOOLS.default, lambda e: e.casefold())
     mode = normalize_choice(BUILDING_MODES.modes, mode, BUILDING_MODES.default, lambda e: e.casefold())
-    
+
     def __generate_ninja_build_file():
         ninja_file = ROOT_FOLDER + PATH_SEPARATOR + NINJA_BUILD_FILE
 
@@ -276,7 +276,7 @@ def build(config, tool, mode, rebuild, extra_args):
 @click.pass_config
 def run(config, algorithm, parameters, input, result, pop, show_cmd_info, show_graphical_info, show_solution, executor, repeat, output, debug, valgrind, extra_args):
     """A Wrapper For Running ATEAMS Algorithms"""
-    
+
     algorithm = normalize_choice(ALGORITHMS, algorithm, None, lambda e: e.casefold())
 
     parameters = normalize_choice(FILE_PARAMS, parameters, FILE_DEFAULT_PARAM, lambda e: os.path.basename(e).casefold())
@@ -292,7 +292,7 @@ def run(config, algorithm, parameters, input, result, pop, show_cmd_info, show_g
 
         return cmd
 
-    def __compose_command_line(): 
+    def __compose_command_line():
         command_line = FILE_BINS[algorithm]
 
         if parameters is not None: command_line += f" -p {parameters}"
@@ -308,7 +308,7 @@ def run(config, algorithm, parameters, input, result, pop, show_cmd_info, show_g
         if show_graphical_info: command_line += f" -g"
 
         if show_solution: command_line += f" -s"
-        
+
         if not executor: command_line += f" -t"
 
         for arg in extra_args: command_line += f" {arg}"
