@@ -1,14 +1,46 @@
-*.res
-*.pop
-*.o
+# Prerequisites
 *.d
 
-build.ninja
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
 
-.build_info
+# Precompiled Headers
+*.gch
+*.pch
 
-.ninja_deps
-.ninja_log
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
 
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Temporary execution files
+*.res
+*.pop
+
+# Temporary execution folders
 bin
 results
+
+# Ninja build system
+build.ninja
+.build_info
+.ninja_deps
+.ninja_log
