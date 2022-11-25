@@ -37,6 +37,8 @@ CXXFLAGS = {BUILDING_MODES.modes[0]: "-std=c++17 -pthread -O3 -march=native", BU
 
 LDFLAGS = {PLATFORM.windows_key: "-lopengl32 -lGLU32 -lfreeglut", PLATFORM.linux_key: "-lGL -lGLU -lglut"}
 
+ARFLAGS = "-crs"
+
 POOL_ASYNC = collections.namedtuple('NinjaPool', ['name', 'depth'])("threaded", 16)
 
 BIN_EXT = ".exe" if PLATFORM.is_windows else ""
@@ -153,6 +155,7 @@ def build(config, tool, mode, rebuild, extra_args):
             ninja.variable("BUILD_MODE", mode)
             ninja.variable("CXXFLAGS", CXXFLAGS[mode])
             ninja.variable("LDFLAGS", LDFLAGS[PLATFORM.system])
+            ninja.variable("ARFLAGS", ARFLAGS)
 
             ninja.newline()
 
@@ -168,7 +171,7 @@ def build(config, tool, mode, rebuild, extra_args):
 
             ninja.newline()
 
-            ninja.rule(name="archive", command="ar -rsc $out $in", description="ARCHIVE $out", pool=POOL_ASYNC.name)
+            ninja.rule(name="archive", command="ar $ARFLAGS $out $in", description="ARCHIVE $out", pool=POOL_ASYNC.name)
 
             ninja.newline()
 

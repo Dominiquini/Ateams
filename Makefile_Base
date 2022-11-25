@@ -3,7 +3,6 @@
 
 CC = g++
 AR = ar
-RANLIB = ranlib
 
 
 ifeq ($(DEBUG), true)
@@ -22,7 +21,7 @@ else
 endif
 
 
-ARFLAGS 	= -rsc
+ARFLAGS 	= -crs
 
 
 SRC_EXT 	= .cpp

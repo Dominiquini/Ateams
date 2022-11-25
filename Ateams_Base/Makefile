@@ -24,4 +24,3 @@ $(PATTERN_BASE_OBJS):	$(PATTERN_BASE_SRCS) $(BASE_HEADERS)
 
 $(BASE_LIB):			$(BASE_OBJS)
 						$(AR) $(ARFLAGS) $@ $^
-						$(RANLIB) $@
