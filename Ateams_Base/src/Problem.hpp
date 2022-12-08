@@ -198,7 +198,7 @@ public:
 		numInst--;
 	}
 
-	virtual bool calcFitness() = 0;		// Calcula o makespan
+	bool calcFitness();					// Calcula o makespan
 
 	virtual Solution getSolution() = 0;	// Retorna solucao
 

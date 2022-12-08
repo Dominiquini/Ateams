@@ -65,7 +65,7 @@ public:
 
 	~JobShop();
 
-	bool calcFitness() override;		// Calcula o makespan
+	bool calcFitness();					// Calcula o makespan
 
 	Solution getSolution() override {	// Retorna solucao
 		return solution;

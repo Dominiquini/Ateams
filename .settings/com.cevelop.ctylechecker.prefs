@@ -1,0 +1,4 @@
+ctylechecker.config={\n  "styleguides"\: {},\n  "activeStyleguide"\: {\n    "groupings"\: {},\n    "rules"\: {},\n    "name"\: "",\n    "id"\: "f5321a0f-d59e-463c-8ed5-b91f68fe9d38",\n    "enabled"\: true\n  },\n  "enabled"\: false\n}
+ctylechecker.config.reference=
+ctylechecker.config.setting=PROJECT
+eclipse.preferences.version=1

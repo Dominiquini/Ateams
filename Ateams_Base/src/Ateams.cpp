@@ -60,6 +60,8 @@ void internalSignalHandler(int signal) {
 			case SIGINT:
 				STATUS = USER_SIGNALED;
 				break;
+			default:
+				break;
 		}
 	} else {
 		cerr << endl << endl << COLOR_RED << "Aborting..." << COLOR_DEFAULT << endl << endl;

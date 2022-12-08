@@ -213,7 +213,7 @@ void Control::generateInitialPopulation() {
 
 	loadingProgressBar->update(solutions->size());
 
-	unsigned long int limit = pow(10 * parameters.populationSize, 2), failedAttempts = 0;
+	unsigned long int limit = powl(10 * parameters.populationSize, 2), failedAttempts = 0;
 	while ((int) solutions->size() < parameters.populationSize && failedAttempts < limit) {
 		Problem *soluction = Problem::randomSolution();
 

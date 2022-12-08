@@ -1138,7 +1138,7 @@ namespace pugi
 {
 	struct xml_attribute_struct
 	{
-		xml_attribute_struct(impl::xml_memory_page* page): name(0), value(0), prev_attribute_c(0), next_attribute(0)
+		xml_attribute_struct(impl::xml_memory_page* page): name(0), value(0), prev_attribute_c(0), next_attribute(0) // @suppress("Class members should be properly initialized")
 		{
 			header = PUGI__GETHEADER_IMPL(this, page, 0);
 		}
@@ -1177,7 +1177,7 @@ namespace pugi
 
 	struct xml_node_struct
 	{
-		xml_node_struct(impl::xml_memory_page* page, xml_node_type type): name(0), value(0), parent(0), first_child(0), prev_sibling_c(0), next_sibling(0), first_attribute(0)
+		xml_node_struct(impl::xml_memory_page* page, xml_node_type type): name(0), value(0), parent(0), first_child(0), prev_sibling_c(0), next_sibling(0), first_attribute(0) // @suppress("Class members should be properly initialized")
 		{
 			header = PUGI__GETHEADER_IMPL(this, page, type);
 		}
@@ -2007,7 +2007,7 @@ PUGI__NS_BEGIN
 	#define PUGI__SCANCHARTYPE(ct) { while (offset < size && PUGI__IS_CHARTYPE(data[offset], ct)) offset++; }
 
 		// check if we have a non-empty XML declaration
-		if (size < 6 || !((data[0] == '<') & (data[1] == '?') & (data[2] == 'x') & (data[3] == 'm') & (data[4] == 'l') && PUGI__IS_CHARTYPE(data[5], ct_space)))
+		if (size < 6 || !(((data[0] == '<') & (data[1] == '?') & (data[2] == 'x') & (data[3] == 'm') & (data[4] == 'l')) && PUGI__IS_CHARTYPE(data[5], ct_space)))
 			return false;
 
 		// scan XML declaration until the encoding field
@@ -11111,6 +11111,8 @@ PUGI__NS_BEGIN
 					assert(false && "Unknown axis"); // unreachable
 					return xpath_node_set_raw();
 				}
+
+				break;
 			}
 
 			case ast_step_root:
@@ -12660,7 +12662,7 @@ namespace pugi
 		}
 	}
 
-	PUGI__FN xpath_variable_set& xpath_variable_set::operator=(xpath_variable_set&& rhs) PUGIXML_NOEXCEPT
+	PUGI__FN xpath_variable_set& xpath_variable_set::operator=(xpath_variable_set&& rhs) PUGIXML_NOEXCEPT // @suppress("Missing self check in assignment operator")
 	{
 		for (size_t i = 0; i < sizeof(_data) / sizeof(_data[0]); ++i)
 		{

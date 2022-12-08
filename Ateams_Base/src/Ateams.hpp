@@ -1,8 +1,8 @@
-#include <bits/stdc++.h>
 #include <strings.h>
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
+#include <tgmath.h>
 
 #include <thread>
 #include <future>
@@ -15,8 +15,9 @@
 #include <iomanip>
 #include <cstdlib>
 #include <cstdarg>
-#include <cstdio>
+#include <climits>
 #include <limits>
+#include <cstdio>
 #include <cmath>
 
 #include <algorithm>
