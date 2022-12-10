@@ -57,6 +57,8 @@ VALGRIND_COMMANDS = {"memcheck": "valgrind --tool=memcheck --leak-check=full -s"
 
 ALGORITHMS = ['BinPacking', 'FlowShop', 'GraphColoring', 'JobShop', 'KnapSack', 'TravellingSalesman']
 
+BUILD_ALL_KEYWORD = 'all'
+
 FILE_BINS = {A: f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}bin{PATH_SEPARATOR}{A}{BIN_EXT}" for A in ALGORITHMS}
 FILE_PARAMS = glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}Ateams_Base{PATH_SEPARATOR}parameters{PATH_SEPARATOR}*.xml")
 FILE_DEFAULT_PARAM = f"{ROOT_FOLDER}{PATH_SEPARATOR}Ateams_Base{PATH_SEPARATOR}parameters{PATH_SEPARATOR}DEFAULT.xml"
@@ -133,12 +135,13 @@ def ateams(ctx, execute, verbose, clear, pause):
 
 
 @ateams.command(context_settings=dict(ignore_unknown_options=True, help_option_names=['-h', '--help']))
-@click.option('-a', '--tool', type=click.Choice(BUILD_TOOLS.tools, case_sensitive=False), required=True, default=BUILD_TOOLS.default, help='Building Tool')
+@click.option('-t', '--tool', type=click.Choice(BUILD_TOOLS.tools, case_sensitive=False), required=True, default=BUILD_TOOLS.default, help='Building Tool')
+@click.option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default='all', help='Algorithm')
 @click.option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, help='Building Mode')
 @click.option('--rebuild', type=click.BOOL, is_flag=True, help='Force A Rebuild')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def build(config, tool, mode, rebuild, extra_args):
+def build(config, tool, algorithm, mode, rebuild, extra_args):
     """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
 
     tool = normalize_choice(BUILD_TOOLS.tools, tool, BUILD_TOOLS.default, lambda e: e.casefold())
@@ -211,7 +214,11 @@ def build(config, tool, mode, rebuild, extra_args):
 
             ninja.newline()
 
-            ninja.default("Ateams")
+            ninja.build(outputs=BUILD_ALL_KEYWORD, rule="phony", inputs="Ateams")
+
+            ninja.newline()
+
+            ninja.default(BUILD_ALL_KEYWORD)
 
             ninja.newline()
 
@@ -234,6 +241,8 @@ def build(config, tool, mode, rebuild, extra_args):
         if MULTITHREADING_BUILDING_ENABLED and "-j" not in extra_args: command_line += f" -j {os.cpu_count()}"
 
         for arg in extra_args: command_line += f" {arg}"
+
+        command_line += f" {algorithm}"
 
         if tool == "make": command_line += f" {mode}=true"
 

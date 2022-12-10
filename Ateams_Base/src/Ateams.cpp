@@ -54,6 +54,8 @@ int main(int argc, char *argv[]) {
 }
 
 void internalSignalHandler(int signal) {
+	beep();
+
 	if (STATUS == EXECUTING) {
 		switch (signal) {
 			case SIGTERM:
