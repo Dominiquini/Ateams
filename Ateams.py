@@ -139,9 +139,10 @@ def ateams(ctx, execute, verbose, clear, pause):
 @click.option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default='all', help='Algorithm')
 @click.option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, help='Building Mode')
 @click.option('--rebuild', type=click.BOOL, is_flag=True, help='Force A Rebuild')
+@click.option('--clean', type=click.BOOL, is_flag=True, help='Remove Build Files')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def build(config, tool, algorithm, mode, rebuild, extra_args):
+def build(config, tool, algorithm, mode, rebuild, clean, extra_args):
     """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
 
     tool = normalize_choice(BUILD_TOOLS.tools, tool, BUILD_TOOLS.default, lambda e: e.casefold())
@@ -240,11 +241,11 @@ def build(config, tool, algorithm, mode, rebuild, extra_args):
 
         if MULTITHREADING_BUILDING_ENABLED and "-j" not in extra_args: command_line += f" -j {os.cpu_count()}"
 
+        command_line += f" {algorithm}" if not clean else f" purge" if tool == "make" else f" -t clean"
+
+        command_line += f" {mode}=true" if tool == "make" else ""
+
         for arg in extra_args: command_line += f" {arg}"
-
-        command_line += f" {algorithm}"
-
-        if tool == "make": command_line += f" {mode}=true"
 
         return command_line
 
