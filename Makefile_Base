@@ -6,7 +6,7 @@ AR = ar
 
 
 ifeq ($(DEBUG), true)
-  CXXFLAGS = -std=c++17 -pthread -O0 -g3 -march=native
+  CXXFLAGS  = -std=c++17 -static-libstdc++ -pthread -O0 -g3 -march=native
 else ifeq ($(PROFILE), true)
   CXXFLAGS	= -std=c++17 -static-libstdc++ -pthread -O0 -pg -march=native
 else
