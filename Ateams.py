@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import collections
+import subprocess
 import pathlib
 import pprint
 import pickle
@@ -254,7 +255,7 @@ def build(config, tool, algorithm, mode, rebuild, clean, extra_args):
 
         if rebuild_if_needed: __update_timestamps_if_needed()
 
-        return timeit.repeat(stmt=lambda: os.system(cmd), repeat=1, number=1)[0] if config.execute else 0
+        return timeit.repeat(stmt=lambda: subprocess.call(cmd), repeat=1, number=1)[0] if config.execute else 0
 
     __generate_ninja_build_file()
 
@@ -280,7 +281,7 @@ def build(config, tool, algorithm, mode, rebuild, clean, extra_args):
 @click.option('-c', '--show-cmd-info', type=click.IntRange(0, 5), count=True, help='Show Prompt Overview')
 @click.option('-g', '--show-graphical-info', type=click.BOOL, is_flag=True, help='Show Graphical Overview')
 @click.option('-s', '--show-solution', type=click.BOOL, is_flag=True, help='Show Solution')
-@click.option('--executor/--threads', default=True, help='Pause Terminal')
+@click.option('--executor/--threads', default=True, help='Executor or Threads')
 @click.option('-n', '--repeat', type=click.INT, default=1, help='Repeat N Times')
 @click.option('--output', type=click.BOOL, is_flag=True, help='Force Write Output Files')
 @click.option('--valgrind', type=click.Choice(VALGRIND_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With VALGRIND')
@@ -333,7 +334,7 @@ def run(config, algorithm, parameters, input, result, pop, show_cmd_info, show_g
     def __execute_ateams(cmd, change_to_root_folder=True):
         if change_to_root_folder: os.chdir(ROOT_FOLDER)
 
-        return timeit.repeat(stmt=lambda: os.system(cmd), repeat=repeat, number=1) if config.execute else [0] * repeat
+        return timeit.repeat(stmt=lambda: subprocess.call(cmd), repeat=repeat, number=1) if config.execute else [0] * repeat
 
     if config.clear: click.clear()
 
