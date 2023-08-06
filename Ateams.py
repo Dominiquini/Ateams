@@ -255,7 +255,7 @@ def build(config, tool, algorithm, mode, rebuild, clean, extra_args):
 
         if rebuild_if_needed: __update_timestamps_if_needed()
 
-        return timeit.repeat(stmt=lambda: subprocess.call(cmd), repeat=1, number=1)[0] if config.execute else 0
+        return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=1, number=1)[0] if config.execute else 0
 
     __generate_ninja_build_file()
 
@@ -334,7 +334,7 @@ def run(config, algorithm, parameters, input, result, pop, show_cmd_info, show_g
     def __execute_ateams(cmd, change_to_root_folder=True):
         if change_to_root_folder: os.chdir(ROOT_FOLDER)
 
-        return timeit.repeat(stmt=lambda: subprocess.call(cmd), repeat=repeat, number=1) if config.execute else [0] * repeat
+        return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=repeat, number=1) if config.execute else [0] * repeat
 
     if config.clear: click.clear()
 
