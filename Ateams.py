@@ -34,7 +34,7 @@ BUILD_TOOLS = collections.namedtuple('BuildTools', ['tools', 'default'])(tools :
 
 BUILDING_MODES = collections.namedtuple('BuildModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
 
-CXXFLAGS = {BUILDING_MODES.modes[0]: "-std=c++17 -static-libstdc++ -pthread -O3 -march=native", BUILDING_MODES.modes[1]: "-std=c++17 -static-libstdc++ -pthread -O0 -g3 -march=native", BUILDING_MODES.modes[2]: "-std=c++17 -static-libstdc++ -pthread -O0 -pg -march=native"}
+CXXFLAGS = {BUILDING_MODES.modes[0]: "-std=c++17 -static-libstdc++ -pthread -O3 -march=native", BUILDING_MODES.modes[1]: "-std=c++17 -static-libstdc++ -pthread -O0 -g3 -no-pie -march=native", BUILDING_MODES.modes[2]: "-std=c++17 -static-libstdc++ -pthread -O0 -g3 -pg -no-pie -march=native"}
 
 LDFLAGS = {PLATFORM.windows_key: "-lopengl32 -lGLU32 -lfreeglut", PLATFORM.linux_key: "-lGL -lGLU -lglut"}
 
@@ -54,7 +54,7 @@ PROJ_BINS = [obj.replace(".o", BIN_EXT) for obj in PROJ_OBJS]
 
 GDB_COMMAND = "gdb --args {cmd}"
 
-GPROF_COMMAND = "{cmd} ; gprof {bin} gmon.out > profile.txt"
+GPROF_COMMAND = "{cmd} && gprof {bin} gmon.out > profile.txt"
 
 VALGRIND_COMMANDS = {"memcheck": "valgrind --tool=memcheck --leak-check=full -s {cmd}", "callgrind": "valgrind --tool=callgrind -s {cmd}", "cachegrind": "valgrind --tool=cachegrind -s {cmd}", "helgrind": "valgrind --tool=helgrind -s {cmd}", "drd": "valgrind --tool=drd -s {cmd}"}
 
