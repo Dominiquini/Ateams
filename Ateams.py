@@ -52,9 +52,11 @@ PROJ_SRCS = [cpp.replace(ROOT_FOLDER, ".") for cpp in glob.glob(f"{ROOT_FOLDER}{
 PROJ_OBJS = [src.replace("src", "bin").replace(".cpp", ".o") for src in PROJ_SRCS]
 PROJ_BINS = [obj.replace(".o", BIN_EXT) for obj in PROJ_OBJS]
 
-GDB_COMMAND = "gdb --args"
+GDB_COMMAND = "gdb --args {cmd}"
 
-VALGRIND_COMMANDS = {"memcheck": "valgrind --tool=memcheck --leak-check=full -s", "callgrind": "valgrind --tool=callgrind", "cachegrind": "valgrind --tool=cachegrind", "helgrind": "valgrind --tool=helgrind -s", "drd": "valgrind --tool=drd -s"}
+GPROF_COMMAND = "{cmd} ; gprof {bin} gmon.out > profile.txt"
+
+VALGRIND_COMMANDS = {"memcheck": "valgrind --tool=memcheck --leak-check=full -s {cmd}", "callgrind": "valgrind --tool=callgrind -s {cmd}", "cachegrind": "valgrind --tool=cachegrind -s {cmd}", "helgrind": "valgrind --tool=helgrind -s {cmd}", "drd": "valgrind --tool=drd -s {cmd}"}
 
 ALGORITHMS = ['BinPacking', 'FlowShop', 'GraphColoring', 'JobShop', 'KnapSack', 'TravellingSalesman']
 
@@ -284,11 +286,12 @@ def build(config, tool, algorithm, mode, rebuild, clean, extra_args):
 @click.option('--executor/--threads', default=True, help='Executor or Threads')
 @click.option('-n', '--repeat', type=click.INT, default=1, help='Repeat N Times')
 @click.option('--output', type=click.BOOL, is_flag=True, help='Force Write Output Files')
-@click.option('--valgrind', type=click.Choice(VALGRIND_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With VALGRIND')
 @click.option('--debug', type=click.BOOL, is_flag=True, help='Run With GDB')
+@click.option('--profile', type=click.BOOL, is_flag=True, help='Run With GPROF')
+@click.option('--valgrind', type=click.Choice(VALGRIND_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With VALGRIND')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def run(config, algorithm, parameters, input, result, pop, show_cmd_info, show_graphical_info, show_solution, executor, repeat, output, debug, valgrind, extra_args):
+def run(config, algorithm, parameters, input, result, pop, show_cmd_info, show_graphical_info, show_solution, executor, repeat, output, debug, profile, valgrind, extra_args):
     """A Wrapper For Running ATEAMS Algorithms"""
 
     algorithm = normalize_choice(ALGORITHMS, algorithm, None, lambda e: e.casefold())
@@ -299,10 +302,11 @@ def run(config, algorithm, parameters, input, result, pop, show_cmd_info, show_g
     if result is None and output: result = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".res").name)
     if pop is None and output: pop = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".pop").name)
 
-    def __apply_execution_modifiers(cmd):
-        if debug and not valgrind: cmd = GDB_COMMAND + " " + cmd
-        if not debug and valgrind: cmd = VALGRIND_COMMANDS[valgrind] + " " + cmd
-        if debug and valgrind: raise Exception("Don't Use GDB And VALGRIND At Same Time!")
+    def __apply_execution_modifiers(cmd, bin):
+        if sum(1 for mode in [debug, profile, valgrind] if mode) > 1: raise Exception("Don't Use GDB, VALGRIND and GPROF At Same Time!")
+        if debug: cmd = GDB_COMMAND.format(cmd=cmd)
+        if profile: cmd = GPROF_COMMAND.format(cmd=cmd, bin=bin)
+        if valgrind: cmd = VALGRIND_COMMANDS[valgrind].format(cmd=cmd)
 
         return cmd
 
@@ -327,7 +331,7 @@ def run(config, algorithm, parameters, input, result, pop, show_cmd_info, show_g
 
         for arg in extra_args: command_line += f" {arg}"
 
-        command_line = __apply_execution_modifiers(command_line)
+        command_line = __apply_execution_modifiers(command_line, FILE_BINS[algorithm])
 
         return command_line
 
