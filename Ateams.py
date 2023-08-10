@@ -4,7 +4,6 @@
 import collections
 import subprocess
 import pathlib
-import pprint
 import pickle
 import signal
 import timeit

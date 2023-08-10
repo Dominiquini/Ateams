@@ -8,7 +8,6 @@ using namespace chrono;
 volatile TerminationInfo STATUS;
 
 int main(int argc, char *argv[]) {
-
 	fix_terminal();
 
 	signal(SIGTERM, internalSignalHandler);		// Interrompe o programa ao ser requisitado externamente
