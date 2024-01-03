@@ -6,11 +6,11 @@ AR = ar
 
 
 ifeq ($(DEBUG), true)
-  CXXFLAGS  = -std=c++17 -static-libstdc++ -pthread -O0 -g3 -no-pie -march=native
+  CXXFLAGS  = -std=c++17 -static-libstdc++ -pthread -O0 -g3 -no-pie -march=native -mtune=native
 else ifeq ($(PROFILE), true)
-  CXXFLAGS	= -std=c++17 -static-libstdc++ -pthread -O0 -g3 -pg -no-pie -march=native
+  CXXFLAGS	= -std=c++17 -static-libstdc++ -pthread -O0 -g3 -pg -no-pie -march=native -mtune=native
 else
-  CXXFLAGS	= -std=c++17 -static-libstdc++ -pthread -O3 -march=native
+  CXXFLAGS	= -std=c++17 -static-libstdc++ -pthread -O3 -ffast-math -march=native -mtune=native
 endif
 
 
