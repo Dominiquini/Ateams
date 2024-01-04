@@ -21,6 +21,7 @@ Build_KnapSack:
 Build_TravellingSalesman:
 	./Ateams.py build -a TravellingSalesman
 
+
 Run_BinPacking: Build_BinPacking
 	./Ateams.py run -a BinPacking
 
@@ -38,6 +39,7 @@ Run_KnapSack: Build_KnapSack
 
 Run_TravellingSalesman: Build_TravellingSalesman
 	./Ateams.py run -a TravellingSalesman
+
 
 Clean:
 	./Ateams.py build --clean
