@@ -61,12 +61,12 @@ ALGORITHMS = ['BinPacking', 'FlowShop', 'GraphColoring', 'JobShop', 'KnapSack', 
 
 BUILD_ALL_KEYWORD = 'all'
 
-FILE_BINS = {A: f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}bin{PATH_SEPARATOR}{A}{BIN_EXT}" for A in ALGORITHMS}
-FILE_PARAMS = glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}Ateams_Base{PATH_SEPARATOR}parameters{PATH_SEPARATOR}*.xml")
-FILE_DEFAULT_PARAM = f"{ROOT_FOLDER}{PATH_SEPARATOR}Ateams_Base{PATH_SEPARATOR}parameters{PATH_SEPARATOR}DEFAULT.xml"
-FILE_INPUTS = {A: glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}inputs{PATH_SEPARATOR}*.prb") for A in ALGORITHMS}
-FILE_DEFAULT_INPUTS = {A: f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}inputs{PATH_SEPARATOR}{I}" for (A, I) in zip(ALGORITHMS, ['binpack1_01.prb', 'car1.prb', 'jean.prb', 'la01.prb', 'mk_gk01.prb', 'br17.prb'])}
-PATH_DEFAULT_OUTPUTS = {A: f"{ROOT_FOLDER}{PATH_SEPARATOR}{A}{PATH_SEPARATOR}results{PATH_SEPARATOR}" for A in ALGORITHMS}
+FILE_BINS = {A: f"{A}{PATH_SEPARATOR}bin{PATH_SEPARATOR}{A}{BIN_EXT}" for A in ALGORITHMS}
+FILE_PARAMS = glob.glob(f"Ateams_Base{PATH_SEPARATOR}parameters{PATH_SEPARATOR}*.xml")
+FILE_DEFAULT_PARAM = f"Ateams_Base{PATH_SEPARATOR}parameters{PATH_SEPARATOR}DEFAULT.xml"
+FILE_INPUTS = {A: glob.glob(f"{A}{PATH_SEPARATOR}inputs{PATH_SEPARATOR}*.prb") for A in ALGORITHMS}
+FILE_DEFAULT_INPUTS = {A: f"{A}{PATH_SEPARATOR}inputs{PATH_SEPARATOR}{I}" for (A, I) in zip(ALGORITHMS, ['binpack1_01.prb', 'car1.prb', 'jean.prb', 'la01.prb', 'mk_gk01.prb', 'br17.prb'])}
+PATH_DEFAULT_OUTPUTS = {A: f"{A}{PATH_SEPARATOR}results{PATH_SEPARATOR}" for A in ALGORITHMS}
 
 
 class NinjaFileWriter(ninja_syntax.Writer):
