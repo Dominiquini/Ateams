@@ -12,8 +12,10 @@ import math
 import sys
 import os
 
-import click
 import ninja_syntax
+
+import click
+
 
 PLATFORM = collections.namedtuple('PlatformInfo', ['windows_key', 'linux_key', 'is_windows', 'is_linux', 'system'])(windows_key := "WINDOWS", linux_key := "LINUX", is_windows := sys.platform == 'win32', is_linux := not is_windows, system := windows_key if is_windows else linux_key)
 
@@ -123,20 +125,24 @@ def validate_path(ctx: click.core.Context=None, param: click.core.Option=None, v
     finally: return value
 
 
+CLICK_CONTEXT_SETTINGS = dict(ignore_unknown_options=True, help_option_names=['-h', '--help'])
+
 click.pass_config = click.make_pass_decorator(Config := collections.namedtuple('LauncherConfig', ['execute', 'verbose', 'clear', 'pause']))
 
 
-@click.group(context_settings=dict(ignore_unknown_options=True, help_option_names=['-h', '--help']))
+@click.group(context_settings=CLICK_CONTEXT_SETTINGS)
 @click.option('--execute/--no-execute', default=True, help='Execute Selected Command')
 @click.option('--verbose/--no-verbose', default=True, help='Print Execution Info')
 @click.option('--clear/--no-clear', default=False, help='Clear Terminal')
 @click.option('--pause/--no-pause', default=False, help='Pause Terminal')
 @click.pass_context
 def ateams(ctx, execute, verbose, clear, pause):
+    """A Wrapper For Interacting With ATEAMS"""
+
     ctx.obj = Config(execute, verbose, clear, pause)
 
 
-@ateams.command(context_settings=dict(ignore_unknown_options=True, help_option_names=['-h', '--help']))
+@ateams.command(context_settings=CLICK_CONTEXT_SETTINGS)
 @click.option('-t', '--tool', type=click.Choice(BUILD_TOOLS.tools, case_sensitive=False), required=True, default=BUILD_TOOLS.default, help='Building Tool')
 @click.option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default='all', help='Algorithm')
 @click.option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, help='Building Mode')
@@ -273,24 +279,24 @@ def build(config, tool, algorithm, mode, rebuild, clean, extra_args):
     if config.pause: click.prompt("\nPress ENTER To Exit ", prompt_suffix='', hide_input=True, show_choices=False, show_default=False, default='') ; click.echo("\n")
 
 
-@ateams.command(context_settings=dict(ignore_unknown_options=True, help_option_names=['-h', '--help']))
+@ateams.command(context_settings=CLICK_CONTEXT_SETTINGS)
 @click.option('-a', '--algorithm', type=click.Choice(ALGORITHMS, case_sensitive=False), required=True, prompt="Algorithm:", help='Algorithm')
 @click.option('-p', '--parameters', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Input Parameters File')
 @click.option('-i', '--input', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Input Data File')
-@click.option('-r', '--result', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Output Result File')
-@click.option('-o', '--pop', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Population File')
+@click.option('-o', '--result', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Output Result File')
+@click.option('-d', '--population', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Population File')
 @click.option('-c', '--show-cmd-info', type=click.IntRange(0, 5), count=True, help='Show Prompt Overview')
 @click.option('-g', '--show-graphical-info', type=click.BOOL, is_flag=True, help='Show Graphical Overview')
 @click.option('-s', '--show-solution', type=click.BOOL, is_flag=True, help='Show Solution')
 @click.option('--executor/--threads', default=True, help='Executor or Threads')
-@click.option('-n', '--repeat', type=click.INT, default=1, help='Repeat N Times')
-@click.option('--output', type=click.BOOL, is_flag=True, help='Force Write Output Files')
+@click.option('--force-output', type=click.BOOL, is_flag=True, help='Force Write Output Files (Result and Population)')
+@click.option('--repeat', type=click.INT, default=1, help='Repeat N Times')
 @click.option('--debug', type=click.BOOL, is_flag=True, help='Run With GDB')
 @click.option('--profile', type=click.BOOL, is_flag=True, help='Run With GPROF')
 @click.option('--valgrind', type=click.Choice(VALGRIND_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With VALGRIND')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def run(config, algorithm, parameters, input, result, pop, show_cmd_info, show_graphical_info, show_solution, executor, repeat, output, debug, profile, valgrind, extra_args):
+def run(config, algorithm, parameters, input, result, population, show_cmd_info, show_graphical_info, show_solution, executor, repeat, force_output, debug, profile, valgrind, extra_args):
     """A Wrapper For Running ATEAMS Algorithms"""
 
     algorithm = normalize_choice(ALGORITHMS, algorithm, None, lambda e: e.casefold())
@@ -298,8 +304,9 @@ def run(config, algorithm, parameters, input, result, pop, show_cmd_info, show_g
     parameters = normalize_choice(FILE_PARAMS, parameters, FILE_DEFAULT_PARAM, lambda e: os.path.basename(e).casefold())
     input = normalize_choice(FILE_INPUTS[algorithm], input, FILE_DEFAULT_INPUTS[algorithm], lambda e: os.path.basename(e).casefold())
 
-    if result is None and output: result = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".res").name)
-    if pop is None and output: pop = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".pop").name)
+    if force_output:
+        if result is None: result = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".res").name)
+        if population is None: population = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".pop").name)
 
     def __apply_execution_modifiers(cmd, bin):
         if sum(1 for mode in [debug, profile, valgrind] if mode) > 1: raise Exception("Don't Use GDB, VALGRIND and GPROF At Same Time!")
@@ -316,9 +323,9 @@ def run(config, algorithm, parameters, input, result, pop, show_cmd_info, show_g
 
         if input is not None: command_line += f" -i {input}"
 
-        if result is not None: command_line += f" -r {result}"
+        if result is not None: command_line += f" -o {result}"
 
-        if pop is not None: command_line += f" -o {pop}"
+        if population is not None: command_line += f" -d {population}"
 
         if show_cmd_info: command_line += f" -{'c' * show_cmd_info}"
 

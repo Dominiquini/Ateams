@@ -267,7 +267,7 @@ inline void Control::readMainCMDParameters() {
 			strcat(error, "Data File Cannot Be Empty! ");
 		}
 
-		if ((argumentPosition = findCMDArgumentPosition("-r")) != -1) {
+		if ((argumentPosition = findCMDArgumentPosition("-o")) != -1) {
 			strcpy(outputResultFile, argv[argumentPosition]);
 
 			cout << COLOR_GREEN << "Result File: " << outputResultFile << COLOR_DEFAULT << endl;
@@ -277,7 +277,7 @@ inline void Control::readMainCMDParameters() {
 			cout << COLOR_YELLOW << "Result File: " << "---" << COLOR_DEFAULT << endl;
 		}
 
-		if ((argumentPosition = findCMDArgumentPosition("-o")) != -1) {
+		if ((argumentPosition = findCMDArgumentPosition("-d")) != -1) {
 			strcpy(populationFile, argv[argumentPosition]);
 
 			cout << COLOR_GREEN << "Population File: " << populationFile << COLOR_DEFAULT << endl;
@@ -286,13 +286,7 @@ inline void Control::readMainCMDParameters() {
 
 			cout << COLOR_YELLOW << "Population File: " << "---" << COLOR_DEFAULT << endl;
 		}
-	}
 
-	if (strlen(error) != 0) {
-		throw string(error);
-	}
-
-	{
 		setPrintFullSolution(findCMDArgumentPosition("-s") != -1);
 
 		setGraphicStatusInfoScreen(findCMDArgumentPosition("-g") != -1);
@@ -300,6 +294,10 @@ inline void Control::readMainCMDParameters() {
 		setCMDStatusInfoScreen(findCMDArgumentPosition("-c") != -1, findCMDArgumentPosition("-cc") != -1, findCMDArgumentPosition("-ccc") != -1, findCMDArgumentPosition("-cccc") != -1, findCMDArgumentPosition("-ccccc") != -1);
 
 		setSingleExecutionPerThread(findCMDArgumentPosition("-t") != -1);
+	}
+
+	if (strlen(error) != 0) {
+		throw string(error);
 	}
 }
 
