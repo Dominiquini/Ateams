@@ -14,7 +14,10 @@ import os
 
 import ninja_syntax
 
-import click
+try:
+    import rich_click as click
+except ImportError:
+    import click
 
 
 PLATFORM = collections.namedtuple('PlatformInfo', ['windows_key', 'linux_key', 'is_windows', 'is_linux', 'system'])(windows_key := "WINDOWS", linux_key := "LINUX", is_windows := sys.platform == 'win32', is_linux := not is_windows, system := windows_key if is_windows else linux_key)
