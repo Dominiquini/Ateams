@@ -12,12 +12,12 @@
 #elif (RANDOM_TYPE == -1)
   static std::default_random_engine randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 #elif (RANDOM_TYPE == -2)
-  static std::mt19937 randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+  static std::mt19937_64 randomEngine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 #elif (RANDOM_TYPE == -3)
   static std::random_device randomEngine;
 #endif
 
-static std::mutex mutex_rand;	// Mutex que protege a geracao de numeros aleatorios
+static std::mutex mutex_random;	// Mutex que protege a geracao de numeros aleatorios
 
 class Random {
 public:
@@ -42,7 +42,7 @@ public:
 		std::uniform_int_distribution<int> randomDistribution(min, max - 1);
 
 #if RANDOM_THREAD_SAFE
-		std::lock_guard<decltype(mutex_rand)> lock_info_start(mutex_rand);
+		std::lock_guard<decltype(mutex_random)> lockRandom(mutex_random);
 #endif
 
 		return randomDistribution(randomEngine);
