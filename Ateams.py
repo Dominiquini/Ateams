@@ -199,12 +199,12 @@ def build(config, tool, algorithm, mode, rebuild, clean, extra_args):
 
             ninja.newline()
 
-            ninja.build(outputs=BASE_LIB, rule="archive", inputs=BASE_OBJS)
+            for src, obj in zip(PROJ_SRCS, PROJ_OBJS):
+                ninja.build(outputs=obj, rule="compile", inputs=src)
 
             ninja.newline()
 
-            for src, obj in zip(PROJ_SRCS, PROJ_OBJS):
-                ninja.build(outputs=obj, rule="compile", inputs=src)
+            ninja.build(outputs=BASE_LIB, rule="archive", inputs=BASE_OBJS)
 
             ninja.newline()
 
