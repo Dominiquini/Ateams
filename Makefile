@@ -7,7 +7,9 @@ PATH_ROOT = ./
 PROJ =
 
 
-.PHONY:				Ateams Base BinPacking FlowShop GraphColoring JobShop KnapSack TravellingSalesman list all base clean purge
+.PHONY:=			Ateams Base BinPacking FlowShop GraphColoring JobShop KnapSack TravellingSalesman list all base clean purge
+
+.DEFAULT_GOAL:=		Ateams
 
 
 Ateams:				Base BinPacking FlowShop GraphColoring JobShop KnapSack TravellingSalesman
@@ -34,12 +36,8 @@ TravellingSalesman:	Base
 					$(MAKE) -C $(PATH_TRAVELLINGSALESMAN)
 
 
-list:
-					@$(ECHO)  -- Ateams "\n" - Base "\n" - BinPacking "\n" - FlowShop "\n" - GraphColoring "\n" - JobShop "\n" - KnapSack "\n" - TravellingSalesman
-
 all:				Ateams
 
-base:				Base
 
 clean:				COMMAND=clean
 clean:				--delete
