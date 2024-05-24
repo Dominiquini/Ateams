@@ -149,8 +149,8 @@ def ateams(ctx, execute, verbose, clear, pause):
 @click.option('-t', '--tool', type=click.Choice(BUILD_TOOLS.tools, case_sensitive=False), required=True, default=BUILD_TOOLS.default, help='Building Tool')
 @click.option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default='all', help='Algorithm')
 @click.option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, help='Building Mode')
-@click.option('--rebuild', type=click.BOOL, is_flag=True, help='Force A Rebuild')
-@click.option('--clean', type=click.BOOL, is_flag=True, help='Remove Build Files')
+@click.option('--rebuild', type=click.BOOL, is_flag=True, help='Force A Rebuild Of The Entire Project')
+@click.option('--clean', '--purge', type=click.BOOL, is_flag=True, help='Remove Build Files')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
 def build(config, tool, algorithm, mode, rebuild, clean, extra_args):

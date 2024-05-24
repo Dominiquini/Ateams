@@ -1,7 +1,7 @@
 /**
- * pugixml parser - version 1.11
+ * pugixml parser - version 1.14
  * --------------------------------------------------------
- * Copyright (C) 2006-2020, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
+ * Copyright (C) 2006-2023, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
  * Report bugs and download new versions at https://pugixml.org/
  *
  * This library is distributed under the MIT License. See notice at the end
@@ -11,51 +11,14 @@
  * Copyright (C) 2003, by Kristen Wegner (kristen@tima.net)
  */
 
-#ifndef HEADER_PUGICONFIG_HPP
-#define HEADER_PUGICONFIG_HPP
-
-// Uncomment this to enable wchar_t mode
-// #define PUGIXML_WCHAR_MODE
-
-// Uncomment this to enable compact mode
-// #define PUGIXML_COMPACT
-
-// Uncomment this to disable XPath
-// #define PUGIXML_NO_XPATH
-
-// Uncomment this to disable STL
-// #define PUGIXML_NO_STL
-
-// Uncomment this to disable exceptions
-// #define PUGIXML_NO_EXCEPTIONS
-
-// Set this to control attributes for public classes/functions, i.e.:
-// #define PUGIXML_API __declspec(dllexport) // to export all public symbols from DLL
-// #define PUGIXML_CLASS __declspec(dllimport) // to import all classes from DLL
-// #define PUGIXML_FUNCTION __fastcall // to set calling conventions to all public functions to fastcall
-// In absence of PUGIXML_CLASS/PUGIXML_FUNCTION definitions PUGIXML_API is used instead
-
-// Tune these constants to adjust memory-related behavior
-// #define PUGIXML_MEMORY_PAGE_SIZE 32768
-// #define PUGIXML_MEMORY_OUTPUT_STACK 10240
-// #define PUGIXML_MEMORY_XPATH_PAGE_SIZE 4096
-
-// Tune this constant to adjust max nesting for XPath queries
-// #define PUGIXML_XPATH_DEPTH_LIMIT 1024
-
-// Uncomment this to switch to header-only version
-// #define PUGIXML_HEADER_ONLY
-
-// Uncomment this to enable long long support
-// #define PUGIXML_HAS_LONG_LONG
-
-#endif
-
-#ifndef PUGIXML_VERSION
 // Define version macro; evaluates to major * 1000 + minor * 10 + patch so that it's safe to use in less-than comparisons
 // Note: pugixml used major * 100 + minor * 10 + patch format up until 1.9 (which had version identifier 190); starting from pugixml 1.10, the minor version number is two digits
-#	define PUGIXML_VERSION 1110
+#ifndef PUGIXML_VERSION
+#	define PUGIXML_VERSION 1140 // 1.14
 #endif
+
+// Include user configuration file (this can define various configuration macros)
+#include "PugiConfig.hpp"
 
 #ifndef HEADER_PUGIXML_HPP
 #define HEADER_PUGIXML_HPP
@@ -74,16 +37,6 @@
 #	include <iosfwd>
 #	include <string>
 #endif
-
-#if (defined(__cplusplus) && __cplusplus == 201703L) || (defined(_MSC_VER) && _MSC_VER > 1900 && ((defined(_HAS_CXX17) && _HAS_CXX17 == 1) || (defined(_MSVC_LANG) && (_MSVC_LANG > 201402L))))
-#ifndef PUGI_CXX17_FEATURES
-#define PUGI_CXX17_FEATURES 1
-#endif // C++17 features macro
-#endif // C++17 features check
-
-#if defined(PUGI_CXX17_FEATURES) && PUGI_CXX17_FEATURES
-#include <string_view>
-#endif // C++17 features
 
 // Macro for deprecated features
 #ifndef PUGIXML_DEPRECATED
@@ -162,6 +115,8 @@
 #ifndef PUGIXML_NULL
 #	if __cplusplus >= 201103
 #		define PUGIXML_NULL nullptr
+#	elif defined(_MSC_VER) && _MSC_VER >= 1600
+#		define PUGIXML_NULL nullptr
 #	else
 #		define PUGIXML_NULL 0
 #	endif
@@ -176,126 +131,6 @@
 #	define PUGIXML_CHAR char
 #endif
 
-
-// The string_view
-namespace pugi {
-#if defined(PUGI_CXX17_FEATURES) && PUGI_CXX17_FEATURES
-	template <typename C, typename T = std::char_traits<C> >
-	using basic_string_view = std::basic_string_view<C, T>;
-	typedef std::string_view string_view;
-	typedef std::wstring_view wstring_view;
-#else
-	template <typename Char, typename Traits = std::char_traits<Char> >
-	struct basic_string_view {
-		const Char* p;
-		std::size_t s;
-		
-		basic_string_view(const std::string& r)
-			: p(r.data()), s(r.size()) {
-		}
-		basic_string_view(const Char* ptr)
-			: p(ptr), s(Traits::length(ptr)) {
-		}
-		basic_string_view(const Char* ptr, std::size_t sz)
-			: p(ptr), s(sz) {
-		}
-
-		static int compare(const Char* lhs_p, std::size_t lhs_sz, const Char* rhs_p, std::size_t rhs_sz) {
-			int result = Traits::compare(lhs_p, rhs_p, lhs_sz < rhs_sz ? lhs_sz : rhs_sz);
-			if (result != 0)
-				return result;
-			if (lhs_sz < rhs_sz)
-				return -1;
-			if (lhs_sz > rhs_sz)
-				return 1;
-			return 0;
-		}
-
-		const Char* begin() const {
-			return p;
-		}
-
-		const Char* end() const {
-			return p + s;
-		}
-
-		const Char* cbegin() const {
-			return p;
-		}
-
-		const Char* cend() const {
-			return p + s;
-		}
-
-		const Char* data() const {
-			return p;
-		}
-
-		std::size_t size() const {
-			return s;
-		}
-
-		std::size_t length() const {
-			return size();
-		}
-
-		bool empty() const {
-			return 0 == s;
-		}
-
-		const Char& operator[](size_t index) const {
-			return p[index];
-		}
-
-		operator std::basic_string<Char, Traits>() const {
-			return std::basic_string<Char, Traits>(data(), size());
-		}
-
-		bool operator==(const basic_string_view& r) const {
-			return compare(p, s, r.data(), r.size()) == 0;
-		}
-
-		bool operator==(const Char* r) const {
-			return compare(r, Traits::length(r), p, s) == 0;
-		}
-
-		bool operator==(const std::basic_string<Char, Traits>& r) const {
-			return compare(r.data(), r.size(), p, s) == 0;
-		}
-
-		bool operator!=(const basic_string_view& r) const {
-			return !(*this == r);
-		}
-
-		bool operator!=(const char* r) const {
-			return !(*this == r);
-		}
-
-		bool operator!=(const std::basic_string<Char, Traits>& r) const {
-			return !(*this == r);
-		}
-	};
-} // namespace pugi
-
-namespace pugi {
-	typedef basic_string_view<char> string_view;
-	typedef basic_string_view<wchar_t> wstring_view;
-#endif
-} // namespace pugi
-
-// The explicit boolean type to avoid compiler ambiguous match const char_t* as scalar type 'bool',
-// because we preferred compiler match const char_t* as string_view_t
-namespace pugi {
-	struct boolean {
-		boolean() : value(false) {}
-		explicit boolean(bool bval) : value(bval) {}
-		bool value;
-		operator bool() const { return value; }
-	};
-	static const boolean (true_value)(true);
-	static const boolean (false_value)(false);
-} // namespace pugi
-
 namespace pugi
 {
 	// Character type used for all internal storage and operations; depends on PUGIXML_WCHAR_MODE
@@ -305,12 +140,7 @@ namespace pugi
 	// String type used for operations that work with STL string; depends on PUGIXML_WCHAR_MODE
 	typedef std::basic_string<PUGIXML_CHAR, std::char_traits<PUGIXML_CHAR>, std::allocator<PUGIXML_CHAR> > string_t;
 #endif
-
-	// string_view type used for operations that work with pugi::string_view, depends on PUGIXML_WCHAR_MODE
-	typedef pugi::basic_string_view<char_t, std::char_traits<char_t> > string_view_t;
 }
-
-#define PUGIXML_EMPTY_SV pugi::string_view_t(PUGIXML_TEXT(""), 0)
 
 // The PugiXML namespace
 namespace pugi
@@ -382,6 +212,10 @@ namespace pugi
 	// the document; this flag is only recommended for parsing documents with many PCDATA nodes in memory-constrained environments.
 	// This flag is off by default.
 	const unsigned int parse_embed_pcdata = 0x2000;
+	
+	// This flag determines whether determines whether the the two pcdata should be merged or not, if no intermediatory data are parsed in the document.
+	// This flag is off by default.
+	const unsigned int parse_merge_pcdata = 0x4000;
 
 	// The default parsing mode.
 	// Elements, PCDATA and CDATA sections are added to the DOM tree, character/reference entities are expanded,
@@ -494,7 +328,7 @@ namespace pugi
 	class PUGIXML_CLASS xml_writer
 	{
 	public:
-		virtual ~xml_writer() {}
+		virtual ~xml_writer();
 
 		// Write memory chunk into stream/file/whatever
 		virtual void write(const void* data, size_t size) = 0;
@@ -566,12 +400,11 @@ namespace pugi
 		bool empty() const;
 
 		// Get attribute name/value, or "" if attribute is empty
-		string_view_t name() const;
-
-		string_view_t value() const;
+		const char_t* name() const;
+		const char_t* value() const;
 
 		// Get attribute value, or the default value if attribute is empty
-		string_view_t as_string(string_view_t def = PUGIXML_EMPTY_SV) const;
+		const char_t* as_string(const char_t* def = PUGIXML_TEXT("")) const;
 
 		// Get attribute value as a number, or the default value if conversion did not succeed or attribute is empty
 		int as_int(int def = 0) const;
@@ -588,8 +421,10 @@ namespace pugi
 		bool as_bool(bool def = false) const;
 
 		// Set attribute name/value (returns false if attribute is empty or there is not enough memory)
-		bool set_name(string_view_t rhs, bool shallow_copy = false);
-		bool set_value(string_view_t rhs, bool shallow_copy = false);
+		bool set_name(const char_t* rhs);
+		bool set_name(const char_t* rhs, size_t size);
+		bool set_value(const char_t* rhs);
+		bool set_value(const char_t* rhs, size_t size);
 
 		// Set attribute value with type conversion (numbers are converted to strings, boolean is converted to "true"/"false")
 		bool set_value(int rhs);
@@ -600,7 +435,7 @@ namespace pugi
 		bool set_value(double rhs, int precision);
 		bool set_value(float rhs);
 		bool set_value(float rhs, int precision);
-		bool set_value(boolean rhs);
+		bool set_value(bool rhs);
 
 	#ifdef PUGIXML_HAS_LONG_LONG
 		bool set_value(long long rhs);
@@ -608,14 +443,14 @@ namespace pugi
 	#endif
 
 		// Set attribute value (equivalent to set_value without error checking)
-		xml_attribute& operator=(string_view_t rhs);
+		xml_attribute& operator=(const char_t* rhs);
 		xml_attribute& operator=(int rhs);
 		xml_attribute& operator=(unsigned int rhs);
 		xml_attribute& operator=(long rhs);
 		xml_attribute& operator=(unsigned long rhs);
 		xml_attribute& operator=(double rhs);
 		xml_attribute& operator=(float rhs);
-		xml_attribute& operator=(boolean rhs);
+		xml_attribute& operator=(bool rhs);
 
 	#ifdef PUGIXML_HAS_LONG_LONG
 		xml_attribute& operator=(long long rhs);
@@ -679,11 +514,11 @@ namespace pugi
 		xml_node_type type() const;
 
 		// Get node name, or "" if node is empty or it has no name
-		string_view_t name() const;
+		const char_t* name() const;
 
 		// Get node value, or "" if node is empty or it has no value
 		// Note: For <node>text</node> node.value() does not return "text"! Use child_value() or text() methods to access text inside nodes.
-		string_view_t value() const;
+		const char_t* value() const;
 
 		// Get attribute list
 		xml_attribute first_attribute() const;
@@ -707,29 +542,31 @@ namespace pugi
 		xml_text text() const;
 
 		// Get child, attribute or next/previous sibling with the specified name
-		xml_node child(string_view_t name) const;
-		xml_attribute attribute(string_view_t name) const;
-		xml_node next_sibling(string_view_t name) const;
-		xml_node previous_sibling(string_view_t name) const;
+		xml_node child(const char_t* name) const;
+		xml_attribute attribute(const char_t* name) const;
+		xml_node next_sibling(const char_t* name) const;
+		xml_node previous_sibling(const char_t* name) const;
 
 		// Get attribute, starting the search from a hint (and updating hint so that searching for a sequence of attributes is fast)
-		xml_attribute attribute(string_view_t name, xml_attribute& hint) const;
+		xml_attribute attribute(const char_t* name, xml_attribute& hint) const;
 
 		// Get child value of current node; that is, value of the first child node of type PCDATA/CDATA
-		string_view_t child_value() const;
+		const char_t* child_value() const;
 
 		// Get child value of child with specified name. Equivalent to child(name).child_value().
-		string_view_t child_value(string_view_t name) const;
+		const char_t* child_value(const char_t* name) const;
 
 		// Set node name/value (returns false if node is empty, there is not enough memory, or node can not have name/value)
-		bool set_name(string_view_t rhs, bool shallow_copy = false);
-		bool set_value(string_view_t rhs, bool shallow_copy = false);
+		bool set_name(const char_t* rhs);
+		bool set_name(const char_t* rhs, size_t size);
+		bool set_value(const char_t* rhs);
+		bool set_value(const char_t* rhs, size_t size);
 
 		// Add attribute with specified name. Returns added attribute, or empty attribute on errors.
-		xml_attribute append_attribute(string_view_t name, bool shallow_copy = false);
-		xml_attribute prepend_attribute(string_view_t name, bool shallow_copy = false);
-		xml_attribute insert_attribute_after(string_view_t name, const xml_attribute& attr, bool shallow_copy = false);
-		xml_attribute insert_attribute_before(string_view_t name, const xml_attribute& attr, bool shallow_copy = false);
+		xml_attribute append_attribute(const char_t* name);
+		xml_attribute prepend_attribute(const char_t* name);
+		xml_attribute insert_attribute_after(const char_t* name, const xml_attribute& attr);
+		xml_attribute insert_attribute_before(const char_t* name, const xml_attribute& attr);
 
 		// Add a copy of the specified attribute. Returns added attribute, or empty attribute on errors.
 		xml_attribute append_copy(const xml_attribute& proto);
@@ -744,10 +581,10 @@ namespace pugi
 		xml_node insert_child_before(xml_node_type type, const xml_node& node);
 
 		// Add child element with specified name. Returns added node, or empty node on errors.
-		xml_node append_child(string_view_t name, bool shallow_copy = false);
-		xml_node prepend_child(string_view_t name, bool shallow_copy = false);
-		xml_node insert_child_after(string_view_t name, const xml_node& node, bool shallow_copy = false);
-		xml_node insert_child_before(string_view_t name, const xml_node& node, bool shallow_copy = false);
+		xml_node append_child(const char_t* name);
+		xml_node prepend_child(const char_t* name);
+		xml_node insert_child_after(const char_t* name, const xml_node& node);
+		xml_node insert_child_before(const char_t* name, const xml_node& node);
 
 		// Add a copy of the specified node as a child. Returns added node, or empty node on errors.
 		xml_node append_copy(const xml_node& proto);
@@ -763,14 +600,14 @@ namespace pugi
 
 		// Remove specified attribute
 		bool remove_attribute(const xml_attribute& a);
-		bool remove_attribute(string_view_t name);
+		bool remove_attribute(const char_t* name);
 
 		// Remove all attributes
 		bool remove_attributes();
 
 		// Remove specified child
 		bool remove_child(const xml_node& n);
-		bool remove_child(string_view_t name);
+		bool remove_child(const char_t* name);
 
 		// Remove all children
 		bool remove_children();
@@ -829,8 +666,8 @@ namespace pugi
 		}
 
 		// Find child node by attribute name/value
-		xml_node find_child_by_attribute(string_view_t name, string_view_t attr_name, string_view_t attr_value) const;
-		xml_node find_child_by_attribute(string_view_t attr_name, string_view_t attr_value) const;
+		xml_node find_child_by_attribute(const char_t* name, const char_t* attr_name, const char_t* attr_value) const;
+		xml_node find_child_by_attribute(const char_t* attr_name, const char_t* attr_value) const;
 
 	#ifndef PUGIXML_NO_STL
 		// Get the absolute node path from root as a text string.
@@ -881,8 +718,11 @@ namespace pugi
 
 		// Range-based for support
 		xml_object_range<xml_node_iterator> children() const;
-		xml_object_range<xml_named_node_iterator> children(string_view_t name) const;
 		xml_object_range<xml_attribute_iterator> attributes() const;
+
+		// Range-based for support for all children with the specified name
+		// Note: name pointer must have a longer lifetime than the returned object; be careful with passing temporaries!
+		xml_object_range<xml_named_node_iterator> children(const char_t* name) const;
 
 		// Get node offset in parsed file/string (in char_t units) for debugging purposes
 		ptrdiff_t offset_debug() const;
@@ -928,10 +768,10 @@ namespace pugi
 		bool empty() const;
 
 		// Get text, or "" if object is empty
-		string_view_t get() const;
+		const char_t* get() const;
 
 		// Get text, or the default value if object is empty
-		string_view_t as_string(string_view_t def = PUGIXML_EMPTY_SV) const;
+		const char_t* as_string(const char_t* def = PUGIXML_TEXT("")) const;
 
 		// Get text as a number, or the default value if conversion did not succeed or object is empty
 		int as_int(int def = 0) const;
@@ -948,7 +788,8 @@ namespace pugi
 		bool as_bool(bool def = false) const;
 
 		// Set text (returns false if object is empty or there is not enough memory)
-		bool set(string_view_t rhs, bool shallow_copy = false);
+		bool set(const char_t* rhs);
+		bool set(const char_t* rhs, size_t size);
 
 		// Set text with type conversion (numbers are converted to strings, boolean is converted to "true"/"false")
 		bool set(int rhs);
@@ -959,7 +800,7 @@ namespace pugi
 		bool set(double rhs, int precision);
 		bool set(float rhs);
 		bool set(float rhs, int precision);
-		bool set(boolean rhs);
+		bool set(bool rhs);
 
 	#ifdef PUGIXML_HAS_LONG_LONG
 		bool set(long long rhs);
@@ -967,14 +808,14 @@ namespace pugi
 	#endif
 
 		// Set text (equivalent to set without error checking)
-		xml_text& operator=(string_view_t rhs);
+		xml_text& operator=(const char_t* rhs);
 		xml_text& operator=(int rhs);
 		xml_text& operator=(unsigned int rhs);
 		xml_text& operator=(long rhs);
 		xml_text& operator=(unsigned long rhs);
 		xml_text& operator=(double rhs);
 		xml_text& operator=(float rhs);
-		xml_text& operator=(boolean rhs);
+		xml_text& operator=(bool rhs);
 
 	#ifdef PUGIXML_HAS_LONG_LONG
 		xml_text& operator=(long long rhs);
@@ -1095,7 +936,8 @@ namespace pugi
 		xml_named_node_iterator();
 
 		// Construct an iterator which points to the specified node
-		xml_named_node_iterator(const xml_node& node, string_view_t name);
+		// Note: name pointer is stored in the iterator and must have a longer lifetime than iterator itself
+		xml_named_node_iterator(const xml_node& node, const char_t* name);
 
 		// Iterator operators
 		bool operator==(const xml_named_node_iterator& rhs) const;
@@ -1114,9 +956,8 @@ namespace pugi
 		mutable xml_node _wrap;
 		xml_node _parent;
 		const char_t* _name;
-		int _name_len;
 
-		xml_named_node_iterator(xml_node_struct* ref, xml_node_struct* parent, string_view_t name);
+		xml_named_node_iterator(xml_node_struct* ref, xml_node_struct* parent, const char_t* name);
 	};
 
 	// Abstract tree walker class (see xml_node::traverse)
@@ -1650,7 +1491,7 @@ namespace std
 #endif
 
 /**
- * Copyright (c) 2006-2020 Arseny Kapoulkine
+ * Copyright (c) 2006-2023 Arseny Kapoulkine
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
