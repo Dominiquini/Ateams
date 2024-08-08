@@ -38,6 +38,9 @@ BUILD_TOOLS = collections.namedtuple('BuildTools', ['tools', 'default'])(tools :
 
 BUILDING_MODES = collections.namedtuple('BuildModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
 
+CC = 'g++'
+AR = 'ar'
+
 CXXFLAGS = {BUILDING_MODES.modes[0]: "-std=c++17 -static-libstdc++ -pthread -O3 -ffast-math -march=native -mtune=native", BUILDING_MODES.modes[1]: "-std=c++17 -static-libstdc++ -pthread -O0 -g3 -no-pie -march=native -mtune=native", BUILDING_MODES.modes[2]: "-std=c++17 -static-libstdc++ -pthread -O0 -g3 -pg -no-pie -march=native -mtune=native"}
 
 LDFLAGS = {PLATFORM.windows_key: "-lopengl32 -lGLU32 -lfreeglut", PLATFORM.linux_key: "-lGL -lGLU -lglut"}
@@ -168,6 +171,14 @@ def build(config, tool, algorithm, mode, rebuild, clean, extra_args):
             ninja.newline()
 
             ninja.variable("BUILD_MODE", mode)
+
+            ninja.newline()
+
+            ninja.variable("CC", CC)
+            ninja.variable("AR", AR)
+
+            ninja.newline()
+
             ninja.variable("CXXFLAGS", CXXFLAGS[mode])
             ninja.variable("LDFLAGS", LDFLAGS[PLATFORM.system])
             ninja.variable("ARFLAGS", ARFLAGS)
@@ -178,15 +189,15 @@ def build(config, tool, algorithm, mode, rebuild, clean, extra_args):
 
             ninja.newline()
 
-            ninja.rule(name="compile", command="g++ $CXXFLAGS -MMD -MF $out.d -c -o $out $in", description="COMPILE $out", deps="gcc", depfile="$out.d", pool=POOL_ASYNC.name)
+            ninja.rule(name="compile", command="$CC $CXXFLAGS -MMD -MF $out.d -c -o $out $in", description="COMPILE $out", deps="gcc", depfile="$out.d", pool=POOL_ASYNC.name)
 
             ninja.newline()
 
-            ninja.rule(name="link", command="g++ $CXXFLAGS -o $out $in $LDFLAGS", description="LINK $out", pool=POOL_ASYNC.name)
+            ninja.rule(name="link", command="$CC $CXXFLAGS -o $out $in $LDFLAGS", description="LINK $out", pool=POOL_ASYNC.name)
 
             ninja.newline()
 
-            ninja.rule(name="archive", command="ar $ARFLAGS $out $in", description="ARCHIVE $out", pool=POOL_ASYNC.name)
+            ninja.rule(name="archive", command="$AR $ARFLAGS $out $in", description="ARCHIVE $out", pool=POOL_ASYNC.name)
 
             ninja.newline()
 

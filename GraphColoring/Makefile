@@ -7,27 +7,27 @@ PATH_ROOT = ../
 PROJ = GraphColoring
 
 
-.PHONY: 				all base clean purge
+.PHONY: 		all base clean purge
 
 
-all:					$(PATH_PROJ_BIN) $(PROJ_BIN)
+all:			$(PATH_PROJ_BIN) $(PROJ_BIN)
 
-base:					$(BASE_LIB)
+base:			$(BASE_LIB)
 
 clean:
-						$(RM) $(PROJ_OBJS) $(PROJ_DEPS) $(PROJ_BIN) $(PATH_PROJ_BIN)
+				$(RM) $(PROJ_OBJS) $(PROJ_DEPS) $(PROJ_BIN) $(PATH_PROJ_BIN)
 
-purge:					clean
-						$(RM) $(PATH_PROJ_RES)
+purge:			clean
+				$(RM) $(PATH_PROJ_RES)
 
 $(PATH_PROJ_BIN):
-						$(MKDIR) $(PATH_PROJ_BIN)
+				$(MKDIR) $(PATH_PROJ_BIN)
 
-$(BASE_LIB):			$(BASE_SRCS) $(BASE_HEADERS)
-						$(MAKE) -C $(PATH_BASE)
+$(BASE_LIB):		$(BASE_SRCS) $(BASE_HEADERS)
+				$(MAKE) -C $(PATH_BASE)
 
 $(PATTERN_PROJ_OBJS):	$(PATTERN_PROJ_SRCS) $(PROJ_HEADERS)
-						$(CC) $(CXXFLAGS) -MMD -MF $(patsubst %$(OBJ_EXT),%$(DEPS_EXT),$@) -c $< -o $@
+				$(CC) $(CXXFLAGS) -MMD -MF $(patsubst %$(OBJ_EXT),%$(DEPS_EXT),$@) -c $< -o $@
 
-$(PROJ_BIN):			$(BASE_LIB) $(PROJ_OBJS)
-						$(CC) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+$(PROJ_BIN):		$(BASE_LIB) $(PROJ_OBJS)
+				$(CC) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
