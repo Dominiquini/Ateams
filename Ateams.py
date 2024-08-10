@@ -34,7 +34,7 @@ NINJA_BUILD_FILE = os.path.basename(f"{ROOT_FOLDER}{PATH_SEPARATOR}build.ninja")
 
 MULTITHREADING_BUILDING_ENABLED = True
 
-BUILDERS = collections.namedtuple('Builders', ['tools', 'default'])(builders := ["make", "ninja"], default := builders[0])
+BUILDERS = collections.namedtuple('Builders', ['tools', 'default'])(builders := ["make", "remake", "ninja"], default := builders[0])
 
 COMPILERS = collections.namedtuple('Compilers', ['compilers', 'default'])(compilers := ["g++", "clang++"], default := compilers[0])
 
