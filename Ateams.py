@@ -36,6 +36,8 @@ MULTITHREADING_BUILDING_ENABLED = True
 
 BUILD_TOOLS = collections.namedtuple('BuildTools', ['tools', 'default'])(tools := ["make", "ninja"], default := tools[0])
 
+LINKER_TOOLS = collections.namedtuple('LinkerTools', ['linkers', 'default'])(linkers := ["ld", "bfd", "gold", "mold", "lld"], default := linkers[0])
+
 BUILDING_MODES = collections.namedtuple('BuildModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
 
 CC = 'g++'
@@ -91,13 +93,14 @@ class NinjaFileWriter(ninja_syntax.Writer):
 
 class BuildInfo:
 
-    def __init__(self, build_tool, build_mode):
+    def __init__(self, build_tool, build_linker, build_mode):
         self.platform = PLATFORM.system
         self.build_tool = build_tool
+        self.build_linker = build_linker
         self.build_mode = build_mode
 
     def __str__(self):
-        return f"({self.platform}, {self.build_tool}, {self.build_mode})"
+        return f"({self.platform}, {self.build_tool}, {self.build_linker}, {self.build_mode})"
 
     def write_on_file(self, file):
         with open(file, 'wb') as info_file:
@@ -114,7 +117,7 @@ class BuildInfo:
 
     @staticmethod
     def compare(info1, info2):
-        return info1 is None or info2 is None or info1.platform != info2.platform or info1.build_tool != info2.build_tool or info1.build_mode != info2.build_mode
+        return info1 is None or info2 is None or info1.platform != info2.platform or info1.build_tool != info2.build_tool or info1.build_linker != info2.build_linker or info1.build_mode != info2.build_mode
 
 
 def normalize_choice(options, choice, default=None, preprocessor=lambda e: e.casefold()):
@@ -150,16 +153,18 @@ def ateams(ctx, execute, verbose, clear, pause):
 
 @ateams.command(context_settings=CLICK_CONTEXT_SETTINGS)
 @click.option('-t', '--tool', type=click.Choice(BUILD_TOOLS.tools, case_sensitive=False), required=True, default=BUILD_TOOLS.default, help='Building Tool')
-@click.option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default='all', help='Algorithm')
+@click.option('-l', '--linker', type=click.Choice(LINKER_TOOLS.linkers, case_sensitive=False), required=True, default=LINKER_TOOLS.default, help='Linker Tool')
 @click.option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, help='Building Mode')
+@click.option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default='all', help='Algorithm')
 @click.option('--rebuild', type=click.BOOL, is_flag=True, help='Force A Rebuild Of The Entire Project')
 @click.option('--clean', '--purge', type=click.BOOL, is_flag=True, help='Remove Build Files')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def build(config, tool, algorithm, mode, rebuild, clean, extra_args):
+def build(config, tool, linker, algorithm, mode, rebuild, clean, extra_args):
     """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
 
     tool = normalize_choice(BUILD_TOOLS.tools, tool, BUILD_TOOLS.default, lambda e: e.casefold())
+    linker = normalize_choice(LINKER_TOOLS.linkers, linker, LINKER_TOOLS.default, lambda e: e.casefold())
     mode = normalize_choice(BUILDING_MODES.modes, mode, BUILDING_MODES.default, lambda e: e.casefold())
 
     def __generate_ninja_build_file():
@@ -180,7 +185,7 @@ def build(config, tool, algorithm, mode, rebuild, clean, extra_args):
             ninja.newline()
 
             ninja.variable("CXXFLAGS", CXXFLAGS[mode])
-            ninja.variable("LDFLAGS", LDFLAGS[PLATFORM.system])
+            ninja.variable("LDFLAGS", LDFLAGS[PLATFORM.system] + (f" -fuse-ld={linker}" if linker != LINKER_TOOLS.default else ""))
             ninja.variable("ARFLAGS", ARFLAGS)
 
             ninja.newline()
@@ -250,7 +255,7 @@ def build(config, tool, algorithm, mode, rebuild, clean, extra_args):
     def __update_timestamps_if_needed():
         file = ROOT_FOLDER + PATH_SEPARATOR + LAST_BUILD_INFO_FILE
 
-        current_build = BuildInfo(tool, mode)
+        current_build = BuildInfo(tool, linker, mode)
 
         if rebuild or BuildInfo.compare(current_build, BuildInfo.load_from_file(file)):
             for src in BASE_SRCS + PROJ_SRCS:
@@ -265,7 +270,7 @@ def build(config, tool, algorithm, mode, rebuild, clean, extra_args):
 
         command_line += f" {algorithm}" if not clean else f" purge" if tool == "make" else f" -t clean"
 
-        command_line += f" {mode}=true" if tool == "make" else ""
+        command_line += f" LINKER={linker} {mode}=true" if tool == "make" else ""
 
         for arg in extra_args: command_line += f" {arg}"
 

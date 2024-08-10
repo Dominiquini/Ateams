@@ -21,6 +21,13 @@ else
 endif
 
 
+ifneq ($(LINKER),)
+ifneq ($(LINKER), ld)
+  LDFLAGS += -fuse-ld=$(LINKER)
+endif
+endif
+
+
 ARFLAGS 	= -crs
 
 
