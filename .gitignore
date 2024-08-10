@@ -44,3 +44,6 @@ build.ninja
 .build_info
 .ninja_deps
 .ninja_log
+
+# KDevelop
+.kdev4
