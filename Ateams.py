@@ -34,14 +34,15 @@ NINJA_BUILD_FILE = os.path.basename(f"{ROOT_FOLDER}{PATH_SEPARATOR}build.ninja")
 
 MULTITHREADING_BUILDING_ENABLED = True
 
-BUILD_TOOLS = collections.namedtuple('BuildTools', ['tools', 'default'])(tools := ["make", "ninja"], default := tools[0])
+BUILDERS = collections.namedtuple('Builders', ['tools', 'default'])(builders := ["make", "ninja"], default := builders[0])
 
-LINKER_TOOLS = collections.namedtuple('LinkerTools', ['linkers', 'default'])(linkers := ["ld", "bfd", "gold", "mold", "lld"], default := linkers[0])
+COMPILERS = collections.namedtuple('Compilers', ['compilers', 'default'])(compilers := ["g++", "clang++"], default := compilers[0])
+
+LINKERS = collections.namedtuple('Linkers', ['linkers', 'default'])(linkers := ["ld", "bfd", "gold", "mold", "lld"], default := linkers[0])
 
 BUILDING_MODES = collections.namedtuple('BuildModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
 
-CC = 'g++'
-AR = 'ar'
+ARCHIVER = 'ar'
 
 CXXFLAGS = {BUILDING_MODES.modes[0]: "-std=c++17 -static-libstdc++ -pthread -O3 -ffast-math -march=native -mtune=native", BUILDING_MODES.modes[1]: "-std=c++17 -static-libstdc++ -pthread -O0 -g3 -no-pie -march=native -mtune=native", BUILDING_MODES.modes[2]: "-std=c++17 -static-libstdc++ -pthread -O0 -g3 -pg -no-pie -march=native -mtune=native"}
 
@@ -93,11 +94,12 @@ class NinjaFileWriter(ninja_syntax.Writer):
 
 class BuildInfo:
 
-    def __init__(self, build_tool, build_linker, build_mode):
+    def __init__(self, builder, compiler, linker, mode):
         self.platform = PLATFORM.system
-        self.build_tool = build_tool
-        self.build_linker = build_linker
-        self.build_mode = build_mode
+        self.builder = builder
+        self.compiler = compiler
+        self.linker = linker
+        self.mode = mode
 
     def __str__(self):
         return f"({self.platform}, {self.build_tool}, {self.build_linker}, {self.build_mode})"
@@ -117,7 +119,7 @@ class BuildInfo:
 
     @staticmethod
     def compare(info1, info2):
-        return info1 is None or info2 is None or info1.platform != info2.platform or info1.build_tool != info2.build_tool or info1.build_linker != info2.build_linker or info1.build_mode != info2.build_mode
+        return info1 is None or info2 is None or info1.platform != info2.platform or info1.builder != info2.builder or info1.compiler != info2.compiler or info1.linker != info2.linker or info1.mode != info2.mode
 
 
 def normalize_choice(options, choice, default=None, preprocessor=lambda e: e.casefold()):
@@ -152,19 +154,20 @@ def ateams(ctx, execute, verbose, clear, pause):
 
 
 @ateams.command(context_settings=CLICK_CONTEXT_SETTINGS)
-@click.option('-t', '--tool', type=click.Choice(BUILD_TOOLS.tools, case_sensitive=False), required=True, default=BUILD_TOOLS.default, help='Building Tool')
-@click.option('-l', '--linker', type=click.Choice(LINKER_TOOLS.linkers, case_sensitive=False), required=True, default=LINKER_TOOLS.default, help='Linker Tool')
+@click.option('-t', '--tool', type=click.Choice(BUILDERS.tools, case_sensitive=False), required=True, default=BUILDERS.default, help='Building Tool')
+@click.option('-c', '--compiler', type=click.Choice(COMPILERS.compilers, case_sensitive=False), required=True, default=COMPILERS.default, help='Compiler')
+@click.option('-l', '--linker', type=click.Choice(LINKERS.linkers, case_sensitive=False), required=True, default=LINKERS.default, help='Linker')
 @click.option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, help='Building Mode')
 @click.option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default='all', help='Algorithm')
 @click.option('--rebuild', type=click.BOOL, is_flag=True, help='Force A Rebuild Of The Entire Project')
 @click.option('--clean', '--purge', type=click.BOOL, is_flag=True, help='Remove Build Files')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def build(config, tool, linker, algorithm, mode, rebuild, clean, extra_args):
+def build(config, tool, compiler, linker, algorithm, mode, rebuild, clean, extra_args):
     """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
 
-    tool = normalize_choice(BUILD_TOOLS.tools, tool, BUILD_TOOLS.default, lambda e: e.casefold())
-    linker = normalize_choice(LINKER_TOOLS.linkers, linker, LINKER_TOOLS.default, lambda e: e.casefold())
+    tool = normalize_choice(BUILDERS.tools, tool, BUILDERS.default, lambda e: e.casefold())
+    linker = normalize_choice(LINKERS.linkers, linker, LINKERS.default, lambda e: e.casefold())
     mode = normalize_choice(BUILDING_MODES.modes, mode, BUILDING_MODES.default, lambda e: e.casefold())
 
     def __generate_ninja_build_file():
@@ -179,13 +182,13 @@ def build(config, tool, linker, algorithm, mode, rebuild, clean, extra_args):
 
             ninja.newline()
 
-            ninja.variable("CC", CC)
-            ninja.variable("AR", AR)
+            ninja.variable("CC", compiler)
+            ninja.variable("AR", ARCHIVER)
 
             ninja.newline()
 
             ninja.variable("CXXFLAGS", CXXFLAGS[mode])
-            ninja.variable("LDFLAGS", LDFLAGS[PLATFORM.system] + (f" -fuse-ld={linker}" if linker != LINKER_TOOLS.default else ""))
+            ninja.variable("LDFLAGS", LDFLAGS[PLATFORM.system] + (f" -fuse-ld={linker}" if linker != LINKERS.default else ""))
             ninja.variable("ARFLAGS", ARFLAGS)
 
             ninja.newline()
@@ -255,7 +258,7 @@ def build(config, tool, linker, algorithm, mode, rebuild, clean, extra_args):
     def __update_timestamps_if_needed():
         file = ROOT_FOLDER + PATH_SEPARATOR + LAST_BUILD_INFO_FILE
 
-        current_build = BuildInfo(tool, linker, mode)
+        current_build = BuildInfo(tool, compiler, linker, mode)
 
         if rebuild or BuildInfo.compare(current_build, BuildInfo.load_from_file(file)):
             for src in BASE_SRCS + PROJ_SRCS:
@@ -270,7 +273,7 @@ def build(config, tool, linker, algorithm, mode, rebuild, clean, extra_args):
 
         command_line += f" {algorithm}" if not clean else f" purge" if tool == "make" else f" -t clean"
 
-        command_line += f" LINKER={linker} {mode}=true" if tool == "make" else ""
+        command_line += f" CC={compiler} LINKER={linker} {mode}=true" if tool == "make" else ""
 
         for arg in extra_args: command_line += f" {arg}"
 
