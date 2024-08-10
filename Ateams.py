@@ -44,6 +44,8 @@ BUILDING_MODES = collections.namedtuple('BuildModes', ['modes', 'default'])(mode
 
 ARCHIVER = 'ar'
 
+CACHE_SYSTEM = 'ccache'
+
 CXXFLAGS = {BUILDING_MODES.modes[0]: "-std=c++17 -static-libstdc++ -pthread -O3 -ffast-math -march=native -mtune=native", BUILDING_MODES.modes[1]: "-std=c++17 -static-libstdc++ -pthread -O0 -g3 -no-pie -march=native -mtune=native", BUILDING_MODES.modes[2]: "-std=c++17 -static-libstdc++ -pthread -O0 -g3 -pg -no-pie -march=native -mtune=native"}
 
 LDFLAGS = {PLATFORM.windows_key: "-lopengl32 -lGLU32 -lfreeglut", PLATFORM.linux_key: "-lGL -lGLU -lglut"}
@@ -161,14 +163,19 @@ def ateams(ctx, execute, verbose, clear, pause):
 @click.option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default='all', help='Algorithm')
 @click.option('--rebuild', type=click.BOOL, is_flag=True, help='Force A Rebuild Of The Entire Project')
 @click.option('--clean', '--purge', type=click.BOOL, is_flag=True, help='Remove Build Files')
+@click.option('--cache', '--ccache', type=click.BOOL, is_flag=True, help='Use Cache')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def build(config, tool, compiler, linker, algorithm, mode, rebuild, clean, extra_args):
+def build(config, tool, compiler, linker, algorithm, mode, rebuild, clean, cache, extra_args):
     """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
 
     tool = normalize_choice(BUILDERS.tools, tool, BUILDERS.default, lambda e: e.casefold())
+    compiler = normalize_choice(COMPILERS.compilers, compiler, COMPILERS.default, lambda e: e.casefold())
     linker = normalize_choice(LINKERS.linkers, linker, LINKERS.default, lambda e: e.casefold())
     mode = normalize_choice(BUILDING_MODES.modes, mode, BUILDING_MODES.default, lambda e: e.casefold())
+
+    if cache:
+        compiler = f"{CACHE_SYSTEM} {compiler}"
 
     def __generate_ninja_build_file():
         ninja_file = ROOT_FOLDER + PATH_SEPARATOR + NINJA_BUILD_FILE
@@ -273,7 +280,7 @@ def build(config, tool, compiler, linker, algorithm, mode, rebuild, clean, extra
 
         command_line += f" {algorithm}" if not clean else f" purge" if tool == "make" else f" -t clean"
 
-        command_line += f" CC={compiler} LINKER={linker} {mode}=true" if tool == "make" else ""
+        command_line += f" CC='{compiler}' LINKER='{linker}' {mode}='true'" if tool == "make" else ""
 
         for arg in extra_args: command_line += f" {arg}"
 
