@@ -278,9 +278,9 @@ def build(config, tool, compiler, linker, algorithm, mode, rebuild, clean, cache
 
         if MULTITHREADING_BUILDING_ENABLED and "-j" not in extra_args: command_line += f" -j {os.cpu_count()}"
 
-        command_line += f" {algorithm}" if not clean else f" purge" if tool == "make" else f" -t clean"
+        command_line += f" {algorithm}" if not clean else f" purge" if tool in BUILDERS.tools[0:2] else f" -t clean"
 
-        command_line += f" CC='{compiler}' LINKER='{linker}' {mode}='true'" if tool == "make" else ""
+        command_line += f" CC='{compiler}' LINKER='{linker}' {mode}='true'" if tool in BUILDERS.tools[0:2] else ""
 
         for arg in extra_args: command_line += f" {arg}"
 
