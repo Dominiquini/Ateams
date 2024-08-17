@@ -16,10 +16,6 @@
 *.dylib
 *.dll
 
-# Fortran module files
-*.mod
-*.smod
-
 # Compiled Static libraries
 *.lai
 *.la
@@ -47,3 +43,11 @@ build.ninja
 
 # KDevelop
 .kdev4
+
+# VSCode
+*.code-workspace
+
+# Pyton Virtual Enviroment
+.Ateams/
+Ateams.egg-info/
+__pycache__/

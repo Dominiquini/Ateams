@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["Ateams"]
+
+[project]
+name = "Ateams"
+version = "1.0.0"
+authors = [
+    { name="Rafael Baboni Dominiquini", email="rafaeldominiquini@gmail.com" },
+]
+requires-python = ">=3.8"
+dependencies = ["click", "click-prompt", "rich-click", "click-web", "ninja-syntax"]
+
+[project.scripts]
+Ateams = "Ateams:ateams"
+
+[egg_info]
+egg_basse = ".Ateams/"
