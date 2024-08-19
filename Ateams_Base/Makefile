@@ -1,26 +1,32 @@
 include ../Makefile_Base
 
--include $(BASE_DEPS)
+PATH_ROOT 	= ../
 
-PATH_ROOT = ../
-
-PROJ = Ateams_Base
+PROJ 		= Ateams_Base
 
 
-.PHONY: 		all clean purge
+.PHONY: 				Base $(ALL) $(CLEAN) $(PURGE)
 
-all:			$(PATH_BASE_BIN) $(BASE_LIB)
+.SECONDARY:				$(BASE_OBJS)
 
-clean:
-				$(RM) $(BASE_OBJS) $(BASE_DEPS) $(BASE_LIB) $(PATH_BASE_BIN)
 
-purge:			clean
+Base:					$(PATH_BASE_BIN) $(BASE_LIB)
+
 
 $(PATH_BASE_BIN):
-				$(MKDIR) $(PATH_BASE_BIN)
+							$(MKDIR) $(PATH_BASE_BIN)
 
-$(PATTERN_BASE_OBJS):	$(PATTERN_BASE_SRCS) $(BASE_HEADERS)
-				$(CC) $(CXXFLAGS) -MMD -MF $(patsubst %.o,%.o.d,$@) -c $< -o $@
+$(PATTERN_BASE_OBJS):	$(PATTERN_BASE_SRCS) $(PATTERN_BASE_HEADERS)
+							$(CC) $(CXXFLAGS) -MMD -MF $(patsubst %.o,%.o.d,$@) -c $< -o $@
 
-$(BASE_LIB):		$(BASE_OBJS)
-				$(AR) $(ARFLAGS) $@ $^
+$(BASE_LIB):			$(BASE_OBJS)
+							$(AR) $(ARFLAGS) $@ $^
+
+
+$(ALL):					Base
+
+
+$(CLEAN):
+						$(RM) $(BASE_DEPS) $(BASE_OBJS) $(BASE_LIB) $(PATH_BASE_BIN)
+
+$(PURGE):			clean

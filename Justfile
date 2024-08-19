@@ -10,12 +10,9 @@ List:
 	@just --list --unsorted
 
 
-Build_Tool := "make"
-
-
 [group('Build')]
 Build ALGORITHM:
-	./Ateams.py build -t {{Build_Tool}} -a {{ALGORITHM}}
+	./Ateams.py build -a {{ALGORITHM}}
 
 [group('Build')]
 Build_BinPacking: (Build "BinPacking")
@@ -40,14 +37,14 @@ Build_All: (Build "All")
 
 [group('Build')]
 Clean:
-	./Ateams.py build -t {{Build_Tool}} --clean
+	./Ateams.py clean
 
 alias Purge := Clean
 
 
 [group('Run')]
 Run ALGORITHM: (Build ALGORITHM)
-	./Ateams.py run -a {{ALGORITHM}}
+	./Ateams.py run -a {{ALGORITHM}} -p ./Ateams_Base/parameters/DEFAULT.xml -i ./Ateams_Base/inputs/{{ALGORITHM}}.prb
 
 [group('Run')]
 Run_BinPacking: (Run "BinPacking")

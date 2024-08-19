@@ -1,5 +1,4 @@
-.DEFAULT_GOAL :=	all
-
+.DEFAULT_GOAL := All
 
 CC = g++
 AR = ar
@@ -43,9 +42,12 @@ else
 endif
 
 
-PROJ = 
+PROJ 					= 
 
-PATH_ROOT = ./
+SUBPATH_SRC				= src/
+SUBPATH_BIN				= bin/
+
+PATH_ROOT 				= ./
 
 PATH_BASE 				= $(PATH_ROOT)Ateams_Base/
 
@@ -56,19 +58,17 @@ PATH_JOBSHOP 			= $(PATH_ROOT)JobShop/
 PATH_KNAPSACK 			= $(PATH_ROOT)KnapSack/
 PATH_TRAVELLINGSALESMAN = $(PATH_ROOT)TravellingSalesman/
 
-PATH_BASE_SRC 	= $(PATH_BASE)src/
-PATH_BASE_BIN 	= $(PATH_BASE)bin/
+PATH_BASE_SRC 	= $(PATH_BASE)$(SUBPATH_SRC)
+PATH_BASE_BIN 	= $(PATH_BASE)$(SUBPATH_BIN)
 
-PATH_PROJ_PARAM = $(PATH_BASE)parameters/
-PATH_PROJ_INPUT = $(PATH_ROOT)$(PROJ)/inputs/
-PATH_PROJ_SRC 	= $(PATH_ROOT)$(PROJ)/src/
-PATH_PROJ_BIN 	= $(PATH_ROOT)$(PROJ)/bin/
-PATH_PROJ_RES	= $(PATH_ROOT)$(PROJ)/results/
+PATH_PROJ_SRC 	= $(PATH_ROOT)$(PROJ)/$(SUBPATH_SRC)
+PATH_PROJ_BIN 	= $(PATH_ROOT)$(PROJ)/$(SUBPATH_BIN)
 
+BASE_NAME		= Ateams_Base
 BASE_SRCS		= $(wildcard $(PATH_BASE_SRC)*$(SRC_EXT))
 BASE_HEADERS	= $(wildcard $(PATH_BASE_SRC)*$(HEADER_EXT))
 BASE_OBJS		= $(subst $(PATH_BASE_SRC),$(PATH_BASE_BIN),$(subst $(SRC_EXT),$(OBJ_EXT),$(BASE_SRCS)))
-BASE_LIB		= $(PATH_BASE_BIN)Ateams_Base$(LIB_EXT)
+BASE_LIB		= $(PATH_BASE_BIN)$(BASE_NAME)$(LIB_EXT)
 BASE_DEPS		= $(BASE_OBJS:$(OBJ_EXT)=$(DEPS_EXT))
 
 PROJ_SRCS		= $(wildcard $(PATH_PROJ_SRC)*$(SRC_EXT))
@@ -85,25 +85,37 @@ PATTERN_PROJ_SRCS		= $(PATH_PROJ_SRC)%$(SRC_EXT)
 PATTERN_PROJ_HEADERS	= $(PATH_PROJ_SRC)%$(HEADER_EXT)
 PATTERN_PROJ_OBJS		= $(PATH_PROJ_BIN)%$(OBJ_EXT)
 
-BUILD_STAT_BIN_FILE		= .build_info
+
+BUILD_STAT_BIN_FILE	= .build_info
 
 NINJA_BUILD_FILE	= build.ninja
 NINJA_OUTPUTS_FILE	= .ninja_deps .ninja_log
 
 PROFILE_OUTPUT_FILE	= gmon.out
 
-MKDIR = mkdir -p
-RM = rm -rf
-ECHO = echo
+
+MKDIR	= mkdir -p
+RM		= rm -rf
+ECHO	= echo
+
+
+ALL		:= $(shell echo {A,a}ll)
+CLEAN	:= $(shell echo {C,c}lean)
+PURGE	:= $(shell echo {P,p}urge)
+
+
+.PHONY:		list print_vars
+
 
 list:
-			@LC_ALL=C $(MAKE) -pRrq -f $(firstword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/(^|\n)# Files(\n|$$)/,/(^|\n)# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | grep -E -v -e '^[^[:alnum:]]' -e '^$@$$'
+				@LC_ALL=C $(MAKE) -pRrq -f $(firstword $(MAKEFILE_LIST)) : 2> /dev/null | awk -v RS= -F: '/(^|\n)# Files(\n|$$)/,/(^|\n)# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | grep -E -v -e '^[^[:alnum:]]' -e '^print_vars' -e '^[Aa]ll' -e '^$@$$'
+
 
 print_vars:
-			@$(ECHO) - MAKEFILE_FLAGS: $(MAKEFLAGS)
-			@$(ECHO) - BASE_SOURCES: $(BASE_HEADERS) $(BASE_SRCS)
-			@$(ECHO) - BASE_OBJS: $(BASE_OBJS)
-			@$(ECHO) - BASE_LIB: $(BASE_LIB)
-			@$(ECHO) - PROJ_SOURCES: $(PROJ_HEADERS) $(PROJ_SRCS)
-			@$(ECHO) - PROJ_OBJS: $(PROJ_OBJS)
-			@$(ECHO) - PROJ_BIN: $(PROJ_BIN)
+				@$(ECHO) - MAKEFILE_FLAGS: $(MAKEFLAGS)
+				@$(ECHO) - BASE_SOURCES: $(BASE_HEADERS) $(BASE_SRCS)
+				@$(ECHO) - BASE_OBJS: $(BASE_OBJS)
+				@$(ECHO) - BASE_LIB: $(BASE_LIB)
+				@$(ECHO) - PROJ_SOURCES: $(PROJ_HEADERS) $(PROJ_SRCS)
+				@$(ECHO) - PROJ_OBJS: $(PROJ_OBJS)
+				@$(ECHO) - PROJ_BIN: $(PROJ_BIN)

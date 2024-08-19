@@ -19,6 +19,16 @@ try:
 except ImportError:
     import click
 
+try:
+    from click_prompt import choice_option
+    from click_prompt import confirm_option
+    from click_prompt import filepath_option
+    from click_prompt import auto_complete_option
+except ImportError:
+    choice_option = click.option
+    confirm_option = click.option
+    filepath_option = click.option
+    auto_complete_option = click.option
 
 PLATFORM = collections.namedtuple('PlatformInfo', ['windows_key', 'linux_key', 'is_windows', 'is_linux', 'system'])(windows_key := "WINDOWS", linux_key := "LINUX", is_windows := sys.platform == 'win32', is_linux := not is_windows, system := windows_key if is_windows else linux_key)
 
@@ -34,7 +44,7 @@ NINJA_BUILD_FILE = os.path.basename(f"{ROOT_FOLDER}{PATH_SEPARATOR}build.ninja")
 
 MULTITHREADING_BUILDING_ENABLED = True
 
-BUILDERS = collections.namedtuple('Builders', ['tools', 'default'])(builders := ["make", "remake", "ninja"], default := builders[0])
+BUILDERS = collections.namedtuple('Builders', ['tools', 'default'])(builders := ["make", "remake", "ninja", "samu"], default := builders[0])
 
 COMPILERS = collections.namedtuple('Compilers', ['compilers', 'default'])(compilers := ["g++", "clang++"], default := compilers[0])
 
@@ -68,17 +78,22 @@ GDB_COMMAND = "gdb --args {cmd}"
 
 GPROF_COMMAND = "{cmd} && gprof {bin} gmon.out > profile.txt"
 
-VALGRIND_COMMANDS = {"memcheck": "valgrind --tool=memcheck --leak-check=full -s {cmd}", "callgrind": "valgrind --tool=callgrind -s {cmd}", "cachegrind": "valgrind --tool=cachegrind -s {cmd}", "helgrind": "valgrind --tool=helgrind -s {cmd}", "drd": "valgrind --tool=drd -s {cmd}"}
+VALGRIND_COMMANDS = {"none": "{cmd}", "memcheck": "valgrind --tool=memcheck --leak-check=full -s {cmd}", "callgrind": "valgrind --tool=callgrind -s {cmd}", "cachegrind": "valgrind --tool=cachegrind -s {cmd}", "helgrind": "valgrind --tool=helgrind -s {cmd}", "drd": "valgrind --tool=drd -s {cmd}"}
 
 ALGORITHMS = ['BinPacking', 'FlowShop', 'GraphColoring', 'JobShop', 'KnapSack', 'TravellingSalesman']
 
-BUILD_ALL_KEYWORD = 'all'
+BUILD_ALL_KEYWORD = 'All'
 
-FILE_BINS = {A: f"{A}{PATH_SEPARATOR}bin{PATH_SEPARATOR}{A}{BIN_EXT}" for A in ALGORITHMS}
-FILE_PARAMS = glob.glob(f"Ateams_Base{PATH_SEPARATOR}parameters{PATH_SEPARATOR}*.xml")
-FILE_DEFAULT_PARAM = f"Ateams_Base{PATH_SEPARATOR}parameters{PATH_SEPARATOR}DEFAULT.xml"
-FILE_INPUTS = {A: glob.glob(f"{A}{PATH_SEPARATOR}inputs{PATH_SEPARATOR}*.prb") for A in ALGORITHMS}
-FILE_DEFAULT_INPUTS = {A: f"{A}{PATH_SEPARATOR}inputs{PATH_SEPARATOR}{I}" for (A, I) in zip(ALGORITHMS, ['binpack1_01.prb', 'car1.prb', 'jean.prb', 'la01.prb', 'mk_gk01.prb', 'br17.prb'])}
+PATH_BINS = {A: f"{A}{PATH_SEPARATOR}bin{PATH_SEPARATOR}" for A in ALGORITHMS}
+FILE_BINS = {A: f"{PATH_BINS[A]}{A}{BIN_EXT}" for A in PATH_BINS}
+PATH_PARAMS = f"Ateams_Base{PATH_SEPARATOR}parameters{PATH_SEPARATOR}"
+FILE_PARAMS = glob.glob(f"{PATH_PARAMS}*.xml")
+PATH_DEFAULT_PARAM = f"{PATH_PARAMS}"
+FILE_DEFAULT_PARAM = f"{PATH_DEFAULT_PARAM}DEFAULT.xml"
+PATH_INPUTS = {A: f"{A}{PATH_SEPARATOR}inputs{PATH_SEPARATOR}" for A in ALGORITHMS}
+FILE_INPUTS = {A: glob.glob(f"{PATH_INPUTS[A]}*.prb") for A in PATH_INPUTS}
+PATH_DEFAULT_INPUTS = f"Ateams_Base{PATH_SEPARATOR}inputs{PATH_SEPARATOR}"
+FILE_DEFAULT_INPUTS = {A: f"{PATH_DEFAULT_INPUTS}{A}.prb" for A in ALGORITHMS}
 PATH_DEFAULT_OUTPUTS = {A: f"{A}{PATH_SEPARATOR}results{PATH_SEPARATOR}" for A in ALGORITHMS}
 
 
@@ -92,94 +107,9 @@ class NinjaFileWriter(ninja_syntax.Writer):
 
     def __exit__(self, *exception):
         super().close()
-
-
-class BuildInfo:
-
-    def __init__(self, builder, compiler, linker, mode):
-        self.platform = PLATFORM.system
-        self.builder = builder
-        self.compiler = compiler
-        self.linker = linker
-        self.mode = mode
-
-    def __str__(self):
-        return f"({self.platform}, {self.build_tool}, {self.build_linker}, {self.build_mode})"
-
-    def write_on_file(self, file):
-        with open(file, 'wb') as info_file:
-            pickle.dump(self, info_file, pickle.DEFAULT_PROTOCOL)
-
-        return self
-
+    
     @classmethod
-    def load_from_file(cls, file):
-        if not os.path.exists(file):
-            return None
-        else:
-            with open(file, 'rb') as info_file: return pickle.load(info_file)
-
-    @staticmethod
-    def compare(info1, info2):
-        return info1 is None or info2 is None or info1.platform != info2.platform or info1.builder != info2.builder or info1.compiler != info2.compiler or info1.linker != info2.linker or info1.mode != info2.mode
-
-
-def normalize_choice(options, choice, default=None, preprocessor=lambda e: e.casefold()):
-    return default if choice is None else next((opt for opt in options if preprocessor(choice) in preprocessor(opt)), default)
-
-
-def truncate_number(number, decimals=0):
-    factor = 10.0 ** decimals
-    return math.trunc(number) if decimals <= 0 else math.trunc(number * factor) / factor
-
-
-def validate_path(ctx: click.core.Context=None, param: click.core.Option=None, value: click.Path=None):
-    try: os.makedirs(os.path.dirname(value))
-    finally: return value
-
-
-CLICK_CONTEXT_SETTINGS = dict(ignore_unknown_options=True, help_option_names=['-h', '--help'])
-
-click.pass_config = click.make_pass_decorator(Config := collections.namedtuple('LauncherConfig', ['execute', 'verbose', 'clear', 'pause']))
-
-
-@click.group(context_settings=CLICK_CONTEXT_SETTINGS)
-@click.option('--execute/--no-execute', default=True, help='Execute Selected Command')
-@click.option('--verbose/--no-verbose', default=True, help='Print Execution Info')
-@click.option('--clear/--no-clear', default=False, help='Clear Terminal')
-@click.option('--pause/--no-pause', default=False, help='Pause Terminal')
-@click.pass_context
-def ateams(ctx, execute, verbose, clear, pause):
-    """A Wrapper For Interacting With ATEAMS"""
-
-    ctx.obj = Config(execute, verbose, clear, pause)
-
-
-@ateams.command(context_settings=CLICK_CONTEXT_SETTINGS)
-@click.option('-t', '--tool', type=click.Choice(BUILDERS.tools, case_sensitive=False), required=True, default=BUILDERS.default, help='Building Tool')
-@click.option('-c', '--compiler', type=click.Choice(COMPILERS.compilers, case_sensitive=False), required=True, default=COMPILERS.default, help='Compiler')
-@click.option('-l', '--linker', type=click.Choice(LINKERS.linkers, case_sensitive=False), required=True, default=LINKERS.default, help='Linker')
-@click.option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, help='Building Mode')
-@click.option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default='all', help='Algorithm')
-@click.option('--rebuild', type=click.BOOL, is_flag=True, help='Force A Rebuild Of The Entire Project')
-@click.option('--clean', '--purge', type=click.BOOL, is_flag=True, help='Remove Build Files')
-@click.option('--cache', '--ccache', type=click.BOOL, is_flag=True, help='Use Cache')
-@click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
-@click.pass_config
-def build(config, tool, compiler, linker, algorithm, mode, rebuild, clean, cache, extra_args):
-    """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
-
-    tool = normalize_choice(BUILDERS.tools, tool, BUILDERS.default, lambda e: e.casefold())
-    compiler = normalize_choice(COMPILERS.compilers, compiler, COMPILERS.default, lambda e: e.casefold())
-    linker = normalize_choice(LINKERS.linkers, linker, LINKERS.default, lambda e: e.casefold())
-    mode = normalize_choice(BUILDING_MODES.modes, mode, BUILDING_MODES.default, lambda e: e.casefold())
-
-    if cache:
-        compiler = f"{CACHE_SYSTEM} {compiler}"
-
-    def __generate_ninja_build_file():
-        ninja_file = ROOT_FOLDER + PATH_SEPARATOR + NINJA_BUILD_FILE
-
+    def generate_ninja_build_file(cls, ninja_file, compiler, linker, mode):
         with NinjaFileWriter(ninja_file) as ninja:
             ninja.comment(f"PLATFORM: {PLATFORM.system}")
 
@@ -262,12 +192,133 @@ def build(config, tool, compiler, linker, algorithm, mode, rebuild, clean, cache
 
             ninja.build(outputs="update", rule="generate", inputs=THIS_FILE, implicit=NINJA_BUILD_FILE)
 
+
+class BuildInfo:
+
+    def __init__(self, builder, compiler, linker, mode):
+        self.platform = PLATFORM.system
+        self.builder = builder
+        self.compiler = compiler
+        self.linker = linker
+        self.mode = mode
+
+    def __eq__(self, other):
+        return other and (self.platform, self.builder, self.compiler, self.linker, self.mode) == (other.platform, other.builder, other.compiler, other.linker, other.mode)
+
+    def __repr__(self):
+        return "{}({!r})".format(self.__class__.__name__, self.__dict__)
+
+    def __str__(self):
+        return f"(PLATFORM: {self.platform}, BUILDER: {self.builder}, COMPILER: {self.compiler}, LINKER: {self.linker}, MODE: {self.mode})"
+
+    def write_on_file(self, file):
+        with open(file, 'wb') as info_file:
+            pickle.dump(self, info_file, pickle.DEFAULT_PROTOCOL)
+
+        return self
+
+    @classmethod
+    def load_from_file(cls, file):
+        if not os.path.exists(file):
+            return None
+        else:
+            with open(file, 'rb') as info_file: return pickle.load(info_file)
+
+
+def normalize_choice(options, choice, default=None, preprocessor=lambda e: e.casefold()):
+    return default if choice is None else next((opt for opt in options if preprocessor(choice) in preprocessor(opt)), default)
+
+
+def truncate_number(number, decimals=0):
+    factor = 10.0 ** decimals
+    return math.trunc(number) if decimals <= 0 else math.trunc(number * factor) / factor
+
+
+CLICK_CONTEXT_SETTINGS = dict(ignore_unknown_options=True, help_option_names=['-h', '--help'])
+
+click.pass_config = click.make_pass_decorator(Config := collections.namedtuple('LauncherConfig', ['execute', 'verbose', 'clear', 'pause']))
+
+
+@click.group(context_settings=CLICK_CONTEXT_SETTINGS)
+@click.option('--execute/--no-execute', default=True, help='Execute Selected Command')
+@click.option('--verbose/--no-verbose', default=True, help='Print Execution Info')
+@click.option('--clear/--no-clear', default=False, help='Clear Terminal')
+@click.option('--pause/--no-pause', default=False, help='Pause Terminal')
+@click.pass_context
+def ateams(ctx, execute, verbose, clear, pause):
+    """A Wrapper For Interacting With ATEAMS"""
+
+    ctx.obj = Config(execute, verbose, clear, pause)
+
+
+@ateams.command(context_settings=CLICK_CONTEXT_SETTINGS)
+@choice_option('-t', '--tool', type=click.Choice(BUILDERS.tools, case_sensitive=False), required=True, default=BUILDERS.default, prompt="Building Tool", help='Building Tool')
+@click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
+@click.pass_config
+def clean(config, tool, extra_args):
+    """A Wrapper For Cleaning Previously Builded Files"""
+
+    tool = normalize_choice(BUILDERS.tools, tool, BUILDERS.default, lambda e: e.casefold())
+
+    NinjaFileWriter.generate_ninja_build_file(ROOT_FOLDER + PATH_SEPARATOR + NINJA_BUILD_FILE, COMPILERS.default, LINKERS.default, BUILDING_MODES.default)
+
+    def __compose_command_line():
+        command_line = tool
+
+        command_line += f" purge" if tool in BUILDERS.tools[0:2] else f" -t clean"
+
+        for arg in extra_args: command_line += f" {arg}"
+
+        return command_line
+
+    def __purge_ateams(cmd, change_to_root_folder=True):
+        if change_to_root_folder: os.chdir(ROOT_FOLDER)
+
+        return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=1, number=1)[0] if config.execute else 0
+
+    if config.clear: click.clear()
+
+    command_line = __compose_command_line()
+
+    if config.verbose: click.echo(f"\n*** Command: '{command_line}' ***\n")
+
+    timer = __purge_ateams(command_line)
+
+    if config.verbose: click.echo(f"\n*** Timer: {truncate_number(timer, 2)} ***\n")
+
+    if config.pause: click.prompt("\nPress ENTER To Exit ", prompt_suffix='', hide_input=True, show_choices=False, show_default=False, default='') ; click.echo("\n")
+
+
+@ateams.command(context_settings=CLICK_CONTEXT_SETTINGS)
+@choice_option('-t', '--tool', type=click.Choice(BUILDERS.tools, case_sensitive=False), required=True, default=BUILDERS.default, prompt="Building Tool", help='Building Tool')
+@choice_option('-c', '--compiler', type=click.Choice(COMPILERS.compilers, case_sensitive=False), required=True, default=COMPILERS.default, prompt="Compiler", help='Compiler')
+@choice_option('-l', '--linker', type=click.Choice(LINKERS.linkers, case_sensitive=False), required=True, default=LINKERS.default, prompt="Linker", help='Linker')
+@choice_option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, prompt="Building Mode", help='Building Mode')
+@choice_option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default=BUILD_ALL_KEYWORD, prompt="Algorithm", help='Algorithm')
+@confirm_option('--rebuild', type=click.BOOL, prompt="Rebuild", help='Force A Rebuild Of The Entire Project')
+@confirm_option('--cache', '--ccache', type=click.BOOL, prompt="Cache", help='Use Cache')
+@click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
+@click.pass_config
+def build(config, tool, compiler, linker, mode, algorithm, rebuild, cache, extra_args):
+    """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
+
+    tool = normalize_choice(BUILDERS.tools, tool, BUILDERS.default, lambda e: e.casefold())
+    compiler = normalize_choice(COMPILERS.compilers, compiler, COMPILERS.default, lambda e: e.casefold())
+    linker = normalize_choice(LINKERS.linkers, linker, LINKERS.default, lambda e: e.casefold())
+    mode = normalize_choice(BUILDING_MODES.modes, mode, BUILDING_MODES.default, lambda e: e.casefold())
+    algorithm = normalize_choice([BUILD_ALL_KEYWORD] + ALGORITHMS, algorithm, None, lambda e: e.casefold())
+
+    if cache: compiler = f"{CACHE_SYSTEM} {compiler}"
+
+    NinjaFileWriter.generate_ninja_build_file(ROOT_FOLDER + PATH_SEPARATOR + NINJA_BUILD_FILE, compiler, linker, mode)
+ 
+ 
     def __update_timestamps_if_needed():
         file = ROOT_FOLDER + PATH_SEPARATOR + LAST_BUILD_INFO_FILE
 
         current_build = BuildInfo(tool, compiler, linker, mode)
 
-        if rebuild or BuildInfo.compare(current_build, BuildInfo.load_from_file(file)):
+        if rebuild or current_build != BuildInfo.load_from_file(file):
             for src in BASE_SRCS + PROJ_SRCS:
                 pathlib.Path(src).touch()
 
@@ -278,7 +329,7 @@ def build(config, tool, compiler, linker, algorithm, mode, rebuild, clean, cache
 
         if MULTITHREADING_BUILDING_ENABLED and "-j" not in extra_args: command_line += f" -j {os.cpu_count()}"
 
-        command_line += f" {algorithm}" if not clean else f" purge" if tool in BUILDERS.tools[0:2] else f" -t clean"
+        command_line += f" {algorithm}"
 
         command_line += f" CC='{compiler}' LINKER='{linker}' {mode}='true'" if tool in BUILDERS.tools[0:2] else ""
 
@@ -293,7 +344,6 @@ def build(config, tool, compiler, linker, algorithm, mode, rebuild, clean, cache
 
         return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=1, number=1)[0] if config.execute else 0
 
-    __generate_ninja_build_file()
 
     if config.clear: click.clear()
 
@@ -309,23 +359,23 @@ def build(config, tool, compiler, linker, algorithm, mode, rebuild, clean, cache
 
 
 @ateams.command(context_settings=CLICK_CONTEXT_SETTINGS)
-@click.option('-a', '--algorithm', type=click.Choice(ALGORITHMS, case_sensitive=False), required=True, prompt="Algorithm:", help='Algorithm')
-@click.option('-p', '--parameters', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Input Parameters File')
-@click.option('-i', '--input', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Input Data File')
-@click.option('-o', '--result', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Output Result File')
-@click.option('-d', '--population', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, callback=validate_path, help='Population File')
-@click.option('-c', '--show-cmd-info', type=click.IntRange(0, 5), count=True, help='Show Prompt Overview')
-@click.option('-g', '--show-graphical-info', type=click.BOOL, is_flag=True, help='Show Graphical Overview')
-@click.option('-s', '--show-solution', type=click.BOOL, is_flag=True, help='Show Solution')
+@choice_option('-a', '--algorithm', type=click.Choice(ALGORITHMS, case_sensitive=False), required=True, prompt="Algorithm:", help='Algorithm')
+@filepath_option('-p', '--parameters', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=True, default=FILE_DEFAULT_PARAM, prompt="Input Parameters", help='Input Parameters File')
+@filepath_option('-i', '--input', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=True, default=PATH_DEFAULT_INPUTS, prompt="Input Data", help='Input Data File')
+@filepath_option('-o', '--result', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, default='', prompt="Output Result", help='Output Result File')
+@filepath_option('-d', '--population', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, default='', prompt="Output Population", help='Population File')
+@choice_option('-c', '--show-cmd-info', type=click.Choice([str(c) for c in range(0, 6)]), required=False, default='0', prompt="Prompt Overview", help='Show Prompt Overview')
+@confirm_option('-g', '--show-graphical-info', type=click.BOOL, default=False, prompt="Graphical Overview", help='Show Graphical Overview')
+@confirm_option('-s', '--show-solution', type=click.BOOL, default=False, prompt="Show Solution", help='Show Solution')
+@confirm_option('--force-output', type=click.BOOL, default=False, prompt="Write Default Output Files", help='Force Write Output Files (Result and Population)')
 @click.option('--executor/--threads', default=True, help='Executor or Threads')
-@click.option('--force-output', type=click.BOOL, is_flag=True, help='Force Write Output Files (Result and Population)')
 @click.option('--repeat', type=click.INT, default=1, help='Repeat N Times')
 @click.option('--debug', type=click.BOOL, is_flag=True, help='Run With GDB')
 @click.option('--profile', type=click.BOOL, is_flag=True, help='Run With GPROF')
 @click.option('--valgrind', type=click.Choice(VALGRIND_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With VALGRIND')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def run(config, algorithm, parameters, input, result, population, show_cmd_info, show_graphical_info, show_solution, executor, repeat, force_output, debug, profile, valgrind, extra_args):
+def run(config, algorithm, parameters, input, result, population, show_cmd_info, show_graphical_info, show_solution, force_output, executor, repeat, debug, profile, valgrind, extra_args):
     """A Wrapper For Running ATEAMS Algorithms"""
 
     algorithm = normalize_choice(ALGORITHMS, algorithm, None, lambda e: e.casefold())
@@ -334,8 +384,12 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
     input = normalize_choice(FILE_INPUTS[algorithm], input, FILE_DEFAULT_INPUTS[algorithm], lambda e: os.path.basename(e).casefold())
 
     if force_output:
-        if result is None: result = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".res").name)
-        if population is None: population = validate_path(value=PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".pop").name)
+        if not result: result = PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".res").name
+        if not population: population = PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".pop").name
+
+    if result: os.makedirs(os.path.dirname(result) or '.', exist_ok=True)
+    if population: os.makedirs(os.path.dirname(population) or '.', exist_ok=True)
+
 
     def __apply_execution_modifiers(cmd, bin):
         if sum(1 for mode in [debug, profile, valgrind] if mode) > 1: raise Exception("Don't Use GDB, VALGRIND and GPROF At Same Time!")
@@ -348,21 +402,21 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
     def __compose_command_line():
         command_line = FILE_BINS[algorithm]
 
-        if parameters is not None: command_line += f" -p {parameters}"
+        if str(parameters): command_line += f" -p {parameters}"
 
-        if input is not None: command_line += f" -i {input}"
+        if str(input): command_line += f" -i {input}"
 
-        if result is not None: command_line += f" -o {result}"
+        if str(result): command_line += f" -o {result}"
 
-        if population is not None: command_line += f" -d {population}"
+        if str(population): command_line += f" -d {population}"
 
-        if show_cmd_info: command_line += f" -{'c' * show_cmd_info}"
+        if int(show_cmd_info): command_line += f" -{'c' * int(show_cmd_info)}"
 
-        if show_graphical_info: command_line += f" -g"
+        if bool(show_graphical_info): command_line += f" -g"
 
-        if show_solution: command_line += f" -s"
+        if bool(show_solution): command_line += f" -s"
 
-        if not executor: command_line += f" -t"
+        if not bool(executor): command_line += f" -t"
 
         for arg in extra_args: command_line += f" {arg}"
 
@@ -374,6 +428,7 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
         if change_to_root_folder: os.chdir(ROOT_FOLDER)
 
         return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=repeat, number=1) if config.execute else [0] * repeat
+
 
     if config.clear: click.clear()
 
