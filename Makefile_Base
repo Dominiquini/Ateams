@@ -4,12 +4,13 @@ CC = g++
 AR = ar
 
 
+CXXFLAGS = -std=c++17 -static-libstdc++ -pthread -march=native -mtune=native -fdiagnostics-color=always
 ifeq ($(DEBUG), true)
-  CXXFLAGS  = -std=c++17 -static-libstdc++ -pthread -O0 -g3 -no-pie -march=native -mtune=native
+  CXXFLAGS  += -O0 -g3 -no-pie
 else ifeq ($(PROFILE), true)
-  CXXFLAGS	= -std=c++17 -static-libstdc++ -pthread -O0 -g3 -pg -no-pie -march=native -mtune=native
+  CXXFLAGS	+= -O0 -g3 -pg -no-pie
 else
-  CXXFLAGS	= -std=c++17 -static-libstdc++ -pthread -O3 -ffast-math -march=native -mtune=native
+  CXXFLAGS	+= -O3 -ffast-math
 endif
 
 
@@ -22,7 +23,7 @@ endif
 
 ifneq ($(LINKER),)
 ifneq ($(LINKER), ld)
-  LDFLAGS += -fuse-ld=$(LINKER)
+  LDFLAGS 	+= -fuse-ld=$(LINKER)
 endif
 endif
 

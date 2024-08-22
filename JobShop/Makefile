@@ -13,15 +13,15 @@ PROJ 		= JobShop
 Base:					$(BASE_LIB)
 
 
+$(BASE_LIB):			$(BASE_SRCS) $(BASE_HEADERS)
+							$(MAKE) Base -C $(PATH_BASE)
+
+
 $(PROJ):				$(PATH_PROJ_BIN) $(PROJ_BIN)
 
 
 $(PATH_PROJ_BIN):
 							$(MKDIR) $(PATH_PROJ_BIN)
-
-$(BASE_LIB):			$(BASE_SRCS) $(BASE_HEADERS)
-							$(MAKE) -C $(PATH_BASE)
-
 
 $(PATTERN_PROJ_OBJS):	$(PATTERN_PROJ_SRCS) $(PATTERN_PROJ_HEADERS)
 							$(CC) $(CXXFLAGS) -MMD -MF $(patsubst %$(OBJ_EXT),%$(DEPS_EXT),$@) -c $< -o $@

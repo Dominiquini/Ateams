@@ -17,10 +17,10 @@ $(PATH_BASE_BIN):
 							$(MKDIR) $(PATH_BASE_BIN)
 
 $(PATTERN_BASE_OBJS):	$(PATTERN_BASE_SRCS) $(PATTERN_BASE_HEADERS)
-							$(CC) $(CXXFLAGS) -MMD -MF $(patsubst %.o,%.o.d,$@) -c $< -o $@
+							$(CC) $(CXXFLAGS) -MMD -MF $(patsubst %$(OBJ_EXT),%$(DEPS_EXT),$@) -c $< -o $@
 
 $(BASE_LIB):			$(BASE_OBJS)
-							$(AR) $(ARFLAGS) $@ $^
+							$(AR) $(ARFLAGS) $@ $?
 
 
 $(ALL):					Base

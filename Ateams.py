@@ -56,11 +56,13 @@ ARCHIVER = 'ar'
 
 CACHE_SYSTEM = 'ccache'
 
-CXXFLAGS = {BUILDING_MODES.modes[0]: "-std=c++17 -static-libstdc++ -pthread -O3 -ffast-math -march=native -mtune=native", BUILDING_MODES.modes[1]: "-std=c++17 -static-libstdc++ -pthread -O0 -g3 -no-pie -march=native -mtune=native", BUILDING_MODES.modes[2]: "-std=c++17 -static-libstdc++ -pthread -O0 -g3 -pg -no-pie -march=native -mtune=native"}
+CXX_GLOBAL_FLAGS = "-std=c++17 -static-libstdc++ -pthread -march=native -mtune=native -fdiagnostics-color=always"
 
-LDFLAGS = {PLATFORM.windows_key: "-lopengl32 -lGLU32 -lfreeglut", PLATFORM.linux_key: "-lGL -lGLU -lglut"}
+CXX_FLAGS = {BUILDING_MODES.modes[0]: f"{CXX_GLOBAL_FLAGS} -O3 -ffast-math", BUILDING_MODES.modes[1]: f"{CXX_GLOBAL_FLAGS} -O0 -g3 -no-pie", BUILDING_MODES.modes[2]: f"{CXX_GLOBAL_FLAGS} -O0 -g3 -pg -no-pie"}
 
-ARFLAGS = "-crs"
+LD_FLAGS = {PLATFORM.windows_key: "-lopengl32 -lGLU32 -lfreeglut", PLATFORM.linux_key: "-lGL -lGLU -lglut"}
+
+AR_FLAGS = "-crs"
 
 POOL_ASYNC = collections.namedtuple('NinjaPool', ['name', 'depth'])("threaded", 16)
 
@@ -124,9 +126,9 @@ class NinjaFileWriter(ninja_syntax.Writer):
 
             ninja.newline()
 
-            ninja.variable("CXXFLAGS", CXXFLAGS[mode])
-            ninja.variable("LDFLAGS", LDFLAGS[PLATFORM.system] + (f" -fuse-ld={linker}" if linker != LINKERS.default else ""))
-            ninja.variable("ARFLAGS", ARFLAGS)
+            ninja.variable("CXXFLAGS", CXX_FLAGS[mode])
+            ninja.variable("LDFLAGS", LD_FLAGS[PLATFORM.system] + (f" -fuse-ld={linker}" if linker != LINKERS.default else ""))
+            ninja.variable("ARFLAGS", AR_FLAGS)
 
             ninja.newline()
 

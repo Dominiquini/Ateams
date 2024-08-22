@@ -14,25 +14,25 @@ Ateams:				Base BinPacking FlowShop GraphColoring JobShop KnapSack TravellingSal
 
 
 Base:
-						$(MAKE) -C $(PATH_BASE)
+						$(MAKE) $@ -C $(PATH_BASE)
 
 BinPacking:			Base
-						$(MAKE) -C $(PATH_BINPACKING)
+						$(MAKE) $@ -C $(PATH_BINPACKING)
 
 FlowShop:			Base
-						$(MAKE) -C $(PATH_FLOWSHOP)
+						$(MAKE) $@ -C $(PATH_FLOWSHOP)
 
 GraphColoring:		Base
-						$(MAKE) -C $(PATH_GRAPHCOLORING)
+						$(MAKE) $@ -C $(PATH_GRAPHCOLORING)
 
 JobShop:			Base
-						$(MAKE) -C $(PATH_JOBSHOP)
+						$(MAKE) $@ -C $(PATH_JOBSHOP)
 
 KnapSack:			Base
-						$(MAKE) -C $(PATH_KNAPSACK)
+						$(MAKE) $@ -C $(PATH_KNAPSACK)
 
 TravellingSalesman:	Base
-						$(MAKE) -C $(PATH_TRAVELLINGSALESMAN)
+						$(MAKE) $@ -C $(PATH_TRAVELLINGSALESMAN)
 
 
 $(ALL):				Ateams
@@ -49,10 +49,10 @@ $(PURGE):			--delete
 
 
 --delete:
-						$(MAKE) -s $(COMMAND) -C $(PATH_BASE)
-						$(MAKE) -s $(COMMAND) -C $(PATH_BINPACKING)
-						$(MAKE) -s $(COMMAND) -C $(PATH_FLOWSHOP)
-						$(MAKE) -s $(COMMAND) -C $(PATH_GRAPHCOLORING)
-						$(MAKE) -s $(COMMAND) -C $(PATH_JOBSHOP)
-						$(MAKE) -s $(COMMAND) -C $(PATH_KNAPSACK)
-						$(MAKE) -s $(COMMAND) -C $(PATH_TRAVELLINGSALESMAN)
+						$(MAKE) $(COMMAND) -C $(PATH_BASE)
+						$(MAKE) $(COMMAND) -C $(PATH_BINPACKING)
+						$(MAKE) $(COMMAND) -C $(PATH_FLOWSHOP)
+						$(MAKE) $(COMMAND) -C $(PATH_GRAPHCOLORING)
+						$(MAKE) $(COMMAND) -C $(PATH_JOBSHOP)
+						$(MAKE) $(COMMAND) -C $(PATH_KNAPSACK)
+						$(MAKE) $(COMMAND) -C $(PATH_TRAVELLINGSALESMAN)
