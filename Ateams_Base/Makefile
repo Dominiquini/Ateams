@@ -2,8 +2,6 @@ include ../Makefile_Base
 
 PATH_ROOT 	= ../
 
-PROJ 		= Ateams_Base
-
 
 .PHONY: 				Base $(ALL) $(CLEAN) $(PURGE)
 

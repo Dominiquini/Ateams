@@ -12,7 +12,7 @@ import math
 import sys
 import os
 
-import ninja_syntax
+import ninja
 
 try:
     import rich_click as click
@@ -30,51 +30,28 @@ except ImportError:
     filepath_option = click.option
     auto_complete_option = click.option
 
+
 PLATFORM = collections.namedtuple('PlatformInfo', ['windows_key', 'linux_key', 'is_windows', 'is_linux', 'system'])(windows_key := "WINDOWS", linux_key := "LINUX", is_windows := sys.platform == 'win32', is_linux := not is_windows, system := windows_key if is_windows else linux_key)
 
 PATH_SEPARATOR = os.path.sep
 
 ROOT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
-THIS_FILE = os.path.basename(__file__)
-
 LAST_BUILD_INFO_FILE = os.path.basename(f"{ROOT_FOLDER}{PATH_SEPARATOR}.build_info")
-
-NINJA_BUILD_FILE = os.path.basename(f"{ROOT_FOLDER}{PATH_SEPARATOR}build.ninja")
 
 MULTITHREADING_BUILDING_ENABLED = True
 
-BUILDERS = collections.namedtuple('Builders', ['tools', 'default'])(builders := ["make", "remake", "ninja", "samu"], default := builders[0])
+BUILDERS = collections.namedtuple('Builders', ['tools', 'default'])(builders := ["make", "remake", "colormake", "colormake-short", "ninja", "samu"], default := builders[0])
 
 COMPILERS = collections.namedtuple('Compilers', ['compilers', 'default'])(compilers := ["g++", "clang++"], default := compilers[0])
 
 LINKERS = collections.namedtuple('Linkers', ['linkers', 'default'])(linkers := ["ld", "bfd", "gold", "mold", "lld"], default := linkers[0])
 
-BUILDING_MODES = collections.namedtuple('BuildModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
-
 ARCHIVER = 'ar'
 
-CACHE_SYSTEM = 'ccache'
+BUILDING_MODES = collections.namedtuple('BuildModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
 
-CXX_GLOBAL_FLAGS = "-std=c++17 -static-libstdc++ -pthread -march=native -mtune=native -fdiagnostics-color=always"
-
-CXX_FLAGS = {BUILDING_MODES.modes[0]: f"{CXX_GLOBAL_FLAGS} -O3 -ffast-math", BUILDING_MODES.modes[1]: f"{CXX_GLOBAL_FLAGS} -O0 -g3 -no-pie", BUILDING_MODES.modes[2]: f"{CXX_GLOBAL_FLAGS} -O0 -g3 -pg -no-pie"}
-
-LD_FLAGS = {PLATFORM.windows_key: "-lopengl32 -lGLU32 -lfreeglut", PLATFORM.linux_key: "-lGL -lGLU -lglut"}
-
-AR_FLAGS = "-crs"
-
-POOL_ASYNC = collections.namedtuple('NinjaPool', ['name', 'depth'])("threaded", 16)
-
-BIN_EXT = ".exe" if PLATFORM.is_windows else ""
-
-BASE_SRCS = [cpp.replace(ROOT_FOLDER, ".") for cpp in glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}*{PATH_SEPARATOR}src{PATH_SEPARATOR}*.cpp") if cpp.find("Ateams_Base") != -1]
-BASE_OBJS = [src.replace("src", "bin").replace(".cpp", ".o") for src in BASE_SRCS]
-BASE_LIB = f"{ROOT_FOLDER}{PATH_SEPARATOR}Ateams_Base{PATH_SEPARATOR}bin{PATH_SEPARATOR}Ateams_Base.a".replace(ROOT_FOLDER, ".")
-
-PROJ_SRCS = [cpp.replace(ROOT_FOLDER, ".") for cpp in glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}*{PATH_SEPARATOR}src{PATH_SEPARATOR}*.cpp") if cpp.find("Ateams_Base") == -1]
-PROJ_OBJS = [src.replace("src", "bin").replace(".cpp", ".o") for src in PROJ_SRCS]
-PROJ_BINS = [obj.replace(".o", BIN_EXT) for obj in PROJ_OBJS]
+COMPILER_CACHE_SYSTEM = 'ccache'
 
 GDB_COMMAND = "gdb --args {cmd}"
 
@@ -85,6 +62,18 @@ VALGRIND_COMMANDS = {"none": "{cmd}", "memcheck": "valgrind --tool=memcheck --le
 ALGORITHMS = ['BinPacking', 'FlowShop', 'GraphColoring', 'JobShop', 'KnapSack', 'TravellingSalesman']
 
 BUILD_ALL_KEYWORD = 'All'
+
+BIN_EXT = ".exe" if PLATFORM.is_windows else ""
+
+BASE_SRCS = [cpp.replace(ROOT_FOLDER, ".") for cpp in glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}*{PATH_SEPARATOR}src{PATH_SEPARATOR}*.cpp") if cpp.find("Ateams_Base") != -1]
+BASE_HDRS = [cpp.replace(ROOT_FOLDER, ".") for cpp in glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}*{PATH_SEPARATOR}src{PATH_SEPARATOR}*.hpp") if cpp.find("Ateams_Base") != -1]
+BASE_OBJS = [src.replace("src", "bin").replace(".cpp", ".o") for src in BASE_SRCS]
+BASE_LIB = f"{ROOT_FOLDER}{PATH_SEPARATOR}Ateams_Base{PATH_SEPARATOR}bin{PATH_SEPARATOR}Ateams_Base.a".replace(ROOT_FOLDER, ".")
+
+PROJ_SRCS = [cpp.replace(ROOT_FOLDER, ".") for cpp in glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}*{PATH_SEPARATOR}src{PATH_SEPARATOR}*.cpp") if cpp.find("Ateams_Base") == -1]
+PROJ_HDRS = [cpp.replace(ROOT_FOLDER, ".") for cpp in glob.glob(f"{ROOT_FOLDER}{PATH_SEPARATOR}*{PATH_SEPARATOR}src{PATH_SEPARATOR}*.hpp") if cpp.find("Ateams_Base") == -1]
+PROJ_OBJS = [src.replace("src", "bin").replace(".cpp", ".o") for src in PROJ_SRCS]
+PROJ_BINS = [obj.replace(".o", BIN_EXT) for obj in PROJ_OBJS]
 
 PATH_BINS = {A: f"{A}{PATH_SEPARATOR}bin{PATH_SEPARATOR}" for A in ALGORITHMS}
 FILE_BINS = {A: f"{PATH_BINS[A]}{A}{BIN_EXT}" for A in PATH_BINS}
@@ -97,102 +86,6 @@ FILE_INPUTS = {A: glob.glob(f"{PATH_INPUTS[A]}*.prb") for A in PATH_INPUTS}
 PATH_DEFAULT_INPUTS = f"Ateams_Base{PATH_SEPARATOR}inputs{PATH_SEPARATOR}"
 FILE_DEFAULT_INPUTS = {A: f"{PATH_DEFAULT_INPUTS}{A}.prb" for A in ALGORITHMS}
 PATH_DEFAULT_OUTPUTS = {A: f"{A}{PATH_SEPARATOR}results{PATH_SEPARATOR}" for A in ALGORITHMS}
-
-
-class NinjaFileWriter(ninja_syntax.Writer):
-
-    def __init__(self, path=NINJA_BUILD_FILE, mode="w", width=512):
-        super().__init__(output=open(path, mode), width=width)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *exception):
-        super().close()
-    
-    @classmethod
-    def generate_ninja_build_file(cls, ninja_file, compiler, linker, mode):
-        with NinjaFileWriter(ninja_file) as ninja:
-            ninja.comment(f"PLATFORM: {PLATFORM.system}")
-
-            ninja.newline()
-
-            ninja.variable("BUILD_MODE", mode)
-
-            ninja.newline()
-
-            ninja.variable("CC", compiler)
-            ninja.variable("AR", ARCHIVER)
-
-            ninja.newline()
-
-            ninja.variable("CXXFLAGS", CXX_FLAGS[mode])
-            ninja.variable("LDFLAGS", LD_FLAGS[PLATFORM.system] + (f" -fuse-ld={linker}" if linker != LINKERS.default else ""))
-            ninja.variable("ARFLAGS", AR_FLAGS)
-
-            ninja.newline()
-
-            ninja.pool(**POOL_ASYNC._asdict())
-
-            ninja.newline()
-
-            ninja.rule(name="compile", command="$CC $CXXFLAGS -MMD -MF $out.d -c -o $out $in", description="COMPILE $out", deps="gcc", depfile="$out.d", pool=POOL_ASYNC.name)
-
-            ninja.newline()
-
-            ninja.rule(name="link", command="$CC $CXXFLAGS -o $out $in $LDFLAGS", description="LINK $out", pool=POOL_ASYNC.name)
-
-            ninja.newline()
-
-            ninja.rule(name="archive", command="$AR $ARFLAGS $out $in", description="ARCHIVE $out", pool=POOL_ASYNC.name)
-
-            ninja.newline()
-
-            ninja.rule(name="generate", command="python $in --no-execute --no-verbose --no-clear --no-pause build -a ninja -m $BUILD_MODE", description="UPDATE NINJA BUILD FILE", pool=POOL_ASYNC.name, generator=True)
-
-            ninja.newline()
-
-            for src, obj in zip(BASE_SRCS, BASE_OBJS):
-                ninja.build(outputs=obj, rule="compile", inputs=src)
-
-            ninja.newline()
-
-            for src, obj in zip(PROJ_SRCS, PROJ_OBJS):
-                ninja.build(outputs=obj, rule="compile", inputs=src)
-
-            ninja.newline()
-
-            ninja.build(outputs=BASE_LIB, rule="archive", inputs=BASE_OBJS)
-
-            ninja.newline()
-
-            for obj, bin in zip(PROJ_OBJS, PROJ_BINS):
-                ninja.build(outputs=bin, rule="link", inputs=[BASE_LIB, obj])
-
-            ninja.newline()
-
-            ninja.build(outputs="Ateams", rule="phony", inputs=PROJ_BINS)
-
-            ninja.newline()
-
-            ninja.build(outputs="Base", rule="phony", inputs=BASE_LIB)
-
-            ninja.newline()
-
-            for bin in PROJ_BINS:
-                ninja.build(outputs=os.path.splitext(os.path.basename(bin))[0], rule="phony", inputs=bin)
-
-            ninja.newline()
-
-            ninja.build(outputs=BUILD_ALL_KEYWORD, rule="phony", inputs="Ateams")
-
-            ninja.newline()
-
-            ninja.default(BUILD_ALL_KEYWORD)
-
-            ninja.newline()
-
-            ninja.build(outputs="update", rule="generate", inputs=THIS_FILE, implicit=NINJA_BUILD_FILE)
 
 
 class BuildInfo:
@@ -262,12 +155,12 @@ def clean(config, tool, extra_args):
 
     tool = normalize_choice(BUILDERS.tools, tool, BUILDERS.default, lambda e: e.casefold())
 
-    NinjaFileWriter.generate_ninja_build_file(ROOT_FOLDER + PATH_SEPARATOR + NINJA_BUILD_FILE, COMPILERS.default, LINKERS.default, BUILDING_MODES.default)
+    ninja.generate_ninja_build_file()
 
     def __compose_command_line():
         command_line = tool
 
-        command_line += f" purge" if tool in BUILDERS.tools[0:2] else f" -t clean"
+        command_line += f" purge" if "make" in tool else f" -t clean"
 
         for arg in extra_args: command_line += f" {arg}"
 
@@ -310,9 +203,9 @@ def build(config, tool, compiler, linker, mode, algorithm, rebuild, cache, extra
     mode = normalize_choice(BUILDING_MODES.modes, mode, BUILDING_MODES.default, lambda e: e.casefold())
     algorithm = normalize_choice([BUILD_ALL_KEYWORD] + ALGORITHMS, algorithm, None, lambda e: e.casefold())
 
-    if cache: compiler = f"{CACHE_SYSTEM} {compiler}"
+    if cache: compiler = f"{COMPILER_CACHE_SYSTEM} {compiler}"
 
-    NinjaFileWriter.generate_ninja_build_file(ROOT_FOLDER + PATH_SEPARATOR + NINJA_BUILD_FILE, compiler, linker, mode)
+    ninja.generate_ninja_build_file(compiler, linker, ARCHIVER, mode)
  
  
     def __update_timestamps_if_needed():
@@ -333,7 +226,7 @@ def build(config, tool, compiler, linker, mode, algorithm, rebuild, cache, extra
 
         command_line += f" {algorithm}"
 
-        command_line += f" CC='{compiler}' LINKER='{linker}' {mode}='true'" if tool in BUILDERS.tools[0:2] else ""
+        command_line += f" CC='{compiler}' LINKER='{linker}' {mode}='true'" if "make" in tool else ""
 
         for arg in extra_args: command_line += f" {arg}"
 

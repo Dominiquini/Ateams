@@ -2,8 +2,6 @@ include ../Makefile_Base
 
 PATH_ROOT 	= ../
 
-PROJ 		= TravellingSalesman
-
 
 .PHONY: 				Base $(PROJ) $(ALL) $(CLEAN) $(PURGE)
 

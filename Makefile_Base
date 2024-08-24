@@ -43,7 +43,7 @@ else
 endif
 
 
-PROJ 					= 
+PROJ 					= $(notdir $(CURDIR))
 
 SUBPATH_SRC				= src/
 SUBPATH_BIN				= bin/
@@ -114,6 +114,7 @@ list:
 
 print_vars:
 				@$(ECHO) - MAKEFILE_FLAGS: $(MAKEFLAGS)
+				@$(ECHO) - PROJ: $(PROJ)
 				@$(ECHO) - BASE_SOURCES: $(BASE_HEADERS) $(BASE_SRCS)
 				@$(ECHO) - BASE_OBJS: $(BASE_OBJS)
 				@$(ECHO) - BASE_LIB: $(BASE_LIB)

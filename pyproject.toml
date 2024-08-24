@@ -12,7 +12,7 @@ authors = [
     { name="Rafael Baboni Dominiquini", email="rafaeldominiquini@gmail.com" },
 ]
 requires-python = ">=3.8"
-dependencies = ["click", "click-prompt", "rich-click", "click-web", "ninja-syntax"]
+dependencies = ["ninja-syntax", "click", "click-prompt", "rich-click"]
 
 [project.scripts]
 Ateams = "Ateams:ateams"

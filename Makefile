@@ -4,8 +4,6 @@ include ./Makefile_Base
 
 PATH_ROOT = ./
 
-PROJ =
-
 
 .PHONY: 			Ateams Base BinPacking FlowShop GraphColoring JobShop KnapSack TravellingSalesman $(ALL) $(CLEAN) $(PURGE)
 
