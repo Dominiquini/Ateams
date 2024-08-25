@@ -1,5 +1,6 @@
 include ../Makefile_Base
 
+
 PATH_ROOT 	= ../
 
 
@@ -14,8 +15,8 @@ Base:					$(PATH_BASE_BIN) $(BASE_LIB)
 $(PATH_BASE_BIN):
 							$(MKDIR) $(PATH_BASE_BIN)
 
-$(PATTERN_BASE_OBJS):	$(PATTERN_BASE_SRCS) $(PATTERN_BASE_HEADERS)
-							$(CC) $(CXXFLAGS) -MMD -MF $(patsubst %$(OBJ_EXT),%$(DEPS_EXT),$@) -c $< -o $@
+$(PATTERN_BASE_OBJS):	$(PATTERN_BASE_SRCS)# $(PATTERN_BASE_HEADERS)
+							$(CC) $(CXXFLAGS) $(C_DEPS) -c $< -o $@
 
 $(BASE_LIB):			$(BASE_OBJS)
 							$(AR) $(ARFLAGS) $@ $?
@@ -28,3 +29,6 @@ $(CLEAN):
 						$(RM) $(BASE_DEPS) $(BASE_OBJS) $(BASE_LIB) $(PATH_BASE_BIN)
 
 $(PURGE):			clean
+
+
+-include $(BASE_DEPS)

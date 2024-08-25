@@ -1,5 +1,3 @@
-THIS_FILE := $(lastword $(MAKEFILE_LIST))
-
 include ./Makefile_Base
 
 PATH_ROOT = ./

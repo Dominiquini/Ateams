@@ -14,6 +14,8 @@ except ImportError:
     import click
 
 
+THIS_FILE = os.path.basename(__file__)
+
 POOL_ASYNC = collections.namedtuple('NinjaPool', ['name', 'depth'])("threaded", 16)
 
 PLATFORM = collections.namedtuple('PlatformInfo', ['windows_key', 'linux_key', 'is_windows', 'is_linux', 'system'])(windows_key := "WINDOWS", linux_key := "LINUX", is_windows := sys.platform == 'win32', is_linux := not is_windows, system := windows_key if is_windows else linux_key)
@@ -77,11 +79,12 @@ class NinjaFileWriter(ninja_syntax.Writer):
             ninja.newline()
 
             ninja.variable("CC", compiler)
+            ninja.variable("LK", linker)
             ninja.variable("AR", archiver)
 
             ninja.newline()
 
-            ninja.variable("CXXFLAGS", CXX_FLAGS[mode])
+            ninja.variable("CXXFLAGS", CXX_FLAGS[mode] if mode in CXX_FLAGS else CXX_GLOBAL_FLAGS)
             ninja.variable("LDFLAGS", LD_FLAGS[PLATFORM.system] + (f" -fuse-ld={linker}" if linker != LINKER else ""))
             ninja.variable("ARFLAGS", AR_FLAGS)
 
@@ -100,6 +103,10 @@ class NinjaFileWriter(ninja_syntax.Writer):
             ninja.newline()
 
             ninja.rule(name="archive", command="$AR $ARFLAGS $out $in", description="ARCHIVE $out", pool=POOL_ASYNC.name)
+
+            ninja.newline()
+
+            ninja.rule(name="generate", command="python $in -c $CC -l $LK -a $AR -m $BUILD_MODE", description="UPDATE NINJA BUILD FILE", pool=POOL_ASYNC.name, generator=True)
 
             ninja.newline()
 
@@ -140,6 +147,10 @@ class NinjaFileWriter(ninja_syntax.Writer):
             ninja.newline()
 
             ninja.default(BUILD_ALL_KEYWORD)
+
+            ninja.newline()
+
+            ninja.build(outputs="update", rule="generate", inputs=THIS_FILE, implicit=NINJA_BUILD_FILE)
 
 
 CLICK_CONTEXT_SETTINGS = dict(ignore_unknown_options=True, help_option_names=['-h', '--help'])

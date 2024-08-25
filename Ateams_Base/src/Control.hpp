@@ -191,7 +191,7 @@ private:
 	int iterationsWithoutImprovement = 0;						// Ultima iteracao em que houve melhora
 
 	unsigned int heuristicsSolutionsCount = 0;							// Numero de solucoes produzidas pelos algoritimos
-	milliseconds heuristicsTotalExecutionTime = milliseconds::zero();	// Tempo total gasto pelas heurísticas
+	milliseconds heuristicsTotalExecutionTime = milliseconds::zero();	// Tempo total gasto pelas heuristicas
 
 	ProgressBar *loadingProgressBar;
 	ProgressBar *executionProgressBar;
@@ -208,7 +208,7 @@ private:
 	/* Adiciona um novo conjunto de solucoes a populacao corrente */
 	PopulationImprovement* insertNewSolutions(vector<Problem*> *newSolutions, bool autoTrim);
 
-	/* Remove soluções excedentes da população */
+	/* Remove solucoes excedentes da populacao */
 	void trimSolutions();
 
 	/* Gera uma populacao inicial aleatoria com 'populationSize' elementos */

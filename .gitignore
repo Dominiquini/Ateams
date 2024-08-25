@@ -51,3 +51,6 @@ build.ninja
 .Ateams/
 Ateams.egg-info/
 __pycache__/
+
+# Gede (GDB GUI)
+gede2.ini

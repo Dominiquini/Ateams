@@ -1,10 +1,11 @@
 .DEFAULT_GOAL := All
 
+
 CC = g++
 AR = ar
 
 
-CXXFLAGS = -std=c++17 -static-libstdc++ -pthread -march=native -mtune=native -fdiagnostics-color=always
+CXXFLAGS 	= -std=c++17 -static-libstdc++ -pthread -march=native -mtune=native -fdiagnostics-color=always
 ifeq ($(DEBUG), true)
   CXXFLAGS  += -O0 -g3 -no-pie
 else ifeq ($(PROFILE), true)
@@ -12,6 +13,9 @@ else ifeq ($(PROFILE), true)
 else
   CXXFLAGS	+= -O3 -ffast-math
 endif
+
+
+C_DEPS 		= -MMD -MF $(@:$(OBJ_EXT)=$(DEPS_EXT))
 
 
 ifeq ($(OS), Windows_NT)
@@ -115,9 +119,13 @@ list:
 print_vars:
 				@$(ECHO) - MAKEFILE_FLAGS: $(MAKEFLAGS)
 				@$(ECHO) - PROJ: $(PROJ)
-				@$(ECHO) - BASE_SOURCES: $(BASE_HEADERS) $(BASE_SRCS)
+				@$(ECHO) - BASE_SOURCES: $(BASE_SRCS)
+				@$(ECHO) - BASE_HEADERS: $(BASE_HEADERS)
+				@$(ECHO) - BASE_DEPS: $(BASE_DEPS)
 				@$(ECHO) - BASE_OBJS: $(BASE_OBJS)
 				@$(ECHO) - BASE_LIB: $(BASE_LIB)
-				@$(ECHO) - PROJ_SOURCES: $(PROJ_HEADERS) $(PROJ_SRCS)
+				@$(ECHO) - PROJ_SOURCES: $(PROJ_SRCS)
+				@$(ECHO) - PROJ_HEADERS: $(PROJ_HEADERS)
+				@$(ECHO) - PROJ_DEPS: $(PROJ_DEPS)
 				@$(ECHO) - PROJ_OBJS: $(PROJ_OBJS)
 				@$(ECHO) - PROJ_BIN: $(PROJ_BIN)
