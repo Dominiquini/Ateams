@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import dataclasses
 import collections
 import subprocess
 import pathlib
@@ -9,6 +10,7 @@ import signal
 import timeit
 import glob
 import math
+import json
 import sys
 import os
 
@@ -88,42 +90,37 @@ FILE_DEFAULT_INPUTS = {A: f"{PATH_DEFAULT_INPUTS}{A}.prb" for A in ALGORITHMS}
 PATH_DEFAULT_OUTPUTS = {A: f"{A}{PATH_SEPARATOR}results{PATH_SEPARATOR}" for A in ALGORITHMS}
 
 
-class BuildInfo:
+@dataclasses.dataclass(order=True)
+class BuildInfo():
 
     DEFAULT_FILE = ROOT_FOLDER + PATH_SEPARATOR + LAST_BUILD_INFO_FILE
 
-    def __init__(self, builder, compiler, linker, archiver, mode):
-        self.platform = PLATFORM.system
-        self.builder = builder
-        self.compiler = compiler
-        self.linker = linker
-        self.archiver = archiver
-        self.mode = mode
-
-    def __eq__(self, other):
-        return other and (self.platform, self.builder, self.compiler, self.linker, self.archiver, self.mode) == (other.platform, other.builder, other.compiler, other.linker, other.archiver, other.mode)
-
-    def __repr__(self):
-        return "{}({!r})".format(self.__class__.__name__, self.__dict__)
-
-    def __str__(self):
-        return f"(PLATFORM: {self.platform}, BUILDER: {self.builder}, COMPILER: {self.compiler}, LINKER: {self.linker}, ARCHIVER: {self.archiver}, MODE: {self.mode})"
+    platform: str = PLATFORM.system
+    builder: str = None
+    compiler: str = None
+    linker: str = None
+    archiver: str = None
+    mode: str = None
 
     def generate_ninja_build_file(self):
         ninja.generate_ninja_build_file(self.compiler, self.linker, self.archiver, self.mode)
 
     def write_on_file(self, file = DEFAULT_FILE):
-        with open(file, 'wb') as info_file:
-            pickle.dump(self, info_file, pickle.DEFAULT_PROTOCOL)
+        with open(file, 'w') as info_file:
+            json.dump(dataclasses.asdict(self), info_file, indent = 4)
 
         return self
 
     @classmethod
     def load_from_file(cls, file = DEFAULT_FILE):
-        if not os.path.exists(file):
+        if not os.path.isfile(file):
             return None
         else:
-            with open(file, 'rb') as info_file: return pickle.load(info_file)
+            with open(file, 'r') as info_file: return BuildInfo(**json.load(info_file))
+
+    @classmethod
+    def delete_file(cls, file = DEFAULT_FILE):
+        if os.path.isfile(file): os.remove(file)
 
 
 def normalize_choice(options, choice, default=None, preprocessor=lambda e: e.casefold()):
@@ -173,10 +170,11 @@ def clean(config, tool, extra_args):
 
         return command_line
 
-    def __purge_ateams(cmd, change_to_root_folder=True):
+    def __clean_ateams(cmd, change_to_root_folder=True):
         if change_to_root_folder: os.chdir(ROOT_FOLDER)
 
-        return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=1, number=1)[0] if config.execute else 0
+        return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=1, number=1)[0]
+
 
     if config.clear: click.clear()
 
@@ -184,9 +182,12 @@ def clean(config, tool, extra_args):
 
     if config.verbose: click.echo(f"\n*** Command: '{command_line}' ***\n")
 
-    timer = __purge_ateams(command_line)
+    BuildInfo.delete_file()
 
-    if config.verbose: click.echo(f"\n*** Timer: {truncate_number(timer, 2)} ***\n")
+    if config.execute:
+        timer = __clean_ateams(command_line)
+
+        if config.verbose: click.echo(f"\n*** Timer: {truncate_number(timer, 2)} ***\n")
 
     if config.pause: click.prompt("\nPress ENTER To Exit ", prompt_suffix='', hide_input=True, show_choices=False, show_default=False, default='') ; click.echo("\n")
 
@@ -214,12 +215,12 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
 
     if cache: compiler = f"{COMPILER_CACHE_SYSTEM} {compiler}"
 
-    current_build = BuildInfo(tool, compiler, linker, archiver, mode)
+    current_build = BuildInfo(builder=tool, compiler=compiler, linker=linker, archiver=archiver, mode=mode)
     current_build.generate_ninja_build_file()
  
  
     def __update_timestamps_if_needed(current_build):
-        if rebuild or current_build != BuildInfo.load_from_file():
+        if rebuild or current_build != config.build_info:
             for src in BASE_SRCS + PROJ_SRCS:
                 pathlib.Path(src).touch()
 
@@ -241,7 +242,7 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
 
         if rebuild_if_needed: __update_timestamps_if_needed(current_build)
 
-        return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=1, number=1)[0] if config.execute else 0
+        return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=1, number=1)[0]
 
 
     if config.clear: click.clear()
@@ -250,11 +251,12 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
 
     if config.verbose: click.echo(f"\n*** Command: '{command_line}' ***\n")
 
-    timer = __build_ateams(command_line)
-
     current_build.write_on_file()
 
-    if config.verbose: click.echo(f"\n*** Timer: {truncate_number(timer, 2)} ***\n")
+    if config.execute:
+        timer = __build_ateams(command_line)
+
+        if config.verbose: click.echo(f"\n*** Timer: {truncate_number(timer, 2)} ***\n")
 
     if config.pause: click.prompt("\nPress ENTER To Exit ", prompt_suffix='', hide_input=True, show_choices=False, show_default=False, default='') ; click.echo("\n")
 
@@ -325,10 +327,10 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
 
         return command_line
 
-    def __execute_ateams(cmd, change_to_root_folder=True):
+    def __run_ateams(cmd, change_to_root_folder=True):
         if change_to_root_folder: os.chdir(ROOT_FOLDER)
 
-        return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=repeat, number=1) if config.execute else [0] * repeat
+        return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=repeat, number=1)
 
 
     if config.clear: click.clear()
@@ -337,11 +339,12 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
 
     if config.verbose: click.echo(f"\n*** Command: '{command_line}' ***\n")
 
-    timers = __execute_ateams(command_line)
-    total = sum(timers)
-    average = total / len(timers)
+    if config.execute:
+        timers = __run_ateams(command_line)
+        total = sum(timers)
+        average = total / len(timers)
 
-    if config.verbose: click.echo(f"\n*** Timers: {[truncate_number(n, 2) for n in timers]} || Total: {truncate_number(total, 2)} || Average: {truncate_number(average, 2)} ***\n")
+        if config.verbose: click.echo(f"\n*** Timers: {[truncate_number(n, 2) for n in timers]} || Total: {truncate_number(total, 2)} || Average: {truncate_number(average, 2)} ***\n")
 
     if config.pause: click.prompt("\nPress ENTER To Exit ", prompt_suffix='', hide_input=True, show_choices=False, show_default=False, default='') ; click.echo("\n")
 
