@@ -47,7 +47,7 @@ COMPILERS = collections.namedtuple('Compilers', ['compilers', 'default'])(compil
 
 LINKERS = collections.namedtuple('Linkers', ['linkers', 'default'])(linkers := ["ld", "bfd", "gold", "mold", "lld"], default := linkers[0])
 
-ARCHIVER = 'ar'
+ARCHIVERS = collections.namedtuple('Archivers', ['archivers', 'default'])(archivers := ["ar", "llvm-ar"], default := archivers[0])
 
 BUILDING_MODES = collections.namedtuple('BuildModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
 
@@ -90,30 +90,36 @@ PATH_DEFAULT_OUTPUTS = {A: f"{A}{PATH_SEPARATOR}results{PATH_SEPARATOR}" for A i
 
 class BuildInfo:
 
-    def __init__(self, builder, compiler, linker, mode):
+    DEFAULT_FILE = ROOT_FOLDER + PATH_SEPARATOR + LAST_BUILD_INFO_FILE
+
+    def __init__(self, builder, compiler, linker, archiver, mode):
         self.platform = PLATFORM.system
         self.builder = builder
         self.compiler = compiler
         self.linker = linker
+        self.archiver = archiver
         self.mode = mode
 
     def __eq__(self, other):
-        return other and (self.platform, self.builder, self.compiler, self.linker, self.mode) == (other.platform, other.builder, other.compiler, other.linker, other.mode)
+        return other and (self.platform, self.builder, self.compiler, self.linker, self.archiver, self.mode) == (other.platform, other.builder, other.compiler, other.linker, other.archiver, other.mode)
 
     def __repr__(self):
         return "{}({!r})".format(self.__class__.__name__, self.__dict__)
 
     def __str__(self):
-        return f"(PLATFORM: {self.platform}, BUILDER: {self.builder}, COMPILER: {self.compiler}, LINKER: {self.linker}, MODE: {self.mode})"
+        return f"(PLATFORM: {self.platform}, BUILDER: {self.builder}, COMPILER: {self.compiler}, LINKER: {self.linker}, ARCHIVER: {self.archiver}, MODE: {self.mode})"
 
-    def write_on_file(self, file):
+    def generate_ninja_build_file(self):
+        ninja.generate_ninja_build_file(self.compiler, self.linker, self.archiver, self.mode)
+
+    def write_on_file(self, file = DEFAULT_FILE):
         with open(file, 'wb') as info_file:
             pickle.dump(self, info_file, pickle.DEFAULT_PROTOCOL)
 
         return self
 
     @classmethod
-    def load_from_file(cls, file):
+    def load_from_file(cls, file = DEFAULT_FILE):
         if not os.path.exists(file):
             return None
         else:
@@ -131,7 +137,7 @@ def truncate_number(number, decimals=0):
 
 CLICK_CONTEXT_SETTINGS = dict(ignore_unknown_options=True, help_option_names=['-h', '--help'])
 
-click.pass_config = click.make_pass_decorator(Config := collections.namedtuple('LauncherConfig', ['execute', 'verbose', 'clear', 'pause']))
+click.pass_config = click.make_pass_decorator(Config := collections.namedtuple('LauncherConfig', ['build_info', 'execute', 'verbose', 'clear', 'pause']))
 
 
 @click.group(context_settings=CLICK_CONTEXT_SETTINGS)
@@ -143,7 +149,7 @@ click.pass_config = click.make_pass_decorator(Config := collections.namedtuple('
 def ateams(ctx, execute, verbose, clear, pause):
     """A Wrapper For Interacting With ATEAMS"""
 
-    ctx.obj = Config(execute, verbose, clear, pause)
+    ctx.obj = Config(BuildInfo.load_from_file(), execute, verbose, clear, pause)
 
 
 @ateams.command(context_settings=CLICK_CONTEXT_SETTINGS)
@@ -155,12 +161,13 @@ def clean(config, tool, extra_args):
 
     tool = normalize_choice(BUILDERS.tools, tool, BUILDERS.default, lambda e: e.casefold())
 
-    ninja.generate_ninja_build_file()
+    config.build_info.generate_ninja_build_file()
+
 
     def __compose_command_line():
         command_line = tool
 
-        command_line += f" purge" if "make" in tool else f" -t clean"
+        command_line += f" clean" if "make" in tool else f" -t clean"
 
         for arg in extra_args: command_line += f" {arg}"
 
@@ -188,36 +195,33 @@ def clean(config, tool, extra_args):
 @choice_option('-t', '--tool', type=click.Choice(BUILDERS.tools, case_sensitive=False), required=True, default=BUILDERS.default, prompt="Building Tool", help='Building Tool')
 @choice_option('-c', '--compiler', type=click.Choice(COMPILERS.compilers, case_sensitive=False), required=True, default=COMPILERS.default, prompt="Compiler", help='Compiler')
 @choice_option('-l', '--linker', type=click.Choice(LINKERS.linkers, case_sensitive=False), required=True, default=LINKERS.default, prompt="Linker", help='Linker')
+@choice_option('-x', '--archiver', type=click.Choice(ARCHIVERS.archivers, case_sensitive=False), required=True, default=ARCHIVERS.default, prompt="Archiver", help='Archiver')
 @choice_option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, prompt="Building Mode", help='Building Mode')
 @choice_option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default=BUILD_ALL_KEYWORD, prompt="Algorithm", help='Algorithm')
 @confirm_option('--rebuild', type=click.BOOL, prompt="Rebuild", help='Force A Rebuild Of The Entire Project')
 @confirm_option('--cache', '--ccache', type=click.BOOL, prompt="Cache", help='Use Cache')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def build(config, tool, compiler, linker, mode, algorithm, rebuild, cache, extra_args):
+def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, cache, extra_args):
     """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
 
     tool = normalize_choice(BUILDERS.tools, tool, BUILDERS.default, lambda e: e.casefold())
     compiler = normalize_choice(COMPILERS.compilers, compiler, COMPILERS.default, lambda e: e.casefold())
     linker = normalize_choice(LINKERS.linkers, linker, LINKERS.default, lambda e: e.casefold())
+    archiver = normalize_choice(ARCHIVERS.archivers, archiver, ARCHIVERS.default, lambda e: e.casefold())
     mode = normalize_choice(BUILDING_MODES.modes, mode, BUILDING_MODES.default, lambda e: e.casefold())
     algorithm = normalize_choice([BUILD_ALL_KEYWORD] + ALGORITHMS, algorithm, None, lambda e: e.casefold())
 
     if cache: compiler = f"{COMPILER_CACHE_SYSTEM} {compiler}"
 
-    ninja.generate_ninja_build_file(compiler, linker, ARCHIVER, mode)
+    current_build = BuildInfo(tool, compiler, linker, archiver, mode)
+    current_build.generate_ninja_build_file()
  
  
-    def __update_timestamps_if_needed():
-        file = ROOT_FOLDER + PATH_SEPARATOR + LAST_BUILD_INFO_FILE
-
-        current_build = BuildInfo(tool, compiler, linker, mode)
-
-        if rebuild or current_build != BuildInfo.load_from_file(file):
+    def __update_timestamps_if_needed(current_build):
+        if rebuild or current_build != BuildInfo.load_from_file():
             for src in BASE_SRCS + PROJ_SRCS:
                 pathlib.Path(src).touch()
-
-        current_build.write_on_file(file)
 
     def __compose_command_line():
         command_line = tool
@@ -235,7 +239,7 @@ def build(config, tool, compiler, linker, mode, algorithm, rebuild, cache, extra
     def __build_ateams(cmd, change_to_root_folder=True, rebuild_if_needed=True):
         if change_to_root_folder: os.chdir(ROOT_FOLDER)
 
-        if rebuild_if_needed: __update_timestamps_if_needed()
+        if rebuild_if_needed: __update_timestamps_if_needed(current_build)
 
         return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=1, number=1)[0] if config.execute else 0
 
@@ -247,6 +251,8 @@ def build(config, tool, compiler, linker, mode, algorithm, rebuild, cache, extra
     if config.verbose: click.echo(f"\n*** Command: '{command_line}' ***\n")
 
     timer = __build_ateams(command_line)
+
+    current_build.write_on_file()
 
     if config.verbose: click.echo(f"\n*** Timer: {truncate_number(timer, 2)} ***\n")
 

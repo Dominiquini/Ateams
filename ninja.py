@@ -30,9 +30,9 @@ COMPILER = "g++"
 
 LINKER = "ld"
 
-BUILDING_MODE = "RELEASE"
-
 ARCHIVER = 'ar'
+
+BUILDING_MODE = "RELEASE"
 
 CXX_GLOBAL_FLAGS = "-std=c++17 -static-libstdc++ -pthread -march=native -mtune=native -fdiagnostics-color=always"
 

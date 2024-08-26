@@ -35,7 +35,6 @@ $(ALL):				Ateams
 
 $(CLEAN):			COMMAND=clean
 $(CLEAN):			--delete
-						$(RM) $(BUILD_STAT_BIN_FILE)
 
 $(PURGE):			COMMAND=purge
 $(PURGE):			--delete
