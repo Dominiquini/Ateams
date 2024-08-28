@@ -189,7 +189,7 @@ GraphColoring::GraphColoring() : Problem::Problem() {
 		solution.ordemNodes[i] = i + 1;
 	}
 
-	random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], as_lambda(Random::randomNumber));
+	shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], randomEngine);
 
 	solution.colors = NULL;
 
@@ -341,7 +341,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* GraphColoring::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), as_lambda(Random::randomNumber));
+	shuffle(local->begin(), local->end(), randomEngine);
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;

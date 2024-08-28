@@ -186,7 +186,7 @@ FlowShop::FlowShop() : Problem::Problem() {
 		solution.scaling[j] = j;
 	}
 
-	random_shuffle(&solution.scaling[0], &solution.scaling[njob], as_lambda(Random::randomNumber));
+	shuffle(&solution.scaling[0], &solution.scaling[njob], randomEngine);
 
 	solution.staggering = NULL;
 
@@ -354,7 +354,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* FlowShop::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), as_lambda(Random::randomNumber));
+	shuffle(local->begin(), local->end(), randomEngine);
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;

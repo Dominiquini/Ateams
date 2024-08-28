@@ -247,7 +247,7 @@ BinPacking::BinPacking() : Problem::Problem() {
 			solution.ordemItens[i] = i;
 		}
 
-		random_shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens], as_lambda(Random::randomNumber));
+		shuffle(&solution.ordemItens[0], &solution.ordemItens[nitens], randomEngine);
 	}
 
 	solution.bins = NULL;
@@ -396,7 +396,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* BinPacking::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), as_lambda(Random::randomNumber));
+	shuffle(local->begin(), local->end(), randomEngine);
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;

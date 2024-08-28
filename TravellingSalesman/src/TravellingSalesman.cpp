@@ -319,7 +319,7 @@ TravellingSalesman::TravellingSalesman() : Problem::Problem() {
 			solution.ordemNodes[i] = i;
 		}
 
-		random_shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], as_lambda(Random::randomNumber));
+		shuffle(&solution.ordemNodes[0], &solution.ordemNodes[nnodes], randomEngine);
 		solution.ordemNodes[nnodes] = solution.ordemNodes[0];
 	}
 
@@ -447,7 +447,7 @@ inline vector<pair<Problem*, InfoTabu*>*>* TravellingSalesman::localSearch() {
 		}
 	}
 
-	random_shuffle(local->begin(), local->end(), as_lambda(Random::randomNumber));
+	shuffle(local->begin(), local->end(), randomEngine);
 	sort(local->begin(), local->end(), Problem::ptcomp);
 
 	return local;
