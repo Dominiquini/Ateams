@@ -34,11 +34,13 @@ ARCHIVER = 'ar'
 
 BUILDING_MODE = "RELEASE"
 
-CXX_GLOBAL_FLAGS = "-std=c++17 -static-libstdc++ -pthread -march=native -mtune=native -fdiagnostics-color=always"
+CXX_GLOBAL_FLAGS = "-std=c++17 -pthread -march=native -mtune=native -fdiagnostics-color=always"
 
 CXX_FLAGS = {"RELEASE": f"{CXX_GLOBAL_FLAGS} -O3 -ffast-math", "DEBUG": f"{CXX_GLOBAL_FLAGS} -O0 -g3 -no-pie", "PROFILE": f"{CXX_GLOBAL_FLAGS} -O0 -g3 -pg -no-pie"}
 
-LD_FLAGS = {PLATFORM.windows_key: "-lopengl32 -lGLU32 -lfreeglut", PLATFORM.linux_key: "-lGL -lGLU -lglut"}
+LD_GLOBAL_FLAGS = "-static-libgcc -static-libstdc++"
+
+LD_FLAGS = {PLATFORM.windows_key: f"{LD_GLOBAL_FLAGS} -lopengl32 -lGLU32 -lfreeglut", PLATFORM.linux_key: f"{LD_GLOBAL_FLAGS} -lGL -lGLU -lglut"}
 
 AR_FLAGS = "-crs"
 

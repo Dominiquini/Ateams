@@ -69,26 +69,27 @@ public:
 		return solution;
 	}
 
-	void print(bool esc);		// Imprime o escalonamento atual
+	/* Imprime o escalonamento atual */
+	void print(bool esc) override;
 
 	/* Retorna um novo vizinho aleatorio */
-	Problem* neighbor();
+	Problem* neighbor() override;
 
 	/* Retorna um conjunto de solucoes viaveis vizinhas da atual. Retorna 'n' novos indivíduos */
-	vector<pair<Problem*, InfoTabu*>*>* localSearch();			// Todos os vizinhos
-	vector<pair<Problem*, InfoTabu*>*>* localSearch(float);	// Uma parcela aleatoria
+	vector<pair<Problem*, InfoTabu*>*>* localSearch() override;				// Todos os vizinhos
+	vector<pair<Problem*, InfoTabu*>*>* localSearch(float) override;		// Uma parcela aleatoria
 
 	/* Faz o crossover da solucao atual com a passada como parametro. Retorna dois novos individuos */
-	pair<Problem*, Problem*>* crossOver(const Problem*, int, int);	// Dois pivos
-	pair<Problem*, Problem*>* crossOver(const Problem*, int);		// Um pivo
+	pair<Problem*, Problem*>* crossOver(const Problem*, int, int) override;	// Dois pivos
+	pair<Problem*, Problem*>* crossOver(const Problem*, int) override;		// Um pivo
 
 	/* Devolve uma mutacao aleatoria na solucao atual */
-	Problem* mutation(int);
+	Problem* mutation(int) override;
 
 	/* Devolve o valor da solucao */
-	double getFitness() const;
-	double getFitnessMaximize() const;
-	double getFitnessMinimize() const;
+	double getFitness() const override;
+	double getFitnessMaximize() const override;
+	double getFitnessMinimize() const override;
 
 	Solution_BinPacking& getSoluction() {
 		return solution;

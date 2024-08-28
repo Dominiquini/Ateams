@@ -124,7 +124,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 		for (int j = 0; j < numCrossOver / 2; j++) {
 			temp = new pair<Problem*, Problem*>();
 
-			if (Random::randomNumber() < RAND_MAX * parameters.mutationProbability && (int) bad_pop->size() > 0) {
+			if (Random::randomNumber() < ((float) RAND_MAX * parameters.mutationProbability) && (int) bad_pop->size() > 0) {
 				iterProb = Problem::selectRandomSolution(bad_pop);
 				temp->first = *iterProb;
 			} else {
@@ -135,7 +135,7 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 				pop->erase(iterProb);
 			}
 
-			if (Random::randomNumber() < RAND_MAX * parameters.mutationProbability && (int) bad_pop->size() > 0) {
+			if (Random::randomNumber() < ((float) RAND_MAX * parameters.mutationProbability) && (int) bad_pop->size() > 0) {
 				iterProb = Problem::selectRandomSolution(bad_pop);
 				temp->second = *iterProb;
 			} else {
@@ -158,13 +158,13 @@ vector<Problem*>* GeneticAlgorithm::exec(vector<Problem*> *pop, HeuristicExecuti
 				temp = (*iterParProb)->first->crossOver((*iterParProb)->second, strengthCrossOver);
 			}
 
-			if (Random::randomNumber() < (RAND_MAX * parameters.mutationProbability / 2)) {
+			if (Random::randomNumber() < ((float) RAND_MAX * parameters.mutationProbability / 2)) {
 				mutante = temp->first->mutation(Random::randomNumber(1, (int) (((float) 100) * parameters.mutationProbability)));
 				delete temp->first;
 				temp->first = mutante;
 			}
 
-			if (Random::randomNumber() < (RAND_MAX * parameters.mutationProbability / 2)) {
+			if (Random::randomNumber() < ((float) RAND_MAX * parameters.mutationProbability / 2)) {
 				mutante = temp->second->mutation(Random::randomNumber(1, (int) (((float) 100) * parameters.mutationProbability)));
 				delete temp->second;
 				temp->second = mutante;
