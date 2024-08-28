@@ -63,6 +63,8 @@ VALGRIND_COMMANDS = {"none": "{cmd}", "memcheck": "valgrind --tool=memcheck --le
 
 ALGORITHMS = ['BinPacking', 'FlowShop', 'GraphColoring', 'JobShop', 'KnapSack', 'TravellingSalesman']
 
+BUILD_BASE_KEYWORD = 'Base'
+
 BUILD_ALL_KEYWORD = 'All'
 
 BIN_EXT = ".exe" if PLATFORM.is_windows else ""
@@ -122,6 +124,10 @@ class BuildInfo():
     def delete_file(cls, file = DEFAULT_FILE):
         if os.path.isfile(file): os.remove(file)
 
+    @staticmethod
+    def generate_default_ninja_build_file():
+        ninja.generate_ninja_build_file(COMPILERS.default, LINKERS.default, ARCHIVERS.default, BUILDING_MODES.default)
+
 
 def normalize_choice(options, choice, default=None, preprocessor=lambda e: e.casefold()):
     return default if choice is None else next((opt for opt in options if preprocessor(choice) in preprocessor(opt)), default)
@@ -158,7 +164,7 @@ def clean(config, tool, extra_args):
 
     tool = normalize_choice(BUILDERS.tools, tool, BUILDERS.default, lambda e: e.casefold())
 
-    config.build_info.generate_ninja_build_file()
+    config.build_info.generate_ninja_build_file() if config.build_info is not None else BuildInfo.generate_default_ninja_build_file()
 
 
     def __compose_command_line():
@@ -170,8 +176,10 @@ def clean(config, tool, extra_args):
 
         return command_line
 
-    def __clean_ateams(cmd, change_to_root_folder=True):
+    def __clean_ateams(cmd, change_to_root_folder=True, delete_build_info=True):
         if change_to_root_folder: os.chdir(ROOT_FOLDER)
+
+        if delete_build_info: BuildInfo.delete_file()
 
         return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=1, number=1)[0]
 
@@ -181,8 +189,6 @@ def clean(config, tool, extra_args):
     command_line = __compose_command_line()
 
     if config.verbose: click.echo(f"\n*** Command: '{command_line}' ***\n")
-
-    BuildInfo.delete_file()
 
     if config.execute:
         timer = __clean_ateams(command_line)
@@ -198,7 +204,7 @@ def clean(config, tool, extra_args):
 @choice_option('-l', '--linker', type=click.Choice(LINKERS.linkers, case_sensitive=False), required=True, default=LINKERS.default, prompt="Linker", help='Linker')
 @choice_option('-x', '--archiver', type=click.Choice(ARCHIVERS.archivers, case_sensitive=False), required=True, default=ARCHIVERS.default, prompt="Archiver", help='Archiver')
 @choice_option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, prompt="Building Mode", help='Building Mode')
-@choice_option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default=BUILD_ALL_KEYWORD, prompt="Algorithm", help='Algorithm')
+@choice_option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD, BUILD_BASE_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default=BUILD_ALL_KEYWORD, prompt="Algorithm", help='Algorithm')
 @confirm_option('--rebuild', type=click.BOOL, prompt="Rebuild", help='Force A Rebuild Of The Entire Project')
 @confirm_option('--cache', '--ccache', type=click.BOOL, prompt="Cache", help='Use Cache')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
@@ -211,7 +217,7 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
     linker = normalize_choice(LINKERS.linkers, linker, LINKERS.default, lambda e: e.casefold())
     archiver = normalize_choice(ARCHIVERS.archivers, archiver, ARCHIVERS.default, lambda e: e.casefold())
     mode = normalize_choice(BUILDING_MODES.modes, mode, BUILDING_MODES.default, lambda e: e.casefold())
-    algorithm = normalize_choice([BUILD_ALL_KEYWORD] + ALGORITHMS, algorithm, None, lambda e: e.casefold())
+    algorithm = normalize_choice([BUILD_ALL_KEYWORD, BUILD_BASE_KEYWORD] + ALGORITHMS, algorithm, None, lambda e: e.casefold())
 
     if cache: compiler = f"{COMPILER_CACHE_SYSTEM} {compiler}"
 
