@@ -5,6 +5,7 @@ import dataclasses
 import collections
 import subprocess
 import pathlib
+import shutil
 import pickle
 import signal
 import timeit
@@ -43,7 +44,7 @@ LAST_BUILD_INFO_FILE = os.path.basename(f"{ROOT_FOLDER}{PATH_SEPARATOR}.build_in
 
 MULTITHREADING_BUILDING_ENABLED = True
 
-BUILDERS = collections.namedtuple('Builders', ['tools', 'default'])(builders := ["make", "remake", "colormake", "colormake-short", "ninja", "samu"], default := builders[0])
+BUILDERS = collections.namedtuple('Builders', ['builders', 'default'])(builders := ["make", "remake", "colormake", "colormake-short", "ninja", "samu"], default := builders[0])
 
 COMPILERS = collections.namedtuple('Compilers', ['compilers', 'default'])(compilers := ["g++", "clang++"], default := compilers[0])
 
@@ -156,13 +157,13 @@ def ateams(ctx, execute, verbose, clear, pause):
 
 
 @ateams.command(context_settings=CLICK_CONTEXT_SETTINGS)
-@choice_option('-t', '--tool', type=click.Choice(BUILDERS.tools, case_sensitive=False), required=True, default=BUILDERS.default, prompt="Building Tool", help='Building Tool')
+@choice_option('-t', '--tool', type=click.Choice(BUILDERS.builders, case_sensitive=False), required=True, default=BUILDERS.default, prompt="Building Tool", help='Building Tool')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
 def clean(config, tool, extra_args):
     """A Wrapper For Cleaning Previously Builded Files"""
 
-    tool = normalize_choice(BUILDERS.tools, tool, BUILDERS.default, lambda e: e.casefold())
+    tool = normalize_choice(BUILDERS.builders, tool, BUILDERS.default, lambda e: e.casefold())
 
     config.build_info.generate_ninja_build_file() if config.build_info is not None else BuildInfo.generate_default_ninja_build_file()
 
@@ -199,7 +200,7 @@ def clean(config, tool, extra_args):
 
 
 @ateams.command(context_settings=CLICK_CONTEXT_SETTINGS)
-@choice_option('-t', '--tool', type=click.Choice(BUILDERS.tools, case_sensitive=False), required=True, default=BUILDERS.default, prompt="Building Tool", help='Building Tool')
+@choice_option('-t', '--tool', type=click.Choice(BUILDERS.builders, case_sensitive=False), required=True, default=BUILDERS.default, prompt="Building Tool", help='Building Tool')
 @choice_option('-c', '--compiler', type=click.Choice(COMPILERS.compilers, case_sensitive=False), required=True, default=COMPILERS.default, prompt="Compiler", help='Compiler')
 @choice_option('-l', '--linker', type=click.Choice(LINKERS.linkers, case_sensitive=False), required=True, default=LINKERS.default, prompt="Linker", help='Linker')
 @choice_option('-x', '--archiver', type=click.Choice(ARCHIVERS.archivers, case_sensitive=False), required=True, default=ARCHIVERS.default, prompt="Archiver", help='Archiver')
@@ -212,7 +213,7 @@ def clean(config, tool, extra_args):
 def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, cache, extra_args):
     """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
 
-    tool = normalize_choice(BUILDERS.tools, tool, BUILDERS.default, lambda e: e.casefold())
+    tool = normalize_choice(BUILDERS.builders, tool, BUILDERS.default, lambda e: e.casefold())
     compiler = normalize_choice(COMPILERS.compilers, compiler, COMPILERS.default, lambda e: e.casefold())
     linker = normalize_choice(LINKERS.linkers, linker, LINKERS.default, lambda e: e.casefold())
     archiver = normalize_choice(ARCHIVERS.archivers, archiver, ARCHIVERS.default, lambda e: e.casefold())
