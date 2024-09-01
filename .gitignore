@@ -24,8 +24,16 @@
 
 # Executables
 *.exe
-*.out
 *.app
+*.out
+
+# Profilers
+*.gprof
+*.data
+
+# Temporary files
+*.old
+*.bak
 
 # Temporary execution files
 *.res

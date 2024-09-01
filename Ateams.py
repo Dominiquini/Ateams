@@ -58,7 +58,7 @@ COMPILER_CACHE_SYSTEM = 'ccache'
 
 GDB_COMMAND = "gdb --args {cmd}"
 
-GPROF_COMMAND = "{cmd} && gprof {bin} gmon.out > profile.txt"
+PROFILE_COMMANDS = {"none": "{cmd}", "gprof": "{cmd} && gprof {bin} gmon.out > profile.gprof", "perf": "perf record --call-graph dwarf --quiet {bin} -- {args}"}
 
 VALGRIND_COMMANDS = {"none": "{cmd}", "memcheck": "valgrind --tool=memcheck --leak-check=full -s {cmd}", "callgrind": "valgrind --tool=callgrind -s {cmd}", "cachegrind": "valgrind --tool=cachegrind -s {cmd}", "helgrind": "valgrind --tool=helgrind -s {cmd}", "drd": "valgrind --tool=drd -s {cmd}"}
 
@@ -281,7 +281,7 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
 @click.option('--executor/--threads', default=True, help='Executor or Threads')
 @click.option('--repeat', type=click.INT, default=1, help='Repeat N Times')
 @click.option('--debug', type=click.BOOL, is_flag=True, help='Run With GDB')
-@click.option('--profile', type=click.BOOL, is_flag=True, help='Run With GPROF')
+@click.option('--profile', type=click.Choice(PROFILE_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With GPROF or PERF')
 @click.option('--valgrind', type=click.Choice(VALGRIND_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With VALGRIND')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
@@ -301,11 +301,11 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
     if population: os.makedirs(os.path.dirname(population) or '.', exist_ok=True)
 
 
-    def __apply_execution_modifiers(cmd, bin):
+    def __apply_execution_modifiers(cmd, bin, args):
         if sum(1 for mode in [debug, profile, valgrind] if mode) > 1: raise Exception("Don't Use GDB, VALGRIND and GPROF At Same Time!")
-        if debug: cmd = GDB_COMMAND.format(cmd=cmd)
-        if profile: cmd = GPROF_COMMAND.format(cmd=cmd, bin=bin)
-        if valgrind: cmd = VALGRIND_COMMANDS[valgrind].format(cmd=cmd)
+        if debug: cmd = GDB_COMMAND.format(cmd=cmd, bin=bin, args=args)
+        if profile: cmd = PROFILE_COMMANDS[profile].format(cmd=cmd, bin=bin, args=args)
+        if valgrind: cmd = VALGRIND_COMMANDS[valgrind].format(cmd=cmd, bin=bin, args=args)
 
         return cmd
 
@@ -330,7 +330,7 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
 
         for arg in extra_args: command_line += f" {arg}"
 
-        command_line = __apply_execution_modifiers(command_line, FILE_BINS[algorithm])
+        command_line = __apply_execution_modifiers(command_line, FILE_BINS[algorithm], command_line.replace(FILE_BINS[algorithm], ''))
 
         return command_line
 

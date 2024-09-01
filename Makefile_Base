@@ -97,7 +97,7 @@ BUILD_STAT_BIN_FILE	= .build_info
 NINJA_BUILD_FILE	= build.ninja
 NINJA_OUTPUTS_FILE	= .ninja_deps .ninja_log
 
-PROFILE_OUTPUT_FILE	= gmon.out
+PROFILE_OUTPUT_FILE	= gmon.out profile.gprof perf.data
 
 
 MKDIR	= mkdir -p
