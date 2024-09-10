@@ -5,11 +5,11 @@ CC = g++
 AR = ar
 
 
-CXXFLAGS 	= -std=c++17 -pthread -march=native -mtune=native -fdiagnostics-color=always
+CXXFLAGS 	= -std=c++17 -pthread -march=native -mtune=native -fno-pie -fdiagnostics-color=always
 ifeq ($(DEBUG), true)
-  CXXFLAGS  += -O0 -g3 -no-pie
+  CXXFLAGS  += -O0 -g3
 else ifeq ($(PROFILE), true)
-  CXXFLAGS	+= -O0 -g3 -pg -no-pie
+  CXXFLAGS	+= -O0 -g3 -pg
 else
   CXXFLAGS	+= -O3 -ffast-math
 endif
@@ -18,7 +18,7 @@ endif
 C_DEPS 		= -MMD -MF $(@:$(OBJ_EXT)=$(DEPS_EXT))
 
 
-LDFLAGS		= -static-libgcc -static-libstdc++
+LDFLAGS		= -static-libgcc -static-libstdc++ -no-pie
 ifeq ($(OS), Windows_NT)
   LDFLAGS	+= -lopengl32 -lGLU32 -lfreeglut
 else
