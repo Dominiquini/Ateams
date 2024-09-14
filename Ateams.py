@@ -58,7 +58,7 @@ COMPILER_CACHE_SYSTEM = 'ccache'
 
 GDB_COMMAND = "gdb --args {cmd}"
 
-PROFILE_COMMANDS = {"none": "{cmd}", "gprof": "{cmd} && gprof {bin} gmon.out > profile.gprof", "perf": "perf record --call-graph dwarf --quiet {bin} -- {args}"}
+PROFILE_COMMANDS = {"none": "{cmd}", "gprof": "{cmd} && gprof {bin} gmon.out > profile.gprof", "perf": "perf record --call-graph dwarf --quiet {bin} -- {args}", "strace": "strace -fttTyyy -s 1024 -o strace.log {bin} -- {args} "}
 
 VALGRIND_COMMANDS = {"none": "{cmd}", "memcheck": "valgrind --tool=memcheck --leak-check=full -s {cmd}", "callgrind": "valgrind --tool=callgrind -s {cmd}", "cachegrind": "valgrind --tool=cachegrind -s {cmd}", "helgrind": "valgrind --tool=helgrind -s {cmd}", "drd": "valgrind --tool=drd -s {cmd}"}
 
@@ -281,7 +281,7 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
 @click.option('--executor/--threads', default=True, help='Executor or Threads')
 @click.option('--repeat', type=click.INT, default=1, help='Repeat N Times')
 @click.option('--debug', type=click.BOOL, is_flag=True, help='Run With GDB')
-@click.option('--profile', type=click.Choice(PROFILE_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With GPROF or PERF')
+@click.option('--profile', type=click.Choice(PROFILE_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With GPROF, PERF or STRACE')
 @click.option('--valgrind', type=click.Choice(VALGRIND_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With VALGRIND')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
