@@ -23,15 +23,9 @@ except ImportError:
     import click
 
 try:
-    from click_prompt import choice_option
-    from click_prompt import confirm_option
-    from click_prompt import filepath_option
-    from click_prompt import auto_complete_option
+    from click_prompt import choice_option, confirm_option, filepath_option, auto_complete_option
 except ImportError:
-    choice_option = click.option
-    confirm_option = click.option
-    filepath_option = click.option
-    auto_complete_option = click.option
+    choice_option = confirm_option = filepath_option = auto_complete_option = click.option
 
 
 PLATFORM = collections.namedtuple('PlatformInfo', ['windows_key', 'linux_key', 'is_windows', 'is_linux', 'system'])(windows_key := "WINDOWS", linux_key := "LINUX", is_windows := sys.platform == 'win32', is_linux := not is_windows, system := windows_key if is_windows else linux_key)
@@ -238,7 +232,7 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
 
         command_line += f" {algorithm}"
 
-        command_line += f" CC='{compiler}' LINKER='{linker}' {mode}='true'" if "make" in tool else ""
+        command_line += f" CC='{compiler}' LK='{linker}' AR='{archiver}' {mode}='true'" if "make" in tool else ""
 
         for arg in extra_args: command_line += f" {arg}"
 

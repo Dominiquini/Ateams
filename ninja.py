@@ -34,7 +34,7 @@ ARCHIVER = 'ar'
 
 BUILDING_MODE = "RELEASE"
 
-CXX_GLOBAL_FLAGS = "-std=c++17 -pthread -march=native -mtune=native -fno-pie -fdiagnostics-color=always"
+CXX_GLOBAL_FLAGS = "-std=c++20 -pthread -march=native -mtune=native -fno-pie -fdiagnostics-color=always"
 
 CXX_FLAGS = {"RELEASE": f"{CXX_GLOBAL_FLAGS} -O3 -ffast-math", "DEBUG": f"{CXX_GLOBAL_FLAGS} -O0 -g3", "PROFILE": f"{CXX_GLOBAL_FLAGS} -O0 -g3 -pg"}
 
