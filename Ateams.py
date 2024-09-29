@@ -46,7 +46,7 @@ LINKERS = collections.namedtuple('Linkers', ['linkers', 'default'])(linkers := [
 
 ARCHIVERS = collections.namedtuple('Archivers', ['archivers', 'default'])(archivers := ["ar", "llvm-ar"], default := archivers[0])
 
-BUILDING_MODES = collections.namedtuple('BuildModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
+BUILDING_MODES = collections.namedtuple('BuildingModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
 
 COMPILER_CACHE_SYSTEM = 'ccache'
 
@@ -57,6 +57,8 @@ PROFILE_COMMANDS = {"none": "{cmd}", "gprof": "{cmd} && gprof {bin} gmon.out > p
 VALGRIND_COMMANDS = {"none": "{cmd}", "memcheck": "valgrind --tool=memcheck --leak-check=full -s {cmd}", "callgrind": "valgrind --tool=callgrind -s {cmd}", "cachegrind": "valgrind --tool=cachegrind -s {cmd}", "helgrind": "valgrind --tool=helgrind -s {cmd}", "drd": "valgrind --tool=drd -s {cmd}"}
 
 ALGORITHMS = ['BinPacking', 'FlowShop', 'GraphColoring', 'JobShop', 'KnapSack', 'TravellingSalesman']
+
+MULTITHREADING_MODE = collections.namedtuple('MultithreadingModes', ['modes', 'default'])(modes := ["EXECUTOR", "THREADS"], default := modes[0])
 
 BUILD_BASE_KEYWORD = 'Base'
 
@@ -200,8 +202,8 @@ def clean(config, tool, extra_args):
 @choice_option('-x', '--archiver', type=click.Choice(ARCHIVERS.archivers, case_sensitive=False), required=True, default=ARCHIVERS.default, prompt="Archiver", help='Archiver')
 @choice_option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, prompt="Building Mode", help='Building Mode')
 @choice_option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD, BUILD_BASE_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default=BUILD_ALL_KEYWORD, prompt="Algorithm", help='Algorithm')
-@confirm_option('--rebuild', type=click.BOOL, prompt="Rebuild", help='Force A Rebuild Of The Entire Project')
-@confirm_option('--cache', '--ccache', type=click.BOOL, prompt="Cache", help='Use Cache')
+@confirm_option('--rebuild/--no-rebuild', type=click.BOOL, default=False, prompt="Rebuild", help='Force A Rebuild Of The Entire Project')
+@confirm_option('--cache/--no-cache', type=click.BOOL, default=False, prompt="Cache", help='Use Cache')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
 def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, cache, extra_args):
@@ -269,17 +271,17 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
 @filepath_option('-o', '--result', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, default='', prompt="Output Result", help='Output Result File')
 @filepath_option('-d', '--population', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, default='', prompt="Output Population", help='Population File')
 @choice_option('-c', '--show-cmd-info', type=click.Choice([str(c) for c in range(0, 6)]), required=False, default='0', prompt="Prompt Overview", help='Show Prompt Overview')
-@confirm_option('-g', '--show-graphical-info', type=click.BOOL, default=False, prompt="Graphical Overview", help='Show Graphical Overview')
-@confirm_option('-s', '--show-solution', type=click.BOOL, default=False, prompt="Show Solution", help='Show Solution')
-@confirm_option('--force-output', type=click.BOOL, default=False, prompt="Write Default Output Files", help='Force Write Output Files (Result and Population)')
-@click.option('--executor/--threads', default=True, help='Executor or Threads')
-@click.option('--repeat', type=click.INT, default=1, help='Repeat N Times')
-@click.option('--debug', type=click.BOOL, is_flag=True, help='Run With GDB')
+@confirm_option('-g', '--show-graphical-info/--hide-graphical-info', type=click.BOOL, required=False, default=False, prompt="Graphical Overview", help='Show Graphical Overview')
+@confirm_option('-s', '--show-solution/--hide-solution', type=click.BOOL, required=False, default=False, prompt="Show Solution", help='Show Solution')
+@confirm_option('-f', '--force-output/--ignore-output', type=click.BOOL, required=False, default=False, prompt="Write Default Output Files", help='Force Write Output Files (Result + Population)')
+@choice_option('-m', '--multithreading', type=click.Choice(MULTITHREADING_MODE.modes, case_sensitive=False), required=False, default=MULTITHREADING_MODE.default, prompt="Multithreading Policy", help='Multithreading Policy')
+@click.option('--repeat', type=click.INT, default=1, required=False, help='Repeat N Times')
+@click.option('--debug', type=click.BOOL, is_flag=True, default=False, required=False, help='Run With GDB')
 @click.option('--profile', type=click.Choice(PROFILE_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With GPROF, PERF or STRACE')
 @click.option('--valgrind', type=click.Choice(VALGRIND_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With VALGRIND')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def run(config, algorithm, parameters, input, result, population, show_cmd_info, show_graphical_info, show_solution, force_output, executor, repeat, debug, profile, valgrind, extra_args):
+def run(config, algorithm, parameters, input, result, population, show_cmd_info, show_graphical_info, show_solution, force_output, multithreading, repeat, debug, profile, valgrind, extra_args):
     """A Wrapper For Running ATEAMS Algorithms"""
 
     algorithm = normalize_choice(ALGORITHMS, algorithm, None, lambda e: e.casefold())
@@ -293,6 +295,8 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
 
     if result: os.makedirs(os.path.dirname(result) or '.', exist_ok=True)
     if population: os.makedirs(os.path.dirname(population) or '.', exist_ok=True)
+
+    multithreading = normalize_choice(MULTITHREADING_MODE.modes, multithreading, MULTITHREADING_MODE.default, lambda e: e.casefold())
 
 
     def __apply_execution_modifiers(cmd, bin, args):
@@ -320,7 +324,7 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
 
         if bool(show_solution): command_line += f" -s"
 
-        if not bool(executor): command_line += f" -t"
+        if multithreading != MULTITHREADING_MODE.default: command_line += f" -t"
 
         for arg in extra_args: command_line += f" {arg}"
 
