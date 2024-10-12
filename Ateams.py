@@ -9,6 +9,7 @@ import shutil
 import pickle
 import signal
 import timeit
+import shutil
 import glob
 import math
 import json
@@ -38,13 +39,13 @@ LAST_BUILD_INFO_FILE = os.path.basename(f"{ROOT_FOLDER}{PATH_SEPARATOR}.build_in
 
 MULTITHREADING_BUILDING_ENABLED = True
 
-BUILDERS = collections.namedtuple('Builders', ['builders', 'default'])(builders := ["make", "remake", "colormake", "colormake-short", "ninja", "samu"], default := builders[0])
+BUILDERS = collections.namedtuple('Builders', ['builders', 'default', 'binary'])(builders := ["make", "remake", "colormake", "colormake-short", "ninja", "samu"], default := builders[0], binary := lambda x : x)
 
-COMPILERS = collections.namedtuple('Compilers', ['compilers', 'default'])(compilers := ["g++", "clang++"], default := compilers[0])
+COMPILERS = collections.namedtuple('Compilers', ['compilers', 'default', 'binary'])(compilers := ["g++", "clang++"], default := compilers[0], binary := lambda x : x)
 
-LINKERS = collections.namedtuple('Linkers', ['linkers', 'default'])(linkers := ["ld", "bfd", "gold", "mold", "lld"], default := linkers[0])
+LINKERS = collections.namedtuple('Linkers', ['linkers', 'default', 'binary'])(linkers := ["ld", "bfd", "gold", "mold", "lld"], default := linkers[0], binary := lambda x : x if x == "ld" else "ld" + '.' + x)
 
-ARCHIVERS = collections.namedtuple('Archivers', ['archivers', 'default'])(archivers := ["ar", "llvm-ar"], default := archivers[0])
+ARCHIVERS = collections.namedtuple('Archivers', ['archivers', 'default', 'binary'])(archivers := ["ar", "llvm-ar"], default := archivers[0], binary := lambda x : x)
 
 BUILDING_MODES = collections.namedtuple('BuildingModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
 
@@ -126,6 +127,18 @@ class BuildInfo():
         ninja.generate_ninja_build_file(COMPILERS.default, LINKERS.default, ARCHIVERS.default, BUILDING_MODES.default)
 
 
+def check_binary(binary):
+    return shutil.which(binary) is not None
+
+
+def sanitize_options(**selectors):
+    for selector in selectors:
+        options = getattr(selectors[selector], selector)
+        binary = selectors[selector].binary
+
+        options[:] = list(filter(lambda bin: check_binary(binary(bin)), options))
+
+
 def normalize_choice(options, choice, default=None, preprocessor=lambda e: e.casefold()):
     return default if choice is None else next((opt for opt in options if preprocessor(choice) in preprocessor(opt)), default)
 
@@ -148,6 +161,8 @@ click.pass_config = click.make_pass_decorator(Config := collections.namedtuple('
 @click.pass_context
 def ateams(ctx, execute, verbose, clear, pause):
     """A Wrapper For Interacting With ATEAMS"""
+
+    sanitize_options(builders=BUILDERS, compilers=COMPILERS, linkers=LINKERS, archivers=ARCHIVERS)
 
     ctx.obj = Config(BuildInfo.load_from_file(), execute, verbose, clear, pause)
 
@@ -308,7 +323,9 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
         return cmd
 
     def __compose_command_line():
-        command_line = FILE_BINS[algorithm]
+        executable = FILE_BINS[algorithm]
+
+        command_line = executable
 
         if str(parameters): command_line += f" -p {parameters}"
 
