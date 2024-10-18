@@ -49,11 +49,11 @@ ARCHIVERS = collections.namedtuple('Archivers', ['archivers', 'default', 'binary
 
 BUILDING_MODES = collections.namedtuple('BuildingModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
 
-COMPILER_CACHE_SYSTEM = 'ccache'
+COMPILER_CACHE_SYSTEMS = {"ccache": "ccache {cmd}", "sccache": "sccache {cmd}", "buildcache": "buildcache {cmd}"}
 
-GDB_COMMAND = "gdb --args {cmd}"
+DEBUGGER_COMMANDS = {"none": "{cmd}", "gdb": "gdb --args {cmd}"}
 
-PROFILE_COMMANDS = {"none": "{cmd}", "gprof": "{cmd} && gprof {bin} gmon.out > profile.gprof", "perf": "perf record --call-graph dwarf --quiet {bin} -- {args}", "strace": "strace -fttTyyy -s 1024 -o strace.log {bin} -- {args} "}
+PROFILER_COMMANDS = {"none": "{cmd}", "gprof": "{cmd} && gprof {bin} gmon.out > profile.gprof", "perf": "perf record --call-graph dwarf --quiet {bin} -- {args}", "strace": "strace -fttTyyy -s 1024 -o strace.log {bin} -- {args} "}
 
 VALGRIND_COMMANDS = {"none": "{cmd}", "memcheck": "valgrind --tool=memcheck --leak-check=full -s {cmd}", "callgrind": "valgrind --tool=callgrind -s {cmd}", "cachegrind": "valgrind --tool=cachegrind -s {cmd}", "helgrind": "valgrind --tool=helgrind -s {cmd}", "drd": "valgrind --tool=drd -s {cmd}"}
 
@@ -218,10 +218,11 @@ def clean(config, tool, extra_args):
 @choice_option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, prompt="Building Mode", help='Building Mode')
 @choice_option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD, BUILD_BASE_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default=BUILD_ALL_KEYWORD, prompt="Algorithm", help='Algorithm')
 @confirm_option('--rebuild/--no-rebuild', type=click.BOOL, default=False, prompt="Rebuild", help='Force A Rebuild Of The Entire Project')
-@confirm_option('--cache/--no-cache', type=click.BOOL, default=False, prompt="Cache", help='Use Cache')
+@confirm_option('--cache/--no-cache', type=click.BOOL, default=False, prompt="Cache", help='Use A Compiler Cache')
+@click.option('--cache-system', type=click.Choice(COMPILER_CACHE_SYSTEMS.keys(), case_sensitive=False), required=False, default=next(iter(COMPILER_CACHE_SYSTEMS)), help='Compiler Cache System')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, cache, extra_args):
+def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, cache, cache_system, extra_args):
     """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
 
     tool = normalize_choice(BUILDERS.builders, tool, BUILDERS.default, lambda e: e.casefold())
@@ -231,7 +232,7 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
     mode = normalize_choice(BUILDING_MODES.modes, mode, BUILDING_MODES.default, lambda e: e.casefold())
     algorithm = normalize_choice([BUILD_ALL_KEYWORD, BUILD_BASE_KEYWORD] + ALGORITHMS, algorithm, None, lambda e: e.casefold())
 
-    if cache: compiler = f"{COMPILER_CACHE_SYSTEM} {compiler}"
+    if cache: compiler = COMPILER_CACHE_SYSTEMS[cache_system].format(cmd=compiler)
 
     current_build = BuildInfo(builder=tool, compiler=compiler, linker=linker, archiver=archiver, mode=mode)
     current_build.generate_ninja_build_file()
@@ -291,12 +292,12 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
 @confirm_option('-f', '--force-output/--ignore-output', type=click.BOOL, required=False, default=False, prompt="Write Default Output Files", help='Force Write Output Files (Result + Population)')
 @choice_option('-m', '--multithreading', type=click.Choice(MULTITHREADING_MODE.modes, case_sensitive=False), required=False, default=MULTITHREADING_MODE.default, prompt="Multithreading Policy", help='Multithreading Policy')
 @click.option('--repeat', type=click.INT, default=1, required=False, help='Repeat N Times')
-@click.option('--debug', type=click.BOOL, is_flag=True, default=False, required=False, help='Run With GDB')
-@click.option('--profile', type=click.Choice(PROFILE_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With GPROF, PERF or STRACE')
+@click.option('--debugger', type=click.Choice(DEBUGGER_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With GDB')
+@click.option('--profiler', type=click.Choice(PROFILER_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With GPROF, PERF or STRACE')
 @click.option('--valgrind', type=click.Choice(VALGRIND_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With VALGRIND')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def run(config, algorithm, parameters, input, result, population, show_cmd_info, show_graphical_info, show_solution, force_output, multithreading, repeat, debug, profile, valgrind, extra_args):
+def run(config, algorithm, parameters, input, result, population, show_cmd_info, show_graphical_info, show_solution, force_output, multithreading, repeat, debugger, profiler, valgrind, extra_args):
     """A Wrapper For Running ATEAMS Algorithms"""
 
     algorithm = normalize_choice(ALGORITHMS, algorithm, None, lambda e: e.casefold())
@@ -315,9 +316,9 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
 
 
     def __apply_execution_modifiers(cmd, bin, args):
-        if sum(1 for mode in [debug, profile, valgrind] if mode) > 1: raise Exception("Don't Use GDB, VALGRIND and GPROF At Same Time!")
-        if debug: cmd = GDB_COMMAND.format(cmd=cmd, bin=bin, args=args)
-        if profile: cmd = PROFILE_COMMANDS[profile].format(cmd=cmd, bin=bin, args=args)
+        if sum(1 for mode in [debugger, profiler, valgrind] if mode) > 1: raise Exception("Don't Use Multiple Tools At Same Time!")
+        if debugger: cmd = DEBUGGER_COMMANDS[debugger].format(cmd=cmd, bin=bin, args=args)
+        if profiler: cmd = PROFILER_COMMANDS[profiler].format(cmd=cmd, bin=bin, args=args)
         if valgrind: cmd = VALGRIND_COMMANDS[valgrind].format(cmd=cmd, bin=bin, args=args)
 
         return cmd
