@@ -51,7 +51,7 @@ BUILDING_MODES = collections.namedtuple('BuildingModes', ['modes', 'default'])(m
 
 COMPILER_CACHE_SYSTEMS = {"ccache": "ccache {cmd}", "sccache": "sccache {cmd}", "buildcache": "buildcache {cmd}"}
 
-DEBUGGER_COMMANDS = {"none": "{cmd}", "gdb": "gdb --args {cmd}"}
+DEBUGGER_COMMANDS = {"none": "{cmd}", "gdb": "gdb --args {cmd}", "lldb": "lldb -- {cmd}"}
 
 PROFILER_COMMANDS = {"none": "{cmd}", "gprof": "{cmd} && gprof {bin} gmon.out > profile.gprof", "perf": "perf record --call-graph dwarf --quiet {bin} -- {args}", "strace": "strace -fttTyyy -s 1024 -o strace.log {bin} -- {args} "}
 
