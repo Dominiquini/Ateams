@@ -87,44 +87,8 @@ PATH_INPUTS = {A: f"{A}{PATH_SEPARATOR}inputs{PATH_SEPARATOR}" for A in ALGORITH
 FILE_INPUTS = {A: glob.glob(f"{PATH_INPUTS[A]}*.prb") for A in PATH_INPUTS}
 PATH_DEFAULT_INPUTS = f"Ateams_Base{PATH_SEPARATOR}inputs{PATH_SEPARATOR}"
 FILE_DEFAULT_INPUTS = {A: f"{PATH_DEFAULT_INPUTS}{A}.prb" for A in ALGORITHMS}
+FILE_DEFAULT_INPUT_LINK = f"{PATH_DEFAULT_INPUTS}Ateams.lnk"
 PATH_DEFAULT_OUTPUTS = {A: f"{A}{PATH_SEPARATOR}results{PATH_SEPARATOR}" for A in ALGORITHMS}
-
-
-@dataclasses.dataclass(order=True)
-class BuildInfo():
-
-    DEFAULT_FILE = ROOT_FOLDER + PATH_SEPARATOR + LAST_BUILD_INFO_FILE
-
-    platform: str = PLATFORM.system
-    builder: str = None
-    compiler: str = None
-    linker: str = None
-    archiver: str = None
-    mode: str = None
-
-    def generate_ninja_build_file(self):
-        ninja.generate_ninja_build_file(self.compiler, self.linker, self.archiver, self.mode)
-
-    def write_on_file(self, file = DEFAULT_FILE):
-        with open(file, 'w') as info_file:
-            json.dump(dataclasses.asdict(self), info_file, indent = 4)
-
-        return self
-
-    @classmethod
-    def load_from_file(cls, file = DEFAULT_FILE):
-        if not os.path.isfile(file):
-            return None
-        else:
-            with open(file, 'r') as info_file: return BuildInfo(**json.load(info_file))
-
-    @classmethod
-    def delete_file(cls, file = DEFAULT_FILE):
-        if os.path.isfile(file): os.remove(file)
-
-    @staticmethod
-    def generate_default_ninja_build_file():
-        ninja.generate_ninja_build_file(COMPILERS.default, LINKERS.default, ARCHIVERS.default, BUILDING_MODES.default)
 
 
 def check_binary(binary):
@@ -143,9 +107,58 @@ def normalize_choice(options, choice, default=None, preprocessor=lambda e: e.cas
     return default if choice is None else next((opt for opt in options if preprocessor(choice) in preprocessor(opt)), default)
 
 
+def create_input_link(algorithm=None):
+    input = pathlib.Path(FILE_DEFAULT_INPUTS.get(algorithm, FILE_DEFAULT_INPUT_LINK))
+    input_link = pathlib.Path(FILE_DEFAULT_INPUT_LINK)
+
+    input_link.unlink(missing_ok=True)
+
+    if algorithm is not None:
+        input_link.symlink_to(target=input.relative_to(input_link.parent))
+    else:
+        input_link.touch(exist_ok=True)
+
+
 def truncate_number(number, decimals=0):
     factor = 10.0 ** decimals
     return math.trunc(number) if decimals <= 0 else math.trunc(number * factor) / factor
+
+
+@dataclasses.dataclass(order=True)
+class BuildInfo():
+
+    DEFAULT_FILE = ROOT_FOLDER + PATH_SEPARATOR + LAST_BUILD_INFO_FILE
+
+    platform: str = PLATFORM.system
+    builder: str = None
+    compiler: str = None
+    linker: str = None
+    archiver: str = None
+    mode: str = None
+
+    def generate_ninja_build_file(self):
+        ninja.generate_ninja_build_file(self.compiler, self.linker, self.archiver, self.mode)
+
+    def write_on_file(self, file=DEFAULT_FILE):
+        with open(file, 'w') as info_file:
+            json.dump(dataclasses.asdict(self), info_file, indent=4)
+
+        return self
+
+    @classmethod
+    def load_from_file(cls, file=DEFAULT_FILE):
+        if not os.path.isfile(file):
+            return None
+        else:
+            with open(file, 'r') as info_file: return BuildInfo(**json.load(info_file))
+
+    @classmethod
+    def delete_file(cls, file=DEFAULT_FILE):
+        if os.path.isfile(file): os.remove(file)
+
+    @staticmethod
+    def generate_default_ninja_build_file():
+        ninja.generate_ninja_build_file(COMPILERS.default, LINKERS.default, ARCHIVERS.default, BUILDING_MODES.default)
 
 
 CLICK_CONTEXT_SETTINGS = dict(ignore_unknown_options=True, help_option_names=['-h', '--help'])
@@ -153,18 +166,20 @@ CLICK_CONTEXT_SETTINGS = dict(ignore_unknown_options=True, help_option_names=['-
 click.pass_config = click.make_pass_decorator(Config := collections.namedtuple('LauncherConfig', ['build_info', 'execute', 'verbose', 'clear', 'pause']))
 
 
-@click.group(context_settings=CLICK_CONTEXT_SETTINGS)
+@click.group(context_settings=CLICK_CONTEXT_SETTINGS, no_args_is_help=True)
 @click.option('--execute/--no-execute', default=True, help='Execute Selected Command')
 @click.option('--verbose/--no-verbose', default=True, help='Print Execution Info')
 @click.option('--clear/--no-clear', default=False, help='Clear Terminal')
 @click.option('--pause/--no-pause', default=False, help='Pause Terminal')
 @click.pass_context
-def ateams(ctx, execute, verbose, clear, pause):
+def ateams(context, execute, verbose, clear, pause):
     """A Wrapper For Interacting With ATEAMS"""
+
+    create_input_link()
 
     sanitize_options(builders=BUILDERS, compilers=COMPILERS, linkers=LINKERS, archivers=ARCHIVERS)
 
-    ctx.obj = Config(BuildInfo.load_from_file(), execute, verbose, clear, pause)
+    context.obj = Config(build_info=BuildInfo.load_from_file(), execute=execute, verbose=verbose, clear=clear, pause=pause)
 
 
 @ateams.command(context_settings=CLICK_CONTEXT_SETTINGS)
@@ -178,6 +193,7 @@ def clean(config, tool, extra_args):
 
     config.build_info.generate_ninja_build_file() if config.build_info is not None else BuildInfo.generate_default_ninja_build_file()
 
+    create_input_link()
 
     def __compose_command_line():
         command_line = tool
@@ -237,6 +253,7 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
     current_build = BuildInfo(builder=tool, compiler=compiler, linker=linker, archiver=archiver, mode=mode)
     current_build.generate_ninja_build_file()
  
+    create_input_link(algorithm)
  
     def __update_timestamps_if_needed(current_build):
         if rebuild or current_build != config.build_info:
@@ -283,7 +300,7 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
 @ateams.command(context_settings=CLICK_CONTEXT_SETTINGS)
 @choice_option('-a', '--algorithm', type=click.Choice(ALGORITHMS, case_sensitive=False), required=True, prompt="Algorithm:", help='Algorithm')
 @filepath_option('-p', '--parameters', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=True, default=FILE_DEFAULT_PARAM, prompt="Input Parameters", help='Input Parameters File')
-@filepath_option('-i', '--input', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=True, default=PATH_DEFAULT_INPUTS, prompt="Input Data", help='Input Data File')
+@filepath_option('-i', '--input', type=click.Path(exists=True, dir_okay=False, file_okay=True), required=True, default=FILE_DEFAULT_INPUT_LINK, prompt="Input Data", help='Input Data File')
 @filepath_option('-o', '--result', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, default='', prompt="Output Result", help='Output Result File')
 @filepath_option('-d', '--population', type=click.Path(exists=False, dir_okay=False, file_okay=True), required=False, default='', prompt="Output Population", help='Population File')
 @choice_option('-c', '--show-cmd-info', type=click.Choice([str(c) for c in range(0, 6)]), required=False, default='0', prompt="Prompt Overview", help='Show Prompt Overview')
@@ -303,7 +320,7 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
     algorithm = normalize_choice(ALGORITHMS, algorithm, None, lambda e: e.casefold())
 
     parameters = normalize_choice(FILE_PARAMS, parameters, FILE_DEFAULT_PARAM, lambda e: os.path.basename(e).casefold())
-    input = normalize_choice(FILE_INPUTS[algorithm], input, FILE_DEFAULT_INPUTS[algorithm], lambda e: os.path.basename(e).casefold())
+    input = normalize_choice([FILE_DEFAULT_INPUT_LINK, FILE_DEFAULT_INPUTS[algorithm]] + FILE_INPUTS[algorithm], input, FILE_DEFAULT_INPUTS[algorithm], lambda e: os.path.basename(e).casefold())
 
     if force_output:
         if not result: result = PATH_DEFAULT_OUTPUTS[algorithm] + pathlib.Path(input).with_suffix(".res").name
@@ -314,6 +331,7 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
 
     multithreading = normalize_choice(MULTITHREADING_MODE.modes, multithreading, MULTITHREADING_MODE.default, lambda e: e.casefold())
 
+    create_input_link(algorithm)
 
     def __apply_execution_modifiers(cmd, bin, args):
         if sum(1 for mode in [debugger, profiler, valgrind] if mode) > 1: raise Exception("Don't Use Multiple Tools At Same Time!")
@@ -372,7 +390,14 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
     if config.pause: click.prompt("\nPress ENTER To Exit ", prompt_suffix='', hide_input=True, show_choices=False, show_default=False, default='') ; click.echo("\n")
 
 
+@ateams.result_callback()
+def finish(result=None, **parameters):
+    click.echo(f"Finished: {result}")
+
+    create_input_link()
+
+
 if __name__ == '__main__':
-    for sig in [signal.SIGINT, signal.SIGTERM]: signal.signal(sig, lambda *_: None)
+    for sig in [signal.SIGINT, signal.SIGTERM]: signal.signal(sig, lambda *_: finish())
 
     ateams()
