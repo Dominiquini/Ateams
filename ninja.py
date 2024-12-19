@@ -36,7 +36,7 @@ BUILDING_MODE = "RELEASE"
 
 CXX_GLOBAL_FLAGS = "-std=c++20 -pthread -march=native -mtune=native -fno-pie -fdiagnostics-color=always"
 
-CXX_FLAGS = {"RELEASE": f"{CXX_GLOBAL_FLAGS} -O3 -ffast-math", "DEBUG": f"{CXX_GLOBAL_FLAGS} -O0 -g3 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer", "PROFILE": f"{CXX_GLOBAL_FLAGS} -O0 -g3 -pg -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer"}
+CXX_FLAGS = {"RELEASE": f"{CXX_GLOBAL_FLAGS} -O3 -flto=auto -ffast-math", "DEBUG": f"{CXX_GLOBAL_FLAGS} -O0 -fno-lto -g3 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer", "PROFILE": f"{CXX_GLOBAL_FLAGS} -O0 -fno-lto -g3 -pg -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer"}
 
 LD_GLOBAL_FLAGS = "-static-libgcc -static-libstdc++ -no-pie"
 
