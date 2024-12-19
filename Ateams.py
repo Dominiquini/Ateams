@@ -45,7 +45,7 @@ COMPILERS = collections.namedtuple('Compilers', ['compilers', 'default', 'binary
 
 LINKERS = collections.namedtuple('Linkers', ['linkers', 'default', 'binary'])(linkers := ["ld", "bfd", "gold", "mold", "lld"], default := linkers[0], binary := lambda x : x if x == "ld" else "ld" + '.' + x)
 
-ARCHIVERS = collections.namedtuple('Archivers', ['archivers', 'default', 'binary'])(archivers := ["ar", "llvm-ar"], default := archivers[0], binary := lambda x : x)
+ARCHIVERS = collections.namedtuple('Archivers', ['archivers', 'default', 'binary'])(archivers := ["ar", "gcc-ar", "llvm-ar"], default := archivers[0], binary := lambda x : x)
 
 BUILDING_MODES = collections.namedtuple('BuildingModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
 
