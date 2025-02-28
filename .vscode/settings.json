@@ -131,5 +131,6 @@
   "python.envFile": "${workspaceFolder}/.envrc",
   "python.globalModuleInstallation": true,
   "python.terminal.activateEnvironment": false,
-  "python.terminal.activateEnvInCurrentTerminal": true
+  "python.terminal.activateEnvInCurrentTerminal": false,
+  "python.analysis.autoImportCompletions": true
 }

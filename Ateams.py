@@ -57,6 +57,8 @@ PROFILER_COMMANDS = {"none": "{cmd}", "gprof": "{cmd} && gprof {bin} gmon.out > 
 
 VALGRIND_COMMANDS = {"none": "{cmd}", "memcheck": "valgrind --tool=memcheck --leak-check=full -s {cmd}", "callgrind": "valgrind --tool=callgrind -s {cmd}", "cachegrind": "valgrind --tool=cachegrind -s {cmd}", "helgrind": "valgrind --tool=helgrind -s {cmd}", "drd": "valgrind --tool=drd -s {cmd}"}
 
+ALLOC_OPTIONS = {"default": "{cmd}", "jemalloc": "LD_PRELOAD=/usr/lib/libjemalloc.so {cmd}", "mimalloc": "LD_PRELOAD=/usr/lib/libmimalloc.so {cmd}", "mimalloc": "LD_PRELOAD=/usr/lib/libmimalloc.so {cmd}", "snmalloc": "LD_PRELOAD=/usr/lib/libsnmallocshim.so {cmd}", "tcmalloc": "LD_PRELOAD=/usr/lib/libtcmalloc.so {cmd}"}
+
 ALGORITHMS = ['BinPacking', 'FlowShop', 'GraphColoring', 'JobShop', 'KnapSack', 'TravellingSalesman']
 
 MULTITHREADING_MODE = collections.namedtuple('MultithreadingModes', ['modes', 'default'])(modes := ["EXECUTOR", "THREADS"], default := modes[0])
@@ -312,9 +314,10 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
 @click.option('--debugger', type=click.Choice(DEBUGGER_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With GDB')
 @click.option('--profiler', type=click.Choice(PROFILER_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With GPROF, PERF or STRACE')
 @click.option('--valgrind', type=click.Choice(VALGRIND_COMMANDS.keys(), case_sensitive=False), required=False, help='Run With VALGRIND')
+@click.option('--allocator', type=click.Choice(ALLOC_OPTIONS.keys(), case_sensitive=False), required=False, help='Run With Custom Allocator')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def run(config, algorithm, parameters, input, result, population, show_cmd_info, show_graphical_info, show_solution, force_output, multithreading, repeat, debugger, profiler, valgrind, extra_args):
+def run(config, algorithm, parameters, input, result, population, show_cmd_info, show_graphical_info, show_solution, force_output, multithreading, repeat, debugger, profiler, valgrind, allocator, extra_args):
     """A Wrapper For Running ATEAMS Algorithms"""
 
     algorithm = normalize_choice(ALGORITHMS, algorithm, None, lambda e: e.casefold())
@@ -338,6 +341,11 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
         if debugger: cmd = DEBUGGER_COMMANDS[debugger].format(cmd=cmd, bin=bin, args=args)
         if profiler: cmd = PROFILER_COMMANDS[profiler].format(cmd=cmd, bin=bin, args=args)
         if valgrind: cmd = VALGRIND_COMMANDS[valgrind].format(cmd=cmd, bin=bin, args=args)
+
+        return cmd
+
+    def __run_with_custom_allocator(cmd):
+        if allocator: cmd = ALLOC_OPTIONS[allocator].format(cmd=cmd)
 
         return cmd
 
@@ -365,6 +373,7 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
         for arg in extra_args: command_line += f" {arg}"
 
         command_line = __apply_execution_modifiers(command_line, FILE_BINS[algorithm], command_line.replace(FILE_BINS[algorithm], ''))
+        command_line = __run_with_custom_allocator(command_line)
 
         return command_line
 
