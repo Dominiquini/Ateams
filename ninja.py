@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import collections
+from email.policy import default
 import glob
 import sys
 import os
@@ -34,15 +35,18 @@ ARCHIVER = 'ar'
 
 BUILDING_MODE = "RELEASE"
 
+STATIC_LINKING = False
+
 CXX_GLOBAL_FLAGS = "-std=c++20 -pthread -march=native -mtune=native -fno-pie -fdiagnostics-color=always"
 
 CXX_FLAGS = {"RELEASE": f"{CXX_GLOBAL_FLAGS} -O3 -flto=auto -ffast-math", "DEBUG": f"{CXX_GLOBAL_FLAGS} -O0 -fno-lto -g3 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer", "PROFILE": f"{CXX_GLOBAL_FLAGS} -O0 -fno-lto -g3 -pg -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer"}
 
-LD_GLOBAL_FLAGS = "-static-libgcc -static-libstdc++ -no-pie"
+LD_GLOBAL_FLAGS = "-no-pie"
 
 LD_FLAGS = {PLATFORM.windows_key: f"{LD_GLOBAL_FLAGS} -lopengl32 -lGLU32 -lfreeglut", PLATFORM.linux_key: f"{LD_GLOBAL_FLAGS} -lGL -lGLU -lglut"}
 
 LD_OPTIONAL_FLAGS_LINKER = "-fuse-ld={linker}"
+LD_OPTIONAL_FLAGS_STATIC = "-static-libgcc -static-libstdc++"
 
 AR_FLAGS = "-crs"
 
@@ -72,7 +76,7 @@ class NinjaFileWriter(ninja_syntax.Writer):
         super().close()
     
     @classmethod
-    def generate_ninja_build_file(cls, ninja_file, compiler, linker, archiver, mode):
+    def generate_ninja_build_file(cls, ninja_file, compiler, linker, archiver, mode, static):
         with NinjaFileWriter(ninja_file) as ninja:
             ninja.comment(f"PLATFORM: {PLATFORM.system}")
 
@@ -89,7 +93,7 @@ class NinjaFileWriter(ninja_syntax.Writer):
             ninja.newline()
 
             ninja.variable("CXXFLAGS", CXX_FLAGS[mode] if mode in CXX_FLAGS else CXX_GLOBAL_FLAGS)
-            ninja.variable("LDFLAGS", LD_FLAGS[PLATFORM.system] + (f" {LD_OPTIONAL_FLAGS_LINKER.format(linker=linker)}" if linker != LINKER else ""))
+            ninja.variable("LDFLAGS", LD_FLAGS[PLATFORM.system] + (f" {LD_OPTIONAL_FLAGS_LINKER.format(linker=linker)}" if linker != LINKER else "") + (f" {LD_OPTIONAL_FLAGS_STATIC}" if static else ""))
             ninja.variable("ARFLAGS", AR_FLAGS)
 
             ninja.newline()
@@ -164,13 +168,14 @@ CLICK_CONTEXT_SETTINGS = dict(ignore_unknown_options=True, help_option_names=['-
 @click.option('-l', '--linker', type=click.STRING, required=False, default=LINKER, prompt="Linker", help='Linker')
 @click.option('-a', '--archiver', type=click.STRING, required=False, default=ARCHIVER, prompt="Archiver", help='Archiver')
 @click.option('-m', '--mode', type=click.STRING, required=False, default=BUILDING_MODE, prompt="Building Mode", help='Building Mode')
-def ninja(compiler, linker, archiver, mode):
+@click.option('--static/--shared', type=click.BOOL, required=False, default=STATIC_LINKING, prompt="Static Linking", help='Static Or Shared Linking')
+def ninja(compiler, linker, archiver, mode, static):
     """Simple Program That Generates NINJA Build Files"""
 
-    generate_ninja_build_file(compiler, linker, archiver, mode)
+    generate_ninja_build_file(compiler, linker, archiver, mode, static)
 
-def generate_ninja_build_file(compiler = COMPILER, linker = LINKER, archiver = ARCHIVER, mode = BUILDING_MODE):
-    NinjaFileWriter.generate_ninja_build_file(ROOT_FOLDER + PATH_SEPARATOR + NINJA_BUILD_FILE, compiler, linker, archiver, mode)
+def generate_ninja_build_file(compiler = COMPILER, linker = LINKER, archiver = ARCHIVER, mode = BUILDING_MODE, static = STATIC_LINKING):
+    NinjaFileWriter.generate_ninja_build_file(ROOT_FOLDER + PATH_SEPARATOR + NINJA_BUILD_FILE, compiler, linker, archiver, mode, static)
 
 if __name__ == '__main__':
     ninja()

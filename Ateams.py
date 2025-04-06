@@ -49,6 +49,8 @@ ARCHIVERS = collections.namedtuple('Archivers', ['archivers', 'default', 'binary
 
 BUILDING_MODES = collections.namedtuple('BuildingModes', ['modes', 'default'])(modes := ["RELEASE", "DEBUG", "PROFILE"], default := modes[0])
 
+STATIC_LINKING_DEFAULT = False
+
 COMPILER_CACHE_SYSTEMS = {"ccache": "ccache {cmd}", "sccache": "sccache {cmd}", "buildcache": "buildcache {cmd}"}
 
 DEBUGGER_COMMANDS = {"none": "{cmd}", "gdb": "gdb --args {cmd}", "lldb": "lldb -- {cmd}"}
@@ -137,9 +139,10 @@ class BuildInfo():
     linker: str = None
     archiver: str = None
     mode: str = None
+    static: bool = STATIC_LINKING_DEFAULT
 
     def generate_ninja_build_file(self):
-        ninja.generate_ninja_build_file(self.compiler, self.linker, self.archiver, self.mode)
+        ninja.generate_ninja_build_file(self.compiler, self.linker, self.archiver, self.mode, self.static)
 
     def write_on_file(self, file=DEFAULT_FILE):
         with open(file, 'w') as info_file:
@@ -160,7 +163,7 @@ class BuildInfo():
 
     @staticmethod
     def generate_default_ninja_build_file():
-        ninja.generate_ninja_build_file(COMPILERS.default, LINKERS.default, ARCHIVERS.default, BUILDING_MODES.default)
+        ninja.generate_ninja_build_file(COMPILERS.default, LINKERS.default, ARCHIVERS.default, BUILDING_MODES.default, STATIC_LINKING_DEFAULT)
 
 
 CLICK_CONTEXT_SETTINGS = dict(ignore_unknown_options=True, help_option_names=['-h', '--help'])
@@ -235,12 +238,13 @@ def clean(config, tool, extra_args):
 @choice_option('-l', '--linker', type=click.Choice(LINKERS.linkers, case_sensitive=False), required=True, default=LINKERS.default, prompt="Linker", help='Linker')
 @choice_option('-x', '--archiver', type=click.Choice(ARCHIVERS.archivers, case_sensitive=False), required=True, default=ARCHIVERS.default, prompt="Archiver", help='Archiver')
 @choice_option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, prompt="Building Mode", help='Building Mode')
+@confirm_option('--static/--shared', type=click.BOOL, default=False, prompt="Static Linking", help='Static Or Shared Linking')
 @confirm_option('--rebuild/--no-rebuild', type=click.BOOL, default=False, prompt="Rebuild", help='Force A Rebuild Of The Entire Project')
 @confirm_option('--cache/--no-cache', type=click.BOOL, default=False, prompt="Cache", help='Use A Compiler Cache')
 @click.option('--cache-system', type=click.Choice(COMPILER_CACHE_SYSTEMS.keys(), case_sensitive=False), required=False, default=next(iter(COMPILER_CACHE_SYSTEMS)), help='Compiler Cache System')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def build(config, algorithm, tool, compiler, linker, archiver, mode, rebuild, cache, cache_system, extra_args):
+def build(config, algorithm, tool, compiler, linker, archiver, mode, static, rebuild, cache, cache_system, extra_args):
     """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
 
     algorithm = normalize_choice([BUILD_ALL_KEYWORD, BUILD_BASE_KEYWORD] + ALGORITHMS, algorithm, None, lambda e: e.casefold())
@@ -252,12 +256,12 @@ def build(config, algorithm, tool, compiler, linker, archiver, mode, rebuild, ca
 
     if cache: compiler = COMPILER_CACHE_SYSTEMS[cache_system].format(cmd=compiler)
 
-    current_build = BuildInfo(builder=tool, compiler=compiler, linker=linker, archiver=archiver, mode=mode)
+    current_build = BuildInfo(builder=tool, compiler=compiler, linker=linker, archiver=archiver, mode=mode, static=static)
     current_build.generate_ninja_build_file()
  
     create_input_link(algorithm)
  
-    def __update_timestamps_if_needed(build):
+    def __update_timestamps(build):
         if rebuild or build != config.build_info:
             for src in BASE_SRCS + PROJ_SRCS:
                 pathlib.Path(src).touch()
@@ -269,7 +273,7 @@ def build(config, algorithm, tool, compiler, linker, archiver, mode, rebuild, ca
 
         command_line += f" {algorithm}"
 
-        command_line += f" CC='{compiler}' LK='{linker}' AR='{archiver}' {mode}='true'" if "make" in tool else ""
+        command_line += f" CC='{compiler}' LK='{linker}' AR='{archiver}' {mode}={True} STATIC='{static}'" if "make" in tool else ""
 
         for arg in extra_args: command_line += f" {arg}"
 
@@ -278,7 +282,7 @@ def build(config, algorithm, tool, compiler, linker, archiver, mode, rebuild, ca
     def __build_ateams(cmd, build, change_to_root_folder=True, rebuild_if_needed=True):
         if change_to_root_folder: os.chdir(ROOT_FOLDER)
 
-        if rebuild_if_needed: __update_timestamps_if_needed(build)
+        if rebuild_if_needed: __update_timestamps(build)
 
         return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=1, number=1)[0]
 

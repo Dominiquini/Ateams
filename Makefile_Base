@@ -8,27 +8,31 @@ AR = ar
 
 CXXFLAGS 	= -std=c++20 -pthread -march=native -mtune=native -fno-pie -fdiagnostics-color=always
 
-ifeq ($(DEBUG), true)
+ifeq ($(shell echo $(DEBUG) | tr "[:upper:]" "[:lower:]"),true)
   CXXFLAGS  += -O0 -fno-lto -g3 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer
-else ifeq ($(PROFILE), true)
+else ifeq ($(shell echo $(PROFILE) | tr "[:upper:]" "[:lower:]"),true)
   CXXFLAGS	+= -O0 -fno-lto -g3 -pg -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer
 else
   CXXFLAGS	+= -O3 -flto=auto -ffast-math
 endif
 
 
-LDFLAGS		= -static-libgcc -static-libstdc++ -no-pie
+LDFLAGS		= -no-pie
 
-ifeq ($(OS), Windows_NT)
+ifeq ($(OS),Windows_NT)
   LDFLAGS	+= -lopengl32 -lGLU32 -lfreeglut
 else
   LDFLAGS 	+= -lGL -lGLU -lglut
 endif
 
 ifneq ($(LK),)
-ifneq ($(LK), ld)
+ifneq ($(LK),ld)
   LDFLAGS 	+= -fuse-ld=$(LK)
 endif
+endif
+
+ifeq ($(shell echo $(STATIC) | tr "[:upper:]" "[:lower:]"),true)
+  LDFLAGS 	+= -static-libgcc -static-libstdc++
 endif
 
 
