@@ -229,26 +229,26 @@ def clean(config, tool, extra_args):
 
 
 @ateams.command(context_settings=CLICK_CONTEXT_SETTINGS)
+@choice_option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD, BUILD_BASE_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default=BUILD_ALL_KEYWORD, prompt="Algorithm", help='Algorithm')
 @choice_option('-t', '--tool', type=click.Choice(BUILDERS.builders, case_sensitive=False), required=True, default=BUILDERS.default, prompt="Building Tool", help='Building Tool')
 @choice_option('-c', '--compiler', type=click.Choice(COMPILERS.compilers, case_sensitive=False), required=True, default=COMPILERS.default, prompt="Compiler", help='Compiler')
 @choice_option('-l', '--linker', type=click.Choice(LINKERS.linkers, case_sensitive=False), required=True, default=LINKERS.default, prompt="Linker", help='Linker')
 @choice_option('-x', '--archiver', type=click.Choice(ARCHIVERS.archivers, case_sensitive=False), required=True, default=ARCHIVERS.default, prompt="Archiver", help='Archiver')
 @choice_option('-m', '--mode', type=click.Choice(BUILDING_MODES.modes, case_sensitive=False), required=True, default=BUILDING_MODES.default, prompt="Building Mode", help='Building Mode')
-@choice_option('-a', '--algorithm', type=click.Choice([BUILD_ALL_KEYWORD, BUILD_BASE_KEYWORD] + ALGORITHMS, case_sensitive=False), required=True, default=BUILD_ALL_KEYWORD, prompt="Algorithm", help='Algorithm')
 @confirm_option('--rebuild/--no-rebuild', type=click.BOOL, default=False, prompt="Rebuild", help='Force A Rebuild Of The Entire Project')
 @confirm_option('--cache/--no-cache', type=click.BOOL, default=False, prompt="Cache", help='Use A Compiler Cache')
 @click.option('--cache-system', type=click.Choice(COMPILER_CACHE_SYSTEMS.keys(), case_sensitive=False), required=False, default=next(iter(COMPILER_CACHE_SYSTEMS)), help='Compiler Cache System')
 @click.argument('extra_args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_config
-def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, cache, cache_system, extra_args):
+def build(config, algorithm, tool, compiler, linker, archiver, mode, rebuild, cache, cache_system, extra_args):
     """A Wrapper For Building ATEAMS With MAKE Or NINJA"""
 
+    algorithm = normalize_choice([BUILD_ALL_KEYWORD, BUILD_BASE_KEYWORD] + ALGORITHMS, algorithm, None, lambda e: e.casefold())
     tool = normalize_choice(BUILDERS.builders, tool, BUILDERS.default, lambda e: e.casefold())
     compiler = normalize_choice(COMPILERS.compilers, compiler, COMPILERS.default, lambda e: e.casefold())
     linker = normalize_choice(LINKERS.linkers, linker, LINKERS.default, lambda e: e.casefold())
     archiver = normalize_choice(ARCHIVERS.archivers, archiver, ARCHIVERS.default, lambda e: e.casefold())
     mode = normalize_choice(BUILDING_MODES.modes, mode, BUILDING_MODES.default, lambda e: e.casefold())
-    algorithm = normalize_choice([BUILD_ALL_KEYWORD, BUILD_BASE_KEYWORD] + ALGORITHMS, algorithm, None, lambda e: e.casefold())
 
     if cache: compiler = COMPILER_CACHE_SYSTEMS[cache_system].format(cmd=compiler)
 
@@ -257,8 +257,8 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
  
     create_input_link(algorithm)
  
-    def __update_timestamps_if_needed(current_build):
-        if rebuild or current_build != config.build_info:
+    def __update_timestamps_if_needed(build):
+        if rebuild or build != config.build_info:
             for src in BASE_SRCS + PROJ_SRCS:
                 pathlib.Path(src).touch()
 
@@ -275,10 +275,10 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
 
         return command_line
 
-    def __build_ateams(cmd, change_to_root_folder=True, rebuild_if_needed=True):
+    def __build_ateams(cmd, build, change_to_root_folder=True, rebuild_if_needed=True):
         if change_to_root_folder: os.chdir(ROOT_FOLDER)
 
-        if rebuild_if_needed: __update_timestamps_if_needed(current_build)
+        if rebuild_if_needed: __update_timestamps_if_needed(build)
 
         return timeit.repeat(stmt=lambda: subprocess.run(cmd, shell=True), repeat=1, number=1)[0]
 
@@ -292,7 +292,7 @@ def build(config, tool, compiler, linker, archiver, mode, algorithm, rebuild, ca
     current_build.write_on_file()
 
     if config.execute:
-        timer = __build_ateams(command_line)
+        timer = __build_ateams(command_line, current_build)
 
         if config.verbose: click.echo(f"\n*** Timer: {truncate_number(timer, 2)} ***\n")
 
@@ -344,7 +344,7 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
 
         return cmd
 
-    def __run_with_custom_allocator(cmd):
+    def __apply_custom_allocator_modifier(cmd):
         if allocator: cmd = ALLOC_OPTIONS[allocator].format(cmd=cmd)
 
         return cmd
@@ -373,7 +373,7 @@ def run(config, algorithm, parameters, input, result, population, show_cmd_info,
         for arg in extra_args: command_line += f" {arg}"
 
         command_line = __apply_execution_modifiers(command_line, FILE_BINS[algorithm], command_line.replace(FILE_BINS[algorithm], ''))
-        command_line = __run_with_custom_allocator(command_line)
+        command_line = __apply_custom_allocator_modifier(command_line)
 
         return command_line
 

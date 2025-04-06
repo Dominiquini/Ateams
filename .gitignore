@@ -62,3 +62,10 @@ __pycache__/
 
 # Gede (GDB GUI)
 gede2.ini
+
+# Application input Links
+*.lnk
+
+# Temporary Files
+*swp
+*tmp

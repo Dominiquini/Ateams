@@ -42,6 +42,8 @@ LD_GLOBAL_FLAGS = "-static-libgcc -static-libstdc++ -no-pie"
 
 LD_FLAGS = {PLATFORM.windows_key: f"{LD_GLOBAL_FLAGS} -lopengl32 -lGLU32 -lfreeglut", PLATFORM.linux_key: f"{LD_GLOBAL_FLAGS} -lGL -lGLU -lglut"}
 
+LD_OPTIONAL_FLAGS_LINKER = "-fuse-ld={linker}"
+
 AR_FLAGS = "-crs"
 
 BIN_EXT = ".exe" if PLATFORM.is_windows else ""
@@ -87,7 +89,7 @@ class NinjaFileWriter(ninja_syntax.Writer):
             ninja.newline()
 
             ninja.variable("CXXFLAGS", CXX_FLAGS[mode] if mode in CXX_FLAGS else CXX_GLOBAL_FLAGS)
-            ninja.variable("LDFLAGS", LD_FLAGS[PLATFORM.system] + (f" -fuse-ld={linker}" if linker != LINKER else ""))
+            ninja.variable("LDFLAGS", LD_FLAGS[PLATFORM.system] + (f" {LD_OPTIONAL_FLAGS_LINKER.format(linker=linker)}" if linker != LINKER else ""))
             ninja.variable("ARFLAGS", AR_FLAGS)
 
             ninja.newline()
